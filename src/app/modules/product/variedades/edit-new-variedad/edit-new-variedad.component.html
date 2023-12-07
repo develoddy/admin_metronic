@@ -1,0 +1,30 @@
+
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title h4" id="example-modal-sizes-title-lg">
+        <i class="icon-2x text-dark-50 flaticon-user-add mx-2"></i> Editar variedad {{variedad.valor}}
+      </div>
+    </div>
+    <div
+      class="overlay overlay-block cursor-default modal-body">
+      <ng-container *ngIf="isLoading$ | async">
+        <div class="overlay-layer bg-transparent">
+          <div class="spinner spinner-lg spinner-success"></div>
+        </div>
+      </ng-container>
+
+      <div class="row">
+        <div class="col-12">
+            <div class="form-group">
+                <label for="">Nombre de variedad<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" placeholder="" [(ngModel)]="variedad_multiple" name="variedad_multiple">
+                <span class="form-text text-muted">Ingresa el nombre de la variedad</span>
+            </div>
+        </div>
+      </div>
+</div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-elevate mr-2" (click)="update()">Guardar cambios</button>
+        <button type="button" class="btn btn-light btn-elevate mr-2" (click)="_modal.dismiss()">Cancel</button>
+    </div>
+  </div>
