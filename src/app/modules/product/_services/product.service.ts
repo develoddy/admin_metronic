@@ -65,12 +65,28 @@ export class ProductService {
     );
   }
 
+  // Galerias
+  createGaleria( data ) {
+    this.isLoadingSubject.next(true);
+    let header = new HttpHeaders({'token': this._authservice.token})
+    let URL = URL_SERVICIOS+"/products/register_imagen";
+    return this._http.post(URL, data, {headers: header}).pipe(
+      finalize(() => this.isLoadingSubject.next(false))
+    );
+  }
+
+  deleteGaleria( data ) {
+    this.isLoadingSubject.next(true);
+    let header = new HttpHeaders({'token': this._authservice.token})
+    let URL = URL_SERVICIOS+"/products/remove_imagen";
+    return this._http.post(URL, data, {headers: header}).pipe(
+      finalize(() => this.isLoadingSubject.next(false))
+    );
+  }
+
+
+
   // Variedades
-  //
-  //
-  //
-
-
   createVariedad( data ) {
     this.isLoadingSubject.next(true);
     let header = new HttpHeaders({'token': this._authservice.token})

@@ -131,6 +131,53 @@
 
         <div class="form-group row">
             <div class="col-6">
+                <div class="form-group row">
+                    <div class="col-12">
+                        <label for="">Imagen: <span class="text-danger">*</span></label>
+                        <div class="col-lg-6 col-md-6 col-sm-12 my-2">
+                            <label class="form-label">Sube tu imagen: *</label>
+                            <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="customFile"  accept=".jpeg, .bmp, .jpg, .png, .gif, .webp"  (change)="processFileGaleria($event)">
+                            <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="" *ngIf="this.image_preview_galeria">
+                            <img [src]="this.image_preview_galeria" style="width: 150px;" alt="" srcset="">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary mx-2" (click)="storeImagen()">+</button>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="table-responsive">
+                    <table class="table table-head-custom table-vertical-center" id="kt_advance_table_widget_1">
+                        <thead>
+                            <tr class="text-left">
+                                <th>IMAGEN</th>
+                                <th>ACCION</th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                            <tr *ngFor="let item of galerias; let i = index">
+                                <td>
+                                    <img [src]="item.imagen" alt="" srcset="" style="width: 60px;">
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger" (click)="removeImage(item)">x</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-6">
                 <div class="form-group">
                     <label>Inventario</label>
                     <div class="radio-inline">
