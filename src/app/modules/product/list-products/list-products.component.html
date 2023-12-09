@@ -16,6 +16,39 @@
         <ng-container *ngIf="isLoading$ | async">
             <span class="spinner spinner-primary ml-5"></span>
         </ng-container>
+        <!-- begin: Filtration form -->
+        <div class="form form-label-right">
+          <!-- Esta aparte lo comento de manera aparte ya que en la clases lo uso normal -->
+          <div class="form-group row">
+            <div class="col-3">
+              <input
+                type="text"
+                class="form-control"
+                name="searchText"
+                placeholder="Buscar"
+                value=""
+                [(ngModel)]="search"
+                (keyup.enter) = "allProducts()"
+              />
+              <small class="form-text text-muted"><b>Buscar</b> por titulo de producto</small>
+            </div>
+            <div class="col-3">
+              <select class="form-control" [(ngModel)]="categorie" name="categorie">
+                  <option value="">Ninguno</option>
+                  <ng-container *ngFor="let item of categories" >
+                      <option [value]="item._id">{{ item.title }}</option>
+                  </ng-container>
+              </select>
+              <small class="form-text text-muted"><b>Buscar</b> por categoria</small>
+            </div>
+            <div class="col-3">
+              <button class="btn btn-primary" (click)="allProducts()">Buscar</button>
+              <button class="btn btn-dark" (click)="refresh()">Refrescar</button>
+            </div>
+          </div> 
+        </div>
+
+
         <div class="row">
             <div class="col-12">
               <div class="table-responsive">
