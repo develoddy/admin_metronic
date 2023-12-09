@@ -82,6 +82,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'sliders',
+        loadChildren: () =>
+          import('../modules/slider/slider.module').then(
+            (m) => m.SliderModule
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',
