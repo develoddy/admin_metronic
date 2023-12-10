@@ -70,7 +70,7 @@ export const AsideMenuAdminGeneral = {
         name: "sliders",
         bullet: 'dot',
         icon: 'flaticon2-user-outline-symbol',
-        svg: './assets/media/svg/icons/Home/Commode2.svg',
+        svg: './assets/media/svg/icons/Design/Image.svg',
         page: '/sliders',
         submenu: [
           {
