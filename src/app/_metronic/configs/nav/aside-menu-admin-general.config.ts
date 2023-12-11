@@ -63,7 +63,6 @@ export const AsideMenuAdminGeneral = {
           },
         ]
       },
-
       {
         title: 'Sliders',
         root: true,
@@ -76,6 +75,25 @@ export const AsideMenuAdminGeneral = {
           {
             title: 'Lista Sliders',
             page: '/sliders/list-sliders'
+          }
+        ]
+      },
+      {
+        title: 'Cupones',
+        root: true,
+        name: "cupones",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Devices/Cardboard-vr.svg',
+        page: '/cupones',
+        submenu: [
+          {
+            title: 'Registrar Cupon',
+            page: '/cupones/register-cupon'
+          },
+          {
+            title: 'Lista Cupones',
+            page: '/cupones/list-cupones'
           }
         ]
       },
