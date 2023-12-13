@@ -79,4 +79,57 @@ export class AddNewCuponeComponent implements OnInit {
     } 
   }
 
+  save() {
+
+    if (!this.code || !this.discount ) {
+      this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Algunos campos están vacios.`});
+      return;
+    }
+    if (this.type_count == 2) {
+      if ( this.num_use == 0) {
+        this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Tienes que ingresar el numero de usos.`});
+        return;
+      }
+    }
+    if (this.type_segment == 1) {
+      if (this.products_selected.length == 0 ) {
+        this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Tienes que selecionar un producto al menos.`});
+        return;
+      }
+    }
+    if (this.type_segment == 2) {
+      if (this.categories_selected.length == 0 ) {
+        this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Tienes que seleccionar una categoria almenos.`});
+        return;
+      }
+    }
+    // !this.products_selected || !this.categories_selected
+    let PRODUCTS = [];
+    let CATEGORIES = [];
+
+    this.products_selected.forEach(element => {
+      PRODUCTS.push({_id: element._id});
+    });
+
+    this.categories_selected.forEach(element => {
+      CATEGORIES.push({_id: element._id});
+    });
+
+
+    let data = {
+      code: this.code,
+      type_discount: this.type_discount,
+      discount: this.discount,
+      type_count: this.type_count,
+      num_use: this.num_use,
+      type_segment: this.type_segment,
+      products: PRODUCTS,
+      categories: CATEGORIES,
+    };
+    this._cuponeService.createCupone(data).subscribe((resp:any) => {
+      console.log(resp);
+      
+    })
+  }
+
 }
