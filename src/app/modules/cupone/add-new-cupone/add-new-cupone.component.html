@@ -127,9 +127,24 @@
                                 <th>Accion</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr></tr>
+                        <tbody *ngIf="type_segment == 1">
+                            <tr *ngFor="let product of products_selected">
+                                <td> {{product.title}} </td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm">X</button>
+                                </td>
+                            </tr>
                         </tbody>
+
+                        <tbody *ngIf="type_segment == 2">
+                            <tr *ngFor="let categorie of categories_selected">
+                                <td> {{categorie.title}} </td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm">X</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        
                     </table>
             </div>
             </div>
