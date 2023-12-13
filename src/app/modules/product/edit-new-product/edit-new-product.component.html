@@ -53,6 +53,16 @@
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
+            <div class="col-3">
+                <label for="">Status del producto <span class="text-danger">*</span></label>
+                <select class="form-control" name="status" [(ngModel)]="state">
+                    <option value="1">Demo</option>
+                    <option value="2">Publico</option>
+                    <option value="3">Anulado</option>
+                </select>
+                <small class="form-text text-muted"><b>Filtrar</b> por Estado</small>
+
+            </div>
         </div>
 
         <div class="form-group row">

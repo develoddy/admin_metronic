@@ -28,6 +28,7 @@ export class EditNewProductComponent implements OnInit {
   image_preview:any=null;
   description:any=null;
   resumen:any=null;
+  state:any=1;
   //
   tag:any=null;
   tags:any=[];
@@ -79,6 +80,7 @@ export class EditNewProductComponent implements OnInit {
       this.variedades = this.product_selected.variedades;
       this.type_inventario = this.product_selected.type_inventario;
       this.galerias = this.product_selected.galerias;
+      this.state = this.product_selected.state;
     });
 
     this._categorieService.allCategories().subscribe((resp:any) => {
@@ -147,6 +149,7 @@ export class EditNewProductComponent implements OnInit {
     formData.append("tags", JSON.stringify(this.tags));
     formData.append("stock", this.stock);
     formData.append("type_inventario", this.type_inventario);
+    formData.append("state", this.state);
 
     if (this.imagen_file) {
       formData.append("imagen", this.imagen_file);
