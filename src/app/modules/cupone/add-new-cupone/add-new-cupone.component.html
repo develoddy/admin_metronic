@@ -131,7 +131,7 @@
                             <tr *ngFor="let product of products_selected">
                                 <td> {{product.title}} </td>
                                 <td>
-                                    <button class="btn btn-danger btn-sm">X</button>
+                                    <button class="btn btn-danger btn-sm" (click)="removeProduct(product)">X</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -140,7 +140,7 @@
                             <tr *ngFor="let categorie of categories_selected">
                                 <td> {{categorie.title}} </td>
                                 <td>
-                                    <button class="btn btn-danger btn-sm">X</button>
+                                    <button class="btn btn-danger btn-sm" (click)="removeCategorie(categorie)">X</button>
                                 </td>
                             </tr>
                         </tbody>

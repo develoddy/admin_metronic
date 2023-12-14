@@ -29,6 +29,15 @@ export class CuponeService {
     );
   }
 
+  showCupon(cupone_id='') {
+    this.isLoadingSubject.next(true);
+    let header = new HttpHeaders({'token': this._authservice.token})
+    let URL = URL_SERVICIOS+"/cupones/show?cupone_id="+cupone_id;
+    return this._http.get(URL, {headers: header}).pipe(
+      finalize(() => this.isLoadingSubject.next(false))
+    );
+  }
+
   cuponesConfig( search='' ) {
     this.isLoadingSubject.next(true);
     let header = new HttpHeaders({'token': this._authservice.token})

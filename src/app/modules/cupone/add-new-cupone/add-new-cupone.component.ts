@@ -79,6 +79,19 @@ export class AddNewCuponeComponent implements OnInit {
     } 
   }
 
+  removeProduct(product){
+    let INDEX = this.products_selected.findIndex(item => item._id == product._id);
+    if (INDEX != -1) {
+      this.products_selected.splice(INDEX,1);
+    }
+  }
+  removeCategorie(categorie){
+    let INDEX = this.categories_selected.findIndex(item => item._id == categorie._id);
+    if (INDEX != -1) {
+      this.categories_selected.splice(INDEX,1);
+    }
+  }
+
   save() {
 
     if (!this.code || !this.discount ) {
@@ -128,8 +141,21 @@ export class AddNewCuponeComponent implements OnInit {
     };
     this._cuponeService.createCupone(data).subscribe((resp:any) => {
       console.log(resp);
-      
+      if (resp.message == 403) {
+        this.toaster.open(NoticyAlertComponent, {text: `danger-'${resp.message_text}'`});
+        return;
+      } else {
+        this.toaster.open(NoticyAlertComponent, {text: `primary-'${resp.message_text}'`});
+        this.code = null;
+        this.type_discount = 1;
+        this.discount =  null;
+        this.type_count = 1;
+        this.num_use = null;
+        this.type_segment = 1;
+        this.products_selected = [];
+        this.categories_selected = [];
+        return;
+      }
     })
   }
-
 }
