@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CuponeService } from '../_services/cupone.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
+import { DeleteNewCuponeComponent } from '../delete-new-cupone/delete-new-cupone.component';
 
 @Component({
   selector: 'app-list-cupones',
@@ -40,6 +41,14 @@ export class ListCuponesComponent implements OnInit {
     this._router.navigateByUrl("/cupones/edit-cupon/"+cupon._id);
   }
   delete(cupon){
+    const modalRef = this._modalService.open(DeleteNewCuponeComponent, {centered:true, size: 'md'});
+    modalRef.componentInstance.cupon_selected = cupon;
 
+    modalRef.componentInstance.CuponD.subscribe((resp:any) => {
+      let index = this.cupones.findIndex(item => item._id == cupon._id);
+      if (index != -1) {
+        this.cupones.splice(index,1);
+      }
+    });
   }
 }
