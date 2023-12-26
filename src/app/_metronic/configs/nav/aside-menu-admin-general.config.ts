@@ -97,5 +97,24 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
+      {
+        title: 'Descuento',
+        root: true,
+        name: "discount",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/General/Clipboard.svg',
+        page: '/discount',
+        submenu: [
+          {
+            title: 'Registrar Descuento',
+            page: '/discounts/register-discount'
+          },
+          {
+            title: 'Lista Discount',
+            page: '/discounts/list-discounts'
+          }
+        ]
+      },
     ]
 }
