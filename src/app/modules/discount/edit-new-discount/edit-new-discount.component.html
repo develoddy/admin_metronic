@@ -14,6 +14,23 @@
         <div class="form-group row">
             <div class="col-4">
                 <div class="form-group">
+                    <label>Tipo de campaña: </label>
+                    <div class="radio-list">
+                        <label class="radio">
+                            <input type="radio" [checked]="type_campaign == 1" (click)="checkedTypeCampaign(1)" name="radiosC">
+                            <span></span>
+                            Campaña de descuento
+                        </label>
+                        <label class="radio">
+                            <input type="radio" [checked]="type_campaign == 2" (click)="checkedTypeCampaign(2)" name="radiosC">
+                            <span></span>
+                            Venta flash
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
                     <label>Tipo de decuento: </label>
                     <div class="radio-list">
                         <label class="radio">
@@ -139,7 +156,7 @@
 
         <div class="form-group row">
             <div class="col-12">
-                <button class="btn btn-primary" (click)="save()">Agregar descuento</button>
+                <button class="btn btn-primary" (click)="save()">Editar descuento</button>
             </div>
         </div>
     </div>

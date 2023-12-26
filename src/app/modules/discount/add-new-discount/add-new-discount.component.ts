@@ -30,6 +30,8 @@ export class AddNewDiscountComponent implements OnInit {
   start_date:any=null;
   end_date:any=null;
 
+  public type_campaign:any=1;
+
   constructor(
     public _discountService: DiscountService,
     public toaster: Toaster,
@@ -42,6 +44,11 @@ export class AddNewDiscountComponent implements OnInit {
       this.categories = resp.categories;
       this.products = resp.products;
     });
+  }
+
+  checkedTypeCampaign(value) {
+    this.type_campaign = value;
+    this.checkedTypeSegment(1);
   }
 
   checkedTypeDiscount(value) {
@@ -134,6 +141,7 @@ export class AddNewDiscountComponent implements OnInit {
 
 
     let data = {
+      type_campaign: this.type_campaign,
       type_discount: this.type_discount,
       discount: this.discount,
       start_date: this.start_date,

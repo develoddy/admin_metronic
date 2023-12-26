@@ -14,6 +14,23 @@
         <div class="form-group row">
             <div class="col-4">
                 <div class="form-group">
+                    <label>Tipo de campaña: </label>
+                    <div class="radio-list">
+                        <label class="radio">
+                            <input type="radio" [checked]="type_campaign == 1" (click)="checkedTypeCampaign(1)" name="radiosC">
+                            <span></span>
+                            Campaña de descuento
+                        </label>
+                        <label class="radio">
+                            <input type="radio" [checked]="type_campaign == 2" (click)="checkedTypeCampaign(2)" name="radiosC">
+                            <span></span>
+                            Venta flash
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
                     <label>Tipo de decuento: </label>
                     <div class="radio-list">
                         <label class="radio">
@@ -69,7 +86,7 @@
                             <span></span>
                             Produucto
                         </label>
-                        <label class="radio">
+                        <label class="radio" *ngIf="type_campaign == 1">
                             <input type="radio" [checked]="type_segment == 2" (click)="checkedTypeSegment(2)" name="radios3">
                             <span></span>
                             Categorias
