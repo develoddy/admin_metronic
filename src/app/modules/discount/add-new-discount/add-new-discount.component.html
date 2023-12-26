@@ -1,0 +1,163 @@
+<div class="card card-custom gutter-b">
+    <div class="card-header">
+      <div class="card-title">
+        <h3 class="card-label"><i class="icon-2x text-dark-50 flaticon-imac mx-2"></i> Agregar un nuevo descuento</h3>
+      </div>
+      <div class="card-toolbar">
+      </div>
+    </div>
+    <div class="card-body">
+        <ng-container *ngIf="isLoading$ | async">
+            <span class="spinner spinner-primary ml-5"></span>
+        </ng-container>
+        
+        <div class="form-group row">
+            <div class="col-4">
+                <div class="form-group">
+                    <label>Tipo de campaña: </label>
+                    <div class="radio-list">
+                        <label class="radio">
+                            <input type="radio" [checked]="type_campaign == 1" (click)="checkedTypeCampaign(1)" name="radiosC">
+                            <span></span>
+                            Campaña de descuento
+                        </label>
+                        <label class="radio">
+                            <input type="radio" [checked]="type_campaign == 2" (click)="checkedTypeCampaign(2)" name="radiosC">
+                            <span></span>
+                            Venta flash
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label>Tipo de decuento: </label>
+                    <div class="radio-list">
+                        <label class="radio">
+                            <input type="radio" [checked]="type_discount == 1" (click)="checkedTypeDiscount(1)" name="radios1">
+                            <span></span>
+                            Porcentaje
+                        </label>
+                        <label class="radio">
+                            <input type="radio" [checked]="type_discount == 2" (click)="checkedTypeDiscount(2)" name="radios1">
+                            <span></span>
+                            Moneda
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="">Descuento <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" placeholder="" [(ngModel)]="discount" name="discount">
+                    <span class="form-text text-muted">Ingresa la cantidad</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-4">
+                <label>Fecha inicio: *</label>
+                <div class="input-group input-group-solid">
+                  <input type="date"
+                  class="form-control form-control-lg form-control-solid"
+                  [(ngModel)]="start_date"
+                  />
+                </div>
+            </div>
+            <div class="col-4">
+                <label>Fecha Fin: *</label>
+                <div class="input-group input-group-solid">
+                  <input type="date"
+                  class="form-control form-control-lg form-control-solid"
+                  [(ngModel)]="end_date"
+                  />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-4">
+                <div class="form-group">
+                    <label>Producto/Categorias: </label>
+                    <div class="radio-list">
+                        <label class="radio">
+                            <input type="radio" [checked]="type_segment == 1" (click)="checkedTypeSegment(1)" name="radios3">
+                            <span></span>
+                            Produucto
+                        </label>
+                        <label class="radio" *ngIf="type_campaign == 1">
+                            <input type="radio" [checked]="type_segment == 2" (click)="checkedTypeSegment(2)" name="radios3">
+                            <span></span>
+                            Categorias
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-4" *ngIf="type_segment == 1">
+                <div class="form-group">
+                    <label for="">Selec. Producto <span class="text-danger">*</span></label>
+                    <select class="form-control" [(ngModel)]="product" name="product">
+                        <option value="">Ninguno</option>
+                        <ng-container *ngFor="let product of products" >
+                            <option [value]="product._id">{{ product.title }}</option>
+                        </ng-container>
+                    </select>
+                </div>
+            </div>
+            <div class="col-4" *ngIf="type_segment == 2">
+                <div class="form-group">
+                    <label for="">Selec. Categoria <span class="text-danger">*</span></label>
+                    <select class="form-control" [(ngModel)]="categorie" name="categorie">
+                        <option value="">Ninguno</option>
+                        <ng-container *ngFor="let category of categories" >
+                            <option [value]="category._id">{{ category.title }}</option>
+                        </ng-container>
+                    </select>
+                </div>
+            </div>
+            <div class="col-4">
+                <button class="btn btn-primary" (click)="addProductOrCategorie()" >Agregar</button>
+            </div>
+
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-head-custom table-vertical-center" id="kt_advance_table_widget_1">
+                        <thead>
+                            <tr class="text-left">
+                                <th *ngIf="type_segment == 1" >Producto</th>
+                                <th *ngIf="type_segment == 2">Categoria</th>
+                                <th>Accion</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="type_segment == 1">
+                            <tr *ngFor="let product of products_selected">
+                                <td> {{product.title}} </td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" (click)="removeProduct(product)">X</button>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                        <tbody *ngIf="type_segment == 2">
+                            <tr *ngFor="let categorie of categories_selected">
+                                <td> {{categorie.title}} </td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" (click)="removeCategorie(categorie)">X</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        
+                    </table>
+            </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-12">
+                <button class="btn btn-primary" (click)="save()">Agregar descuento</button>
+            </div>
+        </div>
+    </div>
+</div>

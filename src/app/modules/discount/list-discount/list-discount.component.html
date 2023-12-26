@@ -2,11 +2,11 @@
     <div class="card-header">
         <div class="card-title">
             <h3 class="card-label">
-                <i class="icon-2x text-dark-50 flaticon-file-1 mx-2"></i> Lista de cupones
+                <i class="icon-2x text-dark-50 flaticon-file-1 mx-2"></i> Lista de descuentos
             </h3>
         </div>
         <div class="card-toolbar">
-            <a type="button" class="btn btn-primary" routerLink="/cupones/register-cupon" ><i class="icon-2x text-white flaticon-file-1"></i> Nueva de cupon</a>
+            <a type="button" class="btn btn-primary" routerLink="/discounts/register-cupon" ><i class="icon-2x text-white flaticon-file-1"></i> Nuevo descuento</a>
         </div>
     </div>
     <div class="card-body">
@@ -22,7 +22,7 @@
                         placeholder="Buscar"
                         value=""
                         [(ngModel)]="search"
-                        (keyup.enter) = "allCupones()"
+                        (keyup.enter) = "allDiscounts()"
                     />
                     <small class="form-text text-muted"><b>Buscar</b> por codigo</small>
                 </div>
@@ -42,23 +42,26 @@
                     <table class="table table-head-custom table-vertical-center" id="kt_advance_table_widget_1">
                         <thead>
                             <tr class="text-left">
-                                <th>CODIGO</th>
+                                <th>TIPO DE CAMPAÑA</th>
                                 <th>TIPO</th>
+                                <th>DESCUENTO</th>
+                                <th>FECHAS</th>
                                 <th>STATUS</th>
                                 <th>ACION</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let cupon of cupones">
-                                <td> {{cupon.code}} </td>
-                                <td> {{cupon.type_segment == 1 ? 'PRODUCTO': 'CATEGORIAS' }} </td>
-                                <td> {{ cupon.discount + (cupon.type_discount == 1 ? '%' : 'PEN') }} </td>
+                            <tr *ngFor="let discount of discounts">
+                                <td> {{ discount.type_campaign == 1 ? 'CAPAÑA NORMAL' : 'VENTA FLASH' }} </td>
+                                <td> {{discount.type_segment == 1 ? 'PRODUCTO': 'CATEGORIAS' }} </td>
+                                <td> {{ discount.discount + (discount.type_discount == 1 ? '%' : 'PEN') }} </td>
+                                <td> {{ getParseDate(discount.start_date) + " / " + getParseDate(discount.end_date) }} </td>
                                 <td> 
-                                    <span class="label label-success label-pill label-inline mr-2" *ngIf="cupon.state == 1">Activo</span>
-                                    <span class="label label-danger label-pill label-inline mr-2" *ngIf="cupon.state == 2">No activo</span>
+                                    <span class="label label-success label-pill label-inline mr-2" *ngIf="discount.state == 1">Activo</span>
+                                    <span class="label label-danger label-pill label-inline mr-2" *ngIf="discount.state == 2">No activo</span>
                                 </td>
                                 <td>
-                                    <a (click)="editCupon(cupon)" class="btn btn-icon btn-light btn-hover-primary btn-sm mx-1" ngbTooltip="Editar Cupon" ngbTooltipClass="kt-tooltip">
+                                    <a (click)="editDiscount(discount)" class="btn btn-icon btn-light btn-hover-primary btn-sm mx-1" ngbTooltip="Editar Descuento" ngbTooltipClass="kt-tooltip">
                                         <span class="svg-icon svg-icon-md svg-icon-primary">
                                             <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Write.svg-->
                                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
@@ -72,7 +75,7 @@
                                         </span>
                                     </a>
         
-                                    <a (click)="delete(cupon)" class="btn btn-icon btn-light btn-hover-primary btn-sm" ngbTooltip="Eliminar Cupon" ngbTooltipClass="kt-tooltip">
+                                    <a (click)="delete(discount)" class="btn btn-icon btn-light btn-hover-primary btn-sm" ngbTooltip="Eliminar Descuento" ngbTooltipClass="kt-tooltip">
                                         <span class="svg-icon svg-icon-md svg-icon-danger">
                                             <!--begin::Svg Icon | path:assets/media/svg/icons/General/Trash.svg-->
                                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
