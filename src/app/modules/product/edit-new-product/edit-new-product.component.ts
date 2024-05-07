@@ -59,11 +59,12 @@ export class EditNewProductComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading$ = this._productService.isLoading$;
     this._activeRouter.params.subscribe((resp:any) => {
-      console.log(resp);
       this.product_id = resp.id;
     });
 
     this._productService.showProduct(this.product_id).subscribe((resp:any) => {
+      console.log("---- debbug_ showProduct product ------");
+      
       console.log(resp);
       
       this.product_selected = resp.product;

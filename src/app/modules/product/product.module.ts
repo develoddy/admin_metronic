@@ -18,6 +18,7 @@ import { DeleteNewVariedadComponent } from './variedades/delete-new-variedad/del
 import { DeleteGaleriaImagenComponent } from './delete-galeria-imagen/delete-galeria-imagen.component';
 
 
+
 @NgModule({
   declarations: [ProductComponent, AddNewProductComponent, EditNewProductComponent, DeleteNewProductComponent, ListProductsComponent, EditNewVariedadComponent, DeleteNewVariedadComponent, DeleteGaleriaImagenComponent],
   imports: [

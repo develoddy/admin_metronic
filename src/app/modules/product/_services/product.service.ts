@@ -5,6 +5,9 @@ import { AuthService } from '../../auth';
 import { finalize } from 'rxjs/operators';
 import { URL_SERVICIOS } from 'src/app/config/config';
 
+// Printfull
+import { URL_PRINTFUL_SERVICIOS } from 'src/app/config/config';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -32,7 +35,7 @@ export class ProductService {
     if (categorie) {
       LINK += "&categorie="+categorie;
     }
-    let URL = URL_SERVICIOS+"/products/list"+LINK;
+    let URL = URL_PRINTFUL_SERVICIOS+"/products/store-list"+LINK;
     return this._http.get(URL, {headers: header}).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     );
@@ -41,7 +44,10 @@ export class ProductService {
   showProduct( product_id='' ) {
     this.isLoadingSubject.next(true);
     let header = new HttpHeaders({'token': this._authservice.token})
-    let URL = URL_SERVICIOS+"/products/show/"+product_id;
+    //let URL = URL_SERVICIOS+"/products/show/"+product_id;
+
+    // PRINTFULL
+    let URL = URL_PRINTFUL_SERVICIOS+"/products/show/"+product_id;
     return this._http.get(URL, {headers: header}).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     ); 
