@@ -38,10 +38,7 @@ export class ListProductsComponent implements OnInit {
 
   allProducts() {
     this._productService.allProducts(this.search, this.categorie).subscribe((resp:any)=> {
-
-      console.log("DEBUGG: Get all products store");
-      this.products = resp.products;
-      console.log(this.products);
+      this.products = resp.products.result;
     });
   }
 
@@ -70,7 +67,7 @@ export class ListProductsComponent implements OnInit {
     
     // API PRINTFUL
     // NOTA: HABRA QUE VALIDAR SI SE TRABAJA CON API PRINTFUL O CON OTRO PROVEEDOR DE DROPSHIPING
-    this._router.navigateByUrl("/products/edit-product/"+product.result.sync_product.id);
+    this._router.navigateByUrl("/products/edit-product/"+product.id);
     
   }
 

@@ -20,6 +20,7 @@ export class EditNewProductComponent implements OnInit {
   product_selected:any=null;
   title:any = null;
   sku:any = null;
+  thumbnail_url:any = null;
   categories:any = [];
   categorie:any = "";
   price_soles:any = 0;
@@ -63,11 +64,9 @@ export class EditNewProductComponent implements OnInit {
     });
 
     this._productService.showProduct(this.product_id).subscribe((resp:any) => {
-      console.log("---- debbug_ showProduct product ------");
       
-      console.log(resp);
       
-      this.product_selected = resp.product;
+      /*this.product_selected = resp.product;
       this.title = this.product_selected.title;
       this.sku = this.product_selected.sku;
       this.categorie = this.product_selected.categorie._id;
@@ -81,7 +80,23 @@ export class EditNewProductComponent implements OnInit {
       this.variedades = this.product_selected.variedades;
       this.type_inventario = this.product_selected.type_inventario;
       this.galerias = this.product_selected.galerias;
-      this.state = this.product_selected.state;
+      this.state = this.product_selected.state;*/
+
+      // PRINTFUL
+
+      console.log("---- debbug_ showProduct product ------");
+      console.log(resp.product.result);
+
+      this.product_selected = resp.product.result;
+      this.title = this.product_selected.sync_product.name;
+      this.thumbnail_url = this.product_selected.sync_product.thumbnail_url;
+      
+      // Variants
+      this.sku = this.product_selected.sync_variants[0].sku;
+      this.variedades = this.product_selected.sync_variants;
+      this.price_usd = this.product_selected.sync_variants[0].retail_price;
+
+      
     });
 
     this._categorieService.allCategories().subscribe((resp:any) => {

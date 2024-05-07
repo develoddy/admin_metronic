@@ -68,12 +68,9 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let product of products">
-                          <td>{{ product.result.sync_product.id }}</td>
-                          <td><img [src]="product.result.sync_product.thumbnail_url" alt="{{ product.result.sync_product.name }}" style="width: 60px;"></td>
-                          <td>{{ product.result.sync_product.name }}</td>
-
-                          
-                          
+                          <td>{{ product.id }}</td>
+                          <td><img [src]="product.thumbnail_url" alt="{{ product.name }}" style="width: 60px;"></td>
+                          <td>{{ product.name }}</td>
                           <!-- <td>
                             <img [src]="product.result.sync_product.thumbnail_url" alt="" srcset="" style="width: 60px;">
                           </td>
