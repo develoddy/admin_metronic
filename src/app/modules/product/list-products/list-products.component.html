@@ -55,30 +55,31 @@
                 <table class="table table-head-custom table-vertical-center" id="kt_advance_table_widget_1">
                     <thead>
                         <tr class="text-left">
-                            <th>ID</th>
                             <th>IMAGEN</th>
                             <th>NOMBRE</th>
-                            <!--<th>SKU</th>
-                             <th>CATEGORIAS</th>
+                            <th>SKU</th>
+                            <th>CATEGORIAS</th>
                             <th>PRECIO SOLES</th>
-                            <th>PRECIO USD</th>-->
+                            <th>PRECIO USD</th>
                             <th>STATUS</th>
                             <th>ACCIÓN</th> 
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let product of products">
-                          <td>{{ product.id }}</td>
+                          <!-- <td>{{ product.id }}</td>
                           <td><img [src]="product.thumbnail_url" alt="{{ product.name }}" style="width: 60px;"></td>
-                          <td>{{ product.name }}</td>
-                          <!-- <td>
-                            <img [src]="product.result.sync_product.thumbnail_url" alt="" srcset="" style="width: 60px;">
+                          <td>{{ product.name }}</td> -->
+                          <td>
+                            <img [src]="product.imagen" alt="" srcset="" style="width: 60px;">
                           </td>
-                          <td>{{ product.result.sync_product.name }}</td> -->
-                          <!-- <td> {{product.sku}} </td>
-                          <td> {{product.categorie.title}} </td>
+                          <td>{{ product.title }}</td>
+                          <td> {{product.sku}} </td>
+                          <!-- <td> {{product.categorie.title ? product.categorie.title : "no hay cateogrie"}} </td> -->
+                          <td> {{product.categorie ? product.categorie.title : "no hay categoría"}} </td>
+
                           <td> {{product.price_soles}} PEN</td>
-                          <td> {{product.price_usd}} USD</td> -->
+                          <td> {{product.price_usd}} USD</td>
                           <td> 
                             <span class="label label-warning label-pill label-inline mr-2" *ngIf="product.state == 1">Prueba o demo</span>
                             <span class="label label-success label-pill label-inline mr-2" *ngIf="product.state == 2">Publico</span>

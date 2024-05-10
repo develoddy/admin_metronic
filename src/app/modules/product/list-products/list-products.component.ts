@@ -38,7 +38,9 @@ export class ListProductsComponent implements OnInit {
 
   allProducts() {
     this._productService.allProducts(this.search, this.categorie).subscribe((resp:any)=> {
-      this.products = resp.products.result;
+      console.log(resp);
+      
+      this.products = resp.products;
     });
   }
 
@@ -63,11 +65,11 @@ export class ListProductsComponent implements OnInit {
   }
 
   editProduct(product) {
-    //this._router.navigateByUrl("/products/edit-product/"+product._id);
+    this._router.navigateByUrl("/products/edit-product/"+product._id);
     
     // API PRINTFUL
     // NOTA: HABRA QUE VALIDAR SI SE TRABAJA CON API PRINTFUL O CON OTRO PROVEEDOR DE DROPSHIPING
-    this._router.navigateByUrl("/products/edit-product/"+product.id);
+    //this._router.navigateByUrl("/products/edit-product/"+product.id);
     
   }
 

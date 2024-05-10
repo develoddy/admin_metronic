@@ -65,14 +65,16 @@ export class EditNewProductComponent implements OnInit {
 
     this._productService.showProduct(this.product_id).subscribe((resp:any) => {
       
+      this.product_selected = resp.product;
       
-      /*this.product_selected = resp.product;
+      
       this.title = this.product_selected.title;
       this.sku = this.product_selected.sku;
-      this.categorie = this.product_selected.categorie._id;
+      //this.categorie = this.product_selected.categorie._id;
+      this.categorie = this.product_selected.categorie ? this.product_selected.categorie._id : 0;
       this.price_soles = this.product_selected.price_soles;     
       this.price_usd = this.product_selected.price_usd;
-      this.stock = this.product_selected.stock;
+      this.stock = this.product_selected.stock;      
       this.image_preview = this.product_selected.imagen;
       this.description = this.product_selected.description;
       this.resumen = this.product_selected.resumen;
@@ -80,21 +82,21 @@ export class EditNewProductComponent implements OnInit {
       this.variedades = this.product_selected.variedades;
       this.type_inventario = this.product_selected.type_inventario;
       this.galerias = this.product_selected.galerias;
-      this.state = this.product_selected.state;*/
+      this.state = this.product_selected.state;
 
       // PRINTFUL
 
-      console.log("---- debbug_ showProduct product ------");
-      console.log(resp.product.result);
+      // console.log("---- debbug_ showProduct product ------");
+      // console.log(resp.product.result);
 
-      this.product_selected = resp.product.result;
-      this.title = this.product_selected.sync_product.name;
-      this.thumbnail_url = this.product_selected.sync_product.thumbnail_url;
+      // this.product_selected = resp.product.result;
+      // this.title = this.product_selected.sync_product.name;
+      // this.thumbnail_url = this.product_selected.sync_product.thumbnail_url;
       
-      // Variants
-      this.sku = this.product_selected.sync_variants[0].sku;
-      this.variedades = this.product_selected.sync_variants;
-      this.price_usd = this.product_selected.sync_variants[0].retail_price;
+      // // Variants
+      // this.sku = this.product_selected.sync_variants[0].sku;
+      // this.variedades = this.product_selected.sync_variants;
+      // this.price_usd = this.product_selected.sync_variants[0].retail_price;
 
       
     });
