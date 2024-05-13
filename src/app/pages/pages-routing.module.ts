@@ -82,6 +82,27 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'sliders',
+        loadChildren: () =>
+          import('../modules/slider/slider.module').then(
+            (m) => m.SliderModule
+          ),
+      },
+      {
+        path: 'cupones',
+        loadChildren: () =>
+          import('../modules/cupone/cupone.module').then(
+            (m) => m.CuponeModule
+          ),
+      },
+      {
+        path: 'discounts',
+        loadChildren: () =>
+          import('../modules/discount/discount.module').then(
+            (m) => m.DiscountModule
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',

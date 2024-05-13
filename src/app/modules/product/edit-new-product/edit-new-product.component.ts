@@ -20,6 +20,7 @@ export class EditNewProductComponent implements OnInit {
   product_selected:any=null;
   title:any = null;
   sku:any = null;
+  thumbnail_url:any = null;
   categories:any = [];
   categorie:any = "";
   price_soles:any = 0;
@@ -28,6 +29,7 @@ export class EditNewProductComponent implements OnInit {
   image_preview:any=null;
   description:any=null;
   resumen:any=null;
+  state:any=1;
   //
   tag:any=null;
   tags:any=[];
@@ -58,20 +60,21 @@ export class EditNewProductComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading$ = this._productService.isLoading$;
     this._activeRouter.params.subscribe((resp:any) => {
-      console.log(resp);
       this.product_id = resp.id;
     });
 
     this._productService.showProduct(this.product_id).subscribe((resp:any) => {
-      console.log(resp);
       
       this.product_selected = resp.product;
+      
+      
       this.title = this.product_selected.title;
       this.sku = this.product_selected.sku;
-      this.categorie = this.product_selected.categorie._id;
+      //this.categorie = this.product_selected.categorie._id;
+      this.categorie = this.product_selected.categorie ? this.product_selected.categorie._id : 0;
       this.price_soles = this.product_selected.price_soles;     
       this.price_usd = this.product_selected.price_usd;
-      this.stock = this.product_selected.stock;
+      this.stock = this.product_selected.stock;      
       this.image_preview = this.product_selected.imagen;
       this.description = this.product_selected.description;
       this.resumen = this.product_selected.resumen;
@@ -79,6 +82,23 @@ export class EditNewProductComponent implements OnInit {
       this.variedades = this.product_selected.variedades;
       this.type_inventario = this.product_selected.type_inventario;
       this.galerias = this.product_selected.galerias;
+      this.state = this.product_selected.state;
+
+      // PRINTFUL
+
+      // console.log("---- debbug_ showProduct product ------");
+      // console.log(resp.product.result);
+
+      // this.product_selected = resp.product.result;
+      // this.title = this.product_selected.sync_product.name;
+      // this.thumbnail_url = this.product_selected.sync_product.thumbnail_url;
+      
+      // // Variants
+      // this.sku = this.product_selected.sync_variants[0].sku;
+      // this.variedades = this.product_selected.sync_variants;
+      // this.price_usd = this.product_selected.sync_variants[0].retail_price;
+
+      
     });
 
     this._categorieService.allCategories().subscribe((resp:any) => {
@@ -147,6 +167,7 @@ export class EditNewProductComponent implements OnInit {
     formData.append("tags", JSON.stringify(this.tags));
     formData.append("stock", this.stock);
     formData.append("type_inventario", this.type_inventario);
+    formData.append("state", this.state);
 
     if (this.imagen_file) {
       formData.append("imagen", this.imagen_file);

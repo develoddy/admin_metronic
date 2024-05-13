@@ -73,7 +73,7 @@ export class AddNewProductComponent implements OnInit {
   save() {
     console.log(this.tags.length == 0);
     
-    if ( !this.title || !this.categorie || !this.price_soles || !this.price_usd || !this.resumen || !this.description || !this.sku || !this.imagen_file || this.tags.length == 0 ) {
+    if ( !this.title || !this.categorie || !this.price_soles || !this.price_usd || !this.resumen || !this.sku || !this.imagen_file || this.tags.length == 0 ) {
       this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesitas digitar todos los campos del formulario.`});
       return;
     }

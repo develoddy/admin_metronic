@@ -62,17 +62,22 @@
                             <th>PRECIO SOLES</th>
                             <th>PRECIO USD</th>
                             <th>STATUS</th>
-                            <th>ACCIÓN</th>
+                            <th>ACCIÓN</th> 
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let product of products">
+                          <!-- <td>{{ product.id }}</td>
+                          <td><img [src]="product.thumbnail_url" alt="{{ product.name }}" style="width: 60px;"></td>
+                          <td>{{ product.name }}</td> -->
                           <td>
                             <img [src]="product.imagen" alt="" srcset="" style="width: 60px;">
                           </td>
-                          <td> {{product.title}} </td>
+                          <td>{{ product.title }}</td>
                           <td> {{product.sku}} </td>
-                          <td> {{product.categorie.title}} </td>
+                          <!-- <td> {{product.categorie.title ? product.categorie.title : "no hay cateogrie"}} </td> -->
+                          <td> {{product.categorie ? product.categorie.title : "no hay categoría"}} </td>
+
                           <td> {{product.price_soles}} PEN</td>
                           <td> {{product.price_usd}} USD</td>
                           <td> 

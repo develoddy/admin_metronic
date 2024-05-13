@@ -1,31 +1,32 @@
+
 <div class="card card-custom gutter-b">
     <div class="card-header">
-      <div class="card-title">
+    <div class="card-title">
         <h3 class="card-label"><i class="icon-2x text-dark-50 flaticon-imac mx-2"></i> Editar producto: {{product_selected ? product_selected.title : ''}} </h3>
-      </div>
-      <div class="card-toolbar">
-      </div>
+    </div>
+    <div class="card-toolbar">
+    </div>
     </div>
     <div class="card-body">
         <ng-container *ngIf="isLoading$ | async">
             <span class="spinner spinner-primary ml-5"></span>
         </ng-container>
         <div class="form-group row">
-            <div class="col-6">
+            <div class="col col-12 col-lg-12">
                 <div class="form-group">
                     <label for="">Titulo del producto <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" placeholder="" [(ngModel)]="title" name="title">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col col-12 col-lg-12">
                 <div class="form-group">
                     <label for="">SKU del producto <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" placeholder="" [(ngModel)]="sku" name="sku">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col col-12 col-lg-12">
                 <div class="form-group">
                     <label for="">Selec. Categoria <span class="text-danger">*</span></label>
                     <select class="form-control" [(ngModel)]="categorie" name="categorie">
@@ -39,31 +40,40 @@
         </div>
 
         <div class="form-group row">
-            <div class="col-3">
+            <div class="col col-12 col-lg-4">
                 <div class="form-group">
                     <label for="">Precio PEN: <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" placeholder="" [(ngModel)]="price_soles" name="price_soles">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col col-12 col-lg-4">
                 <div class="form-group">
                     <label for="">Precio USD <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" placeholder="" [(ngModel)]="price_usd" name="price_usd">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
+            <div class="col col-12 col-lg-4">
+                <label for="">Status del producto <span class="text-danger">*</span></label>
+                <select class="form-control" name="status" [(ngModel)]="state">
+                    <option value="1">Demo</option>
+                    <option value="2">Publico</option>
+                    <option value="3">Anulado</option>
+                </select>
+                <small class="form-text text-muted"><b>Filtrar</b> por Estado</small>
+            </div>
         </div>
 
         <div class="form-group row">
-            <div class="col-4">
+            <div class="col col-12 col-lg-6">
                 <label class="form-label">Sube tu portada: <span class="text-danger">*</span></label>
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="customFile"  accept=".jpeg, .bmp, .jpg, .png, .gif, .webp"  (change)="processFile($event)">
                     <label class="custom-file-label" for="customFile">Choose file</label>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col col-12 col-lg-6">
                 <div class="" *ngIf="this.image_preview">
                     <img [src]="this.image_preview" style="width: 150px;" alt="" srcset="">
                 </div>
@@ -71,12 +81,12 @@
         </div>
 
         <div class="form-group row">
-            <div class="col-6">
+            <div class="col col-12 col-lg-12">
                 <label class="form-label">RESUMEN DEL PRODUCTO: <span class="text-danger">*</span></label>
                 <textarea class="form-control" name="resumen" [(ngModel)]="resumen" placeholder="" rows="4"></textarea>
             </div>
-            <div class="col-6">
-                <label class="form-label">Descripción: *</label>
+            <div class="col col-12 col-lg-12">
+                <label class="form-label mt-5">Descripción: *</label>
                 <editor
                     [(ngModel)]="description"
                     [init]="{
@@ -97,9 +107,8 @@
         </div>
 
         <div class="form-group row">
-            <div class="col-6 d-flex flex-row">
+            <div class="col col-12 col-lg-6 d-flex flex-row">
                 <div class="p-2">
-                    <!-- <label for="">TAGS: <span class="text-danger">*</span></label> -->
                     <input type="text" class="form-control" placeholder="TAGS" [(ngModel)]="tag" name="tag">
                 </div>
                 <div class="p-2">
@@ -107,7 +116,7 @@
                 </div>
             </div>
 
-            <div class="col-6">
+            <div class="col col-12 col-lg-6">
                 <div class="table-responsive">
                     <table class="table table-head-custom table-vertical-center" id="kt_advance_table_widget_1">
                         <thead>
@@ -116,7 +125,7 @@
                                 <th>ACCION</th>
                             </tr>
                         </thead>
-                        <tbody >
+                        <tbody>
                             <tr *ngFor="let item of tags; let i = index">
                                 <td>{{ item }} </td>
                                 <td>
@@ -129,28 +138,36 @@
             </div>
         </div>
 
+        <!-- Subir images a la galerias -->
         <div class="form-group row">
-            <div class="col-6">
+            <div class="col col-12 col-lg-6">
                 <div class="form-group row">
-                    <div class="col-12">
+                    <div class="col col-12 col-lg-12">
                         <label for="">Imagen: <span class="text-danger">*</span></label>
-                        <div class="col-lg-6 col-md-6 col-sm-12 my-2">
-                            <label class="form-label">Sube tu imagen: *</label>
-                            <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="customFile"  accept=".jpeg, .bmp, .jpg, .png, .gif, .webp"  (change)="processFileGaleria($event)">
-                            <label class="custom-file-label" for="customFile">Choose file</label>
+                        <div class="col col-12 col-lg-12 my-2 d-flex">
+                            <div class="p">
+                                <label class="form-label">Sube tu imagen: *</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile"  accept=".jpeg, .bmp, .jpg, .png, .gif, .webp"  (change)="processFileGaleria($event)">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+                            <div class="p">
+                                <div class="form-group">
+                                    <button class="btn btn-primary mx-2" (click)="storeImagen()">+</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12">
+                    <div class="col col-12 col-lg-6">
                         <div class="" *ngIf="this.image_preview_galeria">
                             <img [src]="this.image_preview_galeria" style="width: 150px;" alt="" srcset="">
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <button class="btn btn-primary mx-2" (click)="storeImagen()">+</button>
-                </div>
+                </div> -->
             </div>
             <div class="col-6">
                 <div class="table-responsive">
@@ -238,7 +255,6 @@
                                         <td>
                                             <a (click)="editVariedad(variedad)" class="btn btn-icon btn-light btn-hover-primary btn-sm mx-1" ngbTooltip="Editar Variedad" ngbTooltipClass="kt-tooltip">
                                                 <span class="svg-icon svg-icon-md svg-icon-primary">
-                                                    <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Write.svg-->
                                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                             <rect x="0" y="0" width="24" height="24" />
@@ -246,13 +262,11 @@
                                                             <path d="M12.9,2 C13.4522847,2 13.9,2.44771525 13.9,3 C13.9,3.55228475 13.4522847,4 12.9,4 L6,4 C4.8954305,4 4,4.8954305 4,6 L4,18 C4,19.1045695 4.8954305,20 6,20 L18,20 C19.1045695,20 20,19.1045695 20,18 L20,13 C20,12.4477153 20.4477153,12 21,12 C21.5522847,12 22,12.4477153 22,13 L22,18 C22,20.209139 20.209139,22 18,22 L6,22 C3.790861,22 2,20.209139 2,18 L2,6 C2,3.790861 3.790861,2 6,2 L12.9,2 Z" fill="#000000" fill-rule="nonzero" opacity="0.3" />
                                                         </g>
                                                     </svg>
-                                                    <!--end::Svg Icon-->
                                                 </span>
                                             </a>
                             
                                             <a (click)="deleteVariedad(variedad)" class="btn btn-icon btn-light btn-hover-primary btn-sm" ngbTooltip="Eliminar Variedad" ngbTooltipClass="kt-tooltip">
                                                 <span class="svg-icon svg-icon-md svg-icon-danger">
-                                                    <!--begin::Svg Icon | path:assets/media/svg/icons/General/Trash.svg-->
                                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
                                                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                             <rect x="0" y="0" width="24" height="24" />
@@ -260,7 +274,6 @@
                                                             <path d="M14,4.5 L14,4 C14,3.44771525 13.5522847,3 13,3 L11,3 C10.4477153,3 10,3.44771525 10,4 L10,4.5 L5.5,4.5 C5.22385763,4.5 5,4.72385763 5,5 L5,5.5 C5,5.77614237 5.22385763,6 5.5,6 L18.5,6 C18.7761424,6 19,5.77614237 19,5.5 L19,5 C19,4.72385763 18.7761424,4.5 18.5,4.5 L14,4.5 Z" fill="#000000" opacity="0.3" />
                                                         </g>
                                                     </svg>
-                                                    <!--end::Svg Icon-->
                                                 </span>
                                             </a>
                                         </td>
@@ -279,3 +292,143 @@
         </div>
     </div>
 </div>
+
+<!-- <ng-container *ngIf="isLoading$ | async">
+    <span class="spinner spinner-primary ml-5"></span>
+</ng-container>
+<div class="container">
+
+    <section class="bg-white mb-5">
+        <div class="row">
+            <div class="col col-12 col-lg-3"> 
+                <a href="" class="">
+                    <img [src]="thumbnail_url" alt="{{ title }}" width="100" height="100" class="border border-secondary">
+                </a>
+            </div>
+            <div class="col col-12 col-lg-9">
+                <div class="row" style="row-gap: 12px !important;">
+                    <div class="col col-lg-12">
+                        <h4 class="fw-bold">{{ title }}</h4>
+                    </div>
+                    <div class="col ol-lg-12">
+                        <div class="d-flex flex-row">
+                            <button type="button" class="btn btn-secondary text-nowrap"><span class="">Editar título</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row py-5">
+            <div class="col col-12 col-lg-6 py-3">
+                <div class="card">
+                    <div class="card-body">
+                      <h5>Precio</h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item d-flex justify-content-between">
+                        <div class="p-2">PVP</div>
+                        <div class="p-2 fw-bold">item 2</div>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <div class="p-2">Precio de Printful</div>
+                        <div class="p-2">item 2</div>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <div class="p-2">Ingresos</div>
+                        <div class="p-2">item 2</div>
+                      </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col col-12 col-lg-6 py-3">
+                <div class="card">
+                    <div class="card-body">
+                      <h5>Envío</h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item d-flex justify-content-between">
+                        <div class="p-2">Precio de envío de</div>
+                        <div class="p-2">item 2</div>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <div class="p-2">Printful</div>
+                        <div class="p-2">item 2</div>
+                      </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+
+    <section class="border mb-5">
+        <div class="row">
+            <div class="col col-12 col-lg-12">
+                <div class="d-flex flex-row justify-content-between">
+                    <div class="p-2"><h3 class="fw-bold">Variantes</h3></div>
+                    <div class="p-2"> <button class="btn btn-secondary">Añadir variantes</button></div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row">
+            <div class="col col-12 col-lg-12">
+                <strong>Filtrar por talla/tamaño:</strong>
+                <ng-container *ngFor="let variant of this.variedades">
+                    <span class="px-3 text-primary"> {{ variant.size }} </span>
+                </ng-container>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <section class="border mb-5">
+        <div class="row">
+            <div class="col col-12 col-lg-12">
+                <div class="table-responsive">
+                    <table class="table table-head-custom table-vertical-center" id="kt_advance_table_widget_1">
+                        <thead>
+                            <tr class="text-left">
+                                <th>Variantes</th>
+                                <th>Elemento de Printful</th>
+                                <th>ACCIÓN</th> 
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngFor="let variant of this.variedades">
+                                <tr>
+                                    <td>
+                                        <h5> {{ variant.name }}</h5>
+                                        <p># {{ variant.external_id }}</p>
+                                        <p>PVP: €{{ variant.retail_price }}</p>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex">
+                                            <p class="p-2"><img [src]="variant.product.image" alt="{{ variant.product.name }}" width="100" height="100" class="border border-secondary"></p>
+                                            <div class="d-flex flex-column">
+                                                <p class="p-2">T-Shrit</p>
+                                                <p class="p-2"> Marca: Gildan</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>btn accion</td>
+                                </tr>
+                            </ng-container>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="form-group row">
+            <button class="btn btn-primary mr-2" (click)="update()">Editar producto</button>
+            <button class="btn btn-dark" (click)="listProduct()">Atrás</button>
+        </div>
+    </section>
+    
+</div> -->
