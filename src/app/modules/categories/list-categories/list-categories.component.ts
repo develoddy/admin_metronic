@@ -15,7 +15,7 @@ export class ListCategoriesComponent implements OnInit {
   categories:any=[];
   search:any = "";
   isLoading$:any = null;
-  URL_BACKEND:any = URL_BACKEND;
+  URL_BACKEND:any = URL_BACKEND;º
 
   constructor(
     public _serviceCategorie: CategoriesService,
@@ -29,6 +29,8 @@ export class ListCategoriesComponent implements OnInit {
   
   allCategories() {
     this._serviceCategorie.allCategories(this.search).subscribe((resp:any) => {
+      console.log(resp.categories);
+      
       this.categories = resp.categories;
     });
   }

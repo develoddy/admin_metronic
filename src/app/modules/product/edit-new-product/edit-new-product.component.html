@@ -12,21 +12,21 @@
             <span class="spinner spinner-primary ml-5"></span>
         </ng-container>
         <div class="form-group row">
-            <div class="col-6">
+            <div class="col col-12 col-lg-12">
                 <div class="form-group">
                     <label for="">Titulo del producto <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" placeholder="" [(ngModel)]="title" name="title">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col col-12 col-lg-12">
                 <div class="form-group">
                     <label for="">SKU del producto <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" placeholder="" [(ngModel)]="sku" name="sku">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col col-12 col-lg-12">
                 <div class="form-group">
                     <label for="">Selec. Categoria <span class="text-danger">*</span></label>
                     <select class="form-control" [(ngModel)]="categorie" name="categorie">
@@ -40,21 +40,21 @@
         </div>
 
         <div class="form-group row">
-            <div class="col-3">
+            <div class="col col-12 col-lg-4">
                 <div class="form-group">
                     <label for="">Precio PEN: <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" placeholder="" [(ngModel)]="price_soles" name="price_soles">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col col-12 col-lg-4">
                 <div class="form-group">
                     <label for="">Precio USD <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" placeholder="" [(ngModel)]="price_usd" name="price_usd">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col col-12 col-lg-4">
                 <label for="">Status del producto <span class="text-danger">*</span></label>
                 <select class="form-control" name="status" [(ngModel)]="state">
                     <option value="1">Demo</option>
@@ -66,14 +66,14 @@
         </div>
 
         <div class="form-group row">
-            <div class="col-4">
+            <div class="col col-12 col-lg-6">
                 <label class="form-label">Sube tu portada: <span class="text-danger">*</span></label>
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="customFile"  accept=".jpeg, .bmp, .jpg, .png, .gif, .webp"  (change)="processFile($event)">
                     <label class="custom-file-label" for="customFile">Choose file</label>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col col-12 col-lg-6">
                 <div class="" *ngIf="this.image_preview">
                     <img [src]="this.image_preview" style="width: 150px;" alt="" srcset="">
                 </div>
@@ -81,12 +81,12 @@
         </div>
 
         <div class="form-group row">
-            <div class="col-6">
+            <div class="col col-12 col-lg-12">
                 <label class="form-label">RESUMEN DEL PRODUCTO: <span class="text-danger">*</span></label>
                 <textarea class="form-control" name="resumen" [(ngModel)]="resumen" placeholder="" rows="4"></textarea>
             </div>
-            <div class="col-6">
-                <label class="form-label">Descripción: *</label>
+            <div class="col col-12 col-lg-12">
+                <label class="form-label mt-5">Descripción: *</label>
                 <editor
                     [(ngModel)]="description"
                     [init]="{
@@ -107,7 +107,7 @@
         </div>
 
         <div class="form-group row">
-            <div class="col-6 d-flex flex-row">
+            <div class="col col-12 col-lg-6 d-flex flex-row">
                 <div class="p-2">
                     <input type="text" class="form-control" placeholder="TAGS" [(ngModel)]="tag" name="tag">
                 </div>
@@ -116,7 +116,7 @@
                 </div>
             </div>
 
-            <div class="col-6">
+            <div class="col col-12 col-lg-6">
                 <div class="table-responsive">
                     <table class="table table-head-custom table-vertical-center" id="kt_advance_table_widget_1">
                         <thead>
@@ -125,7 +125,7 @@
                                 <th>ACCION</th>
                             </tr>
                         </thead>
-                        <tbody >
+                        <tbody>
                             <tr *ngFor="let item of tags; let i = index">
                                 <td>{{ item }} </td>
                                 <td>
@@ -140,27 +140,34 @@
 
         <!-- Subir images a la galerias -->
         <div class="form-group row">
-            <div class="col-6">
+            <div class="col col-12 col-lg-6">
                 <div class="form-group row">
-                    <div class="col-12">
+                    <div class="col col-12 col-lg-12">
                         <label for="">Imagen: <span class="text-danger">*</span></label>
-                        <div class="col-lg-6 col-md-6 col-sm-12 my-2">
-                            <label class="form-label">Sube tu imagen: *</label>
-                            <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="customFile"  accept=".jpeg, .bmp, .jpg, .png, .gif, .webp"  (change)="processFileGaleria($event)">
-                            <label class="custom-file-label" for="customFile">Choose file</label>
+                        <div class="col col-12 col-lg-12 my-2 d-flex">
+                            <div class="p">
+                                <label class="form-label">Sube tu imagen: *</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile"  accept=".jpeg, .bmp, .jpg, .png, .gif, .webp"  (change)="processFileGaleria($event)">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+                            <div class="p">
+                                <div class="form-group">
+                                    <button class="btn btn-primary mx-2" (click)="storeImagen()">+</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12">
+                    <div class="col col-12 col-lg-6">
                         <div class="" *ngIf="this.image_preview_galeria">
                             <img [src]="this.image_preview_galeria" style="width: 150px;" alt="" srcset="">
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <button class="btn btn-primary mx-2" (click)="storeImagen()">+</button>
-                </div>
+                </div> -->
             </div>
             <div class="col-6">
                 <div class="table-responsive">
