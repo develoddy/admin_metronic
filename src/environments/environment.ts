@@ -12,8 +12,6 @@ export const environment = {
   URL_SERVICIOS: 'http://127.0.0.1:3000/api',
   URL_FROTEND: 'http://localhost:4200',
 
-  // Printfull
-  URL_PRINTFUL_SERVICIOS: 'http://127.0.0.1:3000/printful',
 };
 
 /*
