@@ -51,7 +51,7 @@ export class EditNewCategorieComponent implements OnInit {
       this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesita ingresar todos los campos.`});
       return;
     }
-
+    
     let formData = new FormData();
     formData.append("_id", this.categorie_selected._id);
     formData.append("title", this.name);

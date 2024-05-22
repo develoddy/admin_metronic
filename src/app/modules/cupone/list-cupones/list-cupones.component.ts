@@ -38,7 +38,7 @@ export class ListCuponesComponent implements OnInit {
   }
 
   editCupon(cupon){
-    this._router.navigateByUrl("/cupones/edit-cupon/"+cupon._id);
+    this._router.navigateByUrl("/cupones/edit-cupon/"+cupon.id);
   }
   delete(cupon){
     const modalRef = this._modalService.open(DeleteNewCuponeComponent, {centered:true, size: 'md'});

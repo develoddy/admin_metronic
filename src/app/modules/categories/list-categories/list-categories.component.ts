@@ -65,6 +65,10 @@ export class ListCategoriesComponent implements OnInit {
   }
 
   delete(categorie) {
+    console.log("---debbug list-categorie.component - delete :");
+    console.log(categorie);
+    
+    
     const modalRef = this._modalService.open(DeleteNewCategorieComponent, {centered:true, size: 'md'});
     modalRef.componentInstance.categorie_selected = categorie;
 

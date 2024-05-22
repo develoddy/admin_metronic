@@ -54,7 +54,7 @@ export class EditNewCuponeComponent implements OnInit {
 
   showCupon() {
     this._cuponeService.showCupon(this.cupone_id).subscribe((resp:any) => {
-      console.log(resp);
+    
       this.cupone_selected = resp.cupon;
       this.code= this.cupone_selected.code;
       this.type_discount= this.cupone_selected.type_discount;
@@ -65,18 +65,22 @@ export class EditNewCuponeComponent implements OnInit {
       this.state = this.cupone_selected.state ? this.cupone_selected.state : 1;
 
       if(this.type_segment == 1) {
-        this.cupone_selected.products.forEach(product_s => {
+        this.cupone_selected.cupones_products.forEach(product_s => {
+
           this.products.forEach(product => {
-            if (product._id == product_s._id) {
+            if (product.id == product_s.productId) {
               this.products_selected.push(product);
             }
           });
         });
       } else {
-        this.cupone_selected.categories.forEach(product_s => {
-          this.products.forEach(product => {
-            if (product._id == product_s._id) {
-              this.categories_selected.push(product);
+        this.cupone_selected.cupones_categories.forEach(product_s => {
+          console.log(product_s);
+          console.log(this.products);
+          
+          this.categories.forEach(categorie => {
+            if (categorie.id == product_s.categoryId) {
+              this.categories_selected.push(categorie);
             }
           });
         });

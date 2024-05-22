@@ -64,14 +64,18 @@ export class EditNewProductComponent implements OnInit {
     });
 
     this._productService.showProduct(this.product_id).subscribe((resp:any) => {
+
+      console.log("---- debugg edit product ---");
+      console.log(resp);
       
+      
+
+
       this.product_selected = resp.product;
-      
-      
       this.title = this.product_selected.title;
       this.sku = this.product_selected.sku;
-      //this.categorie = this.product_selected.categorie._id;
-      this.categorie = this.product_selected.categorie ? this.product_selected.categorie._id : 0;
+      this.categorie = this.product_selected.categorie.id;
+      //this.categorie = this.product_selected.categorie ? this.product_selected.categorie._id : 0;
       this.price_soles = this.product_selected.price_soles;     
       this.price_usd = this.product_selected.price_usd;
       this.stock = this.product_selected.stock;      
@@ -83,20 +87,6 @@ export class EditNewProductComponent implements OnInit {
       this.type_inventario = this.product_selected.type_inventario;
       this.galerias = this.product_selected.galerias;
       this.state = this.product_selected.state;
-
-      // PRINTFUL
-
-      // console.log("---- debbug_ showProduct product ------");
-      // console.log(resp.product.result);
-
-      // this.product_selected = resp.product.result;
-      // this.title = this.product_selected.sync_product.name;
-      // this.thumbnail_url = this.product_selected.sync_product.thumbnail_url;
-      
-      // // Variants
-      // this.sku = this.product_selected.sync_variants[0].sku;
-      // this.variedades = this.product_selected.sync_variants;
-      // this.price_usd = this.product_selected.sync_variants[0].retail_price;
 
       
     });
@@ -256,10 +246,18 @@ export class EditNewProductComponent implements OnInit {
     formData.append("__id", new Date().getTime().toString());
 
     this._productService.createGaleria(formData).subscribe((resp:any) => {
+      console.log("--- debbu createGaleria 249---");
       console.log(resp);
+
       this.imagen_file_galeria = null;
       this.image_preview_galeria = null;
-      this.galerias.unshift(resp.imagen)
+      this.galerias.unshift( resp.imagen );
+
+      console.log("---- galerias ----");
+
+      console.log(this.galerias);
+      
+      
     })
   }
 
