@@ -68,9 +68,7 @@ export class EditNewProductComponent implements OnInit {
       console.log("---- debugg edit product ---");
       console.log(resp);
       
-      
-
-
+    
       this.product_selected = resp.product;
       this.title = this.product_selected.title;
       this.sku = this.product_selected.sku;
@@ -198,6 +196,12 @@ export class EditNewProductComponent implements OnInit {
       this.valor_multiple = null;
       this.stock_multiple = null;
 
+      console.log("----- ADMIN: CREATE VARIADAD MULTIPLE ----");
+      console.log(this.variedades);
+      
+      
+      
+
       let index = this.variedades.findIndex(item => item._id == resp.variedad._id);
       if (index != -1) {
         this.variedades[index] = resp.variedad;
@@ -214,7 +218,7 @@ export class EditNewProductComponent implements OnInit {
     modalRef.componentInstance.variedad = variedad;
 
     modalRef.componentInstance.VariedadE.subscribe((VariedadE:any) => {
-      let index = this.variedades.findIndex(item => item._id == VariedadE._id);
+      let index = this.variedades.findIndex(item => item.id == VariedadE.id);
       if (index != -1) {
         this.variedades[index] = VariedadE;
         this.toaster.open(NoticyAlertComponent, {text: `primary- La variedad se modifico correctamente.`});
@@ -227,7 +231,7 @@ export class EditNewProductComponent implements OnInit {
     modalRef.componentInstance.variedad = variedad;
 
     modalRef.componentInstance.VariedadD.subscribe((resp:any) => {
-      let index = this.variedades.findIndex(item => item._id == variedad._id);
+      let index = this.variedades.findIndex(item => item.id == variedad.id);
       if (index != -1) {
         this.variedades.splice(index,1);
         this.toaster.open(NoticyAlertComponent, {text: `primary- La variedad se elimnó correctamente.`});

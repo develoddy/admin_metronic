@@ -35,6 +35,8 @@ export class AddNewCuponeComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading$ = this._cuponeService.isLoading$;
     this._cuponeService.cuponesConfig().subscribe((resp:any) => {
+      console.log(resp);
+      
       this.categories = resp.categories;
       this.products = resp.products;
     });
@@ -65,7 +67,7 @@ export class AddNewCuponeComponent implements OnInit {
       } else {
         
         let PRODUCT_S = this.products.find(item => item.id == this.product);
-        
+
         this.product = null;
         this.products_selected.unshift(PRODUCT_S);        
       }

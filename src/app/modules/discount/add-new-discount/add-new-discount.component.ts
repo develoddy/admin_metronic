@@ -15,8 +15,8 @@ export class AddNewDiscountComponent implements OnInit {
   products: any = [];
   categories: any = [];
 
-  product: any = "";
-  categorie: any = "";
+  public product: any = null;
+  public categorie: any = null;
 
   code:any = null;
   type_discount: any = 1;
@@ -40,9 +40,11 @@ export class AddNewDiscountComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading$ = this._discountService.isLoading$;
     this._discountService.discountConfig().subscribe((resp:any) => {
-      console.log(resp);
+      
       this.categories = resp.categories;
       this.products = resp.products;
+
+      console.log(this.products);
     });
   }
 
@@ -67,22 +69,24 @@ export class AddNewDiscountComponent implements OnInit {
 
   addProductOrCategorie() {
     if (this.type_segment == 1) {
-      let INDEX = this.products_selected.findIndex(item => item._id == this.product);
-      if (INDEX != -1) {
+      let INDEX = this.products_selected.findIndex(item => item.id == this.product);
+      
+      if ( INDEX != -1 ) {
         this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! El producto ya existe. Selecciona otro producto.`});
         return;
       } else {
-        let PRODUCT_S = this.products.find(item => item._id == this.product);
+        let PRODUCT_S = this.products.find(item => item.id == this.product);
         this.product = null;
         this.products_selected.unshift(PRODUCT_S);
       }
     } else {
-      let INDEX = this.categories_selected.findIndex(item => item._id == this.categorie);
+      let INDEX = this.categories_selected.findIndex(item => item.id == this.categorie);
       if (INDEX != -1) {
         this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! La categoria ya existe. Selecciona otro categoria.`});
         return;
       } else {
-        let CATEGORIA_S = this.categories.find(item => item._id == this.categorie);
+      
+        let CATEGORIA_S = this.categories.find(item => item.id == this.categorie);
         this.categorie = null;
         this.categories_selected.unshift(CATEGORIA_S);
       }
@@ -90,13 +94,13 @@ export class AddNewDiscountComponent implements OnInit {
   }
 
   removeProduct(product){
-    let INDEX = this.products_selected.findIndex(item => item._id == product._id);
+    let INDEX = this.products_selected.findIndex(item => item.id == product.id);
     if (INDEX != -1) {
       this.products_selected.splice(INDEX,1);
     }
   }
   removeCategorie(categorie){
-    let INDEX = this.categories_selected.findIndex(item => item._id == categorie._id);
+    let INDEX = this.categories_selected.findIndex(item => item.id == categorie.id);
     if (INDEX != -1) {
       this.categories_selected.splice(INDEX,1);
     }
@@ -130,13 +134,14 @@ export class AddNewDiscountComponent implements OnInit {
     let categorie_s = [];
 
     this.products_selected.forEach(element => {
-      PRODUCTS.push({_id: element._id});
-      product_s.push(element._id);
+      PRODUCTS.push({_id: element.id});
+      product_s.push(element.id);
     });
 
+  
     this.categories_selected.forEach(element => {
-      CATEGORIES.push({_id: element._id});
-      categorie_s.push(element._id);
+      CATEGORIES.push({_id: element.id});
+      categorie_s.push(element.id);
     });
 
 
@@ -154,6 +159,7 @@ export class AddNewDiscountComponent implements OnInit {
       product_s: product_s,
       categorie_s: categorie_s,
     };
+
     this._discountService.createDiscount(data).subscribe((resp:any) => {
       console.log(resp);
       if (resp.message == 403) {
@@ -161,7 +167,7 @@ export class AddNewDiscountComponent implements OnInit {
         return;
       } else {
         this.toaster.open(NoticyAlertComponent, {text: `primary-'${resp.message_text}'`});
-        this.code = null;
+        //this.code = null;
         this.type_discount = 1;
         this.discount =  null;
         this.type_count = 1;

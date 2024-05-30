@@ -104,22 +104,26 @@ export class EditNewCuponeComponent implements OnInit {
 
   addProductOrCategorie() {
     if (this.type_segment == 1) {
-      let INDEX = this.products_selected.findIndex(item => item._id == this.product);
+      console.log("--this.products_selected");
+      console.log(this.products_selected);
+      
+      
+      let INDEX = this.products_selected.findIndex(item => item.id == this.product);
       if (INDEX != -1) {
         this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! El producto ya existe. Selecciona otro producto.`});
         return;
       } else {
-        let PRODUCT_S = this.products.find(item => item._id == this.product);
+        let PRODUCT_S = this.products.find(item => item.id == this.product);
         this.product = null;
         this.products_selected.unshift(PRODUCT_S);
       }
     } else {
-      let INDEX = this.categories_selected.findIndex(item => item._id == this.categorie);
+      let INDEX = this.categories_selected.findIndex(item => item.id == this.categorie);
       if (INDEX != -1) {
         this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! La categoria ya existe. Selecciona otro categoria.`});
         return;
       } else {
-        let CATEGORIA_S = this.categories.find(item => item._id == this.categorie);
+        let CATEGORIA_S = this.categories.find(item => item.id == this.categorie);
         this.categorie = null;
         this.categories_selected.unshift(CATEGORIA_S);
       }
@@ -127,13 +131,13 @@ export class EditNewCuponeComponent implements OnInit {
   }
 
   removeProduct(product){
-    let INDEX = this.products_selected.findIndex(item => item._id == product._id);
+    let INDEX = this.products_selected.findIndex(item => item.id == product._id);
     if (INDEX != -1) {
       this.products_selected.splice(INDEX,1);
     }
   }
   removeCategorie(categorie){
-    let INDEX = this.categories_selected.findIndex(item => item._id == categorie._id);
+    let INDEX = this.categories_selected.findIndex(item => item.id == categorie._id);
     if (INDEX != -1) {
       this.categories_selected.splice(INDEX,1);
     }

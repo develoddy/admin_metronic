@@ -24,7 +24,7 @@ export class DeleteNewVariedadComponent implements OnInit {
   }
 
   delete() {
-    this._productService.deleteVariedad(this.variedad._id).subscribe((resp:any) => {
+    this._productService.deleteVariedad(this.variedad.id).subscribe((resp:any) => {
       this.VariedadD.emit('');
       this._modal.close();
     }, (error) => {

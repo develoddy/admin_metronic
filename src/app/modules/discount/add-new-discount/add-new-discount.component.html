@@ -101,7 +101,7 @@
                     <select class="form-control" [(ngModel)]="product" name="product">
                         <option value="">Ninguno</option>
                         <ng-container *ngFor="let product of products" >
-                            <option [value]="product._id">{{ product.title }}</option>
+                            <option [value]="product.id">{{ product.title }}</option>
                         </ng-container>
                     </select>
                 </div>
@@ -112,7 +112,7 @@
                     <select class="form-control" [(ngModel)]="categorie" name="categorie">
                         <option value="">Ninguno</option>
                         <ng-container *ngFor="let category of categories" >
-                            <option [value]="category._id">{{ category.title }}</option>
+                            <option [value]="category.id">{{ category.title }}</option>
                         </ng-container>
                     </select>
                 </div>

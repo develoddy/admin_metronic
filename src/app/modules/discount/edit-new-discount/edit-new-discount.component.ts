@@ -59,6 +59,8 @@ export class EditNewDiscountComponent implements OnInit {
 
   showDiscount() {
     this._discountService.showDiscount(this.discount_id).subscribe((resp:any) => {
+      console.log("Admin: wShow discount---");
+      
       console.log(resp);
       this.discount_selected = resp.discount;
 
@@ -71,17 +73,17 @@ export class EditNewDiscountComponent implements OnInit {
       this.type_campaign = this.discount_selected.type_segment ? this.discount_selected.type_campaign : 1;
 
       if (this.type_segment == 1) {
-        this.discount_selected.products.forEach(product_selected => {
+        this.discount_selected.discounts_products.forEach(product_selected => {
           this.products.forEach(product => {
-            if(product._id == product_selected._id) {
+            if(product.id == product_selected.productId) {
               this.products_selected.push(product);
             }
           });
         });
       } else {
-        this.discount_selected.categories.forEach(categorie_selected => {
+        this.discount_selected.discounts_categories.forEach(categorie_selected => {
           this.categories.forEach(categorie => {
-            if(categorie._id == categorie_selected._id) {
+            if(categorie.id == categorie_selected.categoryId) {
               this.categories_selected.push(categorie);
             }
           });
@@ -114,23 +116,25 @@ export class EditNewDiscountComponent implements OnInit {
   }
 
   addProductOrCategorie() {
+    console.log(this.products_selected);
+    
     if (this.type_segment == 1) {
-      let INDEX = this.products_selected.findIndex(item => item._id == this.product);
+      let INDEX = this.products_selected.findIndex(item => item.id == this.product);
       if (INDEX != -1) {
         this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! El producto ya existe. Selecciona otro producto.`});
         return;
       } else {
-        let PRODUCT_S = this.products.find(item => item._id == this.product);
+        let PRODUCT_S = this.products.find(item => item.id == this.product);
         this.product = null;
         this.products_selected.unshift(PRODUCT_S);
       }
     } else {
-      let INDEX = this.categories_selected.findIndex(item => item._id == this.categorie);
+      let INDEX = this.categories_selected.findIndex(item => item.id == this.categorie);
       if (INDEX != -1) {
         this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! La categoria ya existe. Selecciona otro categoria.`});
         return;
       } else {
-        let CATEGORIA_S = this.categories.find(item => item._id == this.categorie);
+        let CATEGORIA_S = this.categories.find(item => item.id == this.categorie);
         this.categorie = null;
         this.categories_selected.unshift(CATEGORIA_S);
       }
@@ -138,13 +142,13 @@ export class EditNewDiscountComponent implements OnInit {
   }
 
   removeProduct(product){
-    let INDEX = this.products_selected.findIndex(item => item._id == product._id);
+    let INDEX = this.products_selected.findIndex(item => item.id == product.id);
     if (INDEX != -1) {
       this.products_selected.splice(INDEX,1);
     }
   }
   removeCategorie(categorie){
-    let INDEX = this.categories_selected.findIndex(item => item._id == categorie._id);
+    let INDEX = this.categories_selected.findIndex(item => item.id == categorie.id);
     if (INDEX != -1) {
       this.categories_selected.splice(INDEX,1);
     }
@@ -178,18 +182,18 @@ export class EditNewDiscountComponent implements OnInit {
     let categorie_s = [];
 
     this.products_selected.forEach(element => {
-      PRODUCTS.push({_id: element._id});
-      product_s.push(element._id);
+      PRODUCTS.push({_id: element.id});
+      product_s.push(element.id);
     });
 
     this.categories_selected.forEach(element => {
-      CATEGORIES.push({_id: element._id});
-      categorie_s.push(element._id);
+      CATEGORIES.push({_id: element.id});
+      categorie_s.push(element.id);
     });
 
 
     let data = {
-      _id: this.discount_id,
+      id: this.discount_id,
       type_campaign : this.type_campaign,
       type_discount: this.type_discount,
       discount: this.discount,

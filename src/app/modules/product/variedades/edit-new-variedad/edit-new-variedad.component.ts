@@ -24,7 +24,7 @@ export class EditNewVariedadComponent implements OnInit {
   }
   update() {
     let data = {
-      _id: this.variedad._id,
+      _id: this.variedad.id,
       valor: this.variedad_multiple,
     };
     this._productService.updateVariedad(data).subscribe((resp:any) => {
