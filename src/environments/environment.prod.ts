@@ -6,7 +6,7 @@ export const environment = {
   apiUrl: 'api',
 
   URL_BACKEND: 'https://api.lujandev.com/',
-  URL_SERVICIOS: 'https://api.lujandev/api/',
+  URL_SERVICIOS: 'https://api.lujandev/api',
   URL_FROTEND: 'https://admin.lujandev.com/',
   // apiUrl: 'mysite.com/api'
 };
