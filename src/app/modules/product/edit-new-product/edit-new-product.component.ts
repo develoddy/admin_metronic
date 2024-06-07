@@ -196,12 +196,6 @@ export class EditNewProductComponent implements OnInit {
       this.valor_multiple = null;
       this.stock_multiple = null;
 
-      console.log("----- ADMIN: CREATE VARIADAD MULTIPLE ----");
-      console.log(this.variedades);
-      
-      
-      
-
       let index = this.variedades.findIndex(item => item._id == resp.variedad._id);
       if (index != -1) {
         this.variedades[index] = resp.variedad;
@@ -265,12 +259,13 @@ export class EditNewProductComponent implements OnInit {
     })
   }
 
-  removeImage(imagen) {
+  removeImage(imagen) {    
     const modalRef = this._modalService.open(DeleteGaleriaImagenComponent, {centered:true, size: 'sm'});
     modalRef.componentInstance.imagen = imagen;
     modalRef.componentInstance.product_id = this.product_id;
     modalRef.componentInstance.ImagenD.subscribe((resp:any) => {
-      let index = this.galerias.findIndex(item => item._id == imagen._id);
+      
+      let index = this.galerias.findIndex(item => item.id == imagen.id);
       if (index != -1) {
         this.galerias.splice(index,1);
         this.toaster.open(NoticyAlertComponent, {text: `primary- La imagen se elimnó correctamente.`});

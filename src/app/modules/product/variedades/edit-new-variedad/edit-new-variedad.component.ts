@@ -13,6 +13,7 @@ export class EditNewVariedadComponent implements OnInit {
   @Output() VariedadE: EventEmitter<any> = new EventEmitter();
   isLoading$:any;
   variedad_multiple:any=null;
+  stock=0;
 
   constructor(
     public _modal: NgbActiveModal,
@@ -20,13 +21,18 @@ export class EditNewVariedadComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    console.log("______ ADMIN: variedad ", this.variedad );
     this.variedad_multiple = this.variedad.valor;
+    this.stock = this.variedad.stock;
   }
+
   update() {
     let data = {
       _id: this.variedad.id,
       valor: this.variedad_multiple,
+      stock: this.stock,
     };
+
     this._productService.updateVariedad(data).subscribe((resp:any) => {
       console.log(resp);
       this.VariedadE.emit(resp.variedad);
