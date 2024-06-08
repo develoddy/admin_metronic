@@ -54,7 +54,6 @@ export class ListSliderComponent implements OnInit {
   editSlider(slider) {
     const modalRef = this._modalService.open(EditNewSliderComponent, {centered:true, size: 'md'});
     modalRef.componentInstance.slider_selected = slider;
-
     modalRef.componentInstance.SliderE.subscribe((slider:any) => {
       let index = this.sliders.findIndex(item => item._id == slider._id);
       if (index != -1) {

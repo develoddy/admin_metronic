@@ -24,7 +24,8 @@ export class DeleteNewDiscountComponent implements OnInit {
   }
 
   delete() {
-    this._discountService.deleteDiscount(this.discount_selected._id).subscribe((resp:any) => {
+    
+    this._discountService.deleteDiscount(this.discount_selected.id).subscribe((resp:any) => {
       this.DiscountD.emit('');
       this.toaster.open(NoticyAlertComponent, {text:  `success-El descuento se ha eliminado correctamente.`});
       this._modal.close();

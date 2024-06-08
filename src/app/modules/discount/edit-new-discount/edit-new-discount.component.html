@@ -1,7 +1,7 @@
 <div class="card card-custom gutter-b">
     <div class="card-header">
       <div class="card-title">
-        <h3 class="card-label"><i class="icon-2x text-dark-50 flaticon-imac mx-2"></i> Editar descuento : #{{discount_selected ? discount_selected._id : '' }} </h3>
+        <h3 class="card-label"><i class="icon-2x text-dark-50 flaticon-imac mx-2"></i> Editar descuento : #{{discount_selected ? discount_selected.id : '' }} </h3>
       </div>
       <div class="card-toolbar">
       </div>
@@ -100,8 +100,8 @@
                     <label for="">Selec. Producto <span class="text-danger">*</span></label>
                     <select class="form-control" [(ngModel)]="product" name="product">
                         <option value="">Ninguno</option>
-                        <ng-container *ngFor="let product of products" >
-                            <option [value]="product._id">{{ product.title }}</option>
+                        <ng-container *ngFor="let item of products" >
+                            <option [value]="item.id">{{ item.title }}</option>
                         </ng-container>
                     </select>
                 </div>
@@ -111,8 +111,8 @@
                     <label for="">Selec. Categoria <span class="text-danger">*</span></label>
                     <select class="form-control" [(ngModel)]="categorie" name="categorie">
                         <option value="">Ninguno</option>
-                        <ng-container *ngFor="let category of categories" >
-                            <option [value]="category._id">{{ category.title }}</option>
+                        <ng-container *ngFor="let item of categories" >
+                            <option [value]="item.id">{{ item.title }}</option>
                         </ng-container>
                     </select>
                 </div>
@@ -132,10 +132,10 @@
                             </tr>
                         </thead>
                         <tbody *ngIf="type_segment == 1">
-                            <tr *ngFor="let product of products_selected">
-                                <td> {{product.title}} </td>
+                            <tr *ngFor="let item of products_selected">
+                                <td> {{item.title}} </td>
                                 <td>
-                                    <button class="btn btn-danger btn-sm" (click)="removeProduct(product)">X</button>
+                                    <button class="btn btn-danger btn-sm" (click)="removeProduct(item)">X</button>
                                 </td>
                             </tr>
                         </tbody>

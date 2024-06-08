@@ -24,7 +24,7 @@ export class DeleteNewCuponeComponent implements OnInit {
   }
 
   delete() {
-    this._cuponService.deleteCupone(this.cupon_selected._id).subscribe((resp:any) => {
+    this._cuponService.deleteCupone(this.cupon_selected.id).subscribe((resp:any) => {
       this.CuponD.emit('');
       this.toaster.open(NoticyAlertComponent, {text:  `success-El cupon se ha eliminado correctamente.`});
       this._modal.close();

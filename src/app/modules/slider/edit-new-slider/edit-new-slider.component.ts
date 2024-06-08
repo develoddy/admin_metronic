@@ -61,6 +61,7 @@ export class EditNewSliderComponent implements OnInit {
     formData.append("portada", this.imagen_file);
     
     this._sliderService.updateSlider(formData).subscribe((resp:any) => {
+      console.log("----- debbug update slider -----");
       console.log(resp);
       this.SliderE.emit(resp.slider);
       this.modal.close();

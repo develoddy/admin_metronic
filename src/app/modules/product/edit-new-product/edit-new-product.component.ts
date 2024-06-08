@@ -20,6 +20,7 @@ export class EditNewProductComponent implements OnInit {
   product_selected:any=null;
   title:any = null;
   sku:any = null;
+  thumbnail_url:any = null;
   categories:any = [];
   categorie:any = "";
   price_soles:any = 0;
@@ -59,20 +60,23 @@ export class EditNewProductComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading$ = this._productService.isLoading$;
     this._activeRouter.params.subscribe((resp:any) => {
-      console.log(resp);
       this.product_id = resp.id;
     });
 
     this._productService.showProduct(this.product_id).subscribe((resp:any) => {
+
+      console.log("---- debugg edit product ---");
       console.log(resp);
       
+    
       this.product_selected = resp.product;
       this.title = this.product_selected.title;
       this.sku = this.product_selected.sku;
-      this.categorie = this.product_selected.categorie._id;
+      this.categorie = this.product_selected.categorie.id;
+      //this.categorie = this.product_selected.categorie ? this.product_selected.categorie._id : 0;
       this.price_soles = this.product_selected.price_soles;     
       this.price_usd = this.product_selected.price_usd;
-      this.stock = this.product_selected.stock;
+      this.stock = this.product_selected.stock;      
       this.image_preview = this.product_selected.imagen;
       this.description = this.product_selected.description;
       this.resumen = this.product_selected.resumen;
@@ -81,6 +85,8 @@ export class EditNewProductComponent implements OnInit {
       this.type_inventario = this.product_selected.type_inventario;
       this.galerias = this.product_selected.galerias;
       this.state = this.product_selected.state;
+
+      
     });
 
     this._categorieService.allCategories().subscribe((resp:any) => {
@@ -206,7 +212,7 @@ export class EditNewProductComponent implements OnInit {
     modalRef.componentInstance.variedad = variedad;
 
     modalRef.componentInstance.VariedadE.subscribe((VariedadE:any) => {
-      let index = this.variedades.findIndex(item => item._id == VariedadE._id);
+      let index = this.variedades.findIndex(item => item.id == VariedadE.id);
       if (index != -1) {
         this.variedades[index] = VariedadE;
         this.toaster.open(NoticyAlertComponent, {text: `primary- La variedad se modifico correctamente.`});
@@ -219,7 +225,7 @@ export class EditNewProductComponent implements OnInit {
     modalRef.componentInstance.variedad = variedad;
 
     modalRef.componentInstance.VariedadD.subscribe((resp:any) => {
-      let index = this.variedades.findIndex(item => item._id == variedad._id);
+      let index = this.variedades.findIndex(item => item.id == variedad.id);
       if (index != -1) {
         this.variedades.splice(index,1);
         this.toaster.open(NoticyAlertComponent, {text: `primary- La variedad se elimnó correctamente.`});
@@ -238,19 +244,28 @@ export class EditNewProductComponent implements OnInit {
     formData.append("__id", new Date().getTime().toString());
 
     this._productService.createGaleria(formData).subscribe((resp:any) => {
+      console.log("--- debbu createGaleria 249---");
       console.log(resp);
+
       this.imagen_file_galeria = null;
       this.image_preview_galeria = null;
-      this.galerias.unshift(resp.imagen)
+      this.galerias.unshift( resp.imagen );
+
+      console.log("---- galerias ----");
+
+      console.log(this.galerias);
+      
+      
     })
   }
 
-  removeImage(imagen) {
+  removeImage(imagen) {    
     const modalRef = this._modalService.open(DeleteGaleriaImagenComponent, {centered:true, size: 'sm'});
     modalRef.componentInstance.imagen = imagen;
     modalRef.componentInstance.product_id = this.product_id;
     modalRef.componentInstance.ImagenD.subscribe((resp:any) => {
-      let index = this.galerias.findIndex(item => item._id == imagen._id);
+      
+      let index = this.galerias.findIndex(item => item.id == imagen.id);
       if (index != -1) {
         this.galerias.splice(index,1);
         this.toaster.open(NoticyAlertComponent, {text: `primary- La imagen se elimnó correctamente.`});

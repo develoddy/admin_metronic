@@ -20,7 +20,7 @@ export class ProductService {
     this.isLoading$ = this.isLoadingSubject.asObservable();
   }
 
-  allProducts( search='', categorie=null) {
+  allProducts( search='', categorie=null ) {
     this.isLoadingSubject.next(true);
     let header = new HttpHeaders({'token': this._authservice.token});
     let LINK = "";
@@ -32,6 +32,7 @@ export class ProductService {
     if (categorie) {
       LINK += "&categorie="+categorie;
     }
+    
     let URL = URL_SERVICIOS+"/products/list"+LINK;
     return this._http.get(URL, {headers: header}).pipe(
       finalize(() => this.isLoadingSubject.next(false))
@@ -42,6 +43,7 @@ export class ProductService {
     this.isLoadingSubject.next(true);
     let header = new HttpHeaders({'token': this._authservice.token})
     let URL = URL_SERVICIOS+"/products/show/"+product_id;
+
     return this._http.get(URL, {headers: header}).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     ); 

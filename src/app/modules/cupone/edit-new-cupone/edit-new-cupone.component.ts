@@ -54,7 +54,7 @@ export class EditNewCuponeComponent implements OnInit {
 
   showCupon() {
     this._cuponeService.showCupon(this.cupone_id).subscribe((resp:any) => {
-      console.log(resp);
+    
       this.cupone_selected = resp.cupon;
       this.code= this.cupone_selected.code;
       this.type_discount= this.cupone_selected.type_discount;
@@ -65,18 +65,22 @@ export class EditNewCuponeComponent implements OnInit {
       this.state = this.cupone_selected.state ? this.cupone_selected.state : 1;
 
       if(this.type_segment == 1) {
-        this.cupone_selected.products.forEach(product_s => {
+        this.cupone_selected.cupones_products.forEach(product_s => {
+
           this.products.forEach(product => {
-            if (product._id == product_s._id) {
+            if (product.id == product_s.productId) {
               this.products_selected.push(product);
             }
           });
         });
       } else {
-        this.cupone_selected.categories.forEach(product_s => {
-          this.products.forEach(product => {
-            if (product._id == product_s._id) {
-              this.categories_selected.push(product);
+        this.cupone_selected.cupones_categories.forEach(product_s => {
+          console.log(product_s);
+          console.log(this.products);
+          
+          this.categories.forEach(categorie => {
+            if (categorie.id == product_s.categoryId) {
+              this.categories_selected.push(categorie);
             }
           });
         });
@@ -100,22 +104,26 @@ export class EditNewCuponeComponent implements OnInit {
 
   addProductOrCategorie() {
     if (this.type_segment == 1) {
-      let INDEX = this.products_selected.findIndex(item => item._id == this.product);
+      console.log("--this.products_selected");
+      console.log(this.products_selected);
+      
+      
+      let INDEX = this.products_selected.findIndex(item => item.id == this.product);
       if (INDEX != -1) {
         this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! El producto ya existe. Selecciona otro producto.`});
         return;
       } else {
-        let PRODUCT_S = this.products.find(item => item._id == this.product);
+        let PRODUCT_S = this.products.find(item => item.id == this.product);
         this.product = null;
         this.products_selected.unshift(PRODUCT_S);
       }
     } else {
-      let INDEX = this.categories_selected.findIndex(item => item._id == this.categorie);
+      let INDEX = this.categories_selected.findIndex(item => item.id == this.categorie);
       if (INDEX != -1) {
         this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! La categoria ya existe. Selecciona otro categoria.`});
         return;
       } else {
-        let CATEGORIA_S = this.categories.find(item => item._id == this.categorie);
+        let CATEGORIA_S = this.categories.find(item => item.id == this.categorie);
         this.categorie = null;
         this.categories_selected.unshift(CATEGORIA_S);
       }
@@ -123,13 +131,13 @@ export class EditNewCuponeComponent implements OnInit {
   }
 
   removeProduct(product){
-    let INDEX = this.products_selected.findIndex(item => item._id == product._id);
+    let INDEX = this.products_selected.findIndex(item => item.id == product._id);
     if (INDEX != -1) {
       this.products_selected.splice(INDEX,1);
     }
   }
   removeCategorie(categorie){
-    let INDEX = this.categories_selected.findIndex(item => item._id == categorie._id);
+    let INDEX = this.categories_selected.findIndex(item => item.id == categorie._id);
     if (INDEX != -1) {
       this.categories_selected.splice(INDEX,1);
     }

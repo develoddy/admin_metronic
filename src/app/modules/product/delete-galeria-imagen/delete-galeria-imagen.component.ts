@@ -24,9 +24,13 @@ export class DeleteGaleriaImagenComponent implements OnInit {
   }
 
   delete() {
+
+    console.log("this.product_id: ", this.product_id);
+    console.log("this.imagen._id: ", this.imagen.id);
+    
     let data = {
       _id: this.product_id,
-      __id:this.imagen._id,
+      __id:this.imagen.id,
     }
     this._productService.deleteGaleria(data).subscribe((resp:any) => {
       this.ImagenD.emit('');

@@ -44,14 +44,18 @@ export class ListDiscountComponent implements OnInit {
   }
 
   editDiscount(discount){
-    this._router.navigateByUrl("/discounts/edit-discount/"+discount._id);
+    this._router.navigateByUrl("/discounts/edit-discount/"+discount.id);
   }
   delete(discount){
     const modalRef = this._modalService.open(DeleteNewDiscountComponent, {centered:true, size: 'md'});
+    console.log("delete");
+    console.log(discount);
+    
+    
     modalRef.componentInstance.discount_selected = discount;
 
     modalRef.componentInstance.DiscountD.subscribe((resp:any) => {
-      let index = this.discounts.findIndex(item => item._id == discount._id);
+      let index = this.discounts.findIndex(item => item.id == discount.id);
       if (index != -1) {
         this.discounts.splice(index,1);
       }

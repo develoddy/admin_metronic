@@ -103,8 +103,8 @@
                     <label for="">Selec. Producto <span class="text-danger">*</span></label>
                     <select class="form-control" [(ngModel)]="product" name="product">
                         <option value="">Ninguno</option>
-                        <ng-container *ngFor="let product of products" >
-                            <option [value]="product._id">{{ product.title }}</option>
+                        <ng-container *ngFor="let item of products">
+                            <option [value]="item.id">{{ item.title }}</option>
                         </ng-container>
                     </select>
                 </div>
@@ -114,8 +114,8 @@
                     <label for="">Selec. Categoria <span class="text-danger">*</span></label>
                     <select class="form-control" [(ngModel)]="categorie" name="categorie">
                         <option value="">Ninguno</option>
-                        <ng-container *ngFor="let category of categories" >
-                            <option [value]="category._id">{{ category.title }}</option>
+                        <ng-container *ngFor="let item of categories" >
+                            <option [value]="item.id">{{ item.title }}</option>
                         </ng-container>
                     </select>
                 </div>
