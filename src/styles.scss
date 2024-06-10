@@ -103,3 +103,61 @@
   height: 3px;
   width: 100%;
 }
+
+// Color Variants
+
+.product-variation {
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.product-variation .title {
+  font-weight: 500;
+  font-size: 20px;
+  margin-bottom: 0;
+  min-width: 114px;
+}
+
+
+
+.color-variant {
+  margin: -5px -2px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.product-variation .color-variant li {
+  margin: 5px;
+}
+
+.product-variation .color-variant li>span .color {
+  width: 11px;
+  height: 11px;
+}
+
+
+.color-variant li>span .color {
+  display: block;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  border-radius: 50%;
+  border: none;
+}
+
+
+
+.color-variant li {
+  margin: 5px 2px;
+  cursor: pointer;
+}
+
+.product-variation .color-variant li>span .color {
+  width: 11px;
+  height: 11px;
+}
+
+.color-variant li.color-extra-02 span .color {
+  background: #5f8af7;
+}

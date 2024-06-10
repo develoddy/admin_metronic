@@ -48,6 +48,10 @@ export class EditNewProductComponent implements OnInit {
 
   galerias:any=[];
 
+  activeIndex: number = 0; // Inicializar el índice activo
+
+  selectedColor: string = '';
+
   constructor(
     public _productService: ProductService,
     public _categorieService: CategoriesService,
@@ -93,6 +97,31 @@ export class EditNewProductComponent implements OnInit {
       this.categories = resp.categories;
       this.loadServices();
     });
+  }
+
+  selectColor(index: number): void {
+    //this.selectedColorIndex = index;
+    this.selectedColor = this.tags[index];
+    console.log("____API: ", this.selectedColor );
+  }
+
+  getColorHex(color: string): string {
+    // Mapea los nombres de los colores a sus valores hexadecimales correspondientes
+    const colorMap: { [key: string]: string } = {
+        'Faded Black': '#424242',
+        'Faded Khaki': '#dbc4a2',
+        'Black': '#080808',
+        'Navy': '#152438',
+        'Maroon': '#6c152b',
+        'Red': '#e41525',
+        'Royal': '#1652ac',
+        'Sport Grey': '#9b969c',
+        'Light blue': '#9dbfe2',
+        'Faded Eucalyptus': '#d1cbad',
+        // Puedes agregar más colores aquí según sea necesario
+    };
+    // Devuelve el valor hexadecimal correspondiente al color
+    return colorMap[color] || '';
   }
 
   loadServices() {
@@ -234,29 +263,27 @@ export class EditNewProductComponent implements OnInit {
   }
 
   storeImagen() {
-    if (!this.imagen_file_galeria) {
+    if (!this.imagen_file_galeria ) {
       this.toaster.open(NoticyAlertComponent, {text: `danger- Necesitas selecionar una imagen.`});
       return; 
     }
+
+    if (!this.selectedColor ) {
+      this.toaster.open(NoticyAlertComponent, {text: `danger- Necesitas selecionar un color para la imagen`});
+      return; 
+    }
+
     let formData = new FormData();
     formData.append("_id", this.product_id);
     formData.append("imagen", this.imagen_file_galeria);
+    formData.append("color", this.selectedColor);
     formData.append("__id", new Date().getTime().toString());
 
     this._productService.createGaleria(formData).subscribe((resp:any) => {
-      console.log("--- debbu createGaleria 249---");
-      console.log(resp);
-
       this.imagen_file_galeria = null;
       this.image_preview_galeria = null;
       this.galerias.unshift( resp.imagen );
-
-      console.log("---- galerias ----");
-
-      console.log(this.galerias);
-      
-      
-    })
+    });
   }
 
   removeImage(imagen) {    

@@ -145,12 +145,24 @@
                     <div class="col col-12 col-lg-12">
                         <label for="">Imagen: <span class="text-danger">*</span></label>
                         <div class="col col-12 col-lg-12 my-2 d-flex">
+                            <div class="product-variations-wrapper">
+                                <label class="form-label">Color *</label>
+                                <div class="color-variant-wrapper">
+                                    <ul class="color-variant" style="list-style: none; padding-inline-start: 0 !important;">
+                                        <li *ngFor="let color of tags; let i = index" [class.active]="color === selectedColor" (click)="selectColor(i)">
+                                            <span><span class="color" [style.backgroundColor]="getColorHex(color)"></span></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col col-12 col-lg-12 my-2 d-flex">
                             <div class="p">
                                 <label class="form-label">Sube tu imagen: *</label>
                                 <div class="custom-file">
                                     <input type="file" class="custom-file-input" id="customFile"  accept=".jpeg, .bmp, .jpg, .png, .gif, .webp"  (change)="processFileGaleria($event)">
                                     <label class="custom-file-label" for="customFile">Choose file</label>
-                                </div>
+                                </div>                                
                             </div>
                             <div class="p">
                                 <div class="form-group">
