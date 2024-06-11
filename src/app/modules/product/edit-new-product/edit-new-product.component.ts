@@ -118,6 +118,8 @@ export class EditNewProductComponent implements OnInit {
         'Sport Grey': '#9b969c',
         'Light blue': '#9dbfe2',
         'Faded Eucalyptus': '#d1cbad',
+        'Faded Bone': '#f3ede4',
+        'White': '#ffffff',
         // Puedes agregar más colores aquí según sea necesario
     };
     // Devuelve el valor hexadecimal correspondiente al color
