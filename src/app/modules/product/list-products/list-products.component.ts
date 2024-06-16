@@ -64,6 +64,10 @@ export class ListProductsComponent implements OnInit {
     this.allProducts();
   }
 
+  synPrintful() {
+    
+  }
+
   editProduct(product) {
     this._router.navigateByUrl("/products/edit-product/"+product._id);
     
