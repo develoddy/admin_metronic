@@ -10,6 +10,43 @@ export const AsideMenuAdminGeneral = {
         translate: 'MENU.DASHBOARD',
         bullet: 'dot',
       },
+
+      // Provedores
+      { section : 'Proveedores'},
+      {
+        title: 'Printful',
+        root: true,
+        name: "printful",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Layout/Layout-horizontal.svg',
+        page: '/printful',
+        submenu: [
+          {
+            title: 'Sincronizar',
+            page: '/printful/list'
+          }
+        ]
+      },
+      {
+        title: 'Printify',
+        root: true,
+        name: "printify",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Layout/Layout-vertical.svg',
+        page: '/printify',
+        submenu: [
+          {
+            title: 'Sincronizar',
+            page: '/printify/list'
+          }
+        ]
+      },
+
+      // End proveedor
+
+
       { section: 'Usuario' },
       {
         title: 'Usuarios',

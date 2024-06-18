@@ -1,0 +1,14 @@
+
+<ng-container *ngIf="this._printfulService.isLoadingSubject | async; else loaded">
+    <span class="spinner spinner-primary ml-5"></span>
+</ng-container>
+<h4>Sincronizar productos de Printful</h4>
+
+<ng-container #loaded>
+    <button class="btn btn-success w-50" (click)="synProducts()">Sincronizar con Printful</button>
+    
+    <ng-container *ngIf="isLoaded">
+        <br><br>
+        <small class="bg-secondary p-3 rounded">Productos sincronizados correctamente. <a routerLink="/products/list-all-products">Ir a la lista de productos</a></small> 
+    </ng-container>
+</ng-container>

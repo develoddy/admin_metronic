@@ -103,6 +103,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'printful',
+        loadChildren: () =>
+          import('../modules/printful/printful.module').then(
+            (m) => m.PrintfulModule
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',

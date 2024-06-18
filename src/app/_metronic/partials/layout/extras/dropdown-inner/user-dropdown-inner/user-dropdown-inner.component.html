@@ -5,31 +5,35 @@
     <div class="d-flex align-items-center p-8 rounded-top">
       <!--begin::Symbol-->
       <div class="symbol symbol-md bg-light-primary mr-3 flex-shrink-0">
-        <img src="https://crmmonithors.nyc3.digitaloceanspaces.com/images_c/monithorimagen.png" alt="" />
+        <img
+          src="https://crmmonithors.nyc3.digitaloceanspaces.com/images_c/monithorimagen.png"
+          alt=""
+        />
       </div>
       <!--end::Symbol-->
 
       <!--begin::Text-->
       <div class="text-dark m-0 flex-grow-1 mr-3 font-size-h5">
-        {{ user$.name + ' ' + user$.surname }} 
+        {{ user$.name + " " + user$.surname }}
         <!-- {{ user$.lastname }} -->
       </div>
       <span
         class="label label-light-success label-lg font-weight-bold label-inline py-5"
-        style="font-size: smaller;"
-        >{{ user$.rol }} </span
-      >
+        style="font-size: smaller"
+        >{{ user$.rol }}
+      </span>
       <!--end::Text-->
     </div>
     <div class="separator separator-solid"></div>
     <!--end::Header-->
   </ng-container>
+  
 
   <ng-container *ngIf="extrasUserDropdownStyle === 'dark'">
     <!--begin::Header-->
     <div
       class="d-flex align-items-center justify-content-between flex-wrap p-8 bgi-size-cover bgi-no-repeat rounded-top"
-      style="background-image: url('./assets/media/misc/bg-1.jpg');"
+      style="background-image: url('./assets/media/misc/bg-1.jpg')"
     >
       <div class="d-flex align-items-center mr-2">
         <!--begin::Symbol-->
@@ -43,7 +47,7 @@
 
         <!--begin::Text-->
         <div class="text-white m-0 flex-grow-1 mr-3 font-size-h5">
-          {{ user$.name }} 
+          {{ user$.name }}
           <!-- {{ user$.lastname }} -->
         </div>
         <!--end::Text-->
@@ -73,9 +77,7 @@
           <i class="flaticon2-calendar-3 text-success"></i>
         </div>
         <div class="navi-text">
-          <div class="font-weight-bold">
-            Mi Perfil
-          </div>
+          <div class="font-weight-bold">Mi Perfil</div>
           <div class="text-muted">
             Configura tu cuenta y más
             <span class="label label-light-danger label-inline font-weight-bold"
@@ -94,12 +96,8 @@
           <i class="flaticon2-mail text-warning"></i>
         </div>
         <div class="navi-text">
-          <div class="font-weight-bold">
-            My Messages
-          </div>
-          <div class="text-muted">
-            Inbox and tasks
-          </div>
+          <div class="font-weight-bold">My Messages</div>
+          <div class="text-muted">Inbox and tasks</div>
         </div>
       </div>
     </a>
@@ -112,12 +110,8 @@
           <i class="flaticon2-rocket-1 text-danger"></i>
         </div>
         <div class="navi-text">
-          <div class="font-weight-bold">
-            My Activities
-          </div>
-          <div class="text-muted">
-            Logs and notifications
-          </div>
+          <div class="font-weight-bold">My Activities</div>
+          <div class="text-muted">Logs and notifications</div>
         </div>
       </div>
     </a>
@@ -130,12 +124,8 @@
           <i class="flaticon2-hourglass text-primary"></i>
         </div>
         <div class="navi-text">
-          <div class="font-weight-bold">
-            My Tasks
-          </div>
-          <div class="text-muted">
-            latest tasks and projects
-          </div>
+          <div class="font-weight-bold">My Tasks</div>
+          <div class="text-muted">latest tasks and projects</div>
         </div>
       </div>
     </a>

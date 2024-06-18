@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LayoutService } from '../../../../../core';
+import { ProductService } from 'src/app/modules/product/_services/product.service';
 
 @Component({
   selector: 'app-notifications-dropdown-inner',
@@ -12,12 +13,17 @@ export class NotificationsDropdownInnerComponent implements OnInit {
     | 'topbar_notifications_notifications'
     | 'topbar_notifications_events'
     | 'topbar_notifications_logs' = 'topbar_notifications_notifications';
-  constructor(private layout: LayoutService) {}
+  
+  constructor(
+    private layout: LayoutService,
+    public _productService: ProductService,
+  ) {}
 
   ngOnInit(): void {
     this.extrasNotificationsDropdownStyle = this.layout.getProp(
       'extras.notifications.dropdown.style'
     );
+    
   }
 
   setActiveTabId(tabId) {
