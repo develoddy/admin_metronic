@@ -23,7 +23,6 @@ export class ListPrintfulComponent implements OnInit {
   synProducts() {
     
     this._printfulService.synPrintfulProducts().subscribe((resp:any)=> {
-      console.log(resp);
       this.isLoaded = true;
       //this.loadServices();
     });

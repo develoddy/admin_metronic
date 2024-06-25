@@ -69,10 +69,6 @@ export class EditNewProductComponent implements OnInit {
 
     this._productService.showProduct(this.product_id).subscribe((resp:any) => {
 
-      console.log("---- debugg edit product ---");
-      console.log(resp);
-      
-    
       this.product_selected = resp.product;
       this.title = this.product_selected.title;
       this.sku = this.product_selected.sku;
@@ -85,18 +81,30 @@ export class EditNewProductComponent implements OnInit {
       this.description = this.product_selected.description;
       this.resumen = this.product_selected.resumen;
       this.tags = this.product_selected.tags;
-      this.variedades = this.product_selected.variedades;
+      // this.variedades = this.product_selected.variedades;
+      this.variedades = this.getUniqueVariedades(this.product_selected.variedades);
       this.type_inventario = this.product_selected.type_inventario;
       this.galerias = this.product_selected.galerias;
       this.state = this.product_selected.state;
 
-      
     });
 
     this._categorieService.allCategories().subscribe((resp:any) => {
       this.categories = resp.categories;
       this.loadServices();
     });
+  }
+
+  getUniqueVariedades(variedades) {
+    const uniqueVariedades = variedades.reduce((acc:any, current:any) => {
+      const x = acc.find((item:any) => item.valor === current.valor);
+      if (!x) {
+        return acc.concat([current]);
+      } else {
+        return acc;
+      }
+    }, []);
+    return uniqueVariedades;
   }
 
   selectColor(index: number): void {
