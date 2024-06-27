@@ -9,6 +9,7 @@ import { EditNewVariedadComponent } from '../variedades/edit-new-variedad/edit-n
 import { DeleteNewVariedadComponent } from '../variedades/delete-new-variedad/delete-new-variedad.component';
 import { DeleteGaleriaImagenComponent } from '../delete-galeria-imagen/delete-galeria-imagen.component';
 
+declare var tinymce: any;
 @Component({
   selector: 'app-edit-new-product',
   templateUrl: './edit-new-product.component.html',
@@ -62,6 +63,7 @@ export class EditNewProductComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.tinymceINIT();
     this.isLoading$ = this._productService.isLoading$;
     this._activeRouter.params.subscribe((resp:any) => {
       this.product_id = resp.id;
@@ -93,6 +95,27 @@ export class EditNewProductComponent implements OnInit {
       this.categories = resp.categories;
       this.loadServices();
     });
+  }
+
+  tinymceINIT() {
+    tinymce.init({
+      selector: 'textarea#description', // Selector del textarea
+      height: 250,
+      language: 'es',
+      plugins: [
+        'advlist autolink lists link image charmap print preview anchor',
+        'searchreplace visualblocks code fullscreen',
+        'insertdatetime media table paste code help wordcount'
+      ],
+      toolbar:
+        'undo redo | formatselect | bold italic backcolor | \
+        alignleft aligncenter alignright alignjustify | \
+        bullist numlist outdent indent | removeformat | help'
+    });
+  }
+
+  ngOnDestroy(): void {
+    tinymce.remove('textarea#description'); // Limpiar TinyMCE cuando se destruye el componente
   }
 
   getUniqueVariedades(variedades) {
