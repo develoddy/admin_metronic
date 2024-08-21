@@ -19,6 +19,7 @@ import { FakeAPIService } from './_fake/fake-api.service';
 import { NoticyAlertComponent } from './componets/notifications/noticy-alert/noticy-alert.component';
 import { ToastNotificationsModule } from 'ngx-toast-notifications';
 import { DatePipe } from '@angular/common';
+import { LoginComponent } from './modules/dropi/pe/login/login.component';
 // #fake-end#
 
 function appInitializer(authService: AuthService) {
@@ -30,7 +31,7 @@ function appInitializer(authService: AuthService) {
 }
 
 @NgModule({
-  declarations: [AppComponent,NoticyAlertComponent],
+  declarations: [AppComponent,NoticyAlertComponent, LoginComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

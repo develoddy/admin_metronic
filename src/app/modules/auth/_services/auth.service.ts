@@ -64,7 +64,6 @@ export class AuthService implements OnDestroy {
 login(email: string, password: string) {
     this.isLoadingSubject.next(true);
     let url = URL_SERVICIOS + "/users/login_admin";
-    console.log({email, password})
     return this.http.post(url,{email, password}).pipe(
       map((auth: any) => {
         console.log(auth)

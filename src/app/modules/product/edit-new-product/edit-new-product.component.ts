@@ -98,8 +98,8 @@ export class EditNewProductComponent implements OnInit {
   }
 
   tinymceINIT() {
-    tinymce.init({
-      selector: 'textarea#description', // Selector del textarea
+    /*tinymce.init({
+      selector: 'textarea#description', 
       height: 250,
       language: 'es',
       plugins: [
@@ -111,7 +111,28 @@ export class EditNewProductComponent implements OnInit {
         'undo redo | formatselect | bold italic backcolor | \
         alignleft aligncenter alignright alignjustify | \
         bullist numlist outdent indent | removeformat | help'
+    });*/
+
+    tinymce.init({
+      selector: 'textarea#description',
+      height: 250,
+      language: 'es',
+      plugins: [
+        'advlist autolink lists link image charmap print preview anchor',
+        'searchreplace visualblocks code fullscreen',
+        'insertdatetime media table paste code help wordcount'
+      ],
+      toolbar:
+        'undo redo | formatselect | bold italic backcolor | ' +
+        'alignleft aligncenter alignright alignjustify | ' +
+        'bullist numlist outdent indent | removeformat | help',
+      setup: (editor) => {
+        editor.on('Change KeyUp', () => {
+          this.description = editor.getContent();
+        });
+      }
     });
+    
   }
 
   ngOnDestroy(): void {
@@ -133,7 +154,6 @@ export class EditNewProductComponent implements OnInit {
   selectColor(index: number): void {
     //this.selectedColorIndex = index;
     this.selectedColor = this.tags[index];
-    console.log("____API: ", this.selectedColor );
   }
 
   getColorHex(color: string): string {
@@ -200,6 +220,11 @@ export class EditNewProductComponent implements OnInit {
   }
 
   update() {
+
+    this.description = tinymce.get('description').getContent();
+    console.log("description: ", this.description);
+
+
     if ( !this.title || !this.categorie || !this.price_soles || !this.price_usd || !this.resumen || !this.description || !this.sku || this.tags.length == 0 ) {
       this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesitas digitar todos los campos del formulario.`});
       return;

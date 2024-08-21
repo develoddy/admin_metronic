@@ -43,6 +43,25 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
+      {
+        title: 'Dropi',
+        root: true,
+        name: "dropi",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Layout/Layout-vertical.svg',
+        page: '/dropi',
+        submenu: [
+          {
+            title: 'Perú',
+            page: '/dropi/login-pe'
+          },
+          {
+            title: 'España',
+            page: '/dropi/login-es'
+          }
+        ]
+      },
 
       // End proveedor
 
