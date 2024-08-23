@@ -110,13 +110,6 @@ const routes: Routes = [
           ),
       },
       {
-        path: 'dropi',
-        loadChildren: () =>
-          import('../modules/dropi/dropi.module').then(
-            (m) => m.DropiModule
-          ),
-      },
-      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',
