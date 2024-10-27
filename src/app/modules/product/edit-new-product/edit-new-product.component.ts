@@ -31,6 +31,8 @@ export class EditNewProductComponent implements OnInit {
   description:any=null;
   resumen:any=null;
   state:any=1;
+
+  color:any=null;
   //
   tag:any=null;
   tags:any=[];
@@ -83,6 +85,7 @@ export class EditNewProductComponent implements OnInit {
       this.description = this.product_selected.description;
       this.resumen = this.product_selected.resumen;
       this.tags = this.product_selected.tags;
+      
       // this.variedades = this.product_selected.variedades;
       this.variedades = this.getUniqueVariedades(this.product_selected.variedades);
       this.type_inventario = this.product_selected.type_inventario;
@@ -98,21 +101,6 @@ export class EditNewProductComponent implements OnInit {
   }
 
   tinymceINIT() {
-    /*tinymce.init({
-      selector: 'textarea#description', 
-      height: 250,
-      language: 'es',
-      plugins: [
-        'advlist autolink lists link image charmap print preview anchor',
-        'searchreplace visualblocks code fullscreen',
-        'insertdatetime media table paste code help wordcount'
-      ],
-      toolbar:
-        'undo redo | formatselect | bold italic backcolor | \
-        alignleft aligncenter alignright alignjustify | \
-        bullist numlist outdent indent | removeformat | help'
-    });*/
-
     tinymce.init({
       selector: 'textarea#description',
       height: 250,
@@ -200,7 +188,7 @@ export class EditNewProductComponent implements OnInit {
   processFileGaleria($event) {
     if ( $event.target.files[ 0 ].type.indexOf("image") < 0 ) {
       this.image_preview_galeria = null;
-      this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesita ingresar un archivo de timpo imagen.`});
+      this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesita ingresar un archivo de tipo imagen`});
       return;
     }
     this.imagen_file_galeria = $event.target.files[0];
@@ -222,8 +210,6 @@ export class EditNewProductComponent implements OnInit {
   update() {
 
     this.description = tinymce.get('description').getContent();
-    console.log("description: ", this.description);
-
 
     if ( !this.title || !this.categorie || !this.price_soles || !this.price_usd || !this.resumen || !this.description || !this.sku || this.tags.length == 0 ) {
       this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesitas digitar todos los campos del formulario.`});
@@ -249,12 +235,12 @@ export class EditNewProductComponent implements OnInit {
     }
 
     this._productService.updateProduct(formData).subscribe((resp:any) => {
-      console.log(resp);
       if( resp.code == 403 ) {
         this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! El producto ya existe. Digitar otro nombre.`});
         return;
       } else {
         this.toaster.open(NoticyAlertComponent, {text: `primary- El producto se modificado correctamente.`});
+       
         return;
       }
     })
@@ -266,6 +252,8 @@ export class EditNewProductComponent implements OnInit {
 
   checkedInventario(value) {
     this.type_inventario =  value;
+    
+    
   }
 
   saveVariedad() {
@@ -273,19 +261,33 @@ export class EditNewProductComponent implements OnInit {
       this.toaster.open(NoticyAlertComponent, {text: `danger- Es necesario digitar un valor y una cantidad.`});
       return;
     }
+
     let data = {
-      product: this.product_id,
-      valor: this.valor_multiple,
-      stock: this.stock_multiple,
+      product                        : this.product_id,
+      valor                          : this.valor_multiple,
+      stock                          : this.stock_multiple,
+      color                          : this.color,
+      external_id                    : null,
+      sync_product_id                : null,
+      name                           : null,
+      synced                         : null,
+      variant_id                     : null,
+      main_category_id               : null,
+      warehouse_product_id           : null,
+      warehouse_product_variant_id   : null,
+      retail_price                   : this.price_soles || this.price_usd,
+      sku                            : this.product_selected.sku,
+      currency                       : "EUR",
     }
+
     this._productService.createVariedad(data).subscribe((resp:any) => {
-      console.log(resp);
       this.valor_multiple = null;
       this.stock_multiple = null;
 
       let index = this.variedades.findIndex(item => item._id == resp.variedad._id);
       if (index != -1) {
-        this.variedades[index] = resp.variedad;
+        //this.variedades[index] = resp.variedad;
+        this.variedades.push(resp.variedad);
         this.toaster.open(NoticyAlertComponent, {text: `primary- La variedad se modifico correctamente.`});
       } else {
         this.variedades.unshift(resp.variedad);

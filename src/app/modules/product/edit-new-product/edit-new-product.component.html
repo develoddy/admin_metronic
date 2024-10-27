@@ -87,7 +87,7 @@
             </div>
             <div class="col col-12 col-lg-12">
                 <label class="form-label mt-5">Descripción: *</label>
-                <textarea id="description" name="description"></textarea>
+                <textarea id="description" name="description" [(ngModel)]="description"></textarea>
                 <!-- <editor
                     [(ngModel)]="description"
                     [init]="{
@@ -147,11 +147,11 @@
                         <label for="">Imagen: <span class="text-danger">*</span></label>
                         <div class="col col-12 col-lg-12 my-2 d-flex">
                             <div class="product-variations-wrapper">
-                                <label class="form-label">Color *</label>
+                                <label class="form-label">Colores *</label>
                                 <div class="color-variant-wrapper">
                                     <ul class="color-variant" style="list-style: none; padding-inline-start: 0 !important;">
                                         <li *ngFor="let color of tags; let i = index" [class.active]="color === selectedColor" (click)="selectColor(i)">
-                                            <span><span class="color" [style.backgroundColor]="getColorHex(color)"></span></span>
+                                            <span><span class="color border" [style.backgroundColor]="getColorHex(color)"></span></span>
                                         </li>
                                     </ul>
                                 </div>
@@ -167,7 +167,7 @@
                             </div>
                             <div class="p">
                                 <div class="form-group">
-                                    <button class="btn btn-primary mx-2" (click)="storeImagen()">+</button>
+                                    <button class="btn btn-primary mx-2" (click)="storeImagen()">+Agregar</button>
                                 </div>
                             </div>
                         </div>
@@ -247,6 +247,21 @@
                         </div>
                     </div>
                     <div class="col-4">
+                        <div class="form-group">
+                            <label for="">Selec. Color <span class="text-danger">*</span></label>
+                            
+                            <select class="form-control" [(ngModel)]="color" name="color">
+                                <option value="none">Ninguno</option>
+                                <!-- <li *ngFor="let color of tags; let i = index" [class.active]="color === selectedColor" (click)="selectColor(i)">
+                                    <span><span class="color border" [style.backgroundColor]="getColorHex(color)"></span></span>
+                                </li> -->
+                                <ng-container *ngFor="let color of tags" >
+                                    <option [value]="color">{{ color }} </option>
+                                </ng-container>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-4">
                         <button class="btn btn-primary" (click)="saveVariedad()">+</button>
                     </div>
                 </div>
@@ -258,13 +273,22 @@
                                     <tr class="text-left">
                                         <th>Valor</th>
                                         <th>Stock</th>
+                                        <th>Color</th>
                                         <th>Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let variedad of variedades">
+                                    <tr *ngFor="let variedad of variedades; let i = index" [class.active]="color === selectedColor">
                                         <td> {{variedad.valor}} </td>
                                         <td> {{variedad.stock}} </td>
+                                        <td>
+                                            <span class="color border" style="
+                                                display: block;
+                                                width: 24px;
+                                                height: 24px;
+                                                line-height: 1;
+                                                border-radius: 50%;" [style.backgroundColor]="getColorHex(variedad.color)"></span>
+                                        </td>
                                         <td>
                                             <a (click)="editVariedad(variedad)" class="btn btn-icon btn-light btn-hover-primary btn-sm mx-1" ngbTooltip="Editar Variedad" ngbTooltipClass="kt-tooltip">
                                                 <span class="svg-icon svg-icon-md svg-icon-primary">
