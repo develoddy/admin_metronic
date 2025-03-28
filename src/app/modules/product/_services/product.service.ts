@@ -18,6 +18,8 @@ export class ProductService {
   ) {
     this.isLoadingSubject = new BehaviorSubject<boolean>(false);
     this.isLoading$ = this.isLoadingSubject.asObservable();
+
+    
   }
 
   allProducts( search='', categorie=null ) {

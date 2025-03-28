@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { ProductService } from '../_services/product.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CategoriesService } from '../../categories/_services/categories.service';
@@ -8,6 +8,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { EditNewVariedadComponent } from '../variedades/edit-new-variedad/edit-new-variedad.component';
 import { DeleteNewVariedadComponent } from '../variedades/delete-new-variedad/delete-new-variedad.component';
 import { DeleteGaleriaImagenComponent } from '../delete-galeria-imagen/delete-galeria-imagen.component';
+import { Subscription } from 'rxjs';
 
 declare var tinymce: any;
 @Component({
@@ -15,7 +16,7 @@ declare var tinymce: any;
   templateUrl: './edit-new-product.component.html',
   styleUrls: ['./edit-new-product.component.scss']
 })
-export class EditNewProductComponent implements OnInit {
+export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy {
 
   product_id:any=null;
   product_selected:any=null;
@@ -38,6 +39,7 @@ export class EditNewProductComponent implements OnInit {
   tags:any=[];
 
   isLoading$:any;
+
   type_inventario:any = 1;
   stock:any=0;
   
@@ -55,6 +57,8 @@ export class EditNewProductComponent implements OnInit {
 
   selectedColor: string = '';
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     public _productService: ProductService,
     public _categorieService: CategoriesService,
@@ -62,18 +66,33 @@ export class EditNewProductComponent implements OnInit {
     public _activeRouter: ActivatedRoute,
     public toaster: Toaster,
     public _modalService: NgbModal
-  ) { }
+  ) { 
+    
+  }
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.tinymceINIT();
+    }, 150);
+  }
 
   ngOnInit(): void {
-    this.tinymceINIT();
+    
+    // this.subscriptions = this._productService.isLoading$.subscribe(isLoading => {
+    //   this.isLoading$= isLoading;
+    // });
     this.isLoading$ = this._productService.isLoading$;
     this._activeRouter.params.subscribe((resp:any) => {
       this.product_id = resp.id;
     });
+    
+
+    
 
     this._productService.showProduct(this.product_id).subscribe((resp:any) => {
 
       this.product_selected = resp.product;
+      console.log("priduct seleted: ", this.product_selected);
+      
       this.title = this.product_selected.title;
       this.sku = this.product_selected.sku;
       this.categorie = this.product_selected.categorie.id;
@@ -93,6 +112,8 @@ export class EditNewProductComponent implements OnInit {
       this.state = this.product_selected.state;
 
     });
+
+    
 
     this._categorieService.allCategories().subscribe((resp:any) => {
       this.categories = resp.categories;
@@ -121,10 +142,6 @@ export class EditNewProductComponent implements OnInit {
       }
     });
     
-  }
-
-  ngOnDestroy(): void {
-    tinymce.remove('textarea#description'); // Limpiar TinyMCE cuando se destruye el componente
   }
 
   getUniqueVariedades(variedades) {
@@ -358,5 +375,13 @@ export class EditNewProductComponent implements OnInit {
         this.toaster.open(NoticyAlertComponent, {text: `primary- La imagen se elimnó correctamente.`});
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    // Desuscribir todas las suscripciones en el método OnDestroy
+    if (this.subscriptions) {
+      this.subscriptions.unsubscribe();
+    }
+    tinymce.remove('textarea#description'); // Limpiar TinyMCE cuando se destruye el componente
   }
 }

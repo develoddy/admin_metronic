@@ -1,25 +1,27 @@
 
 <div class="card card-custom gutter-b">
     <div class="card-header">
-    <div class="card-title">
-        <h3 class="card-label"><i class="icon-2x text-dark-50 flaticon-imac mx-2"></i> Editar producto: {{product_selected ? product_selected.title : ''}} </h3>
+        <div class="card-title">
+            <h3 class="card-label"><i class="icon-2x text-dark-50 flaticon-imac mx-2"></i> Editar producto: {{product_selected ? product_selected.title : ''}} </h3>
+        </div>
+        <div class="card-toolbar">
+        </div>
     </div>
-    <div class="card-toolbar">
-    </div>
-    </div>
+
     <div class="card-body">
         <ng-container *ngIf="isLoading$ | async">
             <span class="spinner spinner-primary ml-5"></span>
         </ng-container>
+
         <div class="form-group row">
-            <div class="col col-12 col-lg-12">
+            <div class="col col-12 col-lg-6">
                 <div class="form-group">
                     <label for="">Titulo del producto <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" placeholder="" [(ngModel)]="title" name="title">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col col-12 col-lg-12">
+            <div class="col col-12 col-lg-6">
                 <div class="form-group">
                     <label for="">SKU del producto <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" placeholder="" [(ngModel)]="sku" name="sku">
@@ -40,21 +42,21 @@
         </div>
 
         <div class="form-group row">
-            <div class="col col-12 col-lg-4">
+            <div class="col col-12 col-lg-6">
                 <div class="form-group">
                     <label for="">Precio PEN: <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" placeholder="" [(ngModel)]="price_soles" name="price_soles">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col col-12 col-lg-4">
+            <div class="col col-12 col-lg-6">
                 <div class="form-group">
                     <label for="">Precio USD <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" placeholder="" [(ngModel)]="price_usd" name="price_usd">
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col col-12 col-lg-4">
+            <div class="col col-12 col-lg-12">
                 <label for="">Status del producto <span class="text-danger">*</span></label>
                 <select class="form-control" name="status" [(ngModel)]="state">
                     <option value="1">Demo o Ignorar</option>
@@ -207,7 +209,7 @@
         </div>
 
         <div class="form-group row">
-            <div class="col-6">
+            <div class="col-12 col-lg-12">
                 <div class="form-group">
                     <label>Inventario</label>
                     <div class="radio-inline">
@@ -232,7 +234,7 @@
                     <span class="form-text text-muted">Ingresa el nombre del producto</span>
                 </div>
             </div>
-            <div class="col-6" *ngIf="type_inventario == 2">
+            <div class="col-12 col-lg-12" *ngIf="type_inventario == 2">
                 <div class="row">
                     <div class="col-4">
                         <div class="form-group">

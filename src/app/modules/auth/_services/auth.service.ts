@@ -61,14 +61,15 @@ export class AuthService implements OnDestroy {
   isLogued() {
     return ( this.token.length > 5 ) ? true : false;
   }
-login(email: string, password: string) {
+  login(email: string, password: string) {
     this.isLoadingSubject.next(true);
     let url = URL_SERVICIOS + "/users/login_admin";
     return this.http.post(url,{email, password}).pipe(
       map((auth: any) => {
         console.log(auth)
           //if(auth.access_token){
-          if(auth.USER_FRONTED && auth.USER_FRONTED.token){
+          //if(auth.USER_FRONTED && auth.USER_FRONTED.token){
+          if (auth.USER_FRONTED && auth.USER_FRONTED.accessToken && auth.USER_FRONTED.refreshToken) {
             return this.setAuthFromLocalStorage(auth);
           }else{
             return auth;
@@ -82,7 +83,8 @@ login(email: string, password: string) {
       finalize(() => this.isLoadingSubject.next(false))
     );
   }
-logout() {
+
+  logout() {
     // localStorage.removeItem(this.authLocalStorageToken);
     this.user = null;
     this.token = '';
@@ -140,7 +142,7 @@ logout() {
   private setAuthFromLocalStorage(auth: any): boolean {
     // store auth accessToken/refreshToken/epiresIn in local storage to keep user logged in between page refreshes
     // if (auth.access_token && auth.user) {
-      localStorage.setItem('token', auth.USER_FRONTED.token );
+      localStorage.setItem('token', auth.USER_FRONTED.accessToken );
       localStorage.setItem('user', JSON.stringify(auth.USER_FRONTED.user));
       this.user = auth.USER_FRONTED.access_token;
       this.token = auth.USER_FRONTED.user;
