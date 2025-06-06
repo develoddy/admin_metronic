@@ -63,6 +63,7 @@
                             <th>CATEGORIAS</th>
                             <th>PRECIO SOLES</th>
                             <th>PRECIO USD</th>
+                            <th>POSICIÓN LOGO</th>
                             <th>STATUS</th>
                             <th>ACCIÓN</th> 
                         </tr>
@@ -72,18 +73,19 @@
                           <td>
                             <img [src]="product.imagen" alt="" srcset="" style="width: 60px;">
                           </td>
-                          <td>{{ product.title }}</td>
+                          <td>{{ product.title }} </td>
                           <td> {{product.sku}} </td>
                           <!-- <td> {{product.categorie.title ? product.categorie.title : "no hay cateogrie"}} </td> -->
                           <td> {{product.categorie ? product.categorie.title : "no hay categoría"}} </td>
-
                           <td> {{product.price_soles}} PEN</td>
                           <td> {{product.price_usd}} USD</td>
+                          <td>{{ product.logo_position }}</td>
                           <td> 
                             <span class="label label-warning label-pill label-inline mr-2" *ngIf="product.state == 1">Ignorado</span>
                             <span class="label label-success label-pill label-inline mr-2" *ngIf="product.state == 2">Publico</span>
                             <span class="label label-danger label-pill label-inline mr-2" *ngIf="product.state == 3">Anulado</span>
                           </td>
+                          
                           <td>
                             <a (click)="editProduct(product)" class="btn btn-icon btn-light btn-hover-primary btn-sm mx-1" ngbTooltip="Editar Producto" ngbTooltipClass="kt-tooltip">
                               <span class="svg-icon svg-icon-md svg-icon-primary">

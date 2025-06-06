@@ -32,6 +32,8 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
   description:any=null;
   resumen:any=null;
   state:any=1;
+  logo_position: string = '';
+
 
   color:any=null;
   //
@@ -110,6 +112,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
       this.type_inventario = this.product_selected.type_inventario;
       this.galerias = this.product_selected.galerias;
       this.state = this.product_selected.state;
+      this.logo_position = this.product_selected.logo_position;
 
     });
 
@@ -246,6 +249,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
     formData.append("stock", this.stock);
     formData.append("type_inventario", this.type_inventario);
     formData.append("state", this.state);
+    formData.append("logo_position", this.logo_position);
 
     if (this.imagen_file) {
       formData.append("imagen", this.imagen_file);

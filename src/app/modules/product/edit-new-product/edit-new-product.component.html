@@ -68,6 +68,22 @@
         </div>
 
         <div class="form-group row">
+            <div class="col col-12 col-lg-12">
+                <label for="">Ubicación del logo <span class="text-danger">*</span></label>
+                <select class="form-control" [(ngModel)]="logo_position" name="logo_position">
+                <option value="">Seleccione una posición</option>
+                <option value="center">Centro</option>
+                <option value="right_top">Arriba derecha</option>
+                <option value="left_top">Arriba izquierda</option>
+                <option value="back_center">Centro trasero</option>
+                <!-- Agrega más según lo que Printful devuelva -->
+                </select>
+                <small class="form-text text-muted">Selecciona la posición del diseño en el producto</small>
+            </div>
+        </div>
+
+
+        <div class="form-group row">
             <div class="col col-12 col-lg-6">
                 <label class="form-label">Sube tu portada: <span class="text-danger">*</span></label>
                 <div class="custom-file">
@@ -332,7 +348,8 @@
     </div>
 </div>
 
-<!-- <ng-container *ngIf="isLoading$ | async">
+<!-- 
+<ng-container *ngIf="isLoading$ | async">
     <span class="spinner spinner-primary ml-5"></span>
 </ng-container>
 <div class="container">

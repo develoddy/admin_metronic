@@ -22,6 +22,8 @@ export class ListProductsComponent implements OnInit {
   categorie:any='';
   categories:any=[];
 
+  // logo_position: string = '';
+
   constructor(
     public _productService: ProductService,
     public _categorieService: CategoriesService,
