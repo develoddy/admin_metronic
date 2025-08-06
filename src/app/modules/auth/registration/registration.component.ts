@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { ConfirmPasswordValidator } from './confirm-password.validator';
 import { UserModel } from '../_models/user.model';
 import { first } from 'rxjs/operators';
+import { ReCaptchaV3Service } from 'ng-recaptcha';
 
 @Component({
   selector: 'app-registration',
@@ -23,7 +24,8 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private recaptchaV3Service: ReCaptchaV3Service
   ) {
     this.isLoading$ = this.authService.isLoading$;
     // redirect to home if already logged in
@@ -44,7 +46,7 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   initForm() {
     this.registrationForm = this.fb.group(
       {
-        fullname: [
+        name: [
           '',
           Validators.compose([
             Validators.required,
@@ -87,23 +89,31 @@ export class RegistrationComponent implements OnInit, OnDestroy {
 
   submit() {
     this.hasError = false;
-    const result = {};
-    Object.keys(this.f).forEach(key => {
-      result[key] = this.f[key].value;
+
+    // Ejecutar reCAPTCHA v3 antes de enviar datos
+    this.recaptchaV3Service.execute('registro_admin').subscribe((token: string) => {
+      const result = {};
+      Object.keys(this.f).forEach(key => {
+        result[key] = this.f[key].value;
+      });
+      const newUser = new UserModel();
+      newUser.setUser(result);
+
+      // ✅ Añadimos el token reCAPTCHA
+      newUser['recaptchaToken'] = token;
+      
+      const registrationSubscr = this.authService
+        .registration(newUser)
+        .pipe(first())
+        .subscribe((user: UserModel) => {
+          if (user) {
+            this.router.navigate(['/']);
+          } else {
+            this.hasError = true;
+          }
+        });
+      this.unsubscribe.push(registrationSubscr);
     });
-    const newUser = new UserModel();
-    newUser.setUser(result);
-    // const registrationSubscr = this.authService
-    //   .registration(newUser)
-    //   .pipe(first())
-    //   .subscribe((user: UserModel) => {
-    //     if (user) {
-    //       this.router.navigate(['/']);
-    //     } else {
-    //       this.hasError = true;
-    //     }
-    //   });
-    // this.unsubscribe.push(registrationSubscr);
   }
 
   ngOnDestroy() {

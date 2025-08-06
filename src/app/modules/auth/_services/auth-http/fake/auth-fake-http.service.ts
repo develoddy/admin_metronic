@@ -8,6 +8,7 @@ import { AuthModel } from '../../../_models/auth.model';
 import { UsersTable } from '../../../../../_fake/fake-db/users.table';
 import { environment } from '../../../../../../environments/environment';
 
+import { URL_SERVICIOS } from 'src/app/config/config';
 const API_USERS_URL = `${environment.apiUrl}/users`;
 
 @Injectable({
@@ -49,13 +50,15 @@ export class AuthHTTPService {
   }
 
   createUser(user: UserModel): Observable<any> {
-    user.roles = [2]; // Manager
+    user.name = user.name,
+    user.rol = "Admin",//[2]; // Manager
     user.accessToken = 'access-token-' + Math.random();
     user.refreshToken = 'access-token-' + Math.random();
     user.expiresIn = new Date(Date.now() + 100 * 24 * 60 * 60 * 1000);
     user.pic = './assets/media/users/default.jpg';
 
-    return this.http.post<UserModel>(API_USERS_URL, user);
+    let url = URL_SERVICIOS + "/users/register";
+    return this.http.post<UserModel>(url, user);
   }
 
   forgotPassword(email: string): Observable<boolean> {

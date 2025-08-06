@@ -35,7 +35,7 @@ export class AuthService implements OnDestroy {
   user: any;
   token: string;
   constructor(
-    // private authHttpService: AuthHTTPService,
+    private authHttpService: AuthHTTPService,
     private http: HttpClient,
     private router: Router
   ) {
@@ -116,20 +116,20 @@ export class AuthService implements OnDestroy {
   // }
 
   // // need create new user then login
-  // registration(user: UserModel): Observable<any> {
-  //   this.isLoadingSubject.next(true);
-  //   return this.authHttpService.createUser(user).pipe(
-  //     map(() => {
-  //       this.isLoadingSubject.next(false);
-  //     }),
-  //     switchMap(() => this.login(user.email, user.password)),
-  //     catchError((err) => {
-  //       console.error('err', err);
-  //       return of(undefined);
-  //     }),
-  //     finalize(() => this.isLoadingSubject.next(false))
-  //   );
-  // }
+  registration(user: UserModel): Observable<any> {
+     this.isLoadingSubject.next(true);
+     return this.authHttpService.createUser(user).pipe(
+       map(() => {
+         this.isLoadingSubject.next(false);
+       }),
+       switchMap(() => this.login(user.email, user.password)),
+       catchError((err) => {
+         console.error('err', err);
+         return of(undefined);
+       }),
+       finalize(() => this.isLoadingSubject.next(false))
+     );
+   }
 
   // forgotPassword(email: string): Observable<boolean> {
   //   this.isLoadingSubject.next(true);

@@ -71,10 +71,16 @@
     <!--end::Form group-->
 
     <!--begin::Action-->
-    <div class="pb-lg-0 pb-5">
-      <button type="submit" id="kt_login_signin_submit" class="btn btn-primary font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-3" [disabled]="loginForm.invalid">
+    <div class="pb-lg-0 pb-5 d-flex flex-column">
+      <button type="submit" id="kt_login_signin_submit" class="btn btn-primary w-100 font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-3" [disabled]="loginForm.invalid">
         Iniciar sesión
       </button>
+
+      <a href="#" onclick="return false;" [routerLink]="['/auth/registration']">
+        <button type="submit" id="kt_login_signup_submit" class="btn btn-success w-100 font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-3">
+          Crear cuenta
+        </button>
+      </a>
 
       <!-- <button
         type="button"
@@ -89,6 +95,7 @@
         <span class="spinner spinner-primary ml-5"></span>
       </ng-container>
     </div>
+
     <!--end::Action-->
   </form>
   <!--end::Form-->

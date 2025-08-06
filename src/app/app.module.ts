@@ -20,6 +20,8 @@ import { NoticyAlertComponent } from './componets/notifications/noticy-alert/not
 import { ToastNotificationsModule } from 'ngx-toast-notifications';
 import { DatePipe } from '@angular/common';
 // #fake-end#
+//import { RecaptchaModule, RecaptchaFormsModule, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha';
+import { RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha';
 
 function appInitializer(authService: AuthService) {
   return () => {
@@ -29,9 +31,17 @@ function appInitializer(authService: AuthService) {
   };
 }
 
+const mockModule = environment.isMockEnabled
+  ? [HttpClientInMemoryWebApiModule.forRoot(FakeAPIService, {
+      passThruUnknownUrl: true,
+      dataEncapsulation: false,
+    })]
+  : [];
+
 @NgModule({
   declarations: [AppComponent,NoticyAlertComponent],
   imports: [
+    RecaptchaV3Module,
     BrowserModule,
     BrowserAnimationsModule,
     SplashScreenModule,
@@ -39,13 +49,14 @@ function appInitializer(authService: AuthService) {
     HttpClientModule,
     HighlightModule,
     ClipboardModule,
+    mockModule,
     // #fake-start#
-    environment.isMockEnabled
-      ? HttpClientInMemoryWebApiModule.forRoot(FakeAPIService, {
-        passThruUnknownUrl: true,
-        dataEncapsulation: false,
-      })
-      : [],
+    // environment.isMockEnabled
+    //   ? HttpClientInMemoryWebApiModule.forRoot(FakeAPIService, {
+    //     passThruUnknownUrl: true,
+    //     dataEncapsulation: false,
+    //   })
+    //   : [],
     // #fake-end#
     AppRoutingModule,
     InlineSVGModule.forRoot(),
@@ -59,6 +70,10 @@ function appInitializer(authService: AuthService) {
     //   multi: true,
     //   deps: [AuthService],
     // },
+    {
+          provide: RECAPTCHA_V3_SITE_KEY,
+          useValue: '6LfPI4UrAAAAAMdaK_k27wzNgVWAxkogIs_5MNda',
+    },
     DatePipe,
     {
       provide: HIGHLIGHT_OPTIONS,
