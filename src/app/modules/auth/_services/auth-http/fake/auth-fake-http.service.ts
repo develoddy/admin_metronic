@@ -51,7 +51,7 @@ export class AuthHTTPService {
 
   createUser(user: UserModel): Observable<any> {
     user.name = user.name,
-    user.rol = "Admin",//[2]; // Manager
+    user.rol = "admin",//[2]; // Manager
     user.accessToken = 'access-token-' + Math.random();
     user.refreshToken = 'access-token-' + Math.random();
     user.expiresIn = new Date(Date.now() + 100 * 24 * 60 * 60 * 1000);
