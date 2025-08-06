@@ -2,12 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-
 import { UserModel } from '../../../_models/user.model';
 import { AuthModel } from '../../../_models/auth.model';
 import { UsersTable } from '../../../../../_fake/fake-db/users.table';
 import { environment } from '../../../../../../environments/environment';
-
 import { URL_SERVICIOS } from 'src/app/config/config';
 const API_USERS_URL = `${environment.apiUrl}/users`;
 
