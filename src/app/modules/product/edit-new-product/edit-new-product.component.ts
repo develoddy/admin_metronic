@@ -29,7 +29,11 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
   price_usd:any = 0;
   imagen_file:any=null;
   image_preview:any=null;
-  description:any=null;
+  //description:any=null;
+
+
+  description_en:any=null;
+  description_es:any=null;
   resumen:any=null;
   state:any=1;
   logo_position: string = '';
@@ -78,7 +82,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngOnInit(): void {
-    
+      this.tinymceINIT();
     // this.subscriptions = this._productService.isLoading$.subscribe(isLoading => {
     //   this.isLoading$= isLoading;
     // });
@@ -93,7 +97,6 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
     this._productService.showProduct(this.product_id).subscribe((resp:any) => {
 
       this.product_selected = resp.product;
-      console.log("priduct seleted: ", this.product_selected);
       
       this.title = this.product_selected.title;
       this.sku = this.product_selected.sku;
@@ -103,7 +106,9 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
       this.price_usd = this.product_selected.price_usd;
       this.stock = this.product_selected.stock;      
       this.image_preview = this.product_selected.imagen;
-      this.description = this.product_selected.description;
+      //this.description = this.product_selected.description;
+      this.description_en = this.product_selected.description_en;
+      this.description_es = this.product_selected.description_en;
       this.resumen = this.product_selected.resumen;
       this.tags = this.product_selected.tags;
       
@@ -126,7 +131,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
 
   tinymceINIT() {
     tinymce.init({
-      selector: 'textarea#description',
+      selector: 'textarea#description_en',
       height: 250,
       language: 'es',
       plugins: [
@@ -140,7 +145,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
         'bullist numlist outdent indent | removeformat | help',
       setup: (editor) => {
         editor.on('Change KeyUp', () => {
-          this.description = editor.getContent();
+          this.description_en = editor.getContent();
         });
       }
     });
@@ -229,9 +234,9 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
 
   update() {
 
-    this.description = tinymce.get('description').getContent();
+    this.description_en = tinymce.get('description_en').getContent();
 
-    if ( !this.title || !this.categorie || !this.price_soles || !this.price_usd || !this.resumen || !this.description || !this.sku || this.tags.length == 0 ) {
+    if ( !this.title || !this.categorie || !this.price_soles || !this.price_usd || !this.resumen || !this.description_en || !this.sku || this.tags.length == 0 ) {
       this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesitas digitar todos los campos del formulario.`});
       return;
     }
@@ -243,7 +248,8 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
     formData.append("price_soles", this.price_soles);
     formData.append("price_usd", this.price_usd);
     formData.append("resumen", this.resumen);
-    formData.append("description", this.description);
+    formData.append("description_en", this.description_en);
+    //formData.append("description_es", this.description_en);
     formData.append("sku", this.sku);
     formData.append("tags", JSON.stringify(this.tags));
     formData.append("stock", this.stock);

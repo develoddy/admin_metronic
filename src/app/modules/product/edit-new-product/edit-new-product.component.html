@@ -104,8 +104,8 @@
                 <textarea class="form-control" name="resumen" [(ngModel)]="resumen" placeholder="" rows="4"></textarea>
             </div>
             <div class="col col-12 col-lg-12">
-                <label class="form-label mt-5">Descripción: *</label>
-                <textarea id="description" name="description" [(ngModel)]="description"></textarea>
+                <label class="form-label mt-5">Descripción EN: *</label>
+                <textarea id="description_en" name="description_en" [(ngModel)]="description_en"></textarea>
                 <!-- <editor
                     [(ngModel)]="description"
                     [init]="{
@@ -122,6 +122,10 @@
                         bullist numlist outdent indent | removeformat | help'
                     }"
                 ></editor> -->
+            </div>
+            <div class="col col-12 col-lg-12">
+                <label class="form-label mt-5">Descripción ES: *</label>
+                <textarea id="description_es" name="description_es" [(ngModel)]="description_es"></textarea>
             </div>
         </div>
 
