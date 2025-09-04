@@ -34,8 +34,29 @@
           </div>
           <div class="col-12">
             <div class="form-group">
+                <label for="">Subtítulo</label>
+                <input type="text" class="form-control" placeholder="Subtítulo" [(ngModel)]="subtitle" name="subtitle">
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+                <label for="">Descripción</label>
+                <textarea class="form-control" placeholder="Descripción" [(ngModel)]="description" name="description"></textarea>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
                 <label for="">Link <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" placeholder="" [(ngModel)]="link" name="link">
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+                <label for="">Posición del texto</label>
+                <select class="form-control" [(ngModel)]="position" name="position">
+                  <option value="middle-left">Izquierda</option>
+                  <option value="middle-right">Derecha</option>
+                </select>
             </div>
           </div>
           <div class="col-6">
@@ -51,21 +72,29 @@
                 <option value="0">Desactivo</option></select
               >
           </div>
-          <div class="col-12 mt-4">
-              <div class="row">
-                  <div class="col-12">
-                      <label class="form-label">Sube tu imagen: *</label>
-                      <div class="custom-file">
-                          <input type="file" class="custom-file-input" id="customFile"  accept=".jpeg, .bmp, .jpg, .png, .gif, .webp"  (change)="processFile($event)">
-                          <label class="custom-file-label" for="customFile">Choose file</label>
-                      </div>
-                  </div>
-                  <div class="col-12">
-                      <div class="" *ngIf="this.image_preview">
-                          <img [src]="this.image_preview" style="width: 150px;" alt="" srcset="">
-                      </div>
-                  </div>
-              </div>
+      <div class="col-12 mt-4">
+        <div class="row">
+          <div class="col-12 mb-3">
+            <label class="form-label">Imagen para Mobile: *</label>
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="customFileMobile" accept=".jpeg, .bmp, .jpg, .png, .gif, .webp" (change)="processFileMobile($event)">
+              <label class="custom-file-label" for="customFileMobile">Elige archivo</label>
+            </div>
+            <div *ngIf="image_mobile_preview" class="mt-2">
+              <img [src]="image_mobile_preview" style="width: 150px;" alt="Mobile preview">
+            </div>
+          </div>
+          <div class="col-12 mb-3">
+            <label class="form-label">Imagen para Desktop: *</label>
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="customFileDesktop" accept=".jpeg, .bmp, .jpg, .png, .gif, .webp" (change)="processFileDesktop($event)">
+              <label class="custom-file-label" for="customFileDesktop">Elige archivo</label>
+            </div>
+            <div *ngIf="image_desktop_preview" class="mt-2">
+              <img [src]="image_desktop_preview" style="width: 150px;" alt="Desktop preview">
+            </div>
+          </div>
+        </div>
               <!--
               <label class="form-label">Sube tu imagen: *</label>
               <div class="custom-file">

@@ -108,7 +108,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
       this.image_preview = this.product_selected.imagen;
       //this.description = this.product_selected.description;
       this.description_en = this.product_selected.description_en;
-      this.description_es = this.product_selected.description_en;
+      this.description_es = this.product_selected.description_es;
       this.resumen = this.product_selected.resumen;
       this.tags = this.product_selected.tags;
       
@@ -130,6 +130,8 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   tinymceINIT() {
+
+    // Inicializar descripción en inglés
     tinymce.init({
       selector: 'textarea#description_en',
       height: 250,
@@ -149,7 +151,28 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
         });
       }
     });
-    
+
+    // Inicializar descripción en español
+    tinymce.init({
+      selector: 'textarea#description_es',
+      height: 250,
+      language: 'es',
+      plugins: [
+        'advlist autolink lists link image charmap print preview anchor',
+        'searchreplace visualblocks code fullscreen',
+        'insertdatetime media table paste code help wordcount'
+      ],
+      toolbar:
+        'undo redo | formatselect | bold italic backcolor | ' +
+        'alignleft aligncenter alignright alignjustify | ' +
+        'bullist numlist outdent indent | removeformat | help',
+      setup: (editor) => {
+        editor.on('Change KeyUp', () => {
+          this.description_es = editor.getContent();
+        });
+      }
+    });
+      
   }
 
   getUniqueVariedades(variedades) {
@@ -236,7 +259,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
 
     this.description_en = tinymce.get('description_en').getContent();
 
-    if ( !this.title || !this.categorie || !this.price_soles || !this.price_usd || !this.resumen || !this.description_en || !this.sku || this.tags.length == 0 ) {
+    if ( !this.title || !this.categorie || !this.price_soles || !this.price_usd || !this.resumen || !this.description_en || !this.description_es || !this.sku || this.tags.length == 0 ) {
       this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesitas digitar todos los campos del formulario.`});
       return;
     }
@@ -249,7 +272,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
     formData.append("price_usd", this.price_usd);
     formData.append("resumen", this.resumen);
     formData.append("description_en", this.description_en);
-    //formData.append("description_es", this.description_en);
+    formData.append("description_es", this.description_es);
     formData.append("sku", this.sku);
     formData.append("tags", JSON.stringify(this.tags));
     formData.append("stock", this.stock);
@@ -392,6 +415,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
     if (this.subscriptions) {
       this.subscriptions.unsubscribe();
     }
-    tinymce.remove('textarea#description'); // Limpiar TinyMCE cuando se destruye el componente
+    tinymce.remove('textarea#description_en'); // Limpiar TinyMCE cuando se destruye el componente
+    tinymce.remove('textarea#description_es');
   }
 }

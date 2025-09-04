@@ -45,7 +45,9 @@
             <table class="table table-head-custom table-vertical-center" id="kt_advance_table_widget_1">
                 <thead>
                     <tr class="text-left">
-                        <th>IMAGEN</th>
+                        <th>IMAGEN MOBILE</th>
+                        <th>IMAGEN DESKTOP</th>
+                        <th>POSICIÓN</th>
                         <th>TITULO</th>
                         <th>STATUS</th>
                         <th>ACCIÓN</th>
@@ -54,7 +56,15 @@
                 <tbody>
                     <tr *ngFor="let slider of sliders">
                       <td>
-                        <img [src]="URL_BACKEND+'api/sliders/uploads/slider/'+slider.imagen" alt="" srcset="" style="width: 60px;">
+                        <img *ngIf="slider.imagen_mobile || slider.imagen_mobile_url" [src]="slider.imagen_mobile_url || (URL_BACKEND+'api/sliders/uploads/slider/'+slider.imagen_mobile)" alt="Mobile" style="width: 60px;">
+                      </td>
+                      <td>
+                        <img *ngIf="slider.imagen_desktop || slider.imagen_desktop_url" [src]="slider.imagen_desktop_url || (URL_BACKEND+'api/sliders/uploads/slider/'+slider.imagen_desktop)" alt="Desktop" style="width: 60px;">
+                      </td>
+                      <td>
+                        <span class="badge badge-info text-uppercase">
+                          {{ slider.position === 'middle-right' ? 'Derecha' : 'Izquierda' }}
+                        </span>
                       </td>
                       <td> {{slider.title}} </td>
                       <td> 
