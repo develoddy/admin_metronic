@@ -51,4 +51,5 @@ src/assets
 
 # System Files
 .DS_Store
+._*
 Thumbs.db
