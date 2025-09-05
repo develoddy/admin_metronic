@@ -86,6 +86,8 @@ export class EditNewSliderComponent implements OnInit {
     if (this.imagen_desktop_file) formData.append("imagen_desktop", this.imagen_desktop_file);
 
     this._sliderService.updateSlider(formData).subscribe((resp: any) => {
+      console.log(resp.slider);
+      
       this.SliderE.emit(resp.slider);
       this.modal.close();
     })

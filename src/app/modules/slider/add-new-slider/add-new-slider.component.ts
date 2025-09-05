@@ -70,7 +70,6 @@ export class AddNewSliderComponent implements OnInit {
   formData.append("imagen_desktop", this.imagen_desktop_file);
 
     this._sliderService.createSlider(formData).subscribe((resp: any) => {
-      console.log(resp);
       this.SliderC.emit(resp);
       this.modal.close();
     })
