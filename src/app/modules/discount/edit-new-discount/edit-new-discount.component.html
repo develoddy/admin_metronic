@@ -86,7 +86,7 @@
                             <span></span>
                             Produucto
                         </label>
-                        <label class="radio">
+                        <label class="radio" *ngIf="type_campaign == 1">
                             <input type="radio" [checked]="type_segment == 2" (click)="checkedTypeSegment(2)" name="radios3">
                             <span></span>
                             Categorias
