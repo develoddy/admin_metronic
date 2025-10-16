@@ -22,6 +22,11 @@ export class ListProductsComponent implements OnInit {
   categorie:any='';
   categories:any=[];
 
+  pagedProducts: any[] = [];
+  limit: number = 20;          // Productos por página
+  currentPage: number = 1;
+  totalPages: number = 1;
+
   // logo_position: string = '';
 
   constructor(
@@ -40,10 +45,33 @@ export class ListProductsComponent implements OnInit {
 
   allProducts() {
     this._productService.allProducts(this.search, this.categorie).subscribe((resp:any)=> {
-      console.log(resp);
-      
-      this.products = resp.products;
+      this.products = resp.products || [];
+      // Resetea paginación al buscar
+      this.currentPage = 1;
+
+      this.totalPages = Math.ceil(this.products.length / this.limit);
+      this.updatePagedProducts();
     });
+  }
+
+  updatePagedProducts() {
+    const start = (this.currentPage - 1) * this.limit;
+    const end = start + this.limit;
+    this.pagedProducts = this.products.slice(start, end);
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagedProducts();
+  }
+
+  nextPage() {
+    this.goToPage(this.currentPage + 1);
+  }
+
+  prevPage() {
+    this.goToPage(this.currentPage - 1);
   }
 
   allCategories() {
@@ -61,8 +89,8 @@ export class ListProductsComponent implements OnInit {
   }
 
   refresh() {
-    this.search = null
-    this.categorie = null
+    this.search = null;
+    this.categorie = null;
     this.allProducts();
   }
 
