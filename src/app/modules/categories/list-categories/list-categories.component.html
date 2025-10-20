@@ -54,7 +54,13 @@
                 <tbody>
                     <tr *ngFor="let categorie of categories">
                       <td>
-                        <img [src]="URL_BACKEND+'api/categories/uploads/categorie/'+categorie.imagen" alt="" srcset="" style="width: 60px;">
+                        <!-- <img [src]="URL_BACKEND+'api/categories/uploads/categorie/'+categorie.imagen" alt="" srcset="" style="width: 60px;"> -->
+                         <img
+                            [src]="categorie.imagen_home"
+                            alt="imagen categoria"
+                            style="width: 60px; object-fit: cover; border-radius: 8px;"
+                            onerror="this.src='/assets/media/no-image.png'"
+                          />
                       </td>
                       <td> {{categorie.title}} </td>
                       <td> 

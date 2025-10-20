@@ -29,18 +29,26 @@ export class EditNewCategorieComponent implements OnInit {
   ngOnInit(): void {
     this.name = this.categorie_selected.title;
     this.state = this.categorie_selected.state;
-    this.image_preview = URL_BACKEND+'api/categories/uploads/categorie/'+this.categorie_selected.imagen;
+    //this.image_preview = URL_BACKEND+'api/categories/uploads/categorie/'+this.categorie_selected.imagen;
+    // 👇 Mostramos la imagen actual priorizando la personalizada
+    if (this.categorie_selected?.imagen_home) {
+      this.image_preview = this.categorie_selected.imagen_home;
+    } else if (this.categorie_selected?.imagen) {
+      this.image_preview = `${URL_BACKEND}api/categories/uploads/categorie/${this.categorie_selected.imagen}`;
+    } else {
+      this.image_preview = '/assets/media/no-image.png';
+    }
   }
 
   processFile($event) {
-    console.log($event);
-    
     if ( $event.target.files[ 0 ].type.indexOf("image") < 0 ) {
       this.image_preview = null;
       this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesita ingresar un archivo de timpo imagen.`});
       return;
     }
+
     this.imagen_file = $event.target.files[0];
+
     let reader = new FileReader();
     reader.readAsDataURL(this.imagen_file);
     reader.onloadend = () => this.image_preview = reader.result;
@@ -57,8 +65,11 @@ export class EditNewCategorieComponent implements OnInit {
     formData.append("title", this.name);
     formData.append("state", this.state);
     
-    if ( this.imagen_file ) {
-      formData.append("portada", this.imagen_file);
+    // if ( this.imagen_file ) {
+    //   formData.append("portada", this.imagen_file);
+    // }
+    if (this.imagen_file) {
+      formData.append('custom_image', this.imagen_file);
     }
 
     // code...
