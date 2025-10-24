@@ -1,5 +1,19 @@
 .conv-list { padding: 8px; }
-.conv-list ul { list-style: none; padding: 0; }
-.conv-item { cursor: pointer; padding: 8px; border-bottom: 1px solid #eee; }
-.actions { margin: 6px 0 12px; }
+.conv-list .header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.conv-list .header h4 { margin:0; }
+.conv-list .search input { width:220px; padding:6px 8px; border-radius:4px; border:1px solid #ddd; }
+.filters { margin:8px 0; display:flex; gap:8px; }
+.filters button { padding:6px 10px; border-radius:4px; border:1px solid #ddd; background:#fff; cursor:pointer; }
+.filters button.active { background:#007bff; color:#fff; border-color:#007bff; }
+.empty { padding:16px; color:#666; }
+.conv-list ul { list-style: none; padding: 0; margin:0; }
+.conv-row { display:flex; align-items:center; justify-content:space-between; padding:8px; border-bottom:1px solid #f0f0f0; }
+.conv-item { cursor: pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; }
+.conv-item .left { display:flex; flex-direction:column; }
+.conv-item .title { font-weight:600; }
+.conv-item .preview { font-size:12px; color:#666; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.conv-item .right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+.time { font-size:12px; color:#999; }
+.badge { background:#e74c3c; color:#fff; padding:2px 6px; border-radius:12px; font-size:12px; }
+.actions { margin-left:8px; }
 .btn { font-size: 12px; }

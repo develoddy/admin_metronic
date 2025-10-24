@@ -1,37 +1,65 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AdminChatService } from '../../services/admin-chat.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-conversation-detail',
   templateUrl: './conversation-detail.component.html',
   styleUrls: ['./conversation-detail.component.scss']
 })
-export class ConversationDetailComponent implements OnInit {
+export class ConversationDetailComponent implements OnInit, OnDestroy {
+  @ViewChild('messagesContainer') messagesContainer!: ElementRef;
+
   messages: any[] = [];
   newMessage = '';
   selected: any = null;
+  subs: Subscription[] = [];
 
   constructor(public chat: AdminChatService) { }
 
   ngOnInit(): void {
-    this.chat.selectedConversation$.subscribe(c => {
+    this.subs.push(this.chat.selectedConversation$.subscribe(c => {
       this.selected = c;
-      this.messages = [];
-    });
+      this.messages = c?.messages ? [...c.messages] : [];
+      // scroll after a short delay to allow DOM update
+      setTimeout(() => this.scrollToBottom(), 50);
+    }));
 
-    this.chat.messages$.subscribe(msgs => {
+    this.subs.push(this.chat.messages$.subscribe(msgs => {
       this.messages = msgs || [];
-    });
+      setTimeout(() => this.scrollToBottom(), 50);
+    }));
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
   }
 
   send() {
     if (!this.newMessage || !this.selected) return;
     this.chat.sendAgentMessage(this.selected, this.newMessage);
     this.newMessage = '';
+    setTimeout(() => this.scrollToBottom(), 50);
   }
 
   closeConversation() {
     if (!this.selected) return;
     this.chat.closeConversation(this.selected);
+  }
+
+  takeConversation() {
+    if (!this.selected) return;
+    this.chat.takeConversation(this.selected);
+  }
+
+  private scrollToBottom() {
+    try {
+      const el = this.messagesContainer?.nativeElement;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+    } catch (e) {
+      // ignore
+    }
   }
 }

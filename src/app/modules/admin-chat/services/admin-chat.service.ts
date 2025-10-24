@@ -350,4 +350,16 @@ export class AdminChatService {
     if (!this.socket || !conv) return;
     this.socket.emit('close-conversation', { conversation_id: conv.id, session_id: conv.session_id });
   }
+
+  /**
+   * Assign agent via REST (reopen/assign)
+   */
+  assignAgentREST(conv: any) {
+    if (!conv) return;
+    const agent = this._authservice.currentUserValue || null;
+    const agent_id = agent ? ((agent as any)._id || (agent as any).id) : null;
+    if (!agent_id) return;
+    const url = `${URL_SERVICIOS}/chat/assign/${conv.id || conv.conversation_id}`;
+    return this.http.put<any>(url, { agent_id }, this.getAuthHeaders()).toPromise();
+  }
 }

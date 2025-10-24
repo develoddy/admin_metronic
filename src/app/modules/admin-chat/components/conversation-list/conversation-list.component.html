@@ -1,14 +1,33 @@
 <div class="conv-list">
-  <h4>Conversaciones</h4>
-  <div *ngIf="conversations.length === 0">No hay conversaciones activas.</div>
+  <div class="header">
+    <h4>Conversaciones</h4>
+    <div class="search">
+      <input type="text" placeholder="Buscar por user, guest, agente o texto..." [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
+    </div>
+  </div>
+
+  <div class="filters">
+    <button [class.active]="filterStatus==='pending'" (click)="setFilter('pending')">🕓 Pendientes</button>
+    <button [class.active]="filterStatus==='open'" (click)="setFilter('open')">💬 En curso</button>
+    <button [class.active]="filterStatus==='closed'" (click)="setFilter('closed')">✅ Cerradas</button>
+  </div>
+
+  <div *ngIf="filtered.length === 0" class="empty">No hay conversaciones para mostrar.</div>
+
   <ul>
-    <li *ngFor="let c of conversations">
+    <li *ngFor="let c of filtered" class="conv-row">
       <div (click)="select(c)" class="conv-item">
-        <div class="title">{{ c.user_id || c.guest_id || ('#' + c.id) }}</div>
-        <div class="meta">{{ c.status }} - {{ c.updatedAt || c.createdAt }}</div>
+        <div class="left">
+          <div class="title">{{ c.user_id || c.guest_id || c.session_id || ('#' + c.id) }}</div>
+          <div class="preview">{{ c.last_message || (c.messages && c.messages.length ? c.messages[c.messages.length-1].message : '') }}</div>
+        </div>
+        <div class="right">
+          <div class="time">{{ timeAgo(c.updatedAt || c.createdAt) }}</div>
+          <div *ngIf="c.unread_count && c.unread_count>0" class="badge">{{ c.unread_count }}</div>
+        </div>
       </div>
       <div class="actions">
-        <button class="btn btn-sm btn-primary" (click)="take(c)">Tomar</button>
+        <button class="btn btn-sm btn-outline-primary" (click)="take(c)">Tomar</button>
       </div>
     </li>
   </ul>

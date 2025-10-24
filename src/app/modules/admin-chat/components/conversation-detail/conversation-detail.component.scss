@@ -1,7 +1,16 @@
-.conv-detail { padding: 8px; }
-.messages { max-height: 500px; overflow: auto; margin-bottom: 8px; }
-.msg { padding: 6px; border-bottom: 1px solid #eee; }
-.msg.user { background: #f9f9f9; }
-.msg.agent { background: #e9f7ef; }
-.send-box { display: flex; flex-direction: column; gap: 8px; }
-.actions { display:flex; gap:8px; justify-content: flex-end; }
+.conv-detail { padding: 8px; display:flex; flex-direction:column; height:100%; }
+.empty-panel { display:flex; align-items:center; justify-content:center; height:100%; color:#666; font-size:16px; }
+.detail-wrap { display:flex; flex-direction:column; height:100%; }
+.detail-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:8px; border-bottom:1px solid #eee; }
+.detail-header .left h4 { margin:0; }
+.detail-header .meta { font-size:12px; color:#666; }
+.detail-header .dates { font-size:12px; color:#999; }
+.messages { flex:1 1 auto; overflow:auto; margin:12px 0; padding-right:8px; }
+.msg { padding:10px; border-radius:8px; margin-bottom:8px; max-width:75%; }
+.msg.user { background:#f1f3f5; align-self:flex-start; }
+.msg.agent { background:#dfeef7; align-self:flex-end; }
+.msg .meta { font-size:11px; color:#666; margin-bottom:6px; }
+.msg .content { font-size:14px; }
+.send-box { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+.send-box textarea { width:100%; resize:vertical; padding:8px; border-radius:6px; border:1px solid #ddd; }
+.actions { display:flex; gap:8px; justify-content:flex-end; }

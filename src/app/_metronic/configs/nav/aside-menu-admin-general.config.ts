@@ -11,7 +11,7 @@ export const AsideMenuAdminGeneral = {
         bullet: 'dot',
       },
 
-      // Provedores
+      /** --------- SECCION PROVEEDORES ---------*/
       { section : 'Proveedores'},
       {
         title: 'Printful',
@@ -44,9 +44,9 @@ export const AsideMenuAdminGeneral = {
         ]
       },
 
-      // End proveedor
+      
 
-
+      /** --------- SECCION USUARIOS ---------*/
       { section: 'Usuario' },
       {
         title: 'Usuarios',
@@ -64,7 +64,8 @@ export const AsideMenuAdminGeneral = {
         ]
       },
 
-      { section: 'Productos' },
+      /** --------- SECCION SHOPPING ---------*/
+      { section: 'Shopping' },
       {
         title: 'Categorias',
         root: true,
@@ -87,7 +88,7 @@ export const AsideMenuAdminGeneral = {
         name: "products",
         bullet: 'dot',
         icon: 'flaticon2-user-outline-symbol',
-        svg: './assets/media/svg/icons/Devices/TV2.svg',
+        svg: './assets/media/svg/icons/Shopping/Box1.svg',
         page: '/products',
         submenu: [
           {
@@ -140,7 +141,7 @@ export const AsideMenuAdminGeneral = {
         name: "discount",
         bullet: 'dot',
         icon: 'flaticon2-user-outline-symbol',
-        svg: './assets/media/svg/icons/General/Clipboard.svg',
+        svg: './assets/media/svg/icons/Shopping/Euro.svg',
         page: '/discount',
         submenu: [
           {
@@ -153,18 +154,22 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
-      // CHAT
+
+
+
+      /** --------- SECCION SOPORTE CHAT ---------*/
+      { section: 'Soporte' },
       {
         title: 'Chat',
         root: true,
         name: "chat",
         bullet: 'dot',
         icon: 'flaticon2-user-outline-symbol',
-        svg: './assets/media/svg/icons/General/Clipboard.svg',
+        svg: './assets/media/svg/icons/Communication/Chat4.svg',
         page: '/chat',
         submenu: [
           {
-            title: 'Lista Chat',
+            title: 'Lista chat',
             page: '/support'
           }
         ]
