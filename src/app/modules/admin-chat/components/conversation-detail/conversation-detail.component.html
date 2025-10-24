@@ -1,0 +1,20 @@
+<div class="conv-detail">
+  <div *ngIf="!selected">Seleccione una conversación</div>
+  <div *ngIf="selected">
+    <h4>Conversación #{{ selected.id }} - {{ selected.session_id }}</h4>
+    <div class="messages">
+      <div *ngFor="let m of messages" class="msg" [ngClass]="m.sender_type">
+        <div class="meta">{{ m.sender_type }} - {{ m.timestamp || m.created_at }}</div>
+        <div class="content">{{ m.message }}</div>
+      </div>
+    </div>
+
+    <div class="send-box">
+      <textarea [(ngModel)]="newMessage" rows="3" placeholder="Escribir mensaje..."></textarea>
+      <div class="actions">
+        <button class="btn btn-sm btn-secondary" (click)="closeConversation()">Cerrar</button>
+        <button class="btn btn-sm btn-primary" (click)="send()">Enviar</button>
+      </div>
+    </div>
+  </div>
+</div>

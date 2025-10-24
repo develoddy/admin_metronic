@@ -96,6 +96,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'support',
+        loadChildren: () =>
+          import('../modules/admin-chat/admin-chat.module').then(
+            (m) => m.AdminChatModule
+          ),
+      },
+      {
         path: 'discounts',
         loadChildren: () =>
           import('../modules/discount/discount.module').then(

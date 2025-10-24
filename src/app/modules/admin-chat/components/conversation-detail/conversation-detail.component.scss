@@ -1,0 +1,7 @@
+.conv-detail { padding: 8px; }
+.messages { max-height: 500px; overflow: auto; margin-bottom: 8px; }
+.msg { padding: 6px; border-bottom: 1px solid #eee; }
+.msg.user { background: #f9f9f9; }
+.msg.agent { background: #e9f7ef; }
+.send-box { display: flex; flex-direction: column; gap: 8px; }
+.actions { display:flex; gap:8px; justify-content: flex-end; }

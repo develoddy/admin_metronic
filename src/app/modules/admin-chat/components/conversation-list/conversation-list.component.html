@@ -1,0 +1,15 @@
+<div class="conv-list">
+  <h4>Conversaciones</h4>
+  <div *ngIf="conversations.length === 0">No hay conversaciones activas.</div>
+  <ul>
+    <li *ngFor="let c of conversations">
+      <div (click)="select(c)" class="conv-item">
+        <div class="title">{{ c.user_id || c.guest_id || ('#' + c.id) }}</div>
+        <div class="meta">{{ c.status }} - {{ c.updatedAt || c.createdAt }}</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-sm btn-primary" (click)="take(c)">Tomar</button>
+      </div>
+    </li>
+  </ul>
+</div>
