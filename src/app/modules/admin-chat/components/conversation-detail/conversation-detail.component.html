@@ -1,32 +1,154 @@
-<div class="conv-detail">
-  <div *ngIf="!selected" class="empty-panel">Selecciona una conversación para empezar</div>
-  <div *ngIf="selected" class="detail-wrap">
-    <div class="detail-header">
-      <div class="left">
-        <h4>Conversación #{{ selected.id }}</h4>
-        <div class="meta">Usuario: {{ selected.user_id || selected.guest_id || selected.session_id }} • Estado: {{ selected.status }} • Agente: {{ selected.agent_name || 'Sin asignar' }}</div>
+<!-- TEMPLATE ORIGINAL -->
+<!-- <div class="conv-detail">
+    <div *ngIf="!selected" class="empty-panel">Selecciona una conversación para empezar</div>
+    <div *ngIf="selected" class="detail-wrap">
+        <div class="detail-header">
+            <div class="left">
+                <h4>Conversación #{{ selected.id }}</h4>
+                <div class="meta">Usuario: {{ selected.user_id || selected.guest_id || selected.session_id }} • Estado: {{ selected.status }} • Agente: {{ selected.agent_name || 'Sin asignar' }}</div>
+            </div>
+            <div class="right">
+                <div class="dates">Creada: {{ selected.createdAt | date:'short' }} • Actualizada: {{ selected.updatedAt | date:'short' }}</div>
+                <div class="controls">
+                    <button class="btn btn-sm btn-outline-secondary" (click)="closeConversation()">Cerrar</button>
+                    <button class="btn btn-sm btn-outline-success" (click)="takeConversation()">Tomar / Reabrir</button>
+                </div>
+            </div>
+        </div>
+
+        <div #messagesContainer class="messages">
+            <div *ngFor="let m of messages" class="msg" [ngClass]="{'agent': m.sender_type==='agent', 'user': m.sender_type==='user'}">
+                <div class="meta">{{ m.sender_type }} • {{ m.timestamp | date:'shortTime' }}</div>
+                <div class="content">{{ m.message }}</div>
+            </div>
+        </div>
+
+        <div class="send-box">
+            <textarea [(ngModel)]="newMessage" rows="3" placeholder="Escribir mensaje..."></textarea>
+            <div class="actions">
+                <button class="btn btn-sm btn-primary" (click)="send()">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div> -->
+<!-- END TEMPLATE ORIGINAL -->
+
+
+
+
+
+
+<!-- NUEVO STYLE -->
+
+<!--begin::Content-->
+<div class="flex-lg-row-fluid ms-lg-7 ms-xl-10" *ngIf="selected; else emptyState">
+  <!--begin::Messenger-->
+  <div class="card card-flush h-100" id="kt_chat_messenger">
+    <!--begin::Card header-->
+    <div class="card-header align-items-center px-4 py-3 border-bottom">
+      <div class="card-title d-flex align-items-center flex-row-fluid">
+        <!-- Avatar -->
+        <div class="symbol symbol-45px me-4">
+          <span class="symbol-label bg-light-primary text-primary fs-5 fw-bold">
+            {{ userInitial }}
+            <!-- {{ (selected.user_name || 'U') | slice:0:1 | uppercase }} -->
+          </span>
+        </div>
+
+        <!-- Info -->
+        <div class="d-flex flex-column">
+          <span class="fs-5 fw-bold text-gray-900">{{ selected.user_name || 'Usuario' }}</span>
+          <span class="fs-8 text-muted">
+            {{ selected.status || 'Sin estado' }} •
+            <span [class.text-success]="selected.agent_name" [class.text-muted]="!selected.agent_name">
+              {{ selected.agent_name || 'Sin asignar' }}
+            </span>
+          </span>
+        </div>
       </div>
-      <div class="right">
-        <div class="dates">Creada: {{ selected.createdAt | date:'short' }} • Actualizada: {{ selected.updatedAt | date:'short' }}</div>
-        <div class="controls">
-          <button class="btn btn-sm btn-outline-secondary" (click)="closeConversation()">Cerrar</button>
-          <button class="btn btn-sm btn-outline-success" (click)="takeConversation()">Tomar / Reabrir</button>
+
+      <!-- Toolbar -->
+      <div class="card-toolbar">
+        <button class="btn btn-sm btn-light-danger me-2" (click)="closeConversation()">
+          <i class="ki-duotone ki-cross-square fs-5 me-1"></i> Cerrar
+        </button>
+        <button class="btn btn-sm btn-light-success" (click)="takeConversation()">
+          <i class="ki-duotone ki-user-tick fs-5 me-1"></i> Tomar / Reabrir
+        </button>
+      </div>
+    </div>
+    <!--end::Card header-->
+
+    <!--begin::Card body-->
+    <div class="card-body pt-5 pb-0" id="kt_chat_messenger_body">
+      <div class="scroll-y pe-3" style="max-height: 70vh;" #messagesContainer>
+        <div *ngFor="let m of messages">
+          <!-- Mensaje del usuario -->
+          <div class="d-flex justify-content-start mb-7" *ngIf="m.sender_type === 'user'">
+            <div class="d-flex flex-column align-items-start">
+              <div class="d-flex align-items-center mb-1">
+                <div class="symbol symbol-35px symbol-circle me-2">
+                  <img alt="user" src="assets/media/avatars/blank.png">
+                </div>
+                <div>
+                  <span class="fs-7 fw-bold text-gray-900">Usuario</span>
+                  <span class="text-muted fs-8 ms-2">{{ m.timestamp | date:'shortTime' }}</span>
+                </div>
+              </div>
+              <div class="p-4 rounded bg-light-info text-gray-900 fw-semibold mw-lg-400px text-start shadow-sm">
+                {{ m.message }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensaje del agente -->
+          <div class="d-flex justify-content-end mb-7" *ngIf="m.sender_type === 'agent'">
+            <div class="d-flex flex-column align-items-end">
+              <div class="d-flex align-items-center mb-1">
+                <div class="text-end me-2">
+                  <span class="text-muted fs-8 me-1">{{ m.timestamp | date:'shortTime' }}</span>
+                  <span class="fs-7 fw-bold text-gray-900">Tú</span>
+                </div>
+                <div class="symbol symbol-35px symbol-circle">
+                  <img alt="agent" src="assets/media/avatars/agent-avatar.png">
+                </div>
+              </div>
+              <div class="p-4 rounded bg-light-primary text-gray-900 fw-semibold mw-lg-400px text-end shadow-sm">
+                {{ m.message }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    <!--end::Card body-->
 
-    <div #messagesContainer class="messages">
-      <div *ngFor="let m of messages" class="msg" [ngClass]="{'agent': m.sender_type==='agent', 'user': m.sender_type==='user'}">
-        <div class="meta">{{ m.sender_type }} • {{ m.timestamp | date:'shortTime' }}</div>
-        <div class="content">{{ m.message }}</div>
+    <!--begin::Card footer-->
+    <div class="card-footer pt-4">
+      <div class="d-flex align-items-center">
+        <textarea
+          class="form-control form-control-flush flex-grow-1 me-3"
+          rows="1"
+          [(ngModel)]="newMessage"
+          placeholder="Escribir mensaje..."
+          (keydown.enter)="send()"
+        ></textarea>
+
+        <button class="btn btn-primary" type="button" (click)="send()">
+          <i class="ki-duotone ki-send fs-2"></i> Send
+        </button>
       </div>
     </div>
-
-    <div class="send-box">
-      <textarea [(ngModel)]="newMessage" rows="3" placeholder="Escribir mensaje..."></textarea>
-      <div class="actions">
-        <button class="btn btn-sm btn-primary" (click)="send()">Enviar</button>
-      </div>
-    </div>
+    <!--end::Card footer-->
   </div>
+  <!--end::Messenger-->
 </div>
+
+<!-- Estado vacío -->
+<ng-template #emptyState>
+  <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
+    <i class="ki-duotone ki-message-square fs-2hx mb-4 opacity-50"></i>
+    <div class="fs-5 fw-semibold">Selecciona una conversación para empezar</div>
+  </div>
+</ng-template>
+

@@ -7,12 +7,14 @@ import { ConversationListComponent } from './components/conversation-list/conver
 import { ConversationDetailComponent } from './components/conversation-detail/conversation-detail.component';
 import { HttpClientModule } from '@angular/common/http';
 import { AdminChatComponent } from './admin-chat.component';
+import { FirstLetterPipe } from './firstLetter.pipe';
 
 @NgModule({
   declarations: [
     AdminChatComponent,
     ConversationListComponent,
-    ConversationDetailComponent
+    ConversationDetailComponent,
+    FirstLetterPipe
   ],
   imports: [
     CommonModule,

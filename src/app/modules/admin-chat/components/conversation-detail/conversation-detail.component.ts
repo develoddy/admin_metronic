@@ -35,6 +35,10 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
     this.subs.forEach(s => s.unsubscribe());
   }
 
+  get userInitial(): string {
+    return ((this.selected?.user_name ?? 'U') + '').slice(0, 1).toUpperCase();
+}
+
   send() {
     if (!this.newMessage || !this.selected) return;
     this.chat.sendAgentMessage(this.selected, this.newMessage);

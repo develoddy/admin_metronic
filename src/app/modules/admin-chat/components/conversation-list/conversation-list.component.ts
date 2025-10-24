@@ -17,6 +17,8 @@ export class ConversationListComponent implements OnInit, OnDestroy {
   filterStatus: 'pending' | 'open' | 'closed' = 'pending';
   searchTerm: string = '';
 
+  private firstSelectionDone = false; // 👈 evita seleccionar de nuevo si llegan nuevas actualizaciones
+
   constructor(public chat: AdminChatService) { }
 
   ngOnInit(): void {
@@ -24,6 +26,12 @@ export class ConversationListComponent implements OnInit, OnDestroy {
       this.chat.conversations$.subscribe(list => {
         this.conversations = list || [];
         this.applyFilters();
+
+        // 👇 Si hay conversaciones y aún no se ha seleccionado ninguna, selecciona la primera
+        if (!this.firstSelectionDone && this.filtered.length > 0) {
+          this.firstSelectionDone = true;
+          this.chat.selectConversation(this.filtered[0]);
+        }
       })
     );
   }
@@ -66,6 +74,7 @@ export class ConversationListComponent implements OnInit, OnDestroy {
 
   select(conv: any) {
     this.chat.selectConversation(conv);
+    this.firstSelectionDone = true; // 👈 al hacer clic manual, marcamos como seleccionada
   }
 
   take(conv: any) {

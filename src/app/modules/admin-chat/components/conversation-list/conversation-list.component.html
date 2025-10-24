@@ -1,34 +1,175 @@
-<div class="conv-list">
-  <div class="header">
-    <h4>Conversaciones</h4>
-    <div class="search">
-      <input type="text" placeholder="Buscar por user, guest, agente o texto..." [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
+<!-- ORIGINAL STYLE Y FUNCIONALIDAD -->
+<!-- <div class="conv-list">
+    <div class="header">
+        <h4>Conversaciones</h4>
+        <div class="search">
+            <input type="text" placeholder="Buscar por user, guest, agente o texto..." [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
+        </div>
     </div>
-  </div>
 
-  <div class="filters">
-    <button [class.active]="filterStatus==='pending'" (click)="setFilter('pending')">🕓 Pendientes</button>
-    <button [class.active]="filterStatus==='open'" (click)="setFilter('open')">💬 En curso</button>
-    <button [class.active]="filterStatus==='closed'" (click)="setFilter('closed')">✅ Cerradas</button>
-  </div>
+    <div class="filters">
+        <button [class.active]="filterStatus==='pending'" (click)="setFilter('pending')">🕓 Pendientes</button>
+        <button [class.active]="filterStatus==='open'" (click)="setFilter('open')">💬 En curso</button>
+        <button [class.active]="filterStatus==='closed'" (click)="setFilter('closed')">✅ Cerradas</button>
+    </div>
 
-  <div *ngIf="filtered.length === 0" class="empty">No hay conversaciones para mostrar.</div>
+    <div *ngIf="filtered.length === 0" class="empty">No hay conversaciones para mostrar.</div>
 
-  <ul>
-    <li *ngFor="let c of filtered" class="conv-row">
-      <div (click)="select(c)" class="conv-item">
-        <div class="left">
-          <div class="title">{{ c.user_id || c.guest_id || c.session_id || ('#' + c.id) }}</div>
-          <div class="preview">{{ c.last_message || (c.messages && c.messages.length ? c.messages[c.messages.length-1].message : '') }}</div>
-        </div>
-        <div class="right">
-          <div class="time">{{ timeAgo(c.updatedAt || c.createdAt) }}</div>
-          <div *ngIf="c.unread_count && c.unread_count>0" class="badge">{{ c.unread_count }}</div>
+    <ul>
+        <li *ngFor="let c of filtered" class="conv-row">
+            <div (click)="select(c)" class="conv-item">
+                <div class="left">
+                    <div class="title">{{ c.user_id || c.guest_id || c.session_id || ('#' + c.id) }}</div>
+                    <div class="preview">{{ c.last_message || (c.messages && c.messages.length ? c.messages[c.messages.length-1].message : '') }}</div>
+                </div>
+                <div class="right">
+                    <div class="time">{{ timeAgo(c.updatedAt || c.createdAt) }}</div>
+                    <div *ngIf="c.unread_count && c.unread_count>0" class="badge">{{ c.unread_count }}</div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-sm btn-outline-primary" (click)="take(c)">Tomar</button>
+            </div>
+        </li>
+    </ul>
+</div> -->
+<!-- END ORIGINAL STYLE Y FUNCIONALIDAD -->
+
+
+
+
+
+
+<!-- NEW STYLE -->
+<!--begin::Sidebar-->
+<!-- <div class="flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0"> -->
+<div class="flex-column flex-lg-row-auto w-100 mb-10 mb-lg-0">
+  <!--begin::Contacts-->
+  <div class="card card-flush">
+    <!--begin::Card header-->
+    <div class="card-header pt-7" id="kt_chat_contacts_header">
+      <!--begin::Form-->
+      <form
+        class="w-100 position-relative"
+        autocomplete="off"
+        (submit)="$event.preventDefault()"
+      >
+        <!--begin::Icon-->
+        <i
+          class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 ms-5 translate-middle-y"
+        >
+          <span class="path1"></span><span class="path2"></span>
+        </i>
+        <!--end::Icon-->
+
+        <!--begin::Input-->
+        <input
+          type="text"
+          class="form-control form-control-solid px-13"
+          placeholder="Buscar por user, guest, agente o texto..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+        />
+        <!--end::Input-->
+      </form>
+      <!--end::Form-->
+    </div>
+    <!--end::Card header-->
+
+    <!--begin::Card body-->
+    <div class="card-body pt-5" id="kt_chat_contacts_body">
+      <!--begin::Filters-->
+      <div class="d-flex justify-content-around mb-4">
+        <button
+          class="btn btn-light btn-sm"
+          [class.active]="filterStatus === 'pending'"
+          (click)="setFilter('pending')"
+        >
+          🕓 Pendientes
+        </button>
+        <button
+          class="btn btn-light btn-sm"
+          [class.active]="filterStatus === 'open'"
+          (click)="setFilter('open')"
+        >
+          💬 En curso
+        </button>
+        <button
+          class="btn btn-light btn-sm"
+          [class.active]="filterStatus === 'closed'"
+          (click)="setFilter('closed')"
+        >
+          ✅ Cerradas
+        </button>
+      </div>
+      <!--end::Filters-->
+
+      <!--begin::Empty-->
+      <div *ngIf="filtered.length === 0" class="text-center py-10 text-muted">
+        No hay conversaciones para mostrar.
+      </div>
+      <!--end::Empty-->
+
+      <!--begin::List-->
+      <div
+        class="scroll-y me-n5 pe-5"
+        style="max-height: 520px"
+        data-kt-scroll="true"
+      >
+        <div
+          *ngFor="let c of filtered"
+          class="d-flex flex-stack py-4 border-bottom cursor-pointer hover:bg-light"
+          (click)="select(c)"
+        >
+          <!--begin::Details-->
+          <div class="d-flex align-items-center">
+            <!--begin::Avatar-->
+            <div class="symbol symbol-45px symbol-circle">
+              <span
+                class="symbol-label bg-light-primary text-primary fs-6 fw-bold"
+              >
+                {{ (c.user_id || c.guest_id || 'U') | firstLetter }}
+              </span>
+            </div>
+            <!--end::Avatar-->
+
+            <!--begin::Details-->
+            <div class="ms-5">
+              <div class="fw-bold text-gray-900">
+                {{ c.user_id || c.guest_id || ('#' + c.id) }}
+              </div>
+              <div class="fw-semibold text-muted text-truncate" style="max-width:180px;">
+                {{
+                  c.last_message ||
+                    (c.messages && c.messages.length
+                      ? c.messages[c.messages.length - 1].message
+                      : '')
+                }}
+              </div>
+            </div>
+            <!--end::Details-->
+          </div>
+          <!--end::Details-->
+
+          <!--begin::Right side-->
+          <div class="d-flex flex-column align-items-end ms-2">
+            <span class="text-muted fs-7 mb-1">
+              {{ timeAgo(c.updatedAt || c.createdAt) }}
+            </span>
+
+            <span
+              *ngIf="c.unread_count && c.unread_count > 0"
+              class="badge badge-sm badge-circle badge-light-danger"
+              >{{ c.unread_count }}</span
+            >
+          </div>
+          <!--end::Right side-->
         </div>
       </div>
-      <div class="actions">
-        <button class="btn btn-sm btn-outline-primary" (click)="take(c)">Tomar</button>
-      </div>
-    </li>
-  </ul>
+      <!--end::List-->
+    </div>
+    <!--end::Card body-->
+  </div>
+  <!--end::Contacts-->
 </div>
+<!--end::Sidebar-->
