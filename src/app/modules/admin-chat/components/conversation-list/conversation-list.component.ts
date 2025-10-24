@@ -27,10 +27,13 @@ export class ConversationListComponent implements OnInit, OnDestroy {
         this.conversations = list || [];
         this.applyFilters();
 
-        // 👇 Si hay conversaciones y aún no se ha seleccionado ninguna, selecciona la primera
         if (!this.firstSelectionDone && this.filtered.length > 0) {
-          this.firstSelectionDone = true;
-          this.chat.selectConversation(this.filtered[0]);
+            this.firstSelectionDone = true;
+
+            // 👇 Espera un ciclo de renderizado antes de seleccionar la conversación
+            setTimeout(() => {
+                this.chat.selectConversation(this.filtered[0]);
+            }, 0);
         }
       })
     );

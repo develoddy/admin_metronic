@@ -41,7 +41,8 @@
 <!-- NUEVO STYLE -->
 
 <!--begin::Content-->
-<div class="flex-lg-row-fluid ms-lg-7 ms-xl-10" *ngIf="selected; else emptyState">
+<!-- <div class="flex-lg-row-fluid ms-lg-7 ms-xl-10" *ngIf="selected; else emptyState"> -->
+<div class="flex-lg-row-fluid ms-lg-7 ms-xl-10" *ngIf="chat.selectedConversation$ | async as selected; else emptyState">
   <!--begin::Messenger-->
   <div class="card card-flush h-100" id="kt_chat_messenger">
     <!--begin::Card header-->
