@@ -153,5 +153,21 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
+      // CHAT
+      {
+        title: 'Chat',
+        root: true,
+        name: "chat",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/General/Clipboard.svg',
+        page: '/chat',
+        submenu: [
+          {
+            title: 'Lista Chat',
+            page: '/support'
+          }
+        ]
+      },
     ]
 }
