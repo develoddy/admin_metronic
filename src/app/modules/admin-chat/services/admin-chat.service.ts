@@ -8,6 +8,8 @@ import { AuthService } from '../../auth';
 @Injectable({ providedIn: 'root' })
 export class AdminChatService {
   private socket: Socket | null = null;
+  // null = unknown, true = backend supports ?status= filtering, false = backend does not
+  private serverSupportsStatus: boolean | null = null;
 
   private conversationsSubject = new BehaviorSubject<any[]>([]);
   private selectedConversationSubject = new BehaviorSubject<any>(null);
@@ -169,28 +171,153 @@ export class AdminChatService {
     }
   }
 
-  loadActiveConversations() {
-    const url = `${URL_SERVICIOS}/chat/conversations`;
-    this.http.get<any>(url, this.getAuthHeaders()).subscribe(resp => {
-      if (resp && resp.success) {
-        const convs = (resp.conversations || []).map((c: any) => ({
-          conversation_id: c.id,
-          id: c.id,
-          session_id: c.session_id,
-          status: c.status,
-          user_id: c.user_id || null,
-          guest_id: c.guest_id || null,
-          messages: c.messages || [],
-          createdAt: c.created_at || c.createdAt || null,
-          updatedAt: c.updated_at || c.updatedAt || null,
-          last_message: c.last_message || null,
-          unread_count: c.unread_count || 0,
-          agent_id: c.agent_id || null,
-          agent_name: c.agent_name || null
-        }));
-        this.conversationsSubject.next(convs);
-      }
-    }, err => console.error('[AdminChat] loadActiveConversations error', err));
+  /**
+   * Carga conversaciones activas. Si el backend soporta el query param `status`, se lo pasamos.
+   * Si el request con status falla, hacemos fallback a cargar sin status y filtramos en frontend.
+   * @param status opcional: 'open' | 'closed'
+   */
+  loadActiveConversations(status?: string) {
+    const baseUrl = `${URL_SERVICIOS}/chat/conversations`;
+    const url = status ? `${baseUrl}?status=${encodeURIComponent(status)}` : baseUrl;
+
+    // If a status filter was provided and we haven't yet determined whether the
+    // backend supports server-side `?status=` filtering, we attempt the request
+    // and set `serverSupportsStatus` according to whether the backend accepted
+    // the parameter (resp.success === true). On subsequent calls we use this
+    // flag to either trust the server (and not run client fallbacks) or to
+    // always fetch unfiltered data and filter client-side.
+    const doRequest = (requestUrl: string, treatAsProbe = false) => {
+      this.http.get<any>(requestUrl, this.getAuthHeaders()).subscribe(resp => {
+        if (resp && resp.success) {
+          // If this call included a status param and we didn't know support yet,
+          // assume the backend supports it.
+          if (status && this.serverSupportsStatus === null) this.serverSupportsStatus = true;
+
+          const convs = (resp.conversations || []).map((c: any) => ({
+            conversation_id: c.id,
+            id: c.id,
+            session_id: c.session_id,
+            status: c.status,
+            user_id: c.user_id || null,
+            guest_id: c.guest_id || null,
+            messages: c.messages || [],
+            createdAt: c.created_at || c.createdAt || null,
+            updatedAt: c.updated_at || c.updatedAt || null,
+            last_message: c.last_message || null,
+            unread_count: c.unread_count || 0,
+            agent_id: c.agent_id || null,
+            agent_name: c.agent_name || null
+          }));
+          // If we called as a probe (to test support) and server does not truly
+          // filter by that probe value, that's acceptable — we still mark
+          // support true because the backend responded successfully to the
+          // `status` query param. Business logic for what statuses are
+          // supported should be aligned with the API docs.
+          // Debug: log pending conversations received from API
+          if (status && status.toLowerCase() === 'pending') {
+            console.debug('[AdminChatService] Pending conversations received from API:', convs.length, convs);
+          }
+          this.conversationsSubject.next(convs);
+        } else {
+          // If server returned success=false while we tried with a status param,
+          // assume backend does not support `?status=` and set flag accordingly,
+          // then fallback to unfiltered fetch and client-side filtering.
+          if (status && this.serverSupportsStatus === null) {
+            this.serverSupportsStatus = false;
+            // fallback to unfiltered load
+            this.http.get<any>(baseUrl, this.getAuthHeaders()).subscribe(r2 => {
+              if (r2 && r2.success) {
+                const convs2 = (r2.conversations || []).map((c: any) => ({
+                  conversation_id: c.id,
+                  id: c.id,
+                  session_id: c.session_id,
+                  status: c.status,
+                  user_id: c.user_id || null,
+                  guest_id: c.guest_id || null,
+                  messages: c.messages || [],
+                  createdAt: c.created_at || c.createdAt || null,
+                  updatedAt: c.updated_at || c.updatedAt || null,
+                  last_message: c.last_message || null,
+                  unread_count: c.unread_count || 0,
+                  agent_id: c.agent_id || null,
+                  agent_name: c.agent_name || null
+                }));
+                // Debug: pending fallback
+                if (status && status.toLowerCase() === 'pending') {
+                  console.debug('[AdminChatService] Pending conversations received from API (fallback):', convs2.length, convs2);
+                }
+                this.conversationsSubject.next(convs2);
+              }
+            }, err2 => console.error('[AdminChat] fallback loadActiveConversations error', err2));
+          } else {
+            console.warn('[AdminChat] loadActiveConversations: respuesta inesperada', resp);
+          }
+        }
+      }, err => {
+        console.error('[AdminChat] loadActiveConversations error', err);
+        // If we attempted a status request while support is unknown, assume
+        // backend does not support it and fallback to unfiltered fetch.
+        if (status && this.serverSupportsStatus === null) {
+          this.serverSupportsStatus = false;
+          this.http.get<any>(baseUrl, this.getAuthHeaders()).subscribe(r2 => {
+            if (r2 && r2.success) {
+              const convs2 = (r2.conversations || []).map((c: any) => ({
+                conversation_id: c.id,
+                id: c.id,
+                session_id: c.session_id,
+                status: c.status,
+                user_id: c.user_id || null,
+                guest_id: c.guest_id || null,
+                messages: c.messages || [],
+                createdAt: c.created_at || c.createdAt || null,
+                updatedAt: c.updated_at || c.updatedAt || null,
+                last_message: c.last_message || null,
+                unread_count: c.unread_count || 0,
+                agent_id: c.agent_id || null,
+                agent_name: c.agent_name || null
+              }));
+              this.conversationsSubject.next(convs2);
+            }
+          }, err2 => console.error('[AdminChat] fallback loadActiveConversations error', err2));
+        } else {
+          // If we already know the backend supports status, don't perform a
+          // client-side fallback — just log the error so caller can handle it.
+          // If backend does NOT support status (serverSupportsStatus === false),
+          // the caller should have invoked this method without `status`.
+        }
+      });
+    };
+
+    // If backend is known to not support server-side status filtering, always
+    // call the unfiltered endpoint and let the client apply any pending/open/closed logic.
+    if (status && this.serverSupportsStatus === false) {
+      // fetch unfiltered list
+      this.http.get<any>(baseUrl, this.getAuthHeaders()).subscribe(r2 => {
+        if (r2 && r2.success) {
+          const convs2 = (r2.conversations || []).map((c: any) => ({
+            conversation_id: c.id,
+            id: c.id,
+            session_id: c.session_id,
+            status: c.status,
+            user_id: c.user_id || null,
+            guest_id: c.guest_id || null,
+            messages: c.messages || [],
+            createdAt: c.created_at || c.createdAt || null,
+            updatedAt: c.updated_at || c.updatedAt || null,
+            last_message: c.last_message || null,
+            unread_count: c.unread_count || 0,
+            agent_id: c.agent_id || null,
+            agent_name: c.agent_name || null
+          }));
+          this.conversationsSubject.next(convs2);
+        }
+      }, err2 => console.error('[AdminChat] loadActiveConversations (no-status) error', err2));
+      return;
+    }
+
+    // Normal path: perform the request (this will also serve as a probe the
+    // first time we call with status).
+    doRequest(url, !!status);
   }
 
   selectConversation(conv: any) {

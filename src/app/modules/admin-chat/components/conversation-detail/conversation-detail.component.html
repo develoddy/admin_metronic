@@ -93,7 +93,8 @@
                 </div>
                 <div>
                   <span class="fs-7 fw-bold text-gray-900">Usuario</span>
-                  <span class="text-muted fs-8 ms-2">{{ m.timestamp | date:'shortTime' }}</span>
+                  <!-- <span class="text-muted fs-8 ms-2">{{ m.timestamp | date:'shortTime' }}</span> -->
+                   <span class="text-muted fs-8 ms-2">{{ getDateFromTime(m.timestamp) | date:'shortTime' }}</span>
                 </div>
               </div>
               <div class="p-4 rounded bg-light-info text-gray-900 fw-semibold mw-lg-400px text-start shadow-sm">
@@ -107,7 +108,8 @@
             <div class="d-flex flex-column align-items-end">
               <div class="d-flex align-items-center mb-1">
                 <div class="text-end me-2">
-                  <span class="text-muted fs-8 me-1">{{ m.timestamp | date:'shortTime' }}</span>
+                  <!-- <span class="text-muted fs-8 me-1">{{ m.timestamp | date:'shortTime' }}</span> -->
+                  <span class="text-muted fs-8 me-1">{{ getDateFromTime(m.timestamp) | date:'shortTime' }}</span>
                   <span class="fs-7 fw-bold text-gray-900">Tú</span>
                 </div>
                 <div class="symbol symbol-35px symbol-circle">

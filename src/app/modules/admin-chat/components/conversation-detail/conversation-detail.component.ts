@@ -56,6 +56,13 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
     this.chat.takeConversation(this.selected);
   }
 
+  getDateFromTime(time: string): Date {
+    const [h, m] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(h, m, 0, 0);
+    return date;
+  }
+
   private scrollToBottom() {
     try {
       const el = this.messagesContainer?.nativeElement;

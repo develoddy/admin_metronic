@@ -37,6 +37,8 @@ export class ConversationListComponent implements OnInit, OnDestroy {
         }
       })
     );
+    // Inicializar carga según filtro por defecto
+    this.setFilter(this.filterStatus);
   }
 
   ngOnDestroy(): void {
@@ -46,13 +48,18 @@ export class ConversationListComponent implements OnInit, OnDestroy {
   applyFilters() {
     const term = (this.searchTerm || '').toLowerCase().trim();
     this.filtered = (this.conversations || []).filter((c:any) => {
-      // map status: pending -> status === 'open' or is_active true and no agent
+      // Filtrado por estados:
+      // pending: sin agent_id y no cerradas
+      // open: status === 'open'
+      // closed: status === 'closed'
       if (this.filterStatus === 'pending') {
+        // debe no tener agente asignado y no estar cerrado
         if (c.status && c.status === 'closed') return false;
+        if (c.agent_id) return false;
       } else if (this.filterStatus === 'open') {
-        if (c.status && c.status !== 'open') return false;
+        if ((c.status || '').toLowerCase() !== 'open') return false;
       } else if (this.filterStatus === 'closed') {
-        if (c.status && c.status !== 'closed') return false;
+        if ((c.status || '').toLowerCase() !== 'closed') return false;
       }
 
       if (!term) return true;
@@ -63,7 +70,18 @@ export class ConversationListComponent implements OnInit, OnDestroy {
 
   setFilter(status: 'pending' | 'open' | 'closed') {
     this.filterStatus = status;
-    this.applyFilters();
+    // reset automatic first selection so the first item of the new filter is selected
+    this.firstSelectionDone = false;
+
+    // Decide si pedimos al backend por status o cargamos todo y filtramos localmente
+    // Usamos param status sólo para 'open' y 'closed' (si el backend lo soporta).
+    if (status === 'open' || status === 'closed') {
+      this.chat.loadActiveConversations(status === 'open' ? 'open' : 'closed');
+    } else {
+      // pending: request server-side pending if possible (service will probe/fallback as needed)
+      this.chat.loadActiveConversations('pending');
+    }
+    // Los resultados llegarán al observable y llamarás applyFilters() en la suscripción.
   }
 
   onSearchChange() {
