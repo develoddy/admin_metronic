@@ -3,9 +3,13 @@
     <h3 class="card-title">Venta #{{ sale.id }}</h3>
     <div class="card-toolbar">
       <span class="badge bg-light-primary text-primary">{{ sale.status }}</span>
+      <!-- <span class="badge bg-light-primary text-primary">{{ sale.n_transaction }}</span> -->
     </div>
   </div>
   <div class="card-body">
+    <div class="mb-4">
+        <strong>Nº Transacción:</strong> {{ sale.n_transaction }}
+    </div>
     <div class="mb-4">
       <strong>Usuario:</strong> {{ (sale.user && sale.user.email) || (sale.guest && sale.guest.email) || '—' }}
     </div>
@@ -16,7 +20,13 @@
     <div class="table-responsive">
       <table class="table">
         <thead>
-          <tr><th>Producto</th><th>Precio unit.</th><th>Cantidad</th><th>Subtotal</th></tr>
+          <tr>
+            <th>Producto</th>
+            <th>Titulo</th>
+            <th>Precio unit.</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+          </tr>
         </thead>
         <tbody>
           <tr *ngFor="let d of sale.items">
@@ -24,9 +34,9 @@
               <img *ngIf="d.product.imagen" [src]="d.product.imagen" class="me-2 rounded" style="width:40px;height:40px;object-fit:cover;" />
             </td>
             <td>{{ d.product?.title || d.title || d.product_title }}</td>
-            <td>{{ d.price_unitario || d.unitPrice }}</td>
+            <td>€ {{ d.price_unitario || d.unitPrice }}</td>
             <td>{{ d.cantidad || d.quantity }}</td>
-            <td>{{ d.total || d.subtotal }}</td>
+            <td>€ {{ d.total || d.subtotal }}</td>
           </tr>
         </tbody>
       </table>

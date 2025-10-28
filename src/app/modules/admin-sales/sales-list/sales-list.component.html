@@ -4,8 +4,8 @@
         <div class="card-toolbar">
             <div class="input-group input-group-sm">
                 <!-- <input class="form-control form-control-sm" placeholder="Buscar..." [(ngModel)]="q" (keyup.enter)="load()" /> -->
-                <input class="form-control form-control-sm" placeholder="Buscar..." (keyup)="searchTerm.next($event.target.value)" (keyup.enter)="load(1)" />
-                <button class="btn btn-sm btn-primary" (click)="load()">Buscar</button>
+                <input class="form-control form-control-sm" placeholder="Buscar ventas..." (keyup)="searchTerm.next($event.target.value)" (keyup.enter)="load(1)" />
+                <button class="btn btn-sm btn-dark" (click)="load()">Buscar</button>
             </div>
         </div>
     </div>
@@ -28,86 +28,75 @@
                 <tbody>
                     <tr *ngFor="let s of sales">
                         <td>{{ s.id }}</td>
-                        <!-- <td>{{ s.n_transaction || '—' }}</td> -->
-                        <!-- <td>
-                            <span *ngIf="s.method_payment === 'STRIPE'" class="badge bg-info" [title]="s.n_transaction">
-                                {{ s.n_transaction | slice:0:15 }}…
-                            </span>
-                            <span *ngIf="s.method_payment === 'PAYPAL'" class="badge bg-warning" [title]="s.n_transaction">
-                                {{ s.n_transaction | slice:0:15 }}…
-                            </span>
-                            <span *ngIf="!s.method_payment">
-                                {{ s.n_transaction ? (s.n_transaction | slice:0:15) + '…' : '—' }}
-                            </span>
-                        </td> -->
 
-                        <td style="position: relative; overflow: visible !important;" class="position-relative">
+                        <td style="position: relative; overflow: visible !important" class="position-relative">
                             <div class="d-flex align-items-center gap-2">
-                                <span
-                                *ngIf="s.method_payment === 'STRIPE'"
-                                class="badge bg-info text-truncate"
-                                style="max-width: 150px;"
-                                [title]="s.n_transaction"
-                                >
-                                {{ s.n_transaction }}
+                                <span *ngIf="s.method_payment === 'STRIPE'" class="badge bg-success text-truncate" style="max-width: 150px" [title]="s.n_transaction">
+                                    {{ s.n_transaction }}
                                 </span>
-                                <span
-                                *ngIf="s.method_payment === 'PAYPAL'"
-                                class="badge bg-warning text-truncate"
-                                style="max-width: 150px;"
-                                [title]="s.n_transaction"
-                                >
-                                {{ s.n_transaction }}
+                                <span *ngIf="s.method_payment === 'PAYPAL'" class="badge bg-primary text-truncate" style="max-width: 150px" [title]="s.n_transaction">
+                                    {{ s.n_transaction }}
                                 </span>
 
                                 <!-- Botón copiar -->
-                                <button
-                                class="btn btn-sm btn-light"
-                                (click)="copyToClipboard(s.n_transaction, s.id)"
-                                title="Copiar número de transacción"
-                                >
-                                <!-- <i class="bi bi-clipboard"></i> -->
-                                <svg id='Interface_File_Double_24' width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
+                                <button class="btn btn-sm btn-light p-2" (click)="copyToClipboard(s.n_transaction, s.id)" title="Copiar número de transacción">
+                                    <!-- <i class="bi bi-clipboard"></i> -->
+                                    <svg id="Interface_File_Double_24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <rect width="24" height="24" stroke="none" fill="#000000" opacity="0" />
 
-
-<g transform="matrix(1.43 0 0 1.43 12 12)" >
-<g style="" >
-<g transform="matrix(1 0 0 1 1.25 -1.25)" >
-<path style="stroke: rgb(0,0,0); stroke-width: 1; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-8.25, -5.75)" d="M 12.5 10 C 12.5 10.552284749830793 12.052284749830793 11 11.5 11 L 5 11 C 4.447715250169207 11 4 10.552284749830793 4 10 L 4 1.5 C 4 0.9477152501692065 4.447715250169207 0.5 5 0.5 L 9.5 0.5 L 12.5 3.5 Z" stroke-linecap="round" />
-</g>
-<g transform="matrix(1 0 0 1 -1.5 1.5)" >
-<path style="stroke: rgb(0,0,0); stroke-width: 1; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-5.5, -8.5)" d="M 9.5 13.5 L 2.5 13.5 C 1.9477152501692065 13.5 1.5 13.052284749830793 1.5 12.5 L 1.5 3.5" stroke-linecap="round" />
-</g>
-</g>
-</g>
-</svg>
+                                        <g transform="matrix(1.43 0 0 1.43 12 12)">
+                                            <g style="">
+                                                <g transform="matrix(1 0 0 1 1.25 -1.25)">
+                                                    <path style="
+                              stroke: rgb(0, 0, 0);
+                              stroke-width: 1;
+                              stroke-dasharray: none;
+                              stroke-linecap: round;
+                              stroke-dashoffset: 0;
+                              stroke-linejoin: round;
+                              stroke-miterlimit: 4;
+                              fill: none;
+                              fill-rule: nonzero;
+                              opacity: 1;
+                            " transform=" translate(-8.25, -5.75)" d="M 12.5 10 C 12.5 10.552284749830793 12.052284749830793 11 11.5 11 L 5 11 C 4.447715250169207 11 4 10.552284749830793 4 10 L 4 1.5 C 4 0.9477152501692065 4.447715250169207 0.5 5 0.5 L 9.5 0.5 L 12.5 3.5 Z" stroke-linecap="round" />
+                                                </g>
+                                                <g transform="matrix(1 0 0 1 -1.5 1.5)">
+                                                    <path style="
+                              stroke: rgb(0, 0, 0);
+                              stroke-width: 1;
+                              stroke-dasharray: none;
+                              stroke-linecap: round;
+                              stroke-dashoffset: 0;
+                              stroke-linejoin: round;
+                              stroke-miterlimit: 4;
+                              fill: none;
+                              fill-rule: nonzero;
+                              opacity: 1;
+                            " transform=" translate(-5.5, -8.5)" d="M 9.5 13.5 L 2.5 13.5 C 1.9477152501692065 13.5 1.5 13.052284749830793 1.5 12.5 L 1.5 3.5" stroke-linecap="round" />
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </svg>
                                 </button>
                             </div>
 
                             <!-- Tooltip -->
-                            <div
-                                *ngIf="copiedId == s.id"
-                                class="copy-tooltip position-absolute bg-dark text-white px-2 py-1 rounded small"
-                                style="top: -25px; right: 0; z-index: 1000;"
-                            >
+                            <div *ngIf="copiedId == s.id" class="copy-tooltip position-absolute bg-dark text-white px-2 py-1 rounded small" style="top: -25px; right: 0; z-index: 1000">
                                 ¡Copiado!
                             </div>
                         </td>
 
-
-                        <td>{{ (s.user && s.user.email) || (s.guest && s.guest.email) || '—' }}</td>
-                        <td>{{ s.total }}</td>
+                        <td>{{(s.user && s.user.email) || (s.guest && s.guest.email) || "—"}}</td>
+                        <td>€ {{ s.total }}</td>
                         <td>{{ s.status }}</td>
-                        <td>{{ s.createdAt | date:'short' }}</td>
+                        <td>{{ s.createdAt | date : "short" }}</td>
                         <td>
-                            <div *ngFor="let it of s.items | slice:0:3" class="d-flex align-items-center mb-1">
-                                <img *ngIf="it.imagen" [src]="it.imagen" class="me-2 rounded" style="width:40px;height:40px;object-fit:cover;" />
+                            <div *ngFor="let it of s.items | slice : 0 : 3" class="d-flex align-items-center mb-1">
+                                <img *ngIf="it.imagen" [src]="it.imagen" class="me-2 rounded" style="width: 40px; height: 40px; object-fit: cover" />
                                 <div>{{ it.title }} x{{ it.cantidad }}</div>
                             </div>
                         </td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-light" (click)="openSale(s)">Ver</button>
-                        </td>
+                        <td class="text-end"><button class="btn btn-sm btn-dark" (click)="openSale(s)">Ver</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -134,5 +123,4 @@
             </li>
         </ul>
     </nav>
-
 </div>

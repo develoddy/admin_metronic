@@ -20,6 +20,6 @@ import { AdminSalesRoutingModule } from './admin-sales-routing.module';
     InlineSVGModule,
     CRUDTableModule
   ],
-  exports: [SalesListComponent]
+  exports: [SalesListComponent, SaleDetailComponent]
 })
 export class AdminSalesModule { }

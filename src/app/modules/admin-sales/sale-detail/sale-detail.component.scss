@@ -1,1 +1,132 @@
 .card { margin-bottom: 1rem; }
+
+:host {
+	--card-bg: #ffffff;
+	--muted: #6c757d;
+	--accent: #0d6efd;
+	--radius: 10px;
+	--shadow: 0 10px 30px rgba(12,12,12,0.06);
+}
+
+.card {
+	border: 1px solid rgba(18,18,18,0.04);
+	border-radius: var(--radius);
+}
+
+.card-header { padding: 16px 18px; display:flex; align-items:center; justify-content:space-between }
+.card-header h3 { margin:0; font-size:1.1rem }
+
+.card-body { padding: 18px; }
+
+.table-responsive .table { border: 0; }
+.table thead th { background: transparent; border-bottom: 1px solid rgba(18,18,18,0.04); font-weight:600 }
+.table tbody tr { border-bottom: none }
+
+.table tbody td { vertical-align: middle; padding: 12px 8px }
+
+.table img { border-radius: 8px; }
+
+.card.bg-light { background: #fbfbfc; border-radius: 8px }
+
+.fw-semibold { font-weight: 600 }
+
+/* right column summary */
+.card .card-body .card.bg-light .card-body { padding: 12px }
+
+/* responsive adjustments */
+@media (max-width: 860px) {
+	.card-body .row { gap: 12px; }
+	.col-lg-8, .col-lg-4 { width:100%; }
+	.col-lg-4 { order: 2; }
+}
+
+/* Modernize table rows: use CSS grid to present each product row as a compact card-like row */
+.table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+/* Header grid alignment */
+.table thead tr {
+	display: grid;
+	grid-template-columns: 72px 1fr 120px 80px 110px;
+	align-items: center;
+	gap: 12px 18px;
+}
+
+.table thead th {
+	padding: 10px 0; 
+	text-align: left; /* ajuste general, excepto price/qty/subtotal */
+}
+
+.table thead th:nth-child(3),
+.table thead th:nth-child(4),
+.table thead th:nth-child(5) {
+	text-align: right;
+}
+
+
+.table tbody tr {
+	display: grid;
+	/* five columns to match the DOM: image | title | price | qty | subtotal */
+	grid-template-columns: 72px 1fr 120px 80px 110px;
+	gap: 12px 18px;
+	align-items: center;
+	padding: 12px 0;
+	transition: background 150ms ease, transform 120ms ease;
+}
+
+.table tbody tr:hover {
+	background: rgba(13,110,253,0.03);
+	transform: translateY(-2px);
+}
+
+.table tbody td {
+	display: block;
+	padding: 0; /* handled by the tr grid spacing */
+}
+
+.table tbody td:first-child {
+	width: 72px;
+}
+
+.table tbody td img {
+	width: 56px;
+	height: 56px;
+	object-fit: cover;
+	border-radius: 8px;
+	display: block;
+}
+
+.table tbody td .fw-semibold { margin-bottom: 4px; }
+
+/* Price and qty alignments */
+.table tbody td:nth-child(3),
+.table tbody td:nth-child(4),
+.table tbody td:nth-child(5) {
+	text-align: right;
+}
+
+/* Make table header visually light and compact */
+.table thead th { padding: 10px 8px; color: var(--muted); font-size: 0.9rem }
+
+/* Small screens: stack each product row into a card */
+@media (max-width: 680px) {
+	.table tbody tr {
+		grid-template-columns: 1fr;
+		gap: 8px;
+		padding: 12px;
+		border-radius: 10px;
+		box-shadow: 0 8px 22px rgba(12,12,12,0.04);
+		background: var(--card-bg);
+	}
+
+	.table thead { display: none; }
+
+	.table tbody td:nth-child(3), .table tbody td:nth-child(4) { text-align: left; }
+}
+
+/* Summary card tweaks */
+.card .card-body .card.bg-light { box-shadow: 0 6px 18px rgba(12,12,12,0.04); }
+
+

@@ -34,10 +34,4 @@ export class AdminChatComponent implements OnInit, OnDestroy {
   isActive(tab: string): boolean {
     return this.activeTab === tab;
   }
-
-  goToSales() {
-    // keep visual state in this component, but navigate to the admin sales route
-    this.setActiveTab('sales');
-    this.router.navigate(['/sales/list']);
-  }
 }
