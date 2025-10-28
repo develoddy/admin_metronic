@@ -82,6 +82,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'sales',
+        loadChildren: () =>
+          import('../modules/admin-sales/admin-sales.module').then(
+            (m) => m.AdminSalesModule
+          ),
+      },
+      {
         path: 'sliders',
         loadChildren: () =>
           import('../modules/slider/slider.module').then(

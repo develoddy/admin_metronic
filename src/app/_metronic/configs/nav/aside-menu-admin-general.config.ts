@@ -155,6 +155,22 @@ export const AsideMenuAdminGeneral = {
         ]
       },
 
+      {
+        title: 'Ventas',
+        root: true,
+        name: "sales",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Shopping/Euro.svg',
+        page: '/sales',
+        submenu: [
+          {
+            title: 'Lista Ventas',
+            page: '/sales/list'
+          }
+        ]
+      },
+
 
 
       /** --------- SECCION SOPORTE CHAT ---------*/

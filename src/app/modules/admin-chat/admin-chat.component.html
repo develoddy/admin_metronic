@@ -106,7 +106,7 @@
             type="button"
             class="nav-link"
             [class.active]="isActive('sales')"
-            (click)="setActiveTab('sales')"
+            (click)="goToSales()"
             >
             Ventas
             </button>
@@ -153,6 +153,10 @@
                 <app-list-products></app-list-products>
             </div>
 
+            <!-- VENTAS TAB-->
+            <div *ngIf="isActive('sales')" class="tab-pane show active">
+                <app-sales-list></app-sales-list>
+            </div>
 
 
             <!--begin::Modals-->

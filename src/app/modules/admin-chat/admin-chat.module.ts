@@ -10,6 +10,7 @@ import { AdminChatComponent } from './admin-chat.component';
 import { FirstLetterPipe } from './firstLetter.pipe';
 import { UsersModule } from '../users/users.module';
 import { ProductModule } from '../product/product.module';
+import { AdminSalesModule } from '../admin-sales/admin-sales.module';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { ProductModule } from '../product/product.module';
 
     // Otros modulos fuera
     UsersModule,
-    ProductModule
+    ProductModule,
+    AdminSalesModule,
   ],
   providers: []
 })
