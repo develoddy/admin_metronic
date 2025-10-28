@@ -3,7 +3,6 @@
         <h3 class="card-title">Ventas</h3>
         <div class="card-toolbar">
             <div class="input-group input-group-sm">
-                <!-- <input class="form-control form-control-sm" placeholder="Buscar..." [(ngModel)]="q" (keyup.enter)="load()" /> -->
                 <input class="form-control form-control-sm" placeholder="Buscar ventas..." (keyup)="searchTerm.next($event.target.value)" (keyup.enter)="load(1)" />
                 <button class="btn btn-sm btn-dark" (click)="load()">Buscar</button>
             </div>
