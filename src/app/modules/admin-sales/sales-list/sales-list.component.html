@@ -94,8 +94,9 @@
                                 <img *ngIf="it.imagen" [src]="it.imagen" class="me-2 rounded" style="width: 40px; height: 40px; object-fit: cover" />
                                 <div class="d-flex flex-column">
                                     <div class="px-2 lh-1"><span>{{ it.title }}</span></div>
-                                    <div class="px-2 lh-1"><span class="me-2">Talla:</span> <span *ngIf="it.talla">{{ it.talla }}</span></div>
-                                    <div class="px-2 lh-1"><span class="me-2">Cantidad:</span> <span>{{ it.cantidad }}</span></div>
+                                    <div class="px-2 lh-1"><small class="me-2 text-muted" *ngIf="it.sku">SKU:</small><small class="text-muted">{{ it.sku }}</small></div>
+                                    <div class="px-2 lh-1"><small class="me-2 text-muted">Talla:</small> <small class="text-muted" *ngIf="it.talla">{{ it.talla }}</small></div>
+                                    <div class="px-2 lh-1"><small class="me-2 text-muted">Cantidad:</small><small class="text-muted">{{ it.cantidad }}</small></div>
                                 </div>
                             </div>
                         </td>

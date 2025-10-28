@@ -49,7 +49,8 @@
 /* Header grid alignment */
 .table thead tr {
 	display: grid;
-	grid-template-columns: 72px 1fr 80px 100px 80px 100px; // grid-template-columns: 72px 1fr 120px 80px 110px;
+    /* image | title | sku | talla | price | qty | subtotal */
+	grid-template-columns: 72px 1fr 80px 80px 100px 80px 100px;
 	align-items: center;
 	gap: 12px 18px;
 }
@@ -59,21 +60,21 @@
 	text-align: left; /* ajuste general, excepto price/qty/subtotal */
 }
 
-.table thead th:nth-child(3),
-.table thead th:nth-child(4),
-.table thead th:nth-child(5) {
+.table thead th:nth-child(5),
+.table thead th:nth-child(6),
+.table thead th:nth-child(7) {
 	text-align: right;
 }
 
 
 .table tbody tr {
-	display: grid;
-	/* five columns to match the DOM: image | title | price | qty | subtotal */
-	grid-template-columns: 72px 1fr 80px 100px 80px 100px; // grid-template-columns: 72px 1fr 120px 80px 110px;
-	gap: 12px 18px;
-	align-items: center;
-	padding: 12px 0;
-	transition: background 150ms ease, transform 120ms ease;
+    display: grid;
+    /* image | title | sku | talla | price | qty | subtotal */
+    grid-template-columns: 72px 1fr 80px 80px 100px 80px 100px;
+    gap: 12px 18px;
+    align-items: center;
+    padding: 12px 0;
+    transition: background 150ms ease, transform 120ms ease;
 }
 
 .table tbody tr:hover {
@@ -101,9 +102,9 @@
 .table tbody td .fw-semibold { margin-bottom: 4px; }
 
 /* Price and qty alignments */
-.table tbody td:nth-child(3),
-.table tbody td:nth-child(4),
-.table tbody td:nth-child(5) {
+.table tbody td:nth-child(5),
+.table tbody td:nth-child(6),
+.table tbody td:nth-child(7) {
 	text-align: right;
 }
 
