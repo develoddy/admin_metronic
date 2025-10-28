@@ -91,9 +91,13 @@
                         <td>{{ s.status }}</td>
                         <td>{{ s.createdAt | date : "short" }}</td>
                         <td>
-                            <div *ngFor="let it of s.items | slice : 0 : 3" class="d-flex align-items-center mb-1">
+                            <div *ngFor="let it of s.items | slice : 0 : 3" class="d-flex align-items-center mb-5">
                                 <img *ngIf="it.imagen" [src]="it.imagen" class="me-2 rounded" style="width: 40px; height: 40px; object-fit: cover" />
-                                <div>{{ it.title }} x{{ it.cantidad }}</div>
+                                <div class="d-flex flex-column">
+                                    <div class="px-2 lh-1"><span>{{ it.title }}</span></div>
+                                    <div class="px-2 lh-1"><span class="me-2">Talla:</span> <span *ngIf="it.talla">{{ it.talla }}</span></div>
+                                    <div class="px-2 lh-1"><span class="me-2">Cantidad:</span> <span>{{ it.cantidad }}</span></div>
+                                </div>
                             </div>
                         </td>
                         <td class="text-end"><button class="btn btn-sm btn-dark" (click)="openSale(s)">Ver</button></td>

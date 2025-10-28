@@ -34,6 +34,7 @@ export class SalesListComponent implements OnInit {
   load(page: number = this.currentPage) {
     const params: any = { page, limit: this.limit, q: this.q };
     this.svc.getSales(params).subscribe(resp => {
+        console.log('getSales response:', resp);
       if (resp && resp.success) {
         this.sales = resp.sales || resp.sales || [];
         this.total = resp.total || 0;
