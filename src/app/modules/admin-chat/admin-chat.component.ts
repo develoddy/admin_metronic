@@ -9,6 +9,8 @@ import { Subscription } from 'rxjs';
 })
 export class AdminChatComponent implements OnInit, OnDestroy {
   subs: Subscription[] = [];
+  
+  activeTab: string = 'chat'; // Controla el tab activo
 
   constructor(public chat: AdminChatService) { }
 
@@ -20,5 +22,15 @@ export class AdminChatComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
     this.chat.disconnect();
+  }
+
+  // Cambiar el tab (solo Angular, sin reload)
+  setActiveTab(tab: string): void {
+    this.activeTab = tab;
+  }
+
+  // Saber si un tab está activo (para estilos)
+  isActive(tab: string): boolean {
+    return this.activeTab === tab;
   }
 }

@@ -29,6 +29,7 @@ import { CRUDTableModule } from 'src/app/_metronic/shared/crud-table';
     CRUDTableModule,
     NgbModalModule,
     NgbDatepickerModule,
-  ]
+  ],
+  exports: [UsersListComponent]
 })
 export class UsersModule { }

@@ -8,6 +8,8 @@ import { ConversationDetailComponent } from './components/conversation-detail/co
 import { HttpClientModule } from '@angular/common/http';
 import { AdminChatComponent } from './admin-chat.component';
 import { FirstLetterPipe } from './firstLetter.pipe';
+import { UsersModule } from '../users/users.module';
+import { ProductModule } from '../product/product.module';
 
 @NgModule({
   declarations: [
@@ -20,7 +22,11 @@ import { FirstLetterPipe } from './firstLetter.pipe';
     CommonModule,
     FormsModule,
     HttpClientModule,
-    AdminChatRoutingModule
+    AdminChatRoutingModule,
+
+    // Otros modulos fuera
+    UsersModule,
+    ProductModule
   ],
   providers: []
 })

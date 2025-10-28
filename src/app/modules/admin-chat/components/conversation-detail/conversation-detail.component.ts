@@ -1,6 +1,7 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AdminChatService } from '../../services/admin-chat.service';
 import { Subscription } from 'rxjs';
+
 
 @Component({
   selector: 'app-conversation-detail',
@@ -14,6 +15,8 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
   newMessage = '';
   selected: any = null;
   subs: Subscription[] = [];
+
+  menuOpen = false;
 
   constructor(public chat: AdminChatService) { }
 

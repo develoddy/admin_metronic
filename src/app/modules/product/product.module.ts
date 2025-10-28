@@ -34,6 +34,7 @@ import { DeleteGaleriaImagenComponent } from './delete-galeria-imagen/delete-gal
     NgbModalModule,
     NgbDatepickerModule,
     EditorModule
-  ]
+  ],
+  exports: [ListProductsComponent]
 })
 export class ProductModule { }
