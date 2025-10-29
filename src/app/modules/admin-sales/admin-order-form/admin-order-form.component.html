@@ -1,0 +1,98 @@
+<div class="card" [formGroup]="form">
+    <div class="card-header">
+        <h3 class="card-title">Admin Order Form</h3>
+    </div>
+    <div class="card-body">
+        <h5>Productos (líneas)</h5>
+
+        <div formArrayName="items" class="mt-2">
+            <div *ngFor="let it of items.controls; let i = index" [formGroupName]="i" class="mb-2">
+                <div class="row align-items-center">
+                    <div class="col-4">
+                        <input class="form-control" [value]="it.get('productTitle')?.value || getProductTitle(it.get('productId')?.value)" readonly />
+                        <p class="text-muted small">Debug: productId={{ it.get('productId')?.value }} title={{ it.get('productTitle')?.value }}</p>
+                    </div> 
+                    <div class="col-3">
+                        <!-- Keep variantId in the form control but show a human label (talla) instead of the raw id -->
+                        <input type="hidden" formControlName="variantId" />
+                        <input class="form-control" placeholder="Variante / Talla" [value]="getVariantLabel(it.get('variantId')?.value, it)" readonly />
+                    </div>
+                    <div class="col-1">
+                        <!-- <input type="number" class="form-control" formControlName="quantity" /> -->
+                         <input type="number" class="form-control" [formControl]="form.get('items.' + i + '.quantity')" readonly />
+                    </div>
+                    <div class="col-2">
+                        <input class="form-control" formControlName="retail_price" />
+                    </div>
+                    <div class="col-2"><button class="btn btn-sm btn-danger" (click)="removeItem(i)">Quitar</button></div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h5>Cliente y dirección</h5>
+
+            <div class="row">
+                <div class="col-6">
+                    <label>Nombre</label>
+                    <div formGroupName="guest">
+                        <input class="form-control" formControlName="name" />
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label>Email</label>
+                    <div formGroupName="guest">
+                        <input class="form-control" formControlName="email" />
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="mt-3">Dirección de envío</h6>
+            <div class="row">
+                <div class="col-6">
+                    <label>Nombre / Empresa</label>
+                    <input class="form-control" formControlName="name" [formControl]="form.get('address.name')" />
+                </div>
+                <div class="col-6">
+                    <label>Apellido</label>
+                    <input class="form-control" [formControl]="form.get('address.surname')" />
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-8">
+                    <label>Dirección</label>
+                    <input class="form-control" [formControl]="form.get('address.address')" />
+                </div>
+                <div class="col-4">
+                    <label>Ciudad</label>
+                    <input class="form-control" [formControl]="form.get('address.ciudad')" />
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-4">
+                    <label>Región</label>
+                    <input class="form-control" [formControl]="form.get('address.region')" />
+                </div>
+                <div class="col-4">
+                    <label>País</label>
+                    <input class="form-control" [formControl]="form.get('address.pais')" />
+                </div>
+                <div class="col-4">
+                    <label>Teléfono</label>
+                    <input class="form-control" [formControl]="form.get('address.telefono')" />
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div>
+        <h5>Resumen</h5>
+        <div *ngFor="let it of items.controls; let i = index">
+            <div>{{ it.get('productTitle')?.value || getProductTitle(it.get('productId')?.value) || it.value.productId }} x {{ it.value.quantity }} — {{ it.value.retail_price }}</div>
+        </div>
+        <div class="mt-3">
+            <button class="btn btn-success" (click)="submit()">Enviar a Printful y crear pedido</button>
+        </div>
+    </div>
+</div>

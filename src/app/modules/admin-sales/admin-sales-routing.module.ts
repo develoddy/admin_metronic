@@ -2,10 +2,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SalesListComponent } from './sales-list/sales-list.component';
 import { SaleDetailComponent } from './sale-detail/sale-detail.component';
+import { AdminOrderFormComponent } from './admin-order-form/admin-order-form.component';
 
 const routes: Routes = [
   { path: 'list', component: SalesListComponent },
   { path: 'detail/:id', component: SaleDetailComponent },
+  { path: 'order/new', component: AdminOrderFormComponent },
+  { path: 'order/:id/edit', component: AdminOrderFormComponent },
   { path: '', redirectTo: 'list', pathMatch: 'full' }
 ];
 

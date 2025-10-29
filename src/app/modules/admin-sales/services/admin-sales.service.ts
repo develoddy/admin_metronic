@@ -42,6 +42,23 @@ export class AdminSalesService {
     );
   }
 
+  getSaleAddressById(id: number | string): Observable<any> {
+    const url = `${URL_SERVICIOS}/sales/address/${id}`;
+    return this.http.get<any>(url, this.getAuthHeaders());
+  }
+
+  // Create an order from admin panel (send to backend admin create)
+  createAdminOrder(payload: any): Observable<any> {
+    const url = `${URL_SERVICIOS}/sales/admin/create`;
+    return this.http.post<any>(url, payload, this.getAuthHeaders());
+  }
+
+  // Create a correction/replacement order for an existing sale
+  correctOrder(originalSaleId: number | string, payload: any): Observable<any> {
+    const url = `${URL_SERVICIOS}/sales/admin/${originalSaleId}/correct`;
+    return this.http.post<any>(url, payload, this.getAuthHeaders());
+  }
+
   selectSale(sale: any) {
     this.selectedSaleSubject.next(sale);
   }

@@ -4,6 +4,7 @@
     <div class="card-toolbar">
         <!-- Estado de la venta: Pendiente, Pagada, Enviado, Cancelada. -->
       <span class="badge bg-light-primary text-primary">{{ sale.status }}</span>
+      <button class="btn btn-sm btn-warning ms-3" [routerLink]="['/sales/order', sale.id, 'edit']">Corregir pedido</button>
       <!-- <span class="badge bg-light-primary text-primary">{{ sale.n_transaction }}</span> -->
     </div>
   </div>
