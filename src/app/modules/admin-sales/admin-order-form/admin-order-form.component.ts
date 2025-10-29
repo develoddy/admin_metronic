@@ -58,22 +58,44 @@ export class AdminOrderFormComponent implements OnInit {
                 while (this.items.length) { this.items.removeAt(0); }
                 saleItems.forEach((it: any) => {
                   const productTitle = it.product && (it.product.title || it.product.name) ? (it.product.title || it.product.name) : (it.title || it.productTitle || '');
+                  // Prefer variety file thumbnail_url (public Printful CDN) if available, then variedad.Files.preview_url, then product.imagen, then productImage
+                  let productImage = '';
+                  try {
+                    const variedadObj = it.variedad || it.variedade || null;
+                    if (variedadObj && variedadObj.Files && Array.isArray(variedadObj.Files) && variedadObj.Files.length > 0) {
+                        // prefer thumbnail_url used by ecommerce printful flow; use find to prefer explicit thumbnail/preview
+                        const fileObj = variedadObj.Files.find((f: any) => f.thumbnail_url) || variedadObj.Files.find((f: any) => f.preview_url) || null;
+                        productImage = fileObj ? (fileObj.thumbnail_url || fileObj.preview_url || '') : '';
+                      }
+                  } catch (e) { /* ignore */ }
+                  if (!productImage) {
+                    productImage = it.product && (it.product.imagen || it.product.image) ? (it.product.imagen || it.product.image) : (it.productImage || '');
+                  }
                   const group = this.fb.group({ 
                     productId: [it.product?.id || it.productId || it.product_id || null, Validators.required], 
                     productTitle: [productTitle],
+                    productImage: [productImage],
+                    selectedForCorrection: [false],
                     variantId: [it.variedad?.id || it.variedadId || it.variedad_id || it.variedade?.id || null, Validators.required], 
                     quantity: [it.cantidad || it.quantity || it.qty || 1, [Validators.required, Validators.min(1)]], 
-                    retail_price: [it.price_unitario || it.unitPrice || it.retail_price || it.unit_price || 0]
-                
-                });
+                    retail_price: [it.price_unitario || it.unitPrice || it.retail_price || it.unit_price || 0],
+                    variants: this.fb.control([])
+                  });
+
                   // disable product selection — admin can only change variant/size
                   group.get('productId')?.disable();
                   // keep a reference to the variedad object (if provided by backend) so we can display talla labels
                   (group as any).variedadObj = it.variedad || it.variedade || null;
                   this.items.push(group);
 
+                  // Load variants for this product so admin can change talla
+                  const pid = group.get('productId')?.value;
+                  if (pid) {
+                    this.loadVariantsForItem(group, pid);
+                  }
+
                   console.log('Item agregado:', it, 'Group value:', group.value);
-                    console.log('Título actual del producto:', this.getProductTitle(group.get('productId')?.value));
+                  console.log('Título actual del producto:', this.getProductTitle(group.get('productId')?.value));
                 });
               }
 
@@ -110,14 +132,19 @@ export class AdminOrderFormComponent implements OnInit {
   get items(): FormArray { return this.form.get('items') as FormArray; }
 
   addItem(product?: any) {
-    const group = this.fb.group({ 
-        productId: [product ? product.id : null, Validators.required], variantId: [null, Validators.required], 
-        quantity: [1, [Validators.required, Validators.min(1)]], 
-        retail_price: [product ? product.price_soles || product.price_usd || 0 : 0],
-        productTitle: [product ? (product.title || product.name) : '']
-    });
+  const group = this.fb.group({ 
+    productId: [product ? product.id : null, Validators.required], variantId: [null, Validators.required], 
+    quantity: [1, [Validators.required, Validators.min(1)]], 
+    retail_price: [product ? product.price_soles || product.price_usd || 0 : 0],
+    productTitle: [product ? (product.title || product.name) : ''],
+    productImage: [product ? (product.imagen || product.image || '') : ''],
+    selectedForCorrection: [false],
+    variants: this.fb.control([])
+  });
     this.items.push(group);
   }
+
+  // Note: file upload from UI removed; backend will use productImage as the file for Printful.
 
   removeItem(i: number) { this.items.removeAt(i); }
 
@@ -129,6 +156,95 @@ export class AdminOrderFormComponent implements OnInit {
       const v = r && r.variants ? r.variants : [];
       this.variants = v;
     });
+  }
+
+  // Load variants for a specific FormGroup item and attach normalized list to the group
+  loadVariantsForItem(group: FormGroup, productId: any) {
+    const pid = productId;
+    if (!pid) return;
+    // Prefer admin endpoint which returns the same structure as frontend's show_landing_product
+    this.adminService.getAdminProductById(pid).subscribe((resp: any) => {
+      console.log('[DEBUG] Variantes cargadas (admin endpoint)', resp?.product?.variedades);
+      const raw = resp && resp.product && resp.product.variedades ? resp.product.variedades : null;
+      if (raw && Array.isArray(raw)) {
+        // proceed with normalization using admin response
+        normalizeAndSet(raw);
+      } else {
+        // fallback to public product endpoint if admin endpoint didn't return variantes
+        this.http.get<any>(`${URL_SERVICIOS}/products/${pid}`).subscribe(r => {
+          const raw2 = r && r.variants ? r.variants : [];
+          normalizeAndSet(raw2);
+        }, err => {
+          console.warn('Could not load variants for product (fallback)', pid, err);
+        });
+      }
+    }, err => {
+      // On error, fallback to public endpoint
+      console.warn('[DEBUG] Admin product endpoint failed, falling back to public product endpoint', err);
+      this.http.get<any>(`${URL_SERVICIOS}/products/${pid}`).subscribe(r => {
+        const raw = r && r.variants ? r.variants : [];
+        normalizeAndSet(raw);
+      }, err2 => {
+        console.warn('Could not load variants for product', pid, err2);
+      });
+    });
+
+    // local helper to normalize and set variants on the FormGroup
+    const normalizeAndSet = (raw: any[]) => {
+      const norm = raw.map((v: any) => ({
+        id: v.id || v.variedadId || v._id || v.value || null,
+        label: v.valor || v.name || v.label || v.size || String(v.id || v.variedadId || v._id || ''),
+        price: v.price || v.retail_price || v.price_unitario || v.precio || null
+      }));
+      group.get('variants')?.setValue(norm);
+      // set the variants FormControl so template can read them via it.get('variants')?.value
+      group.get('variants')?.setValue(norm);
+      console.log('Variants cargadas para productId=', pid, norm);
+      // If the current variantId exists, ensure its value is normalized to string
+      const currentVar = group.get('variantId')?.value;
+      if (currentVar != null) group.get('variantId')?.patchValue(String(currentVar));
+      const selected = group.get('selectedForCorrection')?.value;
+      if (currentVar && selected) {
+        const found = norm.find((x: any) => String(x.id) === String(currentVar));
+        if (found && found.price != null) {
+          group.get('retail_price')?.patchValue(found.price);
+        }
+      }
+      // trigger change detection so template picks up the new variants even if the select is disabled
+      try { this.cdr.detectChanges(); } catch (e) { /* ignore */ }
+    };
+  }
+
+  // Called when admin changes the selected variant for an item
+  onVariantChange(i: number) {
+    const group = this.items.at(i) as FormGroup & { [key: string]: any };
+    const varId = group.get('variantId')?.value;
+    const variants: any[] = group.get('variants')?.value || [];
+    const selected = group.get('selectedForCorrection')?.value;
+    if (!selected) return; // do not update price if not selected for correction
+    const found = variants.find(v => String(v.id) === String(varId));
+    if (found && found.price != null) {
+      group.get('retail_price')?.patchValue(found.price);
+    }
+  }
+
+  onSelectedForCorrectionChange(i: number) {
+    const group = this.items.at(i) as FormGroup & { [key: string]: any };
+    const selected = group.get('selectedForCorrection')?.value;
+    if (!selected) return;
+    // ensure variants are loaded
+    const loaded = group.get('variants')?.value;
+    if (!loaded || loaded.length === 0) {
+      const pid = group.get('productId')?.value;
+      if (pid) this.loadVariantsForItem(group, pid);
+    } else {
+      // if variants already loaded, and variantId present, update price if variant has price
+      const varId = group.get('variantId')?.value;
+      if (varId) {
+        const found = (group.get('variants')?.value || []).find((v: any) => String(v.id) === String(varId));
+        if (found && found.price != null) group.get('retail_price')?.patchValue(found.price);
+      }
+    }
   }
 
   // Return a user-friendly product title for display in the UI, or empty string
@@ -170,19 +286,74 @@ export class AdminOrderFormComponent implements OnInit {
   prev() { if (this.step > 1) this.step--; }
 
   calculateTotals() {
-    const items = this.items.controls.map(c => ({ price: Number(c.get('retail_price')?.value || 0), qty: Number(c.get('quantity')?.value || 1) }));
+    // If any items are selected for correction, calculate totals only for them; otherwise calculate for all
+    const selectedControls = this.items.controls.filter(c => c.get('selectedForCorrection')?.value);
+    const controlsToSum = selectedControls.length > 0 ? selectedControls : this.items.controls;
+    const items = controlsToSum.map(c => ({ price: Number(c.get('retail_price')?.value || 0), qty: Number(c.get('quantity')?.value || 1) }));
     const subtotal = items.reduce((s, it) => s + it.price * it.qty, 0).toFixed(2);
     this.form.get('costs')?.patchValue({ subtotal, discount: '0.00', shipping: '0.00', tax: '0.00' });
   }
 
   submit() {
     this.calculateTotals();
+    // Client-side validation: ensure selected items have a productImage (used as file) when required
+    const selectedControls = this.items.controls.filter(c => c.get('selectedForCorrection')?.value);
+    for (let idx = 0; idx < selectedControls.length; idx++) {
+      const c = selectedControls[idx];
+      const productImage = c.get('productImage')?.value || '';
+      const name = c.get('productTitle')?.value || '';
+      const nameLower = (name || '').toString().toLowerCase();
+      const isEmbroidered = nameLower.includes('gorra') || nameLower.includes('bordado') || nameLower.includes('cap');
+      if (!isEmbroidered && (!productImage || productImage.length === 0)) {
+        alert('El item "' + (name || 'Producto') + '" requiere al menos una imagen del producto antes de enviar.');
+        return;
+      }
+    }
+
+    const itemsPayload = selectedControls.map((c, idx) => {
+      // Prefer public thumbnail_url/preview_url from variedad.Files (use find)
+      const variedadObj = (c as any).variedadObj || c.value.variedad || null;
+      let productImage = '';
+      try {
+        if (variedadObj && variedadObj.Files && Array.isArray(variedadObj.Files) && variedadObj.Files.length > 0) {
+          const fileObj = variedadObj.Files.find((f: any) => f.thumbnail_url) || variedadObj.Files.find((f: any) => f.preview_url) || null;
+          productImage = fileObj ? (fileObj.thumbnail_url || fileObj.preview_url || '') : '';
+        }
+      } catch (e) { /* ignore */ }
+      if (!productImage) {
+        productImage = c.get('productImage')?.value;
+      }
+      // Ensure productImage and files use public HTTPS if possible
+      const fileUrl = productImage;
+      if (fileUrl && !String(fileUrl).startsWith('https://')) {
+        console.warn('⚠️ fileUrl no es pública HTTPS:', fileUrl, 'for productId:', c.get('productId')?.value);
+      }
+      const base = {
+        productId: c.get('productId')?.value,
+        variedadId: c.get('variantId')?.value,
+        quantity: c.get('quantity')?.value,
+        retail_price: c.get('retail_price')?.value,
+      } as any;
+      // Ensure files array is present and includes both url and file_url for backend compatibility
+      if (fileUrl && fileUrl.length > 0) {
+        base.productImage = fileUrl;
+        base.files = [{ type: 'default', url: fileUrl, file_url: fileUrl, filename: '' }];
+      } else {
+        base.files = [];
+      }
+      console.debug(`Prepare item[${idx}] payload:`, base);
+      return base;
+    });
+
     const payload: any = {
       sale: { total: Number(this.form.get('costs.subtotal')?.value || 0) },
       sale_address: this.form.get('address')?.value,
-      items: this.items.controls.map(c => ({ productId: c.get('productId')?.value, variedadId: c.get('variantId')?.value, quantity: c.get('quantity')?.value, retail_price: c.get('retail_price')?.value })),
+      items: itemsPayload,
       costs: this.form.get('costs')?.value
     };
+
+  // Debug final payload before sending to backend
+  console.debug('Final admin correction payload:', payload);
 
     // If editing a sale, call correctOrder, else createAdminOrder
     if (this.editingSaleId) {

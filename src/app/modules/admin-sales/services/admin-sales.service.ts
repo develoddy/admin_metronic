@@ -47,6 +47,12 @@ export class AdminSalesService {
     return this.http.get<any>(url, this.getAuthHeaders());
   }
 
+  getAdminProductById(id: number | string): Observable<any> {
+    const url = `${URL_SERVICIOS}/products/show_admin/${id}`;
+    console.log('[DEBUG] Llamando endpoint admin product', url);
+    return this.http.get<any>(url, this.getAuthHeaders());
+  }
+
   // Create an order from admin panel (send to backend admin create)
   createAdminOrder(payload: any): Observable<any> {
     const url = `${URL_SERVICIOS}/sales/admin/create`;
