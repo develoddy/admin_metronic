@@ -87,7 +87,17 @@
 
                         <td>{{(s.user && s.user.email) || (s.guest && s.guest.email) || "—"}}</td>
                         <td>€ {{ s.total }}</td>
-                        <td>{{ s.status }}</td>
+                                                <td>
+                                                        <span class="badge"
+                                                                    [ngClass]="{
+                                                                        'bg-secondary': (s.printfulStatus || '') === 'draft',
+                                                                        'bg-success': (s.printfulStatus || '') === 'paid',
+                                                                        'bg-primary': (s.printfulStatus || '') === 'fulfilled',
+                                                                        'bg-danger': (s.printfulStatus || '') === 'cancelled'
+                                                                    }">
+                                                                {{ s.printfulStatus || '—' }}
+                                                        </span>
+                                                </td>
                         <td>{{ s.createdAt | date : "short" }}</td>
                         <td>
                             <div *ngFor="let it of s.items | slice : 0 : 3" class="d-flex align-items-center mb-5">

@@ -3,7 +3,30 @@
         <h3 class="card-title">Admin Order Form</h3>
     </div>
     <div class="card-body">
-        <h5>Productos (líneas)</h5>
+                <!-- Información Printful (reactive desde el form) -->
+                <div class="card mb-3" *ngIf="form.value.printfulOrderId">
+                    <div class="card-body">
+                        <h5>Información Printful</h5>
+                        <p><strong>Printful Order ID:</strong> {{ form.value.printfulOrderId || '—' }}</p>
+                        <p><strong>Estado Printful:</strong>
+                            <span class="badge"
+                                        [ngClass]="{
+                                            'bg-secondary': (form.value.printfulStatus || '') === 'draft',
+                                            'bg-success': (form.value.printfulStatus || '') === 'paid',
+                                            'bg-primary': (form.value.printfulStatus || '') === 'fulfilled',
+                                            'bg-danger': (form.value.printfulStatus || '') === 'cancelled'
+                                        }">
+                                {{ form.value.printfulStatus || '—' }}
+                            </span>
+                        </p>
+                        <p><strong>Entrega estimada:</strong>
+                            {{ form.value.minDeliveryDate ? (form.value.minDeliveryDate | date:'dd/MM/yyyy') : '—' }} –
+                            {{ form.value.maxDeliveryDate ? (form.value.maxDeliveryDate | date:'dd/MM/yyyy') : '—' }}
+                        </p>
+                    </div>
+                </div>
+
+                <h5>Productos (líneas)</h5>
 
         <div formArrayName="items" class="mt-2">
             <div *ngFor="let it of items.controls; let i = index" [formGroupName]="i" class="mb-2">

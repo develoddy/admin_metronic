@@ -28,21 +28,21 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
-      {
-        title: 'Printify',
-        root: true,
-        name: "printify",
-        bullet: 'dot',
-        icon: 'flaticon2-user-outline-symbol',
-        svg: './assets/media/svg/icons/Layout/Layout-vertical.svg',
-        page: '/printify',
-        submenu: [
-          {
-            title: 'Sincronizar',
-            page: '/printify/list'
-          }
-        ]
-      },
+      // {
+      //   title: 'Printify',
+      //   root: true,
+      //   name: "printify",
+      //   bullet: 'dot',
+      //   icon: 'flaticon2-user-outline-symbol',
+      //   svg: './assets/media/svg/icons/Layout/Layout-vertical.svg',
+      //   page: '/printify',
+      //   submenu: [
+      //     {
+      //       title: 'Sincronizar',
+      //       page: '/printify/list'
+      //     }
+      //   ]
+      // },
 
       
 
@@ -141,7 +141,7 @@ export const AsideMenuAdminGeneral = {
         name: "discount",
         bullet: 'dot',
         icon: 'flaticon2-user-outline-symbol',
-        svg: './assets/media/svg/icons/Shopping/Euro.svg',
+        svg: './assets/media/svg/icons/Shopping/Price1.svg',
         page: '/discount',
         submenu: [
           {
@@ -154,14 +154,13 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
-
       {
         title: 'Ventas',
         root: true,
         name: "sales",
         bullet: 'dot',
         icon: 'flaticon2-user-outline-symbol',
-        svg: './assets/media/svg/icons/Shopping/Euro.svg',
+        svg: './assets/media/svg/icons/Shopping/Sale1.svg',
         page: '/sales',
         submenu: [
           {

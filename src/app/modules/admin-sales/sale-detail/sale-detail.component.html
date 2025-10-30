@@ -19,6 +19,29 @@
       <strong>Total:</strong> {{ sale.total }}
     </div>
 
+    <!-- Información Printful -->
+    <div class="mb-4 card p-3 border-light" *ngIf="sale">
+      <h5 class="mb-2">Información Printful</h5>
+      <div class="mb-1"><strong>Printful Order ID:</strong> {{ sale.printfulOrderId || '—' }}</div>
+      <div class="mb-1">
+        <strong>Estado Printful:</strong>
+        <span class="badge"
+          [ngClass]="{
+            'bg-secondary': (sale.printfulStatus || '') === 'draft',
+            'bg-success': (sale.printfulStatus || '') === 'paid',
+            'bg-primary': (sale.printfulStatus || '') === 'fulfilled',
+            'bg-danger': (sale.printfulStatus || '') === 'cancelled'
+          }">
+          {{ sale.printfulStatus || '—' }}
+        </span>
+      </div>
+      <div class="mb-1">
+        <strong>Entrega estimada:</strong>
+        {{ sale.minDeliveryDate ? (sale.minDeliveryDate | date:'dd/MM/yyyy') : '—' }} –
+        {{ sale.maxDeliveryDate ? (sale.maxDeliveryDate | date:'dd/MM/yyyy') : '—' }}
+      </div>
+    </div>
+
     <div class="table-responsive">
       <table class="table">
         <thead>

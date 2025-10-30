@@ -26,7 +26,12 @@ export class AdminOrderFormComponent implements OnInit {
       guest: this.fb.group({ name: [''], email: [''], phone: [''] }),
       address: this.fb.group({ name: [''], surname: [''], pais: ['ES'], address: [''], ciudad: [''], region: [''], telefono: [''], email: [''] }),
       items: this.fb.array([]),
-      costs: this.fb.group({ subtotal: ['0.00'], discount: ['0.00'], shipping: ['0.00'], tax: ['0.00'] })
+      costs: this.fb.group({ subtotal: ['0.00'], discount: ['0.00'], shipping: ['0.00'], tax: ['0.00'] }),
+      // Printful metadata (optional fields populated when editing an order that was sent to Printful)
+      printfulOrderId: [null],
+      printfulStatus: [null],
+      minDeliveryDate: [null],
+      maxDeliveryDate: [null]
     });
   }
 
@@ -123,6 +128,25 @@ export class AdminOrderFormComponent implements OnInit {
                     console.warn('Could not load sale address separately', err);
                   });
                 }
+
+            // Log Printful-related fields received from backend for debugging
+            console.log('[AdminOrderForm] Printful fields from sale:', {
+              printfulOrderId: s.printfulOrderId,
+              printfulStatus: s.printfulStatus,
+              minDeliveryDate: s.minDeliveryDate,
+              maxDeliveryDate: s.maxDeliveryDate
+            });
+
+            // Patch Printful fields into the form so the template's reactive bindings update
+            try {
+              if (s.printfulOrderId || s.printfulStatus || s.minDeliveryDate || s.maxDeliveryDate) {
+                this.form.patchValue({ printfulOrderId: s.printfulOrderId ?? null, printfulStatus: s.printfulStatus ?? null, minDeliveryDate: s.minDeliveryDate ?? null, maxDeliveryDate: s.maxDeliveryDate ?? null });
+                console.log('[AdminOrderForm] form values after patch:', this.form.value.printfulOrderId, this.form.value.printfulStatus, this.form.value.minDeliveryDate, this.form.value.maxDeliveryDate);
+              }
+            } catch (e) {
+              // Non-critical
+              console.warn('[AdminOrderForm] Error patching Printful fields into form', e);
+            }
           }
         }, err => console.warn('Could not load sale for editing', err));
       }
