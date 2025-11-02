@@ -4,6 +4,20 @@
 .chat-container {
   display: flex;
   gap: 12px;
+  /* allow the layout to wrap into a column on small screens */
+  align-items: stretch;
 }
-.chat-list { width: 320px; }
+.chat-list { width: 400px; }
 .chat-detail { flex: 1; }
+
+/* Responsive behaviour: stack sidebar and detail on small viewports */
+@media (max-width: 767.98px) {
+  .chat-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chat-list { width: 100% !important; }
+  .chat-detail { width: 100%; }
+  /* make chat-list visually separated from detail with white background and no rounded corners (fits full-width mobile UI) */
+  .chat-list .card.card-flush { border-radius: 0; }
+}

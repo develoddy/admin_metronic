@@ -17,6 +17,7 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
   subs: Subscription[] = [];
 
   menuOpen = false;
+  isTyping = false;
 
   constructor(public chat: AdminChatService) { }
 
@@ -34,6 +35,23 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
     }));
   }
 
+  getAvatar(senderType: string, userId?: number): string {
+    if (senderType === 'agent') {
+      return 'assets/media/avatars/agent-avatar.png';
+    }
+
+    return 'assets/media/avatars/user-avatar1.png';
+  }
+
+  onAvatarError(senderType: 'user' | 'agent') {
+    this.showFallback[senderType] = true;
+  }
+
+  showFallback = {
+    user: false,
+    agent: false
+  };
+
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
   }
@@ -41,6 +59,8 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
   get userInitial(): string {
     return ((this.selected?.user_name ?? 'U') + '').slice(0, 1).toUpperCase();
 }
+
+
 
   send() {
     if (!this.newMessage || !this.selected) return;
@@ -57,6 +77,10 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
   takeConversation() {
     if (!this.selected) return;
     this.chat.takeConversation(this.selected);
+  }
+
+  showUserInfo(): void {
+    // TODO: abrir modal o panel lateral con info del usuario
   }
 
   getDateFromTime(time: string): Date {

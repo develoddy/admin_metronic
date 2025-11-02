@@ -1,19 +1,48 @@
-.conv-list { padding: 8px; }
-.conv-list .header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.conv-list .header h4 { margin:0; }
-.conv-list .search input { width:220px; padding:6px 8px; border-radius:4px; border:1px solid #ddd; }
-.filters { margin:8px 0; display:flex; gap:8px; }
-.filters button { padding:6px 10px; border-radius:4px; border:1px solid #ddd; background:#fff; cursor:pointer; }
-.filters button.active { background:#007bff; color:#fff; border-color:#007bff; }
-.empty { padding:16px; color:#666; }
-.conv-list ul { list-style: none; padding: 0; margin:0; }
-.conv-row { display:flex; align-items:center; justify-content:space-between; padding:8px; border-bottom:1px solid #f0f0f0; }
-.conv-item { cursor: pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; }
-.conv-item .left { display:flex; flex-direction:column; }
-.conv-item .title { font-weight:600; }
-.conv-item .preview { font-size:12px; color:#666; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.conv-item .right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
-.time { font-size:12px; color:#999; }
-.badge { background:#e74c3c; color:#fff; padding:2px 6px; border-radius:12px; font-size:12px; }
-.actions { margin-left:8px; }
-.btn { font-size: 12px; }
+/* Conversation list — WhatsApp-like styling */
+/* Use a white background instead of transparent so list cards are readable on all layouts */
+.card.card-flush { background: #ffffff; border: none; }
+.card-header { padding: 12px 16px; }
+.card-header .form-control { border-radius: 999px; padding-left: 40px; background: #fff; border: 1px solid #e6eef4; }
+.card-header .ki-magnifier { left: 14px; }
+
+.chat-contacts { padding: 8px; }
+.chat-contacts .filters { display:flex; gap:8px; justify-content:space-between; margin-bottom: 8px; }
+.chat-contacts .filters .btn { border-radius: 999px; padding:6px 10px; background:transparent; border:1px solid transparent; color:#6b7680; }
+.chat-contacts .filters .btn.active { background:#e6f9ee; color:#083a20; border-color: #d8f0de; }
+
+.scroll-y { max-height: 64vh; overflow:auto; }
+.scroll-y .d-flex { padding: 10px 12px; align-items:flex-start; gap:12px; }
+.scroll-y .d-flex:hover { background: rgba(11,107,58,0.03); }
+
+.symbol.symbol-45px { width:45px; height:45px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:#fff; box-shadow: 0 1px 0 rgba(16,24,40,0.02); }
+.symbol-label { font-weight:700; color:#0b6b3a; }
+
+.contact-details { display:flex; flex-direction:column; min-width:0; }
+.contact-details .fw-bold { font-size:14px; color:#0b1820; }
+.contact-details .fw-semibold { font-size:13px; color:#6b7680; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+
+.contact-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; min-width:60px; }
+.contact-right .text-muted { font-size:12px; color:#98a0a8; }
+.badge-light-danger { background:#ff6b6b; color:#fff; padding:4px 8px; border-radius:12px; font-size:12px; }
+
+/* Make list rows more spacious and touch-friendly */
+.scroll-y .d-flex { padding:12px; border-bottom:1px solid rgba(16,24,40,0.04); }
+
+/* Responsive rules */
+@media (max-width: 767.98px) {
+	/* Sidebar becomes full-width; rows wrap and previews are multi-line */
+	.flex-column.flex-lg-row-auto { width:100% !important; }
+	.card { border-radius: 0; }
+	.card-body { padding: 8px; }
+	.scroll-y { max-height: calc(100vh - 160px); }
+	.contact-details .fw-semibold { white-space: normal; max-width: 100%; }
+	.contact-right { min-width: 48px; }
+}
+
+@media (min-width: 768px) {
+	.scroll-y { max-height: 72vh; }
+}
+
+/* small visual helpers */
+.cursor-pointer { cursor: pointer; }
+.hover\:bg-light:hover { background: #f7fafb; }

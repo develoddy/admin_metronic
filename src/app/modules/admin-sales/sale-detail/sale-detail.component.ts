@@ -32,4 +32,26 @@ export class SaleDetailComponent implements OnInit {
       }
     }, err => console.error('getSaleById error', err));
   }
+
+  refreshPrintful() {
+    if (!this.sale || !this.sale.id) return;
+    this.svc.refreshPrintfulStatus(this.sale.id).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          // update local model with new status and optional dates
+          this.sale.printfulStatus = res.printfulStatus ?? this.sale.printfulStatus;
+          if (res.minDeliveryDate) this.sale.minDeliveryDate = res.minDeliveryDate;
+          if (res.maxDeliveryDate) this.sale.maxDeliveryDate = res.maxDeliveryDate;
+          alert('Estado actualizado correctamente desde Printful');
+        } else {
+          console.warn('refreshPrintful returned unexpected response', res);
+          alert('No se pudo actualizar el estado desde Printful');
+        }
+      },
+      error: (err) => {
+        console.error('Error refreshing Printful status', err);
+        alert('Error al actualizar desde Printful');
+      }
+    });
+  }
 }

@@ -65,6 +65,12 @@ export class AdminSalesService {
     return this.http.post<any>(url, payload, this.getAuthHeaders());
   }
 
+  // Refresh Printful status for a sale (admin)
+  refreshPrintfulStatus(saleId: number) {
+    const url = `${URL_SERVICIOS}/sales/admin/printful/refresh/${saleId}`;
+    return this.http.get<{ success: boolean; printfulStatus: string; minDeliveryDate?: string; maxDeliveryDate?: string }>(url, this.getAuthHeaders());
+  }
+
   selectSale(sale: any) {
     this.selectedSaleSubject.next(sale);
   }

@@ -35,6 +35,27 @@ export class AdminOrderFormComponent implements OnInit {
     });
   }
 
+  // Refresh Printful status for the sale being edited and patch into the form
+  refreshPrintful() {
+    if (!this.editingSaleId) return;
+    this.adminService.refreshPrintfulStatus(this.editingSaleId).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          // Patch into reactive form so template updates
+          this.form.patchValue({ printfulStatus: res.printfulStatus ?? this.form.value.printfulStatus, minDeliveryDate: res.minDeliveryDate ?? this.form.value.minDeliveryDate, maxDeliveryDate: res.maxDeliveryDate ?? this.form.value.maxDeliveryDate });
+          alert('Estado Printful actualizado');
+        } else {
+          console.warn('refreshPrintful (admin-order-form) unexpected response', res);
+          alert('No se pudo actualizar estado Printful');
+        }
+      },
+      error: (err) => {
+        console.error('Error refreshing Printful status (admin-order-form)', err);
+        alert('Error al actualizar desde Printful');
+      }
+    });
+  }
+
   // Helper to resolve product title by id (used in template to show product name)
   getProductTitle(productId: any): string {
     if (!productId) return '';
