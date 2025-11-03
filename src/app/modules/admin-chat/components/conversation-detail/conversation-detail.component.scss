@@ -17,7 +17,7 @@
 
 /* WhatsApp-like redesign styles */
 .chat-wrapper { height: 100%; }
-.chat-card { display:flex; flex-direction:column; height:100%; background: #f5f7f9; border-radius: 8px; box-shadow: 0 6px 18px rgba(16,24,40,0.04); overflow:hidden; }
+.chat-card { display:flex; flex-direction:column; height:100%; background: #f5f7f9; border-radius: 0px; box-shadow: 0 6px 18px rgba(16,24,40,0.04); overflow:hidden; }
 
 .chat-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background: #fff; border-bottom:1px solid #e9edf2; }
 .chat-header .left { display:flex; align-items:center; gap:12px; }
@@ -32,7 +32,7 @@
 
 .conv-id { font-size:12px; color:#98a0a8; margin-left:10px; }
 
-.chat-body { flex:1 1 auto; overflow:auto; padding:18px; background: linear-gradient(180deg, #f5f7f9 0%, #f7fafb 100%); scroll-behavior:smooth; }
+.chat-body { flex:1 1 auto; overflow:auto; padding:18px; /*background: linear-gradient(180deg, #f5f7f9 0%, #f7fafb 100%); scroll-behavior:smooth;*/ }
 .messages-inner { display:flex; flex-direction:column; gap:12px; max-width:980px; margin:0 auto; }
 
 .message-row { display:flex; align-items:flex-end; gap:10px; }
@@ -51,11 +51,11 @@
 .typing .dot:nth-child(2){ animation-delay:0.2s } .typing .dot:nth-child(3){ animation-delay:0.4s }
 @keyframes blink { 0%{opacity:0.3}50%{opacity:1}100%{opacity:0.3} }
 
-.chat-footer { padding:12px 16px; background:#fff; border-top:1px solid #e9edf2; }
+.chat-footer { padding:12px 16px; /*background:#fff; border-top:1px solid #e9edf2;*/ }
 .input-wrap { display:flex; gap:8px; align-items:center; max-width:100%; }
 .chat-input { flex:1 1 auto; padding:10px 12px; border-radius:20px; border:1px solid #e6eef4; outline:none; }
 .chat-input:focus { box-shadow:0 0 0 3px rgba(11,107,58,0.06); }
-.send-btn { background:#0b6b3a; color:#fff; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; border:none; }
+.send-btn { background:#0b6b3a; color:#fff; border-radius:50%; width:44px; height:44px; /*display:flex; align-items:center; justify-content:center;*/ border:none; }
 .icon-btn { background:transparent; border:none; color:#6b7680; font-size:18px; padding:6px; }
 
 /* responsive */

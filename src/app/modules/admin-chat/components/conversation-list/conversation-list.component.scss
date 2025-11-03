@@ -1,9 +1,11 @@
 /* Conversation list — WhatsApp-like styling */
 /* Use a white background instead of transparent so list cards are readable on all layouts */
-.card.card-flush { background: #ffffff; border: none; }
-.card-header { padding: 12px 16px; }
+.card.card-flush { background: #ffffff; border: none; border-right: 1px solid #ece7e7; }
+.card-header { padding: 2rem 1rem; }
 .card-header .form-control { border-radius: 999px; padding-left: 40px; background: #fff; border: 1px solid #e6eef4; }
 .card-header .ki-magnifier { left: 14px; }
+
+.card .card-body { padding: 0rem 1rem !important;}
 
 .chat-contacts { padding: 8px; }
 .chat-contacts .filters { display:flex; gap:8px; justify-content:space-between; margin-bottom: 8px; }
@@ -11,8 +13,8 @@
 .chat-contacts .filters .btn.active { background:#e6f9ee; color:#083a20; border-color: #d8f0de; }
 
 .scroll-y { max-height: 64vh; overflow:auto; }
-.scroll-y .d-flex { padding: 10px 12px; align-items:flex-start; gap:12px; }
-.scroll-y .d-flex:hover { background: rgba(11,107,58,0.03); }
+.scroll-y .d-flex { padding: 0px 5px; align-items:flex-start; gap:5px; }
+// .scroll-y .d-flex:hover { background: rgba(11,107,58,0.03); }
 
 .symbol.symbol-45px { width:45px; height:45px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:#fff; box-shadow: 0 1px 0 rgba(16,24,40,0.02); }
 .symbol-label { font-weight:700; color:#0b6b3a; }
@@ -26,7 +28,7 @@
 .badge-light-danger { background:#ff6b6b; color:#fff; padding:4px 8px; border-radius:12px; font-size:12px; }
 
 /* Make list rows more spacious and touch-friendly */
-.scroll-y .d-flex { padding:12px; border-bottom:1px solid rgba(16,24,40,0.04); }
+// .scroll-y .d-flex {  border-bottom:1px solid rgba(16,24,40,0.04); }
 
 /* Responsive rules */
 @media (max-width: 767.98px) {
@@ -45,4 +47,4 @@
 
 /* small visual helpers */
 .cursor-pointer { cursor: pointer; }
-.hover\:bg-light:hover { background: #f7fafb; }
+.hover\:bg-light:hover { background: #f7fafb; border-radius: 10px; }

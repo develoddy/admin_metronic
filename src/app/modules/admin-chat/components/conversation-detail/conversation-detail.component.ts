@@ -83,11 +83,43 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
     // TODO: abrir modal o panel lateral con info del usuario
   }
 
-  getDateFromTime(time: string): Date {
-    const [h, m] = time.split(':').map(Number);
-    const date = new Date();
-    date.setHours(h, m, 0, 0);
-    return date;
+  // getDateFromTime(time: string): Date {
+  //   const [h, m] = time.split(':').map(Number);
+  //   const date = new Date();
+  //   date.setHours(h, m, 0, 0);
+  //   return date;
+  // }
+
+  getDateFromTime(time: any): Date | null {
+    if (!time) return null;
+
+    // Si ya es un Date válido
+    if (time instanceof Date && !isNaN(time.getTime())) {
+      return time;
+    }
+
+    // Si viene como número (timestamp)
+    if (typeof time === 'number') {
+      const date = new Date(time);
+      return isNaN(date.getTime()) ? null : date;
+    }
+
+    // Si viene como string (ISO o con hora HH:mm)
+    if (typeof time === 'string') {
+      // Si es formato hora "HH:mm"
+      if (/^\d{1,2}:\d{2}$/.test(time)) {
+        const [h, m] = time.split(':').map(Number);
+        const date = new Date();
+        date.setHours(h, m, 0, 0);
+        return date;
+      }
+
+      // Si es formato ISO u otra cadena reconocible por Date()
+      const date = new Date(time);
+      return isNaN(date.getTime()) ? null : date;
+    }
+
+    return null;
   }
 
   private scrollToBottom() {

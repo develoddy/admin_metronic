@@ -19,38 +19,57 @@
         <div class="page-title d-flex flex-column py-1">
             <!--begin::Title-->
             <h1 class="d-flex align-items-center my-1">
-                <span class="text-gray-900 fw-bold fs-1">Private Chat </span>
+                <span class="text-gray-900 fw-bold fs-1">Chat Lujandev </span>
             </h1>
             <!--end::Title-->
 
-            <!--begin::Breadcrumb-->
-            <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-1">
-                <!--begin::Item-->
-                <li class="breadcrumb-item text-muted">
-                    <a href="/metronic8/demo5/index.html" class="text-muted text-hover-primary">Home </a>
-                </li>
-                <!--end::Item-->
-                <!--begin::Item-->
-                <li class="breadcrumb-item">
-                    <span class="bullet bg-gray-200 w-5px h-2px"></span>
-                </li>
-                <!--end::Item-->
+            <!--begin::Tabs Section-->
+            <ul class="breadcrumb breadcrumb-separatorless nav nav-tabs nav-line-tabs fw-semibold fs-7 my-1">
 
-                <!--begin::Item-->
-                <li class="breadcrumb-item text-muted">Chat </li>
-                <!--end::Item-->
-                <!--begin::Item-->
-                <li class="breadcrumb-item">
-                    <span class="bullet bg-gray-200 w-5px h-2px"></span>
-                </li>
-                <!--end::Item-->
 
-                <!--begin::Item-->
-                <li class="breadcrumb-item text-gray-900">Private Chat </li>
-                <!--end::Item-->
+                <li class="nav-item breadcrumb-item">
+                    <button
+                    type="button"
+                    class="nav-link"
+                    [class.active]="isActive('chat')"
+                    (click)="setActiveTab('chat')"
+                    >
+                    Chat
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button
+                    type="button"
+                    class="nav-link"
+                    [class.active]="isActive('users')"
+                    (click)="setActiveTab('users')"
+                    >
+                    Usuarios
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button
+                    type="button"
+                    class="nav-link"
+                    [class.active]="isActive('products')"
+                    (click)="setActiveTab('products')"
+                    >
+                    Productos
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button
+                    type="button"
+                    class="nav-link"
+                    [class.active]="isActive('sales')"
+                    (click)="setActiveTab('sales')"
+                    >
+                    Ventas
+                    </button>
+                </li>
 
             </ul>
-            <!--end::Breadcrumb-->
+            <!--end::Tabs Section-->
         </div>
         <!--end::Page title-->
         <!--begin::Actions-->
@@ -63,57 +82,6 @@
         <!--end::Actions-->
     </div>
     <!--end::Toolbar-->
-
-
-    <!--  -->
-    <!--  -->
-    <!--  -->
-
-    <!--begin::Tabs Section-->
-    <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">
-        <li class="nav-item">
-            <button
-            type="button"
-            class="nav-link"
-            [class.active]="isActive('chat')"
-            (click)="setActiveTab('chat')"
-            >
-            Chat
-            </button>
-        </li>
-        <li class="nav-item">
-            <button
-            type="button"
-            class="nav-link"
-            [class.active]="isActive('users')"
-            (click)="setActiveTab('users')"
-            >
-            Usuarios
-            </button>
-        </li>
-        <li class="nav-item">
-            <button
-            type="button"
-            class="nav-link"
-            [class.active]="isActive('products')"
-            (click)="setActiveTab('products')"
-            >
-            Productos
-            </button>
-        </li>
-        <li class="nav-item">
-            <button
-            type="button"
-            class="nav-link"
-            [class.active]="isActive('sales')"
-            (click)="setActiveTab('sales')"
-            >
-            Ventas
-            </button>
-        </li>
-        </ul>
-    <!--end::Tabs Section-->
-
 
 
     <!--  -->

@@ -14,7 +14,7 @@ export class ConversationListComponent implements OnInit, OnDestroy {
   subs: Subscription[] = [];
 
   // UI state
-  filterStatus: 'pending' | 'open' | 'closed' = 'pending';
+  filterStatus: 'pending' | 'open' | 'closed' = 'open';
   searchTerm: string = '';
 
   private firstSelectionDone = false; // 👈 evita seleccionar de nuevo si llegan nuevas actualizaciones

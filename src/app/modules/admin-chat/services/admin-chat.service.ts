@@ -114,6 +114,7 @@ export class AdminChatService {
       const idx = list.findIndex((c:any) => c.conversation_id === data.conversation_id || c.id === data.conversation_id);
       if (idx !== -1) {
         const old = list[idx];
+        
         const newConv = {
           ...old,
           agent_id: data.agent_id,
