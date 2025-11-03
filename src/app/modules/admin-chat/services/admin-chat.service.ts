@@ -142,9 +142,36 @@ export class AdminChatService {
       const idx = list.findIndex((c:any) => c.conversation_id === convId || c.id === convId);
       if (idx > -1) {
         const old = list[idx];
+        const oldMessages = [...(old.messages || [])];
+
+        // Try to detect an optimistic/temp message previously appended when the agent sent it.
+        // If a temp message matches by content and is recent, replace it with the server message
+        // to avoid a visual duplicate.
+        const tempIdx = oldMessages.findIndex((m: any) => {
+          try {
+            if (!m || !m.id) return false;
+            if (!(m.id + '').startsWith('temp_')) return false;
+            if ((m.sender_type || '') !== 'agent') return false;
+            if ((m.message || '') !== (formatted.message || '')) return false;
+            const t1 = new Date(m.created_at || m.timestamp || Date.now()).getTime();
+            const t2 = new Date(formatted.created_at || formatted.timestamp || Date.now()).getTime();
+            return Math.abs(t1 - t2) < 60000; // within 60s
+          } catch (e) { return false; }
+        });
+
+        let newMessages;
+        if (tempIdx >= 0) {
+          // Replace temp message with real message (preserve order)
+          oldMessages[tempIdx] = formatted;
+          newMessages = oldMessages;
+          console.debug('[AdminChat] Replaced temp message with server message for conv', convId, 'tempIdx=', tempIdx);
+        } else {
+          newMessages = [...oldMessages, formatted];
+        }
+
         const newConv = {
           ...old,
-          messages: [...(old.messages || []), formatted],
+          messages: newMessages,
           updatedAt: msg.created_at || new Date().toISOString(),
           last_message: msg.message || formatted.message
         };
@@ -154,7 +181,16 @@ export class AdminChatService {
         const selected = this.selectedConversationSubject.value;
         if (selected && (selected.conversation_id === convId || selected.id === convId)) {
           this.selectedConversationSubject.next(newConv);
-          this.messagesSubject.next([...(this.messagesSubject.value || []), formatted]);
+
+          // Update messagesSubject similarly: replace temp message if present, else append
+          const currentMsgs = [...(this.messagesSubject.value || [])];
+          const selTempIdx = currentMsgs.findIndex((m: any) => (m && m.id && (m.id + '').startsWith('temp_')) && (m.message === formatted.message) && (m.sender_type === 'agent'));
+          if (selTempIdx >= 0) {
+            currentMsgs[selTempIdx] = formatted;
+            this.messagesSubject.next(currentMsgs);
+          } else {
+            this.messagesSubject.next([...currentMsgs, formatted]);
+          }
         }
       }
     });
