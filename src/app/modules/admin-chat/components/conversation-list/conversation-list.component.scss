@@ -1,18 +1,28 @@
 /* Conversation list — WhatsApp-like styling */
 /* Use a white background instead of transparent so list cards are readable on all layouts */
-.card.card-flush { background: #ffffff; border: none; border-right: 1px solid #ece7e7; }
+
+/* Make the contacts card a full-height column so header stays fixed and list can scroll */
+.card.card-flush {
+	background: #ffffff;
+	border: none;
+	border-right: 1px solid #ece7e7;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
 .card-header { padding: 2rem 1rem; }
 .card-header .form-control { border-radius: 999px; padding-left: 40px; background: #fff; border: 1px solid #e6eef4; }
 .card-header .ki-magnifier { left: 14px; }
 
-.card .card-body { padding: 0rem 1rem !important;}
+.card .card-body { padding: 0rem 1rem !important; display:flex; flex-direction:column; flex:1 1 auto; }
 
 .chat-contacts { padding: 8px; }
 .chat-contacts .filters { display:flex; gap:8px; justify-content:space-between; margin-bottom: 8px; }
 .chat-contacts .filters .btn { border-radius: 999px; padding:6px 10px; background:transparent; border:1px solid transparent; color:#6b7680; }
 .chat-contacts .filters .btn.active { background:#e6f9ee; color:#083a20; border-color: #d8f0de; }
 
-.scroll-y { max-height: 64vh; overflow:auto; }
+/* .scroll-y becomes the flexible scroll area inside the card body */
+.card .card-body .scroll-y { flex: 1 1 auto; overflow: auto; -webkit-overflow-scrolling: touch; }
 .scroll-y .d-flex { padding: 0px 5px; align-items:flex-start; gap:5px; }
 // .scroll-y .d-flex:hover { background: rgba(11,107,58,0.03); }
 

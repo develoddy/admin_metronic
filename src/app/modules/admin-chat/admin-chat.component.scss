@@ -10,6 +10,14 @@
 .chat-list { width: 400px; }
 .chat-detail { flex: 1; }
 
+/* Ensure left and right panels align to the same height (use calc to account for page chrome) */
+.chat-list, .chat-detail {
+  display: flex;
+  flex-direction: column;
+  /* use same heuristic as conversation-detail: occupies viewport minus top chrome (toolbar/tabs) */
+  height: calc(100vh - 160px);
+}
+
 /* Responsive behaviour: stack sidebar and detail on small viewports */
 @media (max-width: 767.98px) {
   .chat-container {
