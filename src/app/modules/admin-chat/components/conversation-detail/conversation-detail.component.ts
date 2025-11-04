@@ -12,6 +12,7 @@ import { Router } from "@angular/router";
 import { UsersService } from "src/app/modules/users/_services/users.service";
 import { Toaster } from 'ngx-toast-notifications';
 import { NoticyAlertComponent } from 'src/app/componets/notifications/noticy-alert/noticy-alert.component';
+import { ReturnsService } from "src/app/modules/returns/_services/returns.service";
 
 @Component({
   selector: "app-conversation-detail",
@@ -32,6 +33,7 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     public chat: AdminChatService,
+    private returnsService: ReturnsService,
     public userService: UsersService,
     public toaster: Toaster,
   ) {}
@@ -287,8 +289,23 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
 
         const searchValue = user.email || user.user_email || user.name || user.user_name || String(userId);
         this.menuOpen = false;
-        this.navigateToListByEmail(searchValue, listType); //this.router.navigate(['/users/list'], { queryParams: { search: searchValue } });
+        //this.navigateToListByEmail(searchValue, listType); 
 
+        if (listType === 'returns') {
+          // Consultar si existen devoluciones
+          this.returnsService.hasReturns(searchValue).subscribe(has => {
+            if (has.hasReturns) {
+              // Existe alguna devolución → abrir lista filtrada
+              this.navigateToListByEmail(searchValue, listType);
+            } else {
+              // No existe devolución → abrir formulario nuevo con email prellenado
+              this.navigateToListByEmail(searchValue, listType, true); // createIfEmpty = true
+            }
+          });
+        } else {
+          // Para otros listType normales
+          this.navigateToListByEmail(searchValue, listType);
+        }
     }, (error) => {
       if (error.error) {
         this.toaster.open(NoticyAlertComponent, {text: `danger-${error.error.message}.`});
@@ -322,7 +339,22 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
 
         const searchValue = guest.email || guest.name || String(guestId);
         this.menuOpen = false;
-        this.navigateToListByEmail(searchValue, listType); //this.router.navigate(['/guests/list'], { queryParams: { search: searchValue } });
+        //this.navigateToListByEmail(searchValue, listType); 
+        if (listType === 'returns') {
+          // Consultar si existen devoluciones
+          this.returnsService.hasReturns(searchValue).subscribe(has => {
+            if (has.hasReturns) {
+              // Existe alguna devolución → abrir lista filtrada
+              this.navigateToListByEmail(searchValue, listType);
+            } else {
+              // No existe devolución → abrir formulario nuevo con email prellenado
+              this.navigateToListByEmail(searchValue, listType, true); // createIfEmpty = true
+            }
+          });
+        } else {
+          // Para otros listType normales
+          this.navigateToListByEmail(searchValue, listType);
+        }
       },
       (error) => {
         console.error('Error obteniendo guest:', error);
@@ -344,10 +376,16 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
    * @param emailOrId Email, nombre o ID que se usará como filtro en el listado
    * @param listType Determina a qué listado navegar: 'users', 'guests' o 'sales'
    */
-  private navigateToListByEmail(emailOrId: string, listType: 'users' | 'guests' | 'returns' | 'sales') {
+  private navigateToListByEmail(emailOrId: string, listType: 'users' | 'guests' | 'returns' | 'sales', createIfEmpty: boolean = false) {
     if (!emailOrId) return;
     this.menuOpen = false;
-    this.router.navigate([`/${listType}/list`], { queryParams: { search: emailOrId } });
+    //this.router.navigate([`/${listType}/list`], { queryParams: { search: emailOrId } });
+    // Si queremos crear nueva devolución cuando no hay resultados
+    if (listType === 'returns' && createIfEmpty) {
+      this.router.navigate(['/returns/detail', 'new'], { queryParams: { q: emailOrId } });
+    } else {
+      this.router.navigate([`/${listType}/list`], { queryParams: { search: emailOrId } });
+    }
   }
 
   /**

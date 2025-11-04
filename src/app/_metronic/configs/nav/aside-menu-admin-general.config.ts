@@ -187,6 +187,21 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
+      {
+        title: 'Devoluciones',
+        root: true,
+        name: "returns",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/General/Update.svg',
+        page: '/returns',
+        submenu: [
+          {
+            title: 'Lista Devoluciones',
+            page: '/returns/list'
+          }
+        ]
+      },
 
 
 

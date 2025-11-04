@@ -96,6 +96,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'returns',
+        loadChildren: () =>
+          import('../modules/returns/returns.module').then(
+            (m) => m.ReturnsModule
+          ),
+      },
+      {
         path: 'sliders',
         loadChildren: () =>
           import('../modules/slider/slider.module').then(
