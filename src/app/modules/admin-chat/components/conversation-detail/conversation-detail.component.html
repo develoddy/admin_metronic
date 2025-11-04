@@ -43,98 +43,114 @@
 <!--begin::Content-->
 <!-- <div class="flex-lg-row-fluid ms-lg-7 ms-xl-10" *ngIf="selected; else emptyState"> -->
 <div class="flex-lg-row-fluid  chat-wrapper" *ngIf="chat.selectedConversation$ | async as selected; else emptyState">
-  <div class="chat-card" id="kt_chat_messenger">
+    <div class="chat-card" id="kt_chat_messenger">
 
-    <!-- HEADER -->
-    <header class="chat-header">
-      <div class="left">
-        <div class="symbol symbol-48px me-3">
-          <span class="symbol-label avatar-circle">{{ userInitial }}</span>
-        </div>
-        <div class="meta">
-          <div class="name">{{ selected.user_name || 'Usuario' }}</div>
-          <div class="status text-muted">{{ selected.status || 'Sin estado' }} • <span class="agent text-primary">{{ selected.agent_name || 'Sin asignar' }}</span></div>
-        </div>
-      </div>
-
-      <div class="right">
-        <div class="actions">
-          <button class="btn btn-sm btn-ghost-danger" (click)="closeConversation()">Cerrar</button>
-          <button class="btn btn-sm btn-ghost-success" (click)="takeConversation()">Tomar</button>
-          <button class="btn btn-sm btn-ghost" (click)="showUserInfo()">Ver usuario</button>
-        </div>
-        <div class="conv-id text-muted">#{{ selected.id }}</div>
-      </div>
-    </header>
-
-    <!-- BODY -->
-    <section class="chat-body" #messagesContainer>
-      <div class="messages-inner">
-        <div *ngFor="let m of messages" class="message-group" [ngClass]="{ 'from-agent': m.sender_type==='agent', 'from-user': m.sender_type==='user' }">
-
-          <ng-container *ngIf="m.sender_type === 'user'">
-            <div class="message-row user-row">
-              <img 
-                class="avatar" 
-                [src]="getAvatar('user')" 
-                alt="Usuario"
-                (error)="onAvatarError('user')"
-                [hidden]="showFallback.user"
-              >
-              <span  class="symbol-label avatar-circle fallback-avatar"  *ngIf="showFallback.user">U</span>
-              <!-- <span class="symbol-label avatar-circle">{{ userInitial }}</span> -->
-              <div class="bubble-wrapper">
-                <div class="bubble bubble-user">{{ m.message }}</div>
-                <div class="msg-meta"><span class="sender">Usuario</span> • <span class="time">{{ getDateFromTime(m.timestamp) | date:'shortTime' }}</span></div>
-              </div>
+        <!-- HEADER -->
+        <header class="chat-header">
+            <div class="left">
+                <div class="symbol symbol-48px me-3">
+                    <span class="symbol-label avatar-circle">{{ userInitial }}</span>
+                </div>
+                <div class="meta">
+                    <div class="name">{{ selected.user_name || 'Usuario' }}</div>
+                    <div class="status text-muted">{{ selected.status || 'Sin estado' }} • <span class="agent text-primary">{{ selected.agent_name || 'Sin asignar' }}</span></div>
+                </div>
             </div>
-          </ng-container>
 
-          <ng-container *ngIf="m.sender_type === 'agent'">
-            <div class="message-row agent-row">
-              <div class="bubble-wrapper">
-                <div class="bubble bubble-agent">{{ m.message }}</div>
-                <div class="msg-meta text-end"><span class="time">{{ getDateFromTime(m.timestamp) | date:'shortTime' }}</span> • <span class="sender">Tú</span></div>
-              </div>
-              <!-- <img class="avatar" alt="agent" src="assets/media/avatars/agent-avatar.png"> -->
-              <img 
-                class="avatar" 
-                [src]="getAvatar('agent')" 
-                alt="Agente"
-                (error)="onAvatarError('agent')"
-                [hidden]="showFallback.agent"
-              >
-              <span  class="symbol-label avatar-circle fallback-avatar"  *ngIf="showFallback.agent">A</span>
+            <div class="right">
+                <div class="actions">
+                    <button class="btn btn-sm btn-ghost-danger" (click)="closeConversation()">Cerrar</button>
+                    <button class="btn btn-sm btn-ghost-success" (click)="takeConversation()">Tomar</button>
+                    <button class="btn btn-sm btn-ghost" (click)="showUserInfo(selected)">Ver usuario</button>
+                </div>
+                <div class="conv-id text-muted">#{{ selected.id }}</div>
+
+                <div class="more-options">
+                  <button class="btn btn-icon" (click)="toggleMenu()">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <circle cx="12" cy="6" r="1.5" fill="#000000"></circle> <circle cx="12" cy="12" r="1.5" fill="#000000"></circle> <circle cx="12" cy="18" r="1.5" fill="#000000"></circle> </g></svg>
+                  </button>
+
+                  <!-- Menú flotante -->
+                  <ul class="popup-menu d-flex flex-column" *ngIf="menuOpen">
+                    <li (click)="showUserInfo(selected)" class="d-flex flex-row gap-3">
+                      <span>Ver usuario</span>
+                    </li>
+                    <li (click)="viewOrderHistory(selected)" class="d-flex flex-row gap-3">
+                      <span>Ver historial de pedidos</span>
+                    </li>
+                    <li (click)="checkCurrentOrders(selected.userId)" class="d-flex flex-row gap-3">
+                      <span>Pedidos activos</span>
+                    </li>
+                  </ul>
+                </div>
+
             </div>
-          </ng-container>
+        </header>
 
-        </div>
-      </div>
-      <!-- typing indicator stays visible if isTyping is true -->
-      <div class="typing" *ngIf="isTyping">
-        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-      </div>
-    </section>
+        <!-- BODY -->
+        <section class="chat-body" #messagesContainer>
+            <div class="messages-inner">
+                <div *ngFor="let m of messages" class="message-group" [ngClass]="{ 'from-agent': m.sender_type==='agent', 'from-user': m.sender_type==='user' }">
 
-    <!-- FOOTER -->
-    <footer class="chat-footer">
-      <div class="input-wrap">
-        <button class="icon-btn btn-ghost" title="Adjuntar"><i class="ki-duotone ki-attachment"></i></button>
-        <input type="text" class="chat-input" [(ngModel)]="newMessage" placeholder="Escribe un mensaje..." (keydown.enter)="send()" />
-        <button class="send-btn" (click)="send()">
-         <svg fill="#000000" viewBox="0 0 32 32" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;fill: currentColor; width: 25px; height: 25px;" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:serif="http://www.serif.com/" xmlns:xlink="http://www.w3.org/1999/xlink" transform="rotate(45)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M11.499,19.173l5.801,-5.849c0.389,-0.392 1.022,-0.394 1.414,-0.006c0.392,0.389 0.395,1.022 0.006,1.414l-5.798,5.847l5.306,8.002c0.207,0.313 0.572,0.483 0.945,0.441c0.373,-0.042 0.691,-0.289 0.824,-0.64l9.024,-23.904c0.138,-0.366 0.05,-0.78 -0.226,-1.058c-0.276,-0.278 -0.689,-0.369 -1.057,-0.233l-24.004,8.892c-0.353,0.13 -0.602,0.448 -0.646,0.821c-0.044,0.373 0.125,0.74 0.438,0.948l7.973,5.325Z"></path><g id="Icon"></g></g></svg>
-        </button>
-      </div>
-    </footer>
+                    <ng-container *ngIf="m.sender_type === 'user'">
+                        <div class="message-row user-row">
+                            <img class="avatar" [src]="getAvatar('user')" alt="Usuario" (error)="onAvatarError('user')" [hidden]="showFallback.user">
+                            <span class="symbol-label avatar-circle fallback-avatar" *ngIf="showFallback.user">U</span>
+                            <!-- <span class="symbol-label avatar-circle">{{ userInitial }}</span> -->
+                            <div class="bubble-wrapper">
+                                <div class="bubble bubble-user">{{ m.message }}</div>
+                                <div class="msg-meta"><span class="sender">Usuario</span> • <span class="time">{{ getDateFromTime(m.timestamp) | date:'shortTime' }}</span></div>
+                            </div>
+                        </div>
+                    </ng-container>
 
-  </div>
+                    <ng-container *ngIf="m.sender_type === 'agent'">
+                        <div class="message-row agent-row">
+                            <div class="bubble-wrapper">
+                                <div class="bubble bubble-agent">{{ m.message }}</div>
+                                <div class="msg-meta text-end"><span class="time">{{ getDateFromTime(m.timestamp) | date:'shortTime' }}</span> • <span class="sender">Tú</span></div>
+                            </div>
+                            <!-- <img class="avatar" alt="agent" src="assets/media/avatars/agent-avatar.png"> -->
+                            <img class="avatar" [src]="getAvatar('agent')" alt="Agente" (error)="onAvatarError('agent')" [hidden]="showFallback.agent">
+                            <span class="symbol-label avatar-circle fallback-avatar" *ngIf="showFallback.agent">A</span>
+                        </div>
+                    </ng-container>
+
+                </div>
+            </div>
+            <!-- typing indicator stays visible if isTyping is true -->
+            <div class="typing" *ngIf="isTyping">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="chat-footer">
+            <div class="input-wrap">
+                <button class="icon-btn btn-ghost" title="Adjuntar"><i class="ki-duotone ki-attachment"></i></button>
+                <input type="text" class="chat-input" [(ngModel)]="newMessage" placeholder="Escribe un mensaje..." (keydown.enter)="send()" />
+                <button class="send-btn" (click)="send()">
+                    <svg fill="#000000" viewBox="0 0 32 32" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;fill: currentColor; width: 25px; height: 25px;" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:serif="http://www.serif.com/" xmlns:xlink="http://www.w3.org/1999/xlink" transform="rotate(45)">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <path d="M11.499,19.173l5.801,-5.849c0.389,-0.392 1.022,-0.394 1.414,-0.006c0.392,0.389 0.395,1.022 0.006,1.414l-5.798,5.847l5.306,8.002c0.207,0.313 0.572,0.483 0.945,0.441c0.373,-0.042 0.691,-0.289 0.824,-0.64l9.024,-23.904c0.138,-0.366 0.05,-0.78 -0.226,-1.058c-0.276,-0.278 -0.689,-0.369 -1.057,-0.233l-24.004,8.892c-0.353,0.13 -0.602,0.448 -0.646,0.821c-0.044,0.373 0.125,0.74 0.438,0.948l7.973,5.325Z"></path>
+                            <g id="Icon"></g>
+                        </g>
+                    </svg>
+                </button>
+            </div>
+        </footer>
+
+    </div>
 </div>
 
 <!-- Estado vacío -->
 <ng-template #emptyState>
-  <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
-    <i class="ki-duotone ki-message-square fs-2hx mb-4 opacity-50"></i>
-    <div class="fs-5 fw-semibold">Selecciona una conversación para empezar</div>
-  </div>
+    <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
+        <i class="ki-duotone ki-message-square fs-2hx mb-4 opacity-50"></i>
+        <div class="fs-5 fw-semibold">Selecciona una conversación para empezar</div>
+    </div>
 </ng-template>
-

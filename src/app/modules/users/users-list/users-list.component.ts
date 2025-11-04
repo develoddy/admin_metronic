@@ -4,6 +4,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AddUsersComponent } from '../components/add-users/add-users.component';
 import { EditUsersComponent } from '../components/edit-users/edit-users.component';
 import { DeleteUserComponent } from '../components/delete-user/delete-user.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-users-list',
@@ -17,13 +18,25 @@ export class UsersListComponent implements OnInit {
   search:any = "";
 
   constructor(
+    private route: ActivatedRoute,
     public _userService: UsersService,
     public _modalService: NgbModal
   ) { }
 
   ngOnInit(): void {
+    this.getQueryParams();
     this.isLoading$ = this._userService.isLoading$;
     this.allUsers();
+  }
+
+  getQueryParams() {
+    this.route.queryParams.subscribe(params => {
+      const searchValue = params['search'];
+      if (searchValue) {
+        this.search = searchValue;
+        this.allUsers(); // o tu función que filtra los usuarios
+      }
+    });
   }
 
   allUsers() {

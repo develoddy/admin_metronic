@@ -68,6 +68,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'guests',
+        loadChildren: () =>
+          import('../modules/guests/guests.module').then(
+            (m) => m.GuestsModule
+          ),
+      },
+      {
         path: 'categories',
         loadChildren: () =>
           import('../modules/categories/categories.module').then(

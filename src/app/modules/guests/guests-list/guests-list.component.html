@@ -1,10 +1,10 @@
 <div class="card card-custom gutter-b">
     <div class="card-header">
         <div class="card-title">
-            <h3 class="card-label"><i class="icon-2x text-dark-50 flaticon-users mx-2"></i> Lista Usuarios</h3>
+            <h3 class="card-label"><i class="icon-2x text-dark-50 flaticon-users mx-2"></i> Lista Invitados</h3>
         </div>
         <div class="card-toolbar">
-            <a type="button" class="btn btn-primary" (click)="openCreate()"><i class="icon-2x text-white flaticon-user-add"></i> Nuevo Usuario</a>
+            <a type="button" class="btn btn-primary" (click)="openCreate()"><i class="icon-2x text-white flaticon-user-add"></i> Nuevo Invitado</a>
         </div>
     </div>
     <div class="card-body">
@@ -13,7 +13,16 @@
             <!-- Esta aparte lo comento de manera aparte ya que en la clases lo uso normal -->
             <div class="form-group row">
                 <div class="col-lg-3">
-                    <input type="text" class="form-control" name="searchText" placeholder="Buscar" value="" [(ngModel)]="search" (keyup.enter)="allUsers()" /><small class="form-text text-muted"><b>Buscar</b> por correo, nombre y apellido</small>
+                    <input  
+                        type="text" 
+                        class="form-control" 
+                        name="searchText" 
+                        placeholder="Buscar" 
+                        value="" 
+                        [(ngModel)]="search" 
+                        (keyup.enter)="allGuests()" />
+                        
+                        <small class="form-text text-muted"><b>Buscar</b> por correo, nombre y apellido</small>
                 </div>
                 <div class="col-3">
                     <button class="btn btn-dark" (click)="refresh()">Refrescar</button>
@@ -28,24 +37,22 @@
             <div class="col-12">
                 <div class="table-responsive">
                   <table class="table table-head-custom table-vertical-center" id="kt_advance_table_widget_1">
-                    <ng-container *ngIf="users?.length > 0; else noResults">
+                    <ng-container *ngIf="guests?.length > 0; else noResults">
                       <thead>
                           <tr class="text-left">
                             <th>ID</th>
                             <th>NOMBRE</th>
-                            <th>APELLIDOS</th>
                             <th>CORREO ELECTRÓNICO</th>
                             <th>ACCIÓN</th>
                           </tr>
                       </thead>
-                      <tbody *ngIf="users?.length > 0; else noResults">
-                          <tr *ngFor="let user of users">
-                            <td> {{user.id}} </td>
-                              <td> {{user.name}} </td>
-                              <td> {{user.surname}} </td>
-                              <td> {{user.email}} </td>
+                      <tbody *ngIf="guests?.length > 0; else noResults">
+                          <tr *ngFor="let guest of guests">
+                             <td> {{guest.id}} </td>
+                              <td> {{guest.name}} </td>
+                              <td> {{guest.email}} </td>
                               <td>
-                                  <a (click)="editUser(user)" class="btn btn-icon btn-light btn-hover-primary btn-sm mx-1" ngbTooltip="Editar Usuario" ngbTooltipClass="kt-tooltip">
+                                  <a (click)="editGuest(guest)" class="btn btn-icon btn-light btn-hover-primary btn-sm mx-1" >
                                       <span class="svg-icon svg-icon-md svg-icon-primary">
                                           <!--begin::Svg Icon | path:assets/media/svg/icons/Communication/Write.svg-->
                                           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
@@ -59,7 +66,7 @@
                                       </span>
                                   </a>
 
-                                  <a (click)="delete(user)" class="btn btn-icon btn-light btn-hover-primary btn-sm" ngbTooltip="Eliminar Usuario" ngbTooltipClass="kt-tooltip">
+                                  <a (click)="deleteGuest(guest)" class="btn btn-icon btn-light btn-hover-primary btn-sm">
                                       <span class="svg-icon svg-icon-md svg-icon-danger">
                                           <!--begin::Svg Icon | path:assets/media/svg/icons/General/Trash.svg-->
                                           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
@@ -79,7 +86,7 @@
                     <ng-template #noResults>
                       <tr>
                         <td colspan="4" class="text-center text-muted">
-                          No se encontró ningún usuario con los criterios de búsqueda.
+                          No se encontró ningún usuario invitado con los criterios de búsqueda.
                         </td>
                       </tr>
                     </ng-template>

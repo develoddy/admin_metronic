@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AdminSalesService } from '../services/admin-sales.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -19,16 +19,35 @@ export class SalesListComponent implements OnInit {
   searchTerm = new Subject<string>();
   copiedId: number | null = null;
 
-  constructor(private svc: AdminSalesService, private router: Router,  private cd: ChangeDetectorRef) { }
+  constructor(
+    private route: ActivatedRoute,
+    private svc: AdminSalesService, 
+    private router: Router, 
+    private cd: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
-     this.searchTerm.pipe(debounceTime(500)).subscribe(term => {
+    this.getQueryParams();
+    this.searchTerm.pipe(debounceTime(500)).subscribe(term => {
         this.q = term;
         this.load(1); // siempre recarga desde página 1
     });
 
      // Cargar la primera página al iniciar
     this.load(1);
+  }
+
+  getQueryParams() {
+    this.route.queryParams.subscribe(params => {
+      const searchValue = params['search']?.trim();
+      if (searchValue) {
+        this.q = searchValue; // actualiza la variable usada en load()
+        this.load(1);
+      } else {
+        // si no hay parámetro 'search', carga normal
+        this.load(1);
+      }
+    });
   }
 
   load(page: number = this.currentPage) {

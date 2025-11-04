@@ -47,7 +47,7 @@ export const AsideMenuAdminGeneral = {
       
 
       /** --------- SECCION USUARIOS ---------*/
-      { section: 'Usuario' },
+      { section: 'Usuarios' },
       {
         title: 'Usuarios',
         root: true,
@@ -60,6 +60,24 @@ export const AsideMenuAdminGeneral = {
           {
             title: 'Gestion Usuarios',
             page: '/users/list'
+          }
+        ]
+      },
+
+      /** --------- SECCION INVITADOS ---------*/
+      { section: 'Invitados' },
+      {
+        title: 'Invitados',
+        root: true,
+        name: "guests",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/General/User.svg',
+        page: '/guests',
+        submenu: [
+          {
+            title: 'Gestion Invitados',
+            page: '/guests/list'
           }
         ]
       },

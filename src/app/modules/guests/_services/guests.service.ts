@@ -8,7 +8,7 @@ import { finalize } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
-export class UsersService {
+export class GuestService {
   isLoading$: Observable<boolean>;
   isLoadingSubject: BehaviorSubject<boolean>;
   
@@ -20,55 +20,46 @@ export class UsersService {
     this.isLoading$ = this.isLoadingSubject.asObservable();
   }
 
-  allUsers(search='') {
+  allGuests(search='') {
     this.isLoadingSubject.next(true);
     let headers = new HttpHeaders({'token': this._authservice.token});
-    let URL = URL_SERVICIOS + '/users/list?search='+search;
+    let URL = URL_SERVICIOS + '/guests/list?search='+search;
     return this._http.get(URL, {headers: headers}).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     );
   }
 
-  createUser(data) {
+  createGuest(data) {
     this.isLoadingSubject.next(true);
     let headers = new HttpHeaders({'token': this._authservice.token});
-    let URL = URL_SERVICIOS + '/users/register_admin';
+    let URL = URL_SERVICIOS + '/guests/register';
     return this._http.post(URL, data, {headers: headers}).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     );
   }
 
-  updateUser(data) {
+  updateGuest(data) {
     this.isLoadingSubject.next(true);
     let headers = new HttpHeaders({'token': this._authservice.token});
-    let URL = URL_SERVICIOS + '/users/update';
+    let URL = URL_SERVICIOS + '/guests/update';
     return this._http.put(URL, data, {headers: headers}).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     );
   }
 
-  deleteUser(user_id) {
+  deleteGuest(guest_id) {
     this.isLoadingSubject.next(true);
     let headers = new HttpHeaders({'token': this._authservice.token});
-    let URL = URL_SERVICIOS + '/users/delete?_id='+user_id;
+    let URL = URL_SERVICIOS + '/guests/delete?_id='+guest_id;
     return this._http.delete(URL, {headers: headers}).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     );
   }
 
-  getUserById(user_id: any) {
+  getGuestById(guest_id: any) {
     this.isLoadingSubject.next(true);
     const headers = new HttpHeaders({ 'token': this._authservice.token });
-    const body = { id: user_id }; 
-    return this._http.post(URL_SERVICIOS + '/users/detail_user_admin', body, { headers }).pipe(
-      finalize(() => this.isLoadingSubject.next(false))
-    );
-  }
-
-  getGuestById(guestId: any) {
-    this.isLoadingSubject.next(true);
-    const headers = new HttpHeaders({ 'token': this._authservice.token });
-    const body = { id: guestId }; 
+    const body = { id: guest_id }; 
     return this._http.post(URL_SERVICIOS + '/guests/detail_guest_admin', body, { headers }).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     );

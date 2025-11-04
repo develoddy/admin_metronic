@@ -3,6 +3,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { UsersService } from '../../_services/users.service';
 import { Toaster } from 'ngx-toast-notifications';
 import { NoticyAlertComponent } from 'src/app/componets/notifications/noticy-alert/noticy-alert.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-edit-users',
