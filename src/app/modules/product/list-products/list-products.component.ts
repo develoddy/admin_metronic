@@ -98,7 +98,7 @@ export class ListProductsComponent implements OnInit {
     
   }
 
-  editProduct(product) {
+  editProduct(product:any) {
     this._router.navigateByUrl("/products/edit-product/"+product._id);
     
     // API PRINTFUL

@@ -13,6 +13,7 @@ import { UsersService } from "src/app/modules/users/_services/users.service";
 import { Toaster } from 'ngx-toast-notifications';
 import { NoticyAlertComponent } from 'src/app/componets/notifications/noticy-alert/noticy-alert.component';
 import { ReturnsService } from "src/app/modules/returns/_services/returns.service";
+import { AdminSalesService } from "src/app/modules/admin-sales/services/admin-sales.service";
 
 @Component({
   selector: "app-conversation-detail",
@@ -36,6 +37,7 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
     private returnsService: ReturnsService,
     public userService: UsersService,
     public toaster: Toaster,
+    public salesService: AdminSalesService
   ) {}
 
   ngOnInit(): void {
@@ -292,18 +294,36 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
         //this.navigateToListByEmail(searchValue, listType); 
 
         if (listType === 'returns') {
-          // Consultar si existen devoluciones
+          // 🔍 1️⃣ Comprobar si el usuario tiene devoluciones registradas
           this.returnsService.hasReturns(searchValue).subscribe(has => {
             if (has.hasReturns) {
-              // Existe alguna devolución → abrir lista filtrada
+              // ✅ Tiene devoluciones → abrir lista filtrada
               this.navigateToListByEmail(searchValue, listType);
             } else {
               // No existe devolución → abrir formulario nuevo con email prellenado
-              this.navigateToListByEmail(searchValue, listType, true); // createIfEmpty = true
+              //this.navigateToListByEmail(searchValue, listType, true); // createIfEmpty = true
+
+              // 🔍 2️⃣ No tiene devoluciones → comprobar si tiene ventas
+              this.salesService.hasSales({ q: searchValue }).subscribe(
+                (salesResp: any) => {
+                  if (salesResp.hasSales) {
+                    // ✅ Tiene ventas → crear devolución nueva
+                    this.navigateToListByEmail(searchValue, listType, true);
+                  } else {
+                    // ⚠️ No tiene ventas → mostrar aviso
+                    this.toaster.open(NoticyAlertComponent, {
+                      text: `warning-El usuario ${searchValue} no tiene pedidos para generar una devolución.`,
+                    });
+                  }
+                },
+                (error) => {
+                  console.error('[hasSales error]', error);
+                }
+              );
             }
           });
         } else {
-          // Para otros listType normales
+          // 🧭 Para otros listType: users, sales, guests, etc.
           this.navigateToListByEmail(searchValue, listType);
         }
     }, (error) => {
@@ -341,14 +361,32 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
         this.menuOpen = false;
         //this.navigateToListByEmail(searchValue, listType); 
         if (listType === 'returns') {
-          // Consultar si existen devoluciones
+          // 🔍 1️⃣ Comprobar si el usuario tiene devoluciones registradas
           this.returnsService.hasReturns(searchValue).subscribe(has => {
             if (has.hasReturns) {
-              // Existe alguna devolución → abrir lista filtrada
+              // ✅ Tiene devoluciones → abrir lista filtrada
               this.navigateToListByEmail(searchValue, listType);
             } else {
               // No existe devolución → abrir formulario nuevo con email prellenado
-              this.navigateToListByEmail(searchValue, listType, true); // createIfEmpty = true
+              //this.navigateToListByEmail(searchValue, listType, true); // createIfEmpty = true
+              
+              // 🔍 2️⃣ No tiene devoluciones → comprobar si tiene ventas
+              this.salesService.hasSales({ q: searchValue }).subscribe(
+                (salesResp: any) => {
+                  if (salesResp.hasSales) {
+                    // ✅ Tiene ventas → crear devolución nueva
+                    this.navigateToListByEmail(searchValue, listType, true);
+                  } else {
+                    // ⚠️ No tiene ventas → mostrar aviso
+                    this.toaster.open(NoticyAlertComponent, {
+                      text: `warning-El usuario ${searchValue} no tiene pedidos para generar una devolución.`,
+                    });
+                  }
+                },
+                (error) => {
+                  console.error('[hasSales error]', error);
+                }
+              );
             }
           });
         } else {

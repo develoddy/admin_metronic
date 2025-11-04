@@ -53,6 +53,19 @@ export class AdminSalesService {
     return this.http.get<any>(url, this.getAuthHeaders());
   }
 
+  // ✅ Nuevo método: comprobar si un usuario o invitado tiene ventas
+  hasSales(params: { userId?: number; guestId?: number; q?: string }): Observable<any> {
+    const url = `${URL_SERVICIOS}/sales/has`;
+
+    // Convertir a strings solo los que existan
+    const queryParams: any = {};
+    if (params.userId !== undefined) queryParams.userId = String(params.userId);
+    if (params.guestId !== undefined) queryParams.guestId = String(params.guestId);
+    if (params.q !== undefined) queryParams.q = params.q; // si buscas por email
+
+    return this.http.get<any>(url, { params: queryParams, ...this.getAuthHeaders() });
+  }
+
   // Create an order from admin panel (send to backend admin create)
   createAdminOrder(payload: any): Observable<any> {
     const url = `${URL_SERVICIOS}/sales/admin/create`;
