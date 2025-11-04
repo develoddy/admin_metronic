@@ -12,107 +12,115 @@
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-row-dashed align-middle gy-4">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nº Transacción</th>
-                        <th>Usuario</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
-                        <th>Items</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let s of sales">
-                        <td>{{ s.id }}</td>
+                <ng-container *ngIf="sales?.length > 0; else noResults">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nº Transacción</th>
+                            <th>Usuario</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th>Items</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let s of sales">
+                            <td>{{ s.id }}</td>
+                            <td style="position: relative; overflow: visible !important" class="position-relative">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span *ngIf="s.method_payment === 'STRIPE'" class="badge bg-success text-truncate" style="max-width: 150px" [title]="s.n_transaction">
+                                        {{ s.n_transaction }}
+                                    </span>
+                                    <span *ngIf="s.method_payment === 'PAYPAL'" class="badge bg-primary text-truncate" style="max-width: 150px" [title]="s.n_transaction">
+                                        {{ s.n_transaction }}
+                                    </span>
 
-                        <td style="position: relative; overflow: visible !important" class="position-relative">
-                            <div class="d-flex align-items-center gap-2">
-                                <span *ngIf="s.method_payment === 'STRIPE'" class="badge bg-success text-truncate" style="max-width: 150px" [title]="s.n_transaction">
-                                    {{ s.n_transaction }}
-                                </span>
-                                <span *ngIf="s.method_payment === 'PAYPAL'" class="badge bg-primary text-truncate" style="max-width: 150px" [title]="s.n_transaction">
-                                    {{ s.n_transaction }}
-                                </span>
+                                    <!-- Botón copiar -->
+                                    <button class="btn btn-sm btn-light p-2" (click)="copyToClipboard(s.n_transaction, s.id)" title="Copiar número de transacción">
+                                        <!-- <i class="bi bi-clipboard"></i> -->
+                                        <svg id="Interface_File_Double_24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                            <rect width="24" height="24" stroke="none" fill="#000000" opacity="0" />
 
-                                <!-- Botón copiar -->
-                                <button class="btn btn-sm btn-light p-2" (click)="copyToClipboard(s.n_transaction, s.id)" title="Copiar número de transacción">
-                                    <!-- <i class="bi bi-clipboard"></i> -->
-                                    <svg id="Interface_File_Double_24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                        <rect width="24" height="24" stroke="none" fill="#000000" opacity="0" />
-
-                                        <g transform="matrix(1.43 0 0 1.43 12 12)">
-                                            <g style="">
-                                                <g transform="matrix(1 0 0 1 1.25 -1.25)">
-                                                    <path style="
-                              stroke: rgb(0, 0, 0);
-                              stroke-width: 1;
-                              stroke-dasharray: none;
-                              stroke-linecap: round;
-                              stroke-dashoffset: 0;
-                              stroke-linejoin: round;
-                              stroke-miterlimit: 4;
-                              fill: none;
-                              fill-rule: nonzero;
-                              opacity: 1;
-                            " transform=" translate(-8.25, -5.75)" d="M 12.5 10 C 12.5 10.552284749830793 12.052284749830793 11 11.5 11 L 5 11 C 4.447715250169207 11 4 10.552284749830793 4 10 L 4 1.5 C 4 0.9477152501692065 4.447715250169207 0.5 5 0.5 L 9.5 0.5 L 12.5 3.5 Z" stroke-linecap="round" />
-                                                </g>
-                                                <g transform="matrix(1 0 0 1 -1.5 1.5)">
-                                                    <path style="
-                              stroke: rgb(0, 0, 0);
-                              stroke-width: 1;
-                              stroke-dasharray: none;
-                              stroke-linecap: round;
-                              stroke-dashoffset: 0;
-                              stroke-linejoin: round;
-                              stroke-miterlimit: 4;
-                              fill: none;
-                              fill-rule: nonzero;
-                              opacity: 1;
-                            " transform=" translate(-5.5, -8.5)" d="M 9.5 13.5 L 2.5 13.5 C 1.9477152501692065 13.5 1.5 13.052284749830793 1.5 12.5 L 1.5 3.5" stroke-linecap="round" />
+                                            <g transform="matrix(1.43 0 0 1.43 12 12)">
+                                                <g style="">
+                                                    <g transform="matrix(1 0 0 1 1.25 -1.25)">
+                                                        <path style="
+                                stroke: rgb(0, 0, 0);
+                                stroke-width: 1;
+                                stroke-dasharray: none;
+                                stroke-linecap: round;
+                                stroke-dashoffset: 0;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                fill: none;
+                                fill-rule: nonzero;
+                                opacity: 1;
+                                " transform=" translate(-8.25, -5.75)" d="M 12.5 10 C 12.5 10.552284749830793 12.052284749830793 11 11.5 11 L 5 11 C 4.447715250169207 11 4 10.552284749830793 4 10 L 4 1.5 C 4 0.9477152501692065 4.447715250169207 0.5 5 0.5 L 9.5 0.5 L 12.5 3.5 Z" stroke-linecap="round" />
+                                                    </g>
+                                                    <g transform="matrix(1 0 0 1 -1.5 1.5)">
+                                                        <path style="
+                                stroke: rgb(0, 0, 0);
+                                stroke-width: 1;
+                                stroke-dasharray: none;
+                                stroke-linecap: round;
+                                stroke-dashoffset: 0;
+                                stroke-linejoin: round;
+                                stroke-miterlimit: 4;
+                                fill: none;
+                                fill-rule: nonzero;
+                                opacity: 1;
+                                " transform=" translate(-5.5, -8.5)" d="M 9.5 13.5 L 2.5 13.5 C 1.9477152501692065 13.5 1.5 13.052284749830793 1.5 12.5 L 1.5 3.5" stroke-linecap="round" />
+                                                    </g>
                                                 </g>
                                             </g>
-                                        </g>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <!-- Tooltip -->
-                            <div *ngIf="copiedId == s.id" class="copy-tooltip position-absolute bg-dark text-white px-2 py-1 rounded small" style="top: -25px; right: 0; z-index: 1000">
-                                ¡Copiado!
-                            </div>
-                        </td>
-
-                        <td>{{(s.user && s.user.email) || (s.guest && s.guest.email) || "—"}}</td>
-                        <td>€ {{ s.total }}</td>
-                        <td>
-                            <span class="badge"
-                                        [ngClass]="{
-                                            'bg-secondary': (s.printfulStatus || '') === 'draft',
-                                            'bg-success': (s.printfulStatus || '') === 'paid',
-                                            'bg-primary': (s.printfulStatus || '') === 'fulfilled',
-                                            'bg-danger': (s.printfulStatus || '') === 'cancelled'
-                                        }">
-                                    {{ s.printfulStatus || '—' }}
-                            </span>
-                        </td>
-                        <td>{{ s.createdAt | date : "short" }}</td>
-                        <td>
-                            <div *ngFor="let it of s.items | slice : 0 : 3" class="d-flex align-items-center mb-5">
-                                <img *ngIf="it.imagen" [src]="it.imagen" class="me-2 rounded" style="width: 40px; height: 40px; object-fit: cover" />
-                                <div class="d-flex flex-column">
-                                    <div class="px-2 lh-1"><span>{{ it.title }}</span></div>
-                                    <div class="px-2 lh-1"><small class="me-2 text-muted" *ngIf="it.sku">SKU:</small><small class="text-muted">{{ it.sku }}</small></div>
-                                    <div class="px-2 lh-1"><small class="me-2 text-muted">Talla:</small> <small class="text-muted" *ngIf="it.talla">{{ it.talla }}</small></div>
-                                    <div class="px-2 lh-1"><small class="me-2 text-muted">Cantidad:</small><small class="text-muted">{{ it.cantidad }}</small></div>
+                                        </svg>
+                                    </button>
                                 </div>
-                            </div>
+
+                                <!-- Tooltip -->
+                                <div *ngIf="copiedId == s.id" class="copy-tooltip position-absolute bg-dark text-white px-2 py-1 rounded small" style="top: -25px; right: 0; z-index: 1000">
+                                    ¡Copiado!
+                                </div>
+                            </td>
+
+                            <td>{{(s.user && s.user.email) || (s.guest && s.guest.email) || "—"}}</td>
+                            <td>€ {{ s.total }}</td>
+                            <td>
+                                <span class="badge"
+                                            [ngClass]="{
+                                                'bg-secondary': (s.printfulStatus || '') === 'draft',
+                                                'bg-success': (s.printfulStatus || '') === 'paid',
+                                                'bg-primary': (s.printfulStatus || '') === 'fulfilled',
+                                                'bg-danger': (s.printfulStatus || '') === 'cancelled'
+                                            }">
+                                        {{ s.printfulStatus || '—' }}
+                                </span>
+                            </td>
+                            <td>{{ s.createdAt | date : "short" }}</td>
+                            <td>
+                                <div *ngFor="let it of s.items | slice : 0 : 3" class="d-flex align-items-center mb-5">
+                                    <img *ngIf="it.imagen" [src]="it.imagen" class="me-2 rounded" style="width: 40px; height: 40px; object-fit: cover" />
+                                    <div class="d-flex flex-column">
+                                        <div class="px-2 lh-1"><span>{{ it.title }}</span></div>
+                                        <div class="px-2 lh-1"><small class="me-2 text-muted" *ngIf="it.sku">SKU:</small><small class="text-muted">{{ it.sku }}</small></div>
+                                        <div class="px-2 lh-1"><small class="me-2 text-muted">Talla:</small> <small class="text-muted" *ngIf="it.talla">{{ it.talla }}</small></div>
+                                        <div class="px-2 lh-1"><small class="me-2 text-muted">Cantidad:</small><small class="text-muted">{{ it.cantidad }}</small></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-end"><button class="btn btn-sm btn-dark" (click)="openSale(s)">Ver</button></td>
+                        </tr>
+                    </tbody>
+                </ng-container>
+                <ng-template #noResults>
+                    <tr>
+                        <td colspan="4" class="text-center text-muted fw-bold">
+                          No se encontró ningúna venta con los criterios de búsqueda.
                         </td>
-                        <td class="text-end"><button class="btn btn-sm btn-dark" (click)="openSale(s)">Ver</button></td>
                     </tr>
-                </tbody>
+                </ng-template>
             </table>
         </div>
     </div>

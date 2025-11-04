@@ -143,6 +143,41 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
     return !conversation.user_id && !!conversation.guest_id && typeof conversation.guest_id === 'string';
   }
 
+  handleReturnRequest(selected: any) {
+    if (!selected) return;
+
+    console.log('♻️ Gestionar devolución para:', selected);
+
+    if (this.isGuest(selected)) {
+      console.log('¡Es un Guest!', selected);
+      this.getGuestById(selected, 'returns'); 
+      return;
+    }
+
+    const userId = selected.user_id ?? selected.userId ?? null;
+
+    // Si no, intenta pedir al backend por id
+    if (userId) {
+      this.getUserById(selected, 'returns');
+      return;
+    } else {
+      console.warn('No hay userId ni email/nombre');
+    }
+
+    // Si no tiene ni user_id ni guest_id, intentar buscar por email
+    const email = selected.user_email || selected.email;
+    if (email) {
+      this.navigateToListByEmail(email, 'returns');
+    } else {
+      console.warn('No se pudo identificar al cliente para gestionar devolución.');
+      this.toaster.open(NoticyAlertComponent, {
+        text: `warning-No se pudo identificar al cliente para gestionar devolución.`,
+      });
+    }
+  }
+
+
+
   /**
    * Muestra la información de un usuario o guest cuando se hace clic en su avatar o nombre.
    * 
@@ -161,8 +196,8 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
 
     // Validación robusta de Guest
     if (this.isGuest(selectedUser)) {
-      console.log('¡Es un Guest válido!', selectedUser.guest_id);
-      this.getGuestById(selectedUser.guest_id, 'guests'); 
+      console.log('¡Es un Guest válido!', selectedUser);
+      this.getGuestById(selectedUser, 'guests'); 
       return;
     }
 
@@ -203,14 +238,19 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
 
     console.log('📦 Ver historial de pedidos de:', selected);
 
-    if (selected.guest_id) {
-      this.getGuestById(selected.guest_id, 'sales');
+    if (this.isGuest(selected)) { //if (selected.guest_id) {
+      this.getGuestById(selected, 'sales');
       return;
     }
 
-    if (selected.user_id) {
-      this.getUserById(selected.user_id, 'sales');
+    const userId = selected.user_id ?? selected.userId ?? null;
+
+    if (userId) {
+      console.log('📦 Ver historial de pedidos de con usuario ID:', selected);
+      this.getUserById(selected, 'sales');
       return;
+    } else {
+      console.warn('No hay userId ni email/nombre');
     }
 
     const email = selected.user_email || selected.email;
@@ -232,7 +272,7 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
    * @param selectedUser Objeto del usuario seleccionado
    * @param listType Determina a qué listado navegar: 'users' (por defecto) o 'sales'
    */
-  getUserById(selectedUser: any, listType: 'users' | 'sales' = 'users') {
+  getUserById(selectedUser: any, listType: 'users' | 'sales' | 'returns' = 'users') {
     if (!selectedUser) return;
 
     const userId = selectedUser.user_id ?? selectedUser.userId ?? null;
@@ -268,7 +308,11 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
    * @param guestId ID del guest a buscar
    * @param listType Determina a qué listado navegar: 'guests' (por defecto) o 'sales'
    */
-  getGuestById(guestId: any, listType: 'guests' | 'sales' = 'guests') {
+  getGuestById(selectedGuest: any, listType: 'guests' | 'sales' | 'returns' = 'guests') {
+    if (!selectedGuest) return;
+
+    const guestId = selectedGuest.guest_id ?? selectedGuest.guestId ?? null;
+
     if (!guestId) return;
 
     this.userService.getGuestById(guestId).subscribe(
@@ -300,7 +344,7 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
    * @param emailOrId Email, nombre o ID que se usará como filtro en el listado
    * @param listType Determina a qué listado navegar: 'users', 'guests' o 'sales'
    */
-  private navigateToListByEmail(emailOrId: string, listType: 'users' | 'guests' | 'sales') {
+  private navigateToListByEmail(emailOrId: string, listType: 'users' | 'guests' | 'returns' | 'sales') {
     if (!emailOrId) return;
     this.menuOpen = false;
     this.router.navigate([`/${listType}/list`], { queryParams: { search: emailOrId } });

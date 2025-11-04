@@ -38,7 +38,7 @@
                             <th>ACCIÓN</th>
                           </tr>
                       </thead>
-                      <tbody *ngIf="users?.length > 0; else noResults">
+                      <tbody>
                           <tr *ngFor="let user of users">
                             <td> {{user.id}} </td>
                               <td> {{user.name}} </td>
