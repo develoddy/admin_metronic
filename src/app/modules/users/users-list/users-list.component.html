@@ -12,10 +12,17 @@
         <div class="form form-label-right">
             <!-- Esta aparte lo comento de manera aparte ya que en la clases lo uso normal -->
             <div class="form-group row">
-                <div class="col-lg-3">
-                    <input type="text" class="form-control" name="searchText" placeholder="Buscar" value="" [(ngModel)]="search" (keyup.enter)="allUsers()" /><small class="form-text text-muted"><b>Buscar</b> por correo, nombre y apellido</small>
+                <div class="col-12 col-lg-8">
+                     <input type="text" 
+                        class="form-control" 
+                        placeholder="Buscar" 
+                        [(ngModel)]="search"
+                        (ngModelChange)="onSearchChange($event)" 
+                        (keyup.enter)="allUsers()" />
+                    <small class="form-text text-muted"><b>Buscar</b> por correo, nombre y apellido</small>
                 </div>
-                <div class="col-3">
+                <div class="col-12 col-lg-4">
+                    <button class="btn btn-primary me-2" (click)="allUsers()">Buscar</button>
                     <button class="btn btn-dark" (click)="refresh()">Refrescar</button>
                 </div>
             </div>
@@ -40,7 +47,7 @@
                       </thead>
                       <tbody>
                           <tr *ngFor="let user of users">
-                            <td> {{user.id}} </td>
+                            <td> {{user._id}} </td>
                               <td> {{user.name}} </td>
                               <td> {{user.surname}} </td>
                               <td> {{user.email}} </td>

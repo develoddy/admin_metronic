@@ -308,7 +308,7 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
                 (salesResp: any) => {
                   if (salesResp.hasSales) {
                     // ✅ Tiene ventas → crear devolución nueva
-                    this.navigateToListByEmail(searchValue, listType, true);
+                    this.navigateToListByEmail(searchValue, listType);
                   } else {
                     // ⚠️ No tiene ventas → mostrar aviso
                     this.toaster.open(NoticyAlertComponent, {
@@ -369,12 +369,14 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
             } else {
               // No existe devolución → abrir formulario nuevo con email prellenado
               //this.navigateToListByEmail(searchValue, listType, true); // createIfEmpty = true
-              
+
               // 🔍 2️⃣ No tiene devoluciones → comprobar si tiene ventas
               this.salesService.hasSales({ q: searchValue }).subscribe(
                 (salesResp: any) => {
                   if (salesResp.hasSales) {
                     // ✅ Tiene ventas → crear devolución nueva
+                    console.log("Tiene venta salesResp: ", salesResp);
+                    
                     this.navigateToListByEmail(searchValue, listType, true);
                   } else {
                     // ⚠️ No tiene ventas → mostrar aviso

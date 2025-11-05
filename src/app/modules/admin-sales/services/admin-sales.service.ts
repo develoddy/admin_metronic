@@ -66,6 +66,12 @@ export class AdminSalesService {
     return this.http.get<any>(url, { params: queryParams, ...this.getAuthHeaders() });
   }
 
+  // ✅ Nuevo método: obtener la última venta por email o id
+  getLastSale(identifier: string): Observable<any> {
+    const url = `${URL_SERVICIOS}/sales/last/${identifier}`;
+    return this.http.get<any>(url, this.getAuthHeaders());
+  }
+
   // Create an order from admin panel (send to backend admin create)
   createAdminOrder(payload: any): Observable<any> {
     const url = `${URL_SERVICIOS}/sales/admin/create`;

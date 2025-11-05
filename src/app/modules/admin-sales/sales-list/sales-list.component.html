@@ -11,7 +11,8 @@
 
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-row-dashed align-middle gy-4">
+            <!-- <table class="table table-row-dashed align-middle gy-4"> -->
+            <table class="table table-head-custom table-vertical-center" id="kt_advance_table_widget_1">
                 <ng-container *ngIf="sales?.length > 0; else noResults">
                     <thead>
                         <tr>
@@ -22,7 +23,7 @@
                             <th>Estado</th>
                             <th>Fecha</th>
                             <th>Items</th>
-                            <th></th>
+                            <th>Acción</th>
                         </tr>
                     </thead>
                     <tbody>

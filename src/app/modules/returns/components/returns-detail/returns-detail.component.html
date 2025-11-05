@@ -1,52 +1,99 @@
-<div class="card">
-  <div class="card-header">
-    <h3>{{ id === 'new' ? 'Nueva Solicitud de Devolución' : 'Editar Solicitud de Devolución' }}</h3>
+<div class="card shadow-sm border-0 rounded-3">
+  <div class="card-header bg-light border-bottom">
+    <h3 class="mb-0 fw-semibold text-primary">
+      {{ id === 'new' ? '🧾 Nueva Solicitud de Devolución' : '✏️ Editar Solicitud de Devolución' }}
+    </h3>
   </div>
 
-  <div class="card-body">
-    <form #returnForm="ngForm" (ngSubmit)="save()">
+  <div class="card-body p-4 bg-white">
+    <form #returnForm="ngForm" (ngSubmit)="save()" novalidate>
 
-      <!-- Cliente: userId o guestId -->
-      <div class="form-group">
-        <label>Cliente (Email / Guest ID)</label>
-        <input type="text" class="form-control" [(ngModel)]="model.userEmail" name="userEmail" placeholder="Email del usuario" />
-        <input type="text" class="form-control mt-2" [(ngModel)]="model.guestId" name="guestId" placeholder="Guest ID (si aplica)" />
+      <!-- Cliente -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold text-secondary">Cliente (Email / Guest ID)</label>
+        <div class="row g-2">
+          <div class="col-md-6">
+            <input 
+              type="text" 
+              class="form-control bg-light text-muted border-0" 
+              [(ngModel)]="model.userEmail" 
+              name="userEmail" 
+              placeholder="Email del usuario" 
+              readonly 
+            />
+          </div>
+          <div class="col-md-6">
+            <input 
+              type="text" 
+              class="form-control bg-light text-muted border-0" 
+              [(ngModel)]="model.guestId" 
+              name="guestId" 
+              placeholder="Guest ID (si aplica)" 
+              readonly 
+            />
+          </div>
+        </div>
+        <small class="text-muted fst-italic">Estos campos se rellenan automáticamente desde el chat.</small>
       </div>
 
       <!-- Pedido relacionado -->
-      <div class="form-group mt-2">
-        <label>ID del Pedido</label>
-        <input type="number" class="form-control" [(ngModel)]="model.saleId" name="saleId" placeholder="ID de la venta" required />
+      <div class="mb-4">
+        <label class="form-label fw-semibold text-secondary">ID del Pedido</label>
+        <input 
+          type="number" 
+          class="form-control bg-light text-muted border-0" 
+          [(ngModel)]="model.saleId" 
+          name="saleId" 
+          placeholder="ID de la venta" 
+          readonly 
+          required 
+        />
+        <small class="text-muted fst-italic">Autocompletado con el último pedido del cliente.</small>
       </div>
 
-      <!-- Motivo de la devolución -->
-      <div class="form-group mt-2">
-        <label>Motivo</label>
-        <textarea class="form-control" [(ngModel)]="model.reason" name="reason" rows="3" placeholder="Motivo de la devolución" required></textarea>
+      <!-- Motivo -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold text-secondary">Motivo de la devolución</label>
+        <textarea 
+          class="form-control" 
+          [(ngModel)]="model.reason" 
+          name="reason" 
+          rows="3" 
+          placeholder="Describe brevemente el motivo de la devolución..." 
+          required
+        ></textarea>
       </div>
 
       <!-- Estado -->
-      <div class="form-group mt-2">
-        <label>Estado</label>
-        <select class="form-control" [(ngModel)]="model.status" name="status">
-          <option value="pending">Pendiente</option>
-          <option value="reviewing">En revisión</option>
-          <option value="approved">Aprobado</option>
-          <option value="denied">Denegado</option>
-          <option value="refunded">Reembolsado</option>
+      <div class="mb-4">
+        <label class="form-label fw-semibold text-secondary">Estado</label>
+        <select class="form-select" [(ngModel)]="model.status" name="status">
+          <option value="pending">🕓 Pendiente</option>
+          <option value="reviewing">🔎 En revisión</option>
+          <option value="approved">✅ Aprobado</option>
+          <option value="denied">❌ Denegado</option>
+          <option value="refunded">💸 Reembolsado</option>
         </select>
       </div>
 
-      <!-- Notas internas del admin -->
-      <div class="form-group mt-2">
-        <label>Notas internas</label>
-        <textarea class="form-control" [(ngModel)]="model.adminNotes" name="adminNotes" rows="3" placeholder="Notas del administrador"></textarea>
+      <!-- Notas internas -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold text-secondary">Notas internas (solo administrador)</label>
+        <textarea 
+          class="form-control" 
+          [(ngModel)]="model.adminNotes" 
+          name="adminNotes" 
+          rows="3" 
+          placeholder="Información adicional o seguimiento interno..."
+        ></textarea>
       </div>
 
       <!-- Botones -->
-      <div class="mt-3">
-        <button type="submit" class="btn btn-primary">{{ id === 'new' ? 'Crear Devolución' : 'Guardar Cambios' }}</button>
-        <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">Cancelar</button>
+      <div class="d-flex justify-content-end pt-3 border-top">
+        <button type="button" class="btn btn-secondary me-2" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">
+          {{ id === 'new' ? 'Crear Devolución' : 'Guardar Cambios' }}
+        </button>
       </div>
 
     </form>
