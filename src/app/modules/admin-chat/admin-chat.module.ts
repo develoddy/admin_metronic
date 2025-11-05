@@ -11,6 +11,7 @@ import { FirstLetterPipe } from './firstLetter.pipe';
 import { UsersModule } from '../users/users.module';
 import { ProductModule } from '../product/product.module';
 import { AdminSalesModule } from '../admin-sales/admin-sales.module';
+import { ReturnsModule } from '../returns/returns.module';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { AdminSalesModule } from '../admin-sales/admin-sales.module';
     UsersModule,
     ProductModule,
     AdminSalesModule,
+    ReturnsModule
   ],
   providers: []
 })

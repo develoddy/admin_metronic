@@ -68,6 +68,17 @@
                     </button>
                 </li>
 
+                <li class="nav-item">
+                    <button
+                    type="button"
+                    class="nav-link"
+                    [class.active]="isActive('returns')"
+                    (click)="setActiveTab('returns')"
+                    >
+                    Devoluciones
+                    </button>
+                </li>
+
             </ul>
             <!--end::Tabs Section-->
         </div>
@@ -124,6 +135,11 @@
             <!-- VENTAS TAB-->
             <div *ngIf="isActive('sales')" class="tab-pane show active">
                 <app-sales-list></app-sales-list>
+            </div>
+
+            <!-- DEVOLUCIONES TAB-->
+            <div *ngIf="isActive('returns')" class="tab-pane show active">
+                <app-returns-list></app-returns-list>
             </div>
 
 

@@ -29,6 +29,6 @@ import { ReturnsDetailComponent } from './components/returns-detail/returns-deta
     NgbModalModule,
     NgbDatepickerModule,
   ],
-  exports: [ReturnsComponent]
+  exports: [ReturnsListComponent]
 })
 export class ReturnsModule { }

@@ -7,6 +7,8 @@ import { DeleteNewProductComponent } from '../delete-new-product/delete-new-prod
 import { NoticyAlertComponent } from 'src/app/componets/notifications/noticy-alert/noticy-alert.component';
 import { Toaster } from 'ngx-toast-notifications';
 import { CategoriesService } from '../../categories/_services/categories.service';
+import { debounceTime } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-list-products',
@@ -26,8 +28,9 @@ export class ListProductsComponent implements OnInit {
   limit: number = 20;          // Productos por página
   currentPage: number = 1;
   totalPages: number = 1;
+  total: number = 0;
 
-  // logo_position: string = '';
+  private search$ = new Subject<string>();
 
   constructor(
     public _productService: ProductService,
@@ -39,16 +42,34 @@ export class ListProductsComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading$ = this._productService.isLoading$;
-    this.allProducts();
+    //this.allProducts();
     this.allCategories();
+
+    // 🔍 Debounce para búsqueda fluida
+    this.search$.pipe(debounceTime(500)).subscribe(term => {
+      this.search = term;
+      this.allProducts();
+    });
+
+    // Carga inicial
+    this.allProducts();
+  }
+
+  onSearchChange(value: string) {
+    this.search$.next(value);
+  }
+
+  onCategoryChange(event: any) {
+    this.allProducts(); // recarga productos filtrando por la categoría seleccionada
   }
 
   allProducts() {
     this._productService.allProducts(this.search, this.categorie).subscribe((resp:any)=> {
+      console.log('Respuesta allProducts:', resp);
       this.products = resp.products || [];
+      this.total = resp.total || 0;
       // Resetea paginación al buscar
       this.currentPage = 1;
-
       this.totalPages = Math.ceil(this.products.length / this.limit);
       this.updatePagedProducts();
     });
