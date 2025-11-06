@@ -9,19 +9,17 @@ import { ReturnsRoutingModule } from './returns-routing.module';
 import { ReturnsComponent } from './returns.component';
 import { ReturnsListComponent } from './components/returns-list/returns-list.component';
 import { ReturnsDetailComponent } from './components/returns-detail/returns-detail.component';
-import { ReturnsSharedModule } from './returns-shared.module';
+import { RouterModule } from '@angular/router';
 
 
 @NgModule({
   declarations: [
-    ReturnsComponent,
-    ReturnsDetailComponent
+    ReturnsListComponent,
   ],
   imports: [
     CommonModule,
-    ReturnsRoutingModule,
-    ReturnsSharedModule,
     HttpClientModule,
+    RouterModule,
     FormsModule,
     NgbModule,
     ReactiveFormsModule,
@@ -29,6 +27,7 @@ import { ReturnsSharedModule } from './returns-shared.module';
     CRUDTableModule,
     NgbModalModule,
     NgbDatepickerModule,
-  ]
+  ],
+  exports: [ReturnsListComponent]
 })
-export class ReturnsModule { }
+export class ReturnsSharedModule { }

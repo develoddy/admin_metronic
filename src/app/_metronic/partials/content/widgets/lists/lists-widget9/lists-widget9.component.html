@@ -1,4 +1,78 @@
+
+
+
 <div class="card card-custom card-stretch gutter-b">
+  <!-- Header -->
+  <div class="card-header align-items-center border-0 mt-4">
+    <h3 class="card-title align-items-start flex-column">
+      <span class="font-weight-bolder text-dark">Mi Actividad</span>
+      <span class="text-muted mt-3 font-weight-bold font-size-sm"
+        >890,344 Sales</span
+      >
+    </h3>
+    <div class="card-toolbar">
+      <div
+        ngbDropdown
+        placement="bottom-right"
+        class="dropdown dropdown-inline"
+        title="Quick actions"
+      >
+        <a
+          ngbDropdownToggle
+          class="btn btn-clean btn-hover-light-primary btn-sm btn-icon"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          <i class="ki ki-bold-more-hor"></i>
+        </a>
+        <div
+          ngbDropdownMenu
+          class="dropdown-menu dropdown-menu-md dropdown-menu-right"
+        >
+          <app-dropdown-menu1></app-dropdown-menu1>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Body -->
+  <div class="card-body pt-4">
+   <div class="timeline timeline-6 mt-3">
+    <div class="timeline-item align-items-start" *ngFor="let act of activities">
+      <!-- Label -->
+      <div class="timeline-label font-weight-bolder text-dark-75 font-size-lg">
+        {{ act.time }}
+      </div>
+      <!-- Badge -->
+      <div class="timeline-badge">
+        <i class="fa fa-genderless icon-xl" [ngClass]="{
+          'text-warning': act.type==='note',
+          'text-success': act.type==='user',
+          'text-danger': act.type==='sale',
+          'text-primary': act.type==='return',
+          'text-info': act.type==='coupon'
+        }"></i>
+      </div>
+      <!-- Content -->
+      <div class="timeline-content font-weight-mormal font-size-lg text-muted pl-3">
+        <ng-container *ngIf="act.link; else plainText">
+          <a href="#" class="text-primary" (click)="goTo(act.link, $event)">
+            {{ act.text }}
+          </a>
+        </ng-container>
+        <ng-template #plainText>{{ act.text }}</ng-template>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- Version Estatica -->
+<div class="card card-custom card-stretch gutter-b d-none">
   <!-- Header -->
   <div class="card-header align-items-center border-0 mt-4">
     <h3 class="card-title align-items-start flex-column">
@@ -246,3 +320,4 @@
     </div>
   </div>
 </div>
+

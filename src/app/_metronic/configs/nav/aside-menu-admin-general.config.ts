@@ -11,6 +11,24 @@ export const AsideMenuAdminGeneral = {
         bullet: 'dot',
       },
 
+      /** --------- SECCION SOPORTE CHAT ---------*/
+      { section: 'Soporte' },
+      {
+        title: 'Chat',
+        root: true,
+        name: "chat",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Communication/Chat4.svg',
+        page: '/chat',
+        submenu: [
+          {
+            title: 'Lista chat',
+            page: '/support'
+          }
+        ]
+      },
+
       /** --------- SECCION PROVEEDORES ---------*/
       { section : 'Proveedores'},
       {
@@ -63,9 +81,6 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
-
-      /** --------- SECCION INVITADOS ---------*/
-      { section: 'Invitados' },
       {
         title: 'Invitados',
         root: true,
@@ -81,6 +96,7 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
+
 
       /** --------- SECCION SHOPPING ---------*/
       { section: 'Shopping' },
@@ -199,26 +215,6 @@ export const AsideMenuAdminGeneral = {
           {
             title: 'Lista Devoluciones',
             page: '/returns/list'
-          }
-        ]
-      },
-
-
-
-      /** --------- SECCION SOPORTE CHAT ---------*/
-      { section: 'Soporte' },
-      {
-        title: 'Chat',
-        root: true,
-        name: "chat",
-        bullet: 'dot',
-        icon: 'flaticon2-user-outline-symbol',
-        svg: './assets/media/svg/icons/Communication/Chat4.svg',
-        page: '/chat',
-        submenu: [
-          {
-            title: 'Lista chat',
-            page: '/support'
           }
         ]
       },

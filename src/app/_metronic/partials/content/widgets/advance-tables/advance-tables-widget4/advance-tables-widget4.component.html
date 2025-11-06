@@ -1,5 +1,5 @@
 <!--begin::Advance Table Widget 4-->
-<div class="card card-custom card-stretch gutter-b">
+<div class="card card-custom card-stretch gutter-b d-none">
   <!--begin::Header-->
   <div class="card-header border-0 py-5">
     <h3 class="card-title align-items-start flex-column">
@@ -333,6 +333,34 @@
         </table>
       </div>
       <!--end::Table-->
+    </div>
+  </div>
+  <!--end::Body-->
+</div>
+<!--end::Advance Table Widget 4-->
+
+<!-- List Users Dinamic -->
+<div class="card card-custom card-stretch gutter-b">
+  <!--begin::Header-->
+  <div class="card-header border-0 py-5">
+    <h3 class="card-title align-items-start flex-column">
+      <span class="card-label font-weight-bolder text-dark">Usuarios</span>
+      <span class="text-muted mt-3 font-weight-bold font-size-sm">
+        Últimos usuarios registrados
+      </span>
+    </h3>
+    <div class="card-toolbar">
+      <a class="btn btn-info font-weight-bolder font-size-sm mr-3 cursor-pointer">Nuevo Reporte</a>
+      <a class="btn btn-danger font-weight-bolder font-size-sm cursor-pointer">Crear</a>
+    </div>
+  </div>
+  <!--end::Header-->
+
+  <!--begin::Body-->
+  <div class="card-body pt-0 pb-3">
+    <div class="tab-content">
+      <!-- Aquí incrustamos tu componente de lista de usuarios -->
+      <app-users-list></app-users-list>
     </div>
   </div>
   <!--end::Body-->

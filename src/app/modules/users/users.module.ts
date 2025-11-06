@@ -14,13 +14,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule, NgbModalModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { InlineSVGModule } from 'ng-inline-svg';
 import { CRUDTableModule } from 'src/app/_metronic/shared/crud-table';
+import { UsersSharedModule } from './users-shared.module';
 
 
 @NgModule({
-  declarations: [UsersComponent, UsersListComponent, AddUsersComponent, EditUsersComponent, EditColaboradorComponent, DeleteUserComponent, ChangeStateUserComponent],
+  declarations: [UsersComponent, AddUsersComponent, EditUsersComponent, EditColaboradorComponent, DeleteUserComponent, ChangeStateUserComponent],
   imports: [
     CommonModule,
     UsersRoutingModule,
+    UsersSharedModule,
     HttpClientModule,
     FormsModule,
     NgbModule,
@@ -30,6 +32,5 @@ import { CRUDTableModule } from 'src/app/_metronic/shared/crud-table';
     NgbModalModule,
     NgbDatepickerModule,
   ],
-  exports: [UsersListComponent]
 })
 export class UsersModule { }

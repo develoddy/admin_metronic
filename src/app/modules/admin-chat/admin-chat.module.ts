@@ -2,16 +2,17 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminChatRoutingModule } from './admin-chat-routing.module';
-//import { AdminChatComponent } from './admin-chat.component';
 import { ConversationListComponent } from './components/conversation-list/conversation-list.component';
 import { ConversationDetailComponent } from './components/conversation-detail/conversation-detail.component';
 import { HttpClientModule } from '@angular/common/http';
 import { AdminChatComponent } from './admin-chat.component';
 import { FirstLetterPipe } from './firstLetter.pipe';
-import { UsersModule } from '../users/users.module';
-import { ProductModule } from '../product/product.module';
-import { AdminSalesModule } from '../admin-sales/admin-sales.module';
-import { ReturnsModule } from '../returns/returns.module';
+
+// Modules compartidos
+import { UsersSharedModule } from '../users/users-shared.module';
+import { AdminSalesSharedModule } from '../admin-sales/admin-sales-shared.module';
+import { ProductSharedModule } from '../product/product-shared.module';
+import { ReturnsSharedModule } from '../returns/returns-shared.module';
 
 @NgModule({
   declarations: [
@@ -25,12 +26,11 @@ import { ReturnsModule } from '../returns/returns.module';
     FormsModule,
     HttpClientModule,
     AdminChatRoutingModule,
-
-    // Otros modulos fuera
-    UsersModule,
-    ProductModule,
-    AdminSalesModule,
-    ReturnsModule
+    //Modules compartidos
+    UsersSharedModule,
+    ProductSharedModule,
+    AdminSalesSharedModule,
+    ReturnsSharedModule
   ],
   providers: []
 })

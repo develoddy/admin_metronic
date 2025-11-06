@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { AdminSalesService } from '../services/admin-sales.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -11,6 +11,8 @@ import { debounceTime } from 'rxjs/operators';
   styleUrls: ['./sales-list.component.scss']
 })
 export class SalesListComponent implements OnInit {
+
+  @Input() timeFilter: 'All' | 'Day' | 'Week' | 'Month' = 'All';
   sales: any[] = [];
   currentPage = 1;
   limit = 5;
@@ -38,6 +40,14 @@ export class SalesListComponent implements OnInit {
     this.load(1);
   }
 
+  // Detecta cambios en el @Input timeFilter
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['timeFilter'] && !changes['timeFilter'].firstChange) {
+      console.log('timeFilter changed:', this.timeFilter);
+      this.load(1); // recarga la lista cuando cambia la tab
+    }
+  }
+
   getQueryParams() {
     this.route.queryParams.subscribe(params => {
       const searchValue = params['search']?.trim();
@@ -52,7 +62,7 @@ export class SalesListComponent implements OnInit {
   }
 
   load(page: number = this.currentPage) {
-    const params: any = { page, limit: this.limit, q: this.q };
+    const params: any = { page, limit: this.limit, q: this.q, timeFilter: this.timeFilter };
     this.svc.getSales(params).subscribe(resp => {
         console.log('getSales response:', resp);
       if (resp && resp.success) {

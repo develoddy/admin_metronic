@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LayoutService } from '../../../../../core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-mixed-widget1',
@@ -13,7 +14,7 @@ export class MixedWidget1Component implements OnInit {
   colorsGrayGray300 = '';
   colorsThemeBaseDanger = '';
 
-  constructor(private layout: LayoutService) {
+  constructor(private layout: LayoutService, private router: Router) {
     this.fontFamily = this.layout.getProp('js.fontFamily');
     this.colorsGrayGray500 = this.layout.getProp('js.colors.gray.gray500');
     this.colorsGrayGray200 = this.layout.getProp('js.colors.gray.gray200');
@@ -26,6 +27,22 @@ export class MixedWidget1Component implements OnInit {
   ngOnInit(): void {
     this.chartOptions = this.getChartOptions();
   }
+
+  goToNewUsers(event: Event) {
+    event.preventDefault();
+    this.router.navigate(['/users/list']);
+  }
+
+  goToSales(event: Event) {
+    event.preventDefault(); // evita que el <a> recargue la página
+    this.router.navigate(['/sales/list'], { queryParams: { timeFilter: 'All' } }); // redirige a tu módulo de sales
+  }
+
+  goToReturns(event: Event) {
+    event.preventDefault();
+    this.router.navigate(['/returns/list']);
+  }
+
 
   getChartOptions() {
     const strokeColor = '#D13647';

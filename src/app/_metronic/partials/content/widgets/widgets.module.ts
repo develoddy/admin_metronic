@@ -46,6 +46,11 @@ import { DropdownMenusModule } from '../dropdown-menus/dropdown-menus.module';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { Widget3DropdownComponent } from './lists/lists-widget3/widget3-dropdown/widget3-dropdown.component';
 import { Widget4DropdownComponent } from './lists/lists-widget4/widget4-dropdown/widget4-dropdown.component';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { UsersSharedModule } from 'src/app/modules/users/users-shared.module';
+import { AdminSalesSharedModule } from 'src/app/modules/admin-sales/admin-sales-shared.module';
+
 
 
 @NgModule({
@@ -91,7 +96,8 @@ import { Widget4DropdownComponent } from './lists/lists-widget4/widget4-dropdown
     TilesWidget14Component,
     // Other
     Widget4DropdownComponent,
-    Widget3DropdownComponent
+    Widget3DropdownComponent,
+
   ],
   imports: [
     CommonModule,
@@ -99,6 +105,12 @@ import { Widget4DropdownComponent } from './lists/lists-widget4/widget4-dropdown
     InlineSVGModule,
     NgApexchartsModule,
     NgbDropdownModule,
+    FormsModule,
+    HttpClientModule,
+
+    //
+    AdminSalesSharedModule,
+    UsersSharedModule,
   ],
   exports: [
     // Advanced Tables

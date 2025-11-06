@@ -1,4 +1,4 @@
-<div class="card card-custom card-stretch gutter-b">
+<div class="card card-custom card-stretch gutter-b d-none">
   <!-- Header -->
   <div class="card-header border-0 pt-5">
     <h3 class="card-title align-items-start flex-column">
@@ -420,3 +420,36 @@
     <!--end::Table-->
   </div>
 </div>
+
+
+<!-- Version Dinamica -->
+<div class="card card-custom card-stretch gutter-b">
+  <!-- Header -->
+  <div class="card-header border-0 pt-5">
+    <h3 class="card-title align-items-start flex-column">
+      <span class="card-label font-weight-bolder text-dark">Últimas Ventas</span>
+      <span class="text-muted mt-3 font-weight-bold font-size-sm">
+        Mostrando las ventas más recientes
+      </span>
+    </h3>
+    <div class="card-toolbar">
+      <ul class="nav nav-pills nav-pills-sm nav-dark-75">
+        <li class="nav-item" (click)="setCurrentTab('Month')" [style.cursor]="'pointer'">
+          <a class="nav-link py-2 px-4" [class.active]="currentTab === 'Month'">Mes</a>
+        </li>
+        <li class="nav-item" (click)="setCurrentTab('Week')" [style.cursor]="'pointer'">
+          <a class="nav-link py-2 px-4" [class.active]="currentTab === 'Week'">Semana</a>
+        </li>
+        <li class="nav-item" (click)="setCurrentTab('Day')" [style.cursor]="'pointer'">
+          <a class="nav-link py-2 px-4" [class.active]="currentTab === 'Day'">Hoy</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- Body -->
+  <div class="card-body pt-3 pb-0">
+    <!-- Aquí incrustamos tu componente -->
+    <app-sales-list [timeFilter]="currentTab"></app-sales-list>
+  </div>
+</div>
+

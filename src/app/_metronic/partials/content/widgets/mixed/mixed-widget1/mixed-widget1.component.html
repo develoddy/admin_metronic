@@ -67,8 +67,8 @@
             [inlineSVG]="'./assets/media/svg/icons/Communication/Add-user.svg'"
             class="svg-icon svg-icon-3x svg-icon-primary d-block my-2"
           ></span>
-          <a href="#" class="text-primary font-weight-bold font-size-h6 mt-2">
-            New Users
+          <a href="#" onclick="return false;" (click)="goToNewUsers($event)" class="text-primary font-weight-bold font-size-h6 mt-2">
+            Usuarios registrados
           </a>
         </div>
       </div>
@@ -80,8 +80,8 @@
             [inlineSVG]="'./assets/media/svg/icons/Design/Layers.svg'"
             class="svg-icon svg-icon-3x svg-icon-danger d-block my-2"
           ></span>
-          <a href="#" class="text-danger font-weight-bold font-size-h6 mt-2">
-            Item Orders
+          <a href="#" onclick="return false;" (click)="goToSales($event)" class="text-danger font-weight-bold font-size-h6 mt-2">
+            Mis Ventas
           </a>
         </div>
         <div class="col bg-light-success px-6 py-8 rounded-xl">
@@ -91,8 +91,8 @@
             "
             class="svg-icon svg-icon-3x svg-icon-success d-block my-2"
           ></span>
-          <a href="#" class="text-success font-weight-bold font-size-h6 mt-2">
-            Bug Reports
+          <a href="#" onclick="return false;" (click)="goToReturns($event)" class="text-success font-weight-bold font-size-h6 mt-2">
+            Devoluciones
           </a>
         </div>
       </div>

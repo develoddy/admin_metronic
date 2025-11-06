@@ -12,10 +12,6 @@ const routes: Routes = [
         path: 'list',
         component: UsersListComponent,
       },
-      // {
-      //   path: 'mi-perfil',
-      //   component: UsersProfileCComponent
-      // },
       { path: '', redirectTo: 'list', pathMatch: 'full' },
       { path: '**', redirectTo: 'list', pathMatch: 'full' },
     ],

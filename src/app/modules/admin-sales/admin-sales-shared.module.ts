@@ -9,19 +9,19 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InlineSVGModule } from 'ng-inline-svg';
 import { CRUDTableModule } from 'src/app/_metronic/shared/crud-table';
 import { AdminSalesRoutingModule } from './admin-sales-routing.module';
-import { AdminSalesSharedModule } from './admin-sales-shared.module';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
-  declarations: [AdminOrderFormComponent],
+  declarations: [SalesListComponent, SaleDetailComponent],
   imports: [
     CommonModule,
-    AdminSalesRoutingModule,
-    AdminSalesSharedModule,
+    RouterModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     InlineSVGModule,
     CRUDTableModule
   ],
+  exports: [SalesListComponent, SaleDetailComponent]
 })
-export class AdminSalesModule { }
+export class AdminSalesSharedModule { }
