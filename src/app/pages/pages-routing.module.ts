@@ -124,6 +124,34 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'inbox',
+        loadChildren: () =>
+          import('../modules/inbox/inbox.module').then(
+            (m) => m.InboxModule
+          ),
+      },
+      {
+        path: 'reports',
+        loadChildren: () =>
+          import('../modules/reports/reports.module').then(
+            (m) => m.ReportsModule
+          ),
+      },
+      {
+        path: 'documents-manager',
+        loadChildren: () =>
+          import('../modules/documents-manager/documents-manager.module').then(
+            (m) => m.DocumentsManagerModule
+          ),
+      },
+      {
+        path: 'shipping',
+        loadChildren: () =>
+          import('../modules/shipping/shipping.module').then(
+            (m) => m.ShippingModule
+          ),
+      },
+      {
         path: 'discounts',
         loadChildren: () =>
           import('../modules/discount/discount.module').then(

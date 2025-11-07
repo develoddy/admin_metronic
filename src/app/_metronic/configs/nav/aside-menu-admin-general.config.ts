@@ -1,7 +1,8 @@
 export const AsideMenuAdminGeneral = {
     items: [
+      { section: 'Dashboard' },
       {
-        title: 'Dashboard',
+        title: 'eCommerce',
         root: true,
         name: "dashboard",
         icon: 'flaticon2-architecture-and-city',
@@ -9,24 +10,6 @@ export const AsideMenuAdminGeneral = {
         page: '/dashboard',
         translate: 'MENU.DASHBOARD',
         bullet: 'dot',
-      },
-
-      /** --------- SECCION SOPORTE CHAT ---------*/
-      { section: 'Soporte' },
-      {
-        title: 'Chat',
-        root: true,
-        name: "chat",
-        bullet: 'dot',
-        icon: 'flaticon2-user-outline-symbol',
-        svg: './assets/media/svg/icons/Communication/Chat4.svg',
-        page: '/chat',
-        submenu: [
-          {
-            title: 'Lista chat',
-            page: '/support'
-          }
-        ]
       },
 
       /** --------- SECCION PROVEEDORES ---------*/
@@ -46,26 +29,9 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
-      // {
-      //   title: 'Printify',
-      //   root: true,
-      //   name: "printify",
-      //   bullet: 'dot',
-      //   icon: 'flaticon2-user-outline-symbol',
-      //   svg: './assets/media/svg/icons/Layout/Layout-vertical.svg',
-      //   page: '/printify',
-      //   submenu: [
-      //     {
-      //       title: 'Sincronizar',
-      //       page: '/printify/list'
-      //     }
-      //   ]
-      // },
-
-      
 
       /** --------- SECCION USUARIOS ---------*/
-      { section: 'Usuarios' },
+      { section: 'User Management' },
       {
         title: 'Usuarios',
         root: true,
@@ -98,10 +64,10 @@ export const AsideMenuAdminGeneral = {
       },
 
 
-      /** --------- SECCION SHOPPING ---------*/
-      { section: 'Shopping' },
+      /** --------- SECCION E-ECOMMERCE ---------*/
+      { section: 'e-Commerce' },
       {
-        title: 'Categorias',
+        title: 'Categorías',
         root: true,
         name: "categories",
         bullet: 'dot',
@@ -110,14 +76,13 @@ export const AsideMenuAdminGeneral = {
         page: '/categories',
         submenu: [
           {
-            title: 'Lista categorias',
+            title: 'Listado de categorías',
             page: '/categories/list'
           }
         ]
       },
-
       {
-        title: 'Products',
+        title: 'Productos',
         root: true,
         name: "products",
         bullet: 'dot',
@@ -126,17 +91,17 @@ export const AsideMenuAdminGeneral = {
         page: '/products',
         submenu: [
           {
-            title: 'Crear productos',
+            title: 'Crear producto',
             page: '/products/register-product'
           },
           {
-            title: 'Lista productos',
+            title: 'Listado de productos',
             page: '/products/list-all-products'
           },
         ]
       },
       {
-        title: 'Sliders',
+        title: 'Banners',
         root: true,
         name: "sliders",
         bullet: 'dot',
@@ -145,7 +110,7 @@ export const AsideMenuAdminGeneral = {
         page: '/sliders',
         submenu: [
           {
-            title: 'Lista Sliders',
+            title: 'Listado de banners',
             page: '/sliders/list-sliders'
           }
         ]
@@ -160,11 +125,11 @@ export const AsideMenuAdminGeneral = {
         page: '/cupones',
         submenu: [
           {
-            title: 'Registrar Cupon',
+            title: 'Registrar cupon',
             page: '/cupones/register-cupon'
           },
           {
-            title: 'Lista Cupones',
+            title: 'Listado de cupones',
             page: '/cupones/list-cupones'
           }
         ]
@@ -179,11 +144,11 @@ export const AsideMenuAdminGeneral = {
         page: '/discount',
         submenu: [
           {
-            title: 'Registrar Descuento',
+            title: 'Registrar descuento',
             page: '/discounts/register-discount'
           },
           {
-            title: 'Lista Discount',
+            title: 'Listado de descuentos',
             page: '/discounts/list-discounts'
           }
         ]
@@ -198,7 +163,7 @@ export const AsideMenuAdminGeneral = {
         page: '/sales',
         submenu: [
           {
-            title: 'Lista Ventas',
+            title: 'Listado de ventas',
             page: '/sales/list'
           }
         ]
@@ -213,8 +178,124 @@ export const AsideMenuAdminGeneral = {
         page: '/returns',
         submenu: [
           {
-            title: 'Lista Devoluciones',
+            title: 'Listado de devoluciones',
             page: '/returns/list'
+          }
+        ]
+      },
+      {
+        title: 'Shipping',
+        root: true,
+        name: "shipping",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/General/Update.svg',
+        page: '/shipping',
+        submenu: [
+          {
+            title: 'Listado de envíos',
+            page: '/shipping/list'
+          }
+        ]
+      },
+      {
+        title: 'Reportes',
+        root: true,
+        name: "reports",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Files/Group-folders.svg',
+        page: '/reports',
+        submenu: [
+          {
+            title: 'Listado de ventas',
+            page: '/reports/sales'
+          },
+          {
+            title: 'Listado de devoluciones',
+            page: '/reports/returns'
+          },
+          {
+            title: 'Listado de envíos',
+            page: '/reports/shipping'
+          },
+          {
+            title: 'Listado de pedidos por cliente',
+            page: '/reports/customer-orders'
+          }
+        ]
+      },
+
+      /** --------- SECCION GESTOR DE DOCUMENTOS ---------*/
+      { section: 'Gestor de Documentos' },
+      {
+        title: 'Recibo',
+        root: true,
+        name: "receipts",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Files/File-done.svg',
+        page: '/receipts',
+        submenu: [
+          {
+            title: 'Lista Receipts',
+            page: '/documents-manager/receipts/list'
+          },
+          {
+            title: 'Crear Receipts',
+            page: '/documents-manager/receipts/create'
+          },
+        ]
+      },
+      {
+        title: 'Factura',
+        root: true,
+        name: "invoices",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Files/File.svg',
+        page: '/invoices',
+        submenu: [
+          {
+            title: 'Lista Invoices',
+            page: '/documents-manager/invoices/list'
+          },
+          {
+            title: 'Crear Invoices',
+            page: '/documents-manager/invoices/create'
+          }
+        ]
+      },
+
+      /** --------- SECCION SOPORTE CHAT ---------*/
+      { section: 'Centro de soporte' },
+      {
+        title: 'Chat',
+        root: true,
+        name: "chat",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Communication/Chat6.svg',
+        page: '/chat',
+        submenu: [
+          {
+            title: 'Lista chat',
+            page: '/support'
+          }
+        ]
+      },
+      {
+        title: 'Bandeja de entrada',
+        root: true,
+        name: "inbox",
+        bullet: 'dot',
+        icon: 'flaticon2-user-outline-symbol',
+        svg: './assets/media/svg/icons/Communication/Mail.svg',
+        page: '/inbox',
+        submenu: [
+          {
+            title: 'Mensajes',
+            page: '/inbox/messages'
           }
         ]
       },

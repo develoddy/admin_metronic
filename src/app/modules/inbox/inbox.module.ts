@@ -1,24 +1,29 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdminOrderFormComponent } from './admin-order-form/admin-order-form.component';
+
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InlineSVGModule } from 'ng-inline-svg';
 import { CRUDTableModule } from 'src/app/_metronic/shared/crud-table';
-import { AdminSalesRoutingModule } from './admin-sales-routing.module';
-import { AdminSalesSharedModule } from './admin-sales-shared.module';
+
+import { InboxRoutingModule } from './inbox-routing.module';
+import { InboxComponent } from './inbox.component';
+import { InboxSharedModule } from './inbox-shared.module';
+
 
 @NgModule({
-  declarations: [AdminOrderFormComponent],
+  declarations: [
+    InboxComponent,
+  ],
   imports: [
     CommonModule,
-    AdminSalesRoutingModule,
-    AdminSalesSharedModule,
+    InboxRoutingModule,
+    InboxSharedModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     InlineSVGModule,
     CRUDTableModule
-  ],
+  ]
 })
-export class AdminSalesModule { }
+export class InboxModule { }
