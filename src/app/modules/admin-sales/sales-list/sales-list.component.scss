@@ -18,9 +18,9 @@
   overflow: visible;
 }
 
-.card:hover {
-  box-shadow: var(--shadow);
-}
+// .card:hover {
+//   box-shadow: var(--shadow);
+// }
 
 .card .card-header {
   display: flex;
@@ -61,10 +61,10 @@
   transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
-.table tbody tr:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(10,10,10,0.04);
-}
+// .table tbody tr:hover {
+//   transform: translateY(-2px);
+//   box-shadow: 0 6px 16px rgba(10,10,10,0.04);
+// }
 
 .table tbody td {
   vertical-align: middle;

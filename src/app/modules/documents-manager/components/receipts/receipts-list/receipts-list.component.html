@@ -1,1 +1,90 @@
-<p>receipts-list works!</p>
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Recibos de Pago</h3>
+
+    <div class="card-toolbar">
+      <div class="input-group input-group-sm">
+        <input 
+          class="form-control form-control-sm" 
+          placeholder="Buscar por cliente, método o estado..." 
+          [(ngModel)]="q" 
+          (ngModelChange)="onSearchChange($event)" />
+
+        <button class="btn btn-sm btn-dark me-2" (click)="load(1)">Buscar</button>
+        <button class="btn btn-sm btn-info" (click)="newReceipt()">Crear</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-head-custom table-vertical-center" id="receipts_table">
+        <ng-container *ngIf="receipts?.length > 0; else noResults">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Venta</th>
+              <th>Método de Pago</th>
+              <th>Importe (€)</th>
+              <th>Fecha de Pago</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of receipts">
+              <td>{{ r.id }}</td>
+
+              <!-- Cliente o invitado -->
+              <td>
+                <div *ngIf="r.user; else guestInfo">
+                  <span>{{ r.user.name || 'Cliente' }}</span><br>
+                  <small class="text-muted">{{ r.user.email }}</small>
+                </div>
+                <ng-template #guestInfo>
+                  <span class="badge bg-secondary">Invitado</span>
+                  <div *ngIf="r.guestId">ID: {{ r.guestId }}</div>
+                </ng-template>
+              </td>
+
+              <td>
+                <span *ngIf="r.saleId; else noSale">#{{ r.saleId }}</span>
+                <ng-template #noSale>—</ng-template>
+              </td>
+
+              <td>{{ r.paymentMethod | titlecase }}</td>
+              <td>{{ r.amount | number:'1.2-2' }}</td>
+              <td>{{ r.paymentDate | date:'shortDate' }}</td>
+
+              <td>
+                <span 
+                  class="badge" 
+                  [ngClass]="{
+                    'bg-success': r.status === 'completado',
+                    'bg-warning': r.status === 'pendiente',
+                    'bg-danger': r.status === 'fallido'
+                  }">
+                  {{ r.status | titlecase }}
+                </span>
+              </td>
+
+              <td>
+                <button class="btn btn-success btn-sm" (click)="openDetail(r)">Ver</button>
+              </td>
+            </tr>
+          </tbody>
+        </ng-container>
+
+        <!-- Si no hay resultados -->
+        <ng-template #noResults>
+          <tr>
+            <td colspan="8" class="text-center text-muted fw-bold py-4">
+              No se encontraron recibos con los criterios de búsqueda.
+            </td>
+          </tr>
+        </ng-template>
+      </table>
+    </div>
+  </div>
+</div>

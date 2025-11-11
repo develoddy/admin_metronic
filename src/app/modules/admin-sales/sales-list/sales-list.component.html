@@ -89,14 +89,13 @@
                             <td>{{(s.user && s.user.email) || (s.guest && s.guest.email) || "—"}}</td>
                             <td>€ {{ s.total }}</td>
                             <td>
-                                <span class="badge"
-                                            [ngClass]="{
+                                <span class="badge" [ngClass]="{
                                                 'bg-secondary': (s.printfulStatus || '') === 'draft',
                                                 'bg-success': (s.printfulStatus || '') === 'paid',
                                                 'bg-primary': (s.printfulStatus || '') === 'fulfilled',
                                                 'bg-danger': (s.printfulStatus || '') === 'cancelled'
                                             }">
-                                        {{ s.printfulStatus || '—' }}
+                                    {{ s.printfulStatus || '—' }}
                                 </span>
                             </td>
                             <td>{{ s.createdAt | date : "short" }}</td>
@@ -111,14 +110,36 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-end"><button class="btn btn-sm btn-dark" (click)="openSale(s)">Ver</button></td>
+                            <!-- <td class="text-end"><button class="btn btn-sm btn-dark" (click)="viewSale(s)">Ver</button></td> -->
+
+                            <td class="text-end">
+                                <div class="dropdown d-inline-block" style="position: relative;">
+                                    <button 
+                                    class="btn btn-sm btn-light dropdown-toggle"
+                                    (click)="toggleActions($event, s.id)">
+                                    Actions
+                                    </button>
+
+                                    <!-- Dropdown -->
+                                    <div 
+                                    *ngIf="openDropdownId === s.id"
+                                    class="dropdown-menu show shadow bg-white border rounded py-2"
+                                    style="position: absolute; left: 50%; transform: translateX(-76%); top: 100%; min-width: 160px; z-index: 1050;"
+                                    (click)="$event.stopPropagation()">
+                                    
+                                    <button class="dropdown-item" (click)="viewSale(s); closeDropdown()">👁️ Ver</button>
+                                    <button class="dropdown-item" (click)="downloadReceipt(s); closeDropdown()">🧾 Recibo</button>
+                                    </div>
+                                </div>
+                            </td>
+
                         </tr>
                     </tbody>
                 </ng-container>
                 <ng-template #noResults>
                     <tr>
                         <td colspan="4" class="text-center text-muted fw-bold">
-                          No se encontró ningúna venta con los criterios de búsqueda.
+                            No se encontró ningúna venta con los criterios de búsqueda.
                         </td>
                     </tr>
                 </ng-template>

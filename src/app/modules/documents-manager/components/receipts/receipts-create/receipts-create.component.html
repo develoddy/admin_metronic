@@ -1,3 +1,122 @@
+<div class="app-main flex-column flex-row-fluid d-none" id="kt_app_main">
+  <div class="d-flex flex-column flex-column-fluid">
+    <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
+      <div class="app-container container-xxl d-flex flex-stack">
+        <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+          <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 my-0">
+            Crear Recibo
+          </h1>
+        </div>
+      </div>
+    </div>
+
+    <div id="kt_app_content" class="app-content flex-column-fluid">
+      <div class="app-container container-xxl">
+        <div class="card">
+          <div class="card-body p-10">
+            <!-- Formulario -->
+            <form (ngSubmit)="submitReceipt()" #receiptForm="ngForm">
+              
+              <div class="row mb-5">
+                <div class="col-lg-6">
+                  <label class="form-label fw-bold text-gray-700">Usuario (ID)</label>
+                  <input
+                    type="number"
+                    name="userId"
+                    [(ngModel)]="form.userId"
+                    class="form-control form-control-solid"
+                    placeholder="ID del usuario"
+                  />
+                </div>
+
+                <div class="col-lg-6">
+                  <label class="form-label fw-bold text-gray-700">Venta (ID)</label>
+                  <input
+                    type="number"
+                    name="saleId"
+                    [(ngModel)]="form.saleId"
+                    class="form-control form-control-solid"
+                    placeholder="ID de la venta"
+                  />
+                </div>
+              </div>
+
+              <div class="row mb-5">
+                <div class="col-lg-6">
+                  <label class="form-label fw-bold text-gray-700">Importe</label>
+                  <input
+                    type="number"
+                    name="amount"
+                    [(ngModel)]="form.amount"
+                    class="form-control form-control-solid"
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+
+                <div class="col-lg-6">
+                  <label class="form-label fw-bold text-gray-700">Método de pago</label>
+                  <select
+                    name="paymentMethod"
+                    [(ngModel)]="form.paymentMethod"
+                    class="form-select form-select-solid"
+                  >
+                    <option value="efectivo">Efectivo</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="transferencia">Transferencia</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-5">
+                <label class="form-label fw-bold text-gray-700">Fecha de pago</label>
+                <input
+                  type="date"
+                  name="paymentDate"
+                  [(ngModel)]="form.paymentDate"
+                  class="form-control form-control-solid"
+                />
+              </div>
+
+              <div class="mb-5">
+                <label class="form-label fw-bold text-gray-700">Estado</label>
+                <select
+                  name="status"
+                  [(ngModel)]="form.status"
+                  class="form-select form-select-solid"
+                >
+                  <option value="pendiente">Pendiente</option>
+                  <option value="pagado">Pagado</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </div>
+
+              <div class="mb-5">
+                <label class="form-label fw-bold text-gray-700">Notas</label>
+                <textarea
+                  name="notes"
+                  [(ngModel)]="form.notes"
+                  class="form-control form-control-solid"
+                  rows="3"
+                  placeholder="Notas adicionales"
+                ></textarea>
+              </div>
+
+              <div class="text-end">
+                <button type="submit" class="btn btn-primary" [disabled]="receiptForm.invalid">
+                  <i class="ki-duotone ki-triangle fs-3 me-1"></i> Crear Recibo
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <div class="app-main flex-column flex-row-fluid " id="kt_app_main">
     <!--begin::Content wrapper-->
     <div class="d-flex flex-column flex-column-fluid">
@@ -8,23 +127,21 @@
             <!--begin::Toolbar container-->
             <div id="kt_app_toolbar_container" class="app-container  container-xxl d-flex flex-stack ">
 
-
-
                 <!--begin::Page title-->
                 <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3 ">
                     <!--begin::Title-->
                     <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
-                        Create
+                        Crear
                     </h1>
                     <!--end::Title-->
-
 
                     <!--begin::Breadcrumb-->
                     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                         <!--begin::Item-->
                         <li class="breadcrumb-item text-muted">
                             <a href="/metronic8/demo1/index.html" class="text-muted text-hover-primary">
-                                Home </a>
+                                Home 
+                            </a>
                         </li>
                         <!--end::Item-->
                         <!--begin::Item-->
@@ -35,13 +152,14 @@
 
                         <!--begin::Item-->
                         <li class="breadcrumb-item text-muted">
-                            Receipt Manager </li>
+                            Gestor de recibos </li>
                         <!--end::Item-->
 
                     </ul>
                     <!--end::Breadcrumb-->
                 </div>
                 <!--end::Page title-->
+
                 <!--begin::Actions-->
                 <div class="d-flex align-items-center gap-2 gap-lg-3">
                     <!--begin::Filter menu-->
@@ -49,11 +167,9 @@
                         <!--begin::Menu toggle-->
                         <a href="#" class="btn btn-sm btn-flex btn-secondary fw-bold" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
                             <i class="ki-duotone ki-filter fs-6 text-muted me-1"><span class="path1"></span><span class="path2"></span></i>
-                            Filter
+                            Filtrar
                         </a>
                         <!--end::Menu toggle-->
-
-
 
                         <!--begin::Menu 1-->
                         <div class="menu menu-sub menu-sub-dropdown w-250px w-md-300px" data-kt-menu="true" id="kt_menu_690ddbd4d98ea">
@@ -66,7 +182,6 @@
                             <!--begin::Menu separator-->
                             <div class="separator border-gray-200"></div>
                             <!--end::Menu separator-->
-
 
                             <!--begin::Form-->
                             <div class="px-7 py-5">
@@ -153,13 +268,12 @@
                     </div>
                     <!--end::Filter menu-->
 
-
                     <!--begin::Secondary button-->
                     <!--end::Secondary button-->
 
                     <!--begin::Primary button-->
                     <a href="#" class="btn btn-sm fw-bold btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_app">
-                        Create </a>
+                        Crear </a>
                     <!--end::Primary button-->
                 </div>
                 <!--end::Actions-->
@@ -170,7 +284,6 @@
 
         <!--begin::Content-->
         <div id="kt_app_content" class="app-content  flex-column-fluid ">
-
 
             <!--begin::Content container-->
             <div id="kt_app_content_container" class="app-container  container-xxl ">
@@ -189,7 +302,7 @@
                                         <!--begin::Input group-->
                                         <div class="d-flex align-items-center flex-equal fw-row me-4 order-2" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-original-title="Specify receipts date" data-kt-initialized="1">
                                             <!--begin::Date-->
-                                            <div class="fs-6 fw-bold text-gray-700 text-nowrap">Date:</div>
+                                            <div class="fs-6 fw-bold text-gray-700 text-nowrap">Fecha:</div>
                                             <!--end::Date-->
 
                                             <!--begin::Input-->
@@ -207,7 +320,7 @@
 
                                         <!--begin::Input group-->
                                         <div class="d-flex flex-center flex-equal fw-row text-nowrap order-1 order-xxl-2 me-4" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-original-title="Enter receipt number" data-kt-initialized="1">
-                                            <span class="fs-2x fw-bold text-gray-800">Receipt #</span>
+                                            <span class="fs-2x fw-bold text-gray-800">Recibo #</span>
                                             <input type="text" class="form-control form-control-flush fw-bold text-muted fs-3 w-125px" value="2021001" placehoder="...">
                                         </div>
                                         <!--end::Input group-->
@@ -224,23 +337,23 @@
                                         <div class="row gx-10 mb-5">
                                             <!--begin::Col-->
                                             <div class="col-lg-6">
-                                                <label class="form-label fs-6 fw-bold text-gray-700 mb-3">Bill From</label>
+                                                <label class="form-label fs-6 fw-bold text-gray-700 mb-3">Facturar desde</label>
 
                                                 <!--begin::Input group-->
                                                 <div class="mb-5">
-                                                    <input type="text" class="form-control form-control-solid" placeholder="Name">
+                                                    <input type="text" class="form-control form-control-solid" placeholder="Nombre">
                                                 </div>
                                                 <!--end::Input group-->
 
                                                 <!--begin::Input group-->
                                                 <div class="mb-5">
-                                                    <input type="text" class="form-control form-control-solid" placeholder="Email">
+                                                    <input type="text" class="form-control form-control-solid" placeholder="Correo electrónico">
                                                 </div>
                                                 <!--end::Input group-->
 
                                                 <!--begin::Input group-->
                                                 <div class="mb-5">
-                                                    <textarea name="notes" class="form-control form-control-solid" rows="3" placeholder="Who is this receipt from?"></textarea>
+                                                    <textarea name="notes" class="form-control form-control-solid" rows="3" placeholder="¿De quién es este recibo?"></textarea>
                                                 </div>
                                                 <!--end::Input group-->
                                             </div>
@@ -248,23 +361,23 @@
 
                                             <!--begin::Col-->
                                             <div class="col-lg-6">
-                                                <label class="form-label fs-6 fw-bold text-gray-700 mb-3">Bill To</label>
+                                                <label class="form-label fs-6 fw-bold text-gray-700 mb-3">Facturar a</label>
 
                                                 <!--begin::Input group-->
                                                 <div class="mb-5">
-                                                    <input type="text" class="form-control form-control-solid" placeholder="Name">
+                                                    <input type="text" class="form-control form-control-solid" placeholder="Nombre">
                                                 </div>
                                                 <!--end::Input group-->
 
                                                 <!--begin::Input group-->
                                                 <div class="mb-5">
-                                                    <input type="text" class="form-control form-control-solid" placeholder="Email">
+                                                    <input type="text" class="form-control form-control-solid" placeholder="Correo electrónico">
                                                 </div>
                                                 <!--end::Input group-->
 
                                                 <!--begin::Input group-->
                                                 <div class="mb-5">
-                                                    <textarea name="notes" class="form-control form-control-solid" rows="3" placeholder="What is this receipt for?"></textarea>
+                                                    <textarea name="notes" class="form-control form-control-solid" rows="3" placeholder="¿Para qué es este recibo?"></textarea>
                                                 </div>
                                                 <!--end::Input group-->
                                             </div>
@@ -279,11 +392,11 @@
                                                 <!--begin::Table head-->
                                                 <thead>
                                                     <tr class="border-bottom fs-7 fw-bold text-gray-700 text-uppercase">
-                                                        <th class="min-w-300px w-475px">Item</th>
-                                                        <th class="min-w-100px w-100px">QTY</th>
-                                                        <th class="min-w-150px w-150px">Price</th>
+                                                        <th class="min-w-300px w-475px">Artículo</th>
+                                                        <th class="min-w-100px w-100px">Cantidad</th>
+                                                        <th class="min-w-150px w-150px">Precio</th>
                                                         <th class="min-w-100px w-150px text-end">Total</th>
-                                                        <th class="min-w-75px w-75px text-end">Action</th>
+                                                        <th class="min-w-75px w-75px text-end">Acción</th>
                                                     </tr>
                                                 </thead>
                                                 <!--end::Table head-->
@@ -292,9 +405,8 @@
                                                 <tbody>
                                                     <tr class="border-bottom border-bottom-dashed" data-kt-element="item">
                                                         <td class="pe-7">
-                                                            <input type="text" class="form-control form-control-solid mb-2" name="name[]" placeholder="Item name">
-
-                                                            <input type="text" class="form-control form-control-solid" name="description[]" placeholder="Description">
+                                                            <input type="text" class="form-control form-control-solid mb-2" name="name[]" placeholder="Nombre del artículo">
+                                                            <input type="text" class="form-control form-control-solid" name="description[]" placeholder="Descripción">
                                                         </td>
 
                                                         <td class="ps-0">
@@ -321,16 +433,16 @@
                                                 <tfoot>
                                                     <tr class="border-top border-top-dashed align-top fs-6 fw-bold text-gray-700">
                                                         <th class="text-primary">
-                                                            <button class="btn btn-link py-1" data-kt-element="add-item">Add item</button>
+                                                            <button class="btn btn-link py-1" data-kt-element="add-item">Agregar artículo</button>
                                                         </th>
 
                                                         <th colspan="2" class="border-bottom border-bottom-dashed ps-0">
                                                             <div class="d-flex flex-column align-items-start">
                                                                 <div class="fs-5">Subtotal</div>
 
-                                                                <button class="btn btn-link py-1" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-original-title="Coming soon" data-kt-initialized="1">Add tax</button>
+                                                                <button class="btn btn-link py-1" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-original-title="Coming soon" data-kt-initialized="1">Agregar impuesto</button>
 
-                                                                <button class="btn btn-link py-1" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-original-title="Coming soon" data-kt-initialized="1">Add discount</button>
+                                                                <button class="btn btn-link py-1" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-original-title="Coming soon" data-kt-initialized="1">Agregar descuento</button>
                                                             </div>
                                                         </th>
 
@@ -388,7 +500,7 @@
                                             <tbody>
                                                 <tr data-kt-element="empty">
                                                     <th colspan="5" class="text-muted text-center py-10">
-                                                        No items
+                                                        No hay artículos
                                                     </th>
                                                 </tr>
                                             </tbody>
@@ -397,9 +509,9 @@
 
                                         <!--begin::Notes-->
                                         <div class="mb-0">
-                                            <label class="form-label fs-6 fw-bold text-gray-700">Notes</label>
+                                            <label class="form-label fs-6 fw-bold text-gray-700">Notas</label>
 
-                                            <textarea name="notes" class="form-control form-control-solid" rows="3" placeholder="Thanks for your business"></textarea>
+                                            <textarea name="notes" class="form-control form-control-solid" rows="3" placeholder="Gracias por su compra"></textarea>
                                         </div>
                                         <!--end::Notes-->
                                     </div>
@@ -423,7 +535,7 @@
                                 <!--begin::Input group-->
                                 <div class="mb-10">
                                     <!--begin::Label-->
-                                    <label class="form-label fw-bold fs-6 text-gray-700">Currency</label>
+                                    <label class="form-label fw-bold fs-6 text-gray-700">Moneda</label>
                                     <!--end::Label-->
                                 </div>
                                 <!--end::Input group-->
@@ -437,7 +549,7 @@
                                     <!--begin::Option-->
                                     <label class="form-check form-switch form-switch-sm form-check-custom form-check-solid flex-stack mb-5">
                                         <span class="form-check-label ms-0 fw-bold fs-6 text-gray-700">
-                                            Payment method
+                                            Método de pago
                                         </span>
 
                                         <input class="form-check-input" type="checkbox" checked="checked" value="">
@@ -447,7 +559,7 @@
                                     <!--begin::Option-->
                                     <label class="form-check form-switch form-switch-sm form-check-custom form-check-solid flex-stack">
                                         <span class="form-check-label ms-0 fw-bold fs-6 text-gray-700">
-                                            Notes
+                                            Notas
                                         </span>
 
                                         <input class="form-check-input" type="checkbox" value="">
@@ -466,19 +578,19 @@
                                     <div class="row mb-5">
                                         <!--begin::Col-->
                                         <div class="col">
-                                            <a href="#" class="btn btn-light btn-active-light-primary w-100">Preview</a>
+                                            <a href="#" class="btn btn-light btn-active-light-primary w-100">Vista previa</a>
                                         </div>
                                         <!--end::Col-->
 
                                         <!--begin::Col-->
                                         <div class="col">
-                                            <a href="#" class="btn btn-light btn-active-light-primary w-100">Download</a>
+                                            <a href="#" class="btn btn-light btn-active-light-primary w-100">Descargar</a>
                                         </div>
                                         <!--end::Col-->
                                     </div>
                                     <!--end::Row-->
 
-                                    <button type="submit" href="#" class="btn btn-primary w-100" id="kt_receipt_submit_button"><i class="ki-duotone ki-triangle fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i> Send Receipt
+                                    <button type="submit" href="#" class="btn btn-primary w-100" id="kt_receipt_submit_button"><i class="ki-duotone ki-triangle fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i> Enviar recibo
                                     </button>
                                 </div>
                                 <!--end::Actions-->
@@ -509,7 +621,7 @@
             <!--begin::Copyright-->
             <div class="text-gray-900 order-2 order-md-1">
                 <span class="text-muted fw-semibold me-1">2025©</span>
-                <a href="https://keenthemes.com" target="_blank" class="text-gray-800 text-hover-primary">Keenthemes</a>
+                <a href="https://keenthemes.com" onclick="return false;" target="_blank" class="text-gray-800 text-hover-primary">Keenthemes</a>
             </div>
             <!--end::Copyright-->
 

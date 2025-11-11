@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, Input, OnInit, SimpleChanges } from '@angular/core';
 import { AdminSalesService } from '../services/admin-sales.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { ReceiptService } from '../../documents-manager/_services/receipt.service';
 
 
 @Component({
@@ -21,12 +22,14 @@ export class SalesListComponent implements OnInit {
   q = '';
   searchTerm = new Subject<string>();
   copiedId: number | null = null;
+  openDropdownId: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private svc: AdminSalesService, 
     private router: Router, 
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private receiptSvc: ReceiptService
   ) { }
 
   ngOnInit(): void {
@@ -80,9 +83,47 @@ export class SalesListComponent implements OnInit {
     }, err => console.error('getSales error', err));
   }
 
-  openSale(sale: any) {
+  viewSale(sale: any) {
     // navigate to detail route
     this.router.navigate(['/sales/detail', sale.id]);
+  }
+
+  /** 🔹 Abre/cierra el menú */
+  toggleActions(event: MouseEvent, saleId: number): void {
+    event.stopPropagation(); // evita burbujeo que cierra el menú
+    this.openDropdownId = this.openDropdownId === saleId ? null : saleId;
+  }
+
+  /** 🔹 Cierra el menú manualmente */
+  closeDropdown(): void {
+    this.openDropdownId = null;
+  }
+
+  /** 🔹 Cierra el menú al hacer clic fuera */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    // Si el clic no está dentro de un botón Actions o del menú, se cierra
+    if (!target.closest('.dropdown-menu') && !target.closest('.btn-light')) {
+      this.openDropdownId = null;
+    }
+  }
+
+  /** 🔹 Descargar o visualizar recibo */
+  downloadReceipt(sale: any): void { 
+    this.receiptSvc.getReceiptsBySaleId(sale.id).subscribe({
+      next: (resp) => {
+        if (resp?.success && resp.receipts?.length > 0) {
+          // Si hay varios, abrimos el más reciente
+          const latestReceipt = resp.receipts[0];
+          // Redirige al componente Receipts View
+          this.router.navigate(['/documents-manager/receipts/view', latestReceipt.id]);
+        } else {
+          alert('No existe ningún recibo para esta venta.');
+        }
+      },
+      error: () => alert('Error al obtener los recibos.')
+    });
   }
 
   prevPage() {
@@ -107,7 +148,6 @@ export class SalesListComponent implements OnInit {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
-    
   copyToClipboard(text: string, saleId: number): void {
     navigator.clipboard.writeText(text).then(() => {
         console.log('✅ Texto copiado correctamente:', text);
@@ -121,6 +161,6 @@ export class SalesListComponent implements OnInit {
         console.log('🕒 Tooltip ocultado para venta ID:', saleId);
         }, 1500);
     });
-    }
+  }
     
 }
