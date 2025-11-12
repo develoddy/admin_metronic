@@ -5,6 +5,9 @@ import {
   OnInit,
 } from '@angular/core';
 import { TranslationService } from './modules/i18n/translation.service';
+import { NoticyAlertComponent } from 'src/app/componets/notifications/noticy-alert/noticy-alert.component';
+import { Toaster } from 'ngx-toast-notifications';
+
 // language list
 import { locale as enLang } from './modules/i18n/vocabs/en';
 import { locale as chLang } from './modules/i18n/vocabs/ch';
@@ -16,6 +19,7 @@ import { SplashScreenService } from './_metronic/partials/layout/splash-screen/s
 import { Router, NavigationEnd, NavigationError } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TableExtendedService } from './_metronic/shared/crud-table';
+import { NotificationsService } from './_metronic/shared/crud-table/services/notifications.service';
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'body[root]',
@@ -27,6 +31,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
 
   constructor(
+    private notificationsService: NotificationsService,
+    public toastr: Toaster,
     private translationService: TranslationService,
     private splashScreenService: SplashScreenService,
     private router: Router,
@@ -60,7 +66,24 @@ export class AppComponent implements OnInit, OnDestroy {
         }, 500);
       }
     });
+
     this.unsubscribe.push(routerSubscription);
+
+
+    // Opcional: identificar al usuario si quieres notificaciones específicas
+    // this.notificationsService.identify(123);
+
+    // Suscribirse a todas las notificaciones
+    this.notificationsService.notifications$.subscribe(data => {
+      console.log('📦 Notificación recibida en componente:', data);
+
+      // Construye la cadena exactamente como espera NoticyAlertComponent
+      const text = `${data.color || 'primary'}-${data.title}: ${data.message}`;
+
+      this.toastr.open(NoticyAlertComponent, { text });
+    });
+
+    
   }
 
   ngOnDestroy() {
