@@ -82,7 +82,12 @@
                         <div class="card-title">
                             <!--begin::Search-->
                             <div class="d-flex align-items-center position-relative my-1">
-                                <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"><span class="path1"></span><span class="path2"></span></i> <input type="text" data-kt-ecommerce-order-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Buscar envío">
+                                <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                                <input type="text" class="form-control form-control-solid w-250px" placeholder="Buscar envío" [value]="q" (keyup)="search$.next($event.target.value)" (keyup.enter)="load(1)">
+                                <button class="btn btn-sm btn-dark" (click)="load(1)">Buscar</button>
                             </div>
                             <!--end::Search-->
 
@@ -97,21 +102,19 @@
                         <!--begin::Card toolbar-->
                         <div class="card-toolbar flex-row-fluid justify-content-end gap-5" data-select2-id="select2-data-122-31kv">
                             <!--begin::Daterangepicker-->
-                            <input class="form-control form-control-solid w-100 mw-250px" placeholder="Pick date range" id="kt_ecommerce_report_shipping_daterangepicker">
+                            <input class="form-control form-control-solid w-100 mw-250px d-none" placeholder="Pick date range" id="kt_ecommerce_report_shipping_daterangepicker">
                             <!--end::Daterangepicker-->
 
                             <!--begin::Filter-->
                             <div class="w-150px" data-select2-id="select2-data-121-1dl3">
-                                <!--begin::Select2-->
-                                <select class="form-select form-select-solid select2-hidden-accessible" data-control="select2" data-hide-search="true" data-placeholder="Status" data-kt-ecommerce-order-filter="status" data-select2-id="select2-data-9-o62a" tabindex="-1" aria-hidden="true" data-kt-initialized="1">
-                                    <option data-select2-id="select2-data-11-btk0"></option>
-                                    <option value="all" data-select2-id="select2-data-127-pup6">All</option>
-                                    <option value="Completed" data-select2-id="select2-data-128-qmc3">Completed</option>
-                                    <option value="In Transit" data-select2-id="select2-data-129-ea2e">In Transit</option>
-                                    <option value="Pending" data-select2-id="select2-data-130-1pzg">Pending</option>
-                                    <option value="Cancelled" data-select2-id="select2-data-131-3hp8">Cancelled</option>
-                                </select><span class="select2 select2-container select2-container--bootstrap5 select2-container--below" dir="ltr" data-select2-id="select2-data-10-uxr5" style="width: 100%;"><span class="selection"><span class="select2-selection select2-selection--single form-select form-select-solid" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-yiju-container" aria-controls="select2-yiju-container"><span class="select2-selection__rendered" id="select2-yiju-container" role="textbox" aria-readonly="true" title="All">All</span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
-                                <!--end::Select2-->
+                                <!-- Filtro por estado -->
+                                <select class="form-select form-select-solid" [(ngModel)]="statusFilter" (change)="onStatusChange()">
+                                    <option value="all">All</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="returned">Returned</option>
+                                </select>
                             </div>
                             <!--end::Filter-->
 
@@ -187,6 +190,11 @@
                                             <th class="min-w-100px dt-orderable-asc dt-orderable-desc" data-dt-column="2" rowspan="1" colspan="1">
                                                 <div class="dt-column-header"><span class="dt-column-title">ID de Envío</span><span class="dt-column-order" role="button" aria-label="ID de Envío: Activate to sort" tabindex="0"></span></div>
                                             </th>
+
+                                            <th class="min-w-100px dt-orderable-asc dt-orderable-desc" data-dt-column="2" rowspan="1" colspan="1">
+                                                <div class="dt-column-header"><span class="dt-column-title">TrackingNumber</span><span class="dt-column-order" role="button" aria-label="ID de Envío: Activate to sort" tabindex="0"></span></div>
+                                            </th>
+
                                             <th class="min-w-100px dt-orderable-asc dt-orderable-desc" data-dt-column="3" rowspan="1" colspan="1">
                                                 <div class="dt-column-header"><span class="dt-column-title">Estado</span><span class="dt-column-order" role="button" aria-label="Estado: Activate to sort" tabindex="0"></span></div>
                                             </th>
@@ -199,211 +207,57 @@
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-600">
-                                        <tr>
-                                            <td data-order="2025-06-24T00:00:00+02:00">
-                                                Jun 24, 2025 </td>
+                                        <tr *ngFor="let shipment of shipments">
+                                            <!-- Servicio -->
+                                            <td>{{ shipment.shippedAt ? (shipment.shippedAt | date:'MMM d, y') : '—' }}</td>
+
+                                            <!-- Servicio -->
+                                            <td>{{ shipment.service || '—' }}</td>
+
+                                            <!-- ID de Printful -->
                                             <td>
-                                                Flat Shipping Rate
+                                                <a [routerLink]="['/admin/ecommerce/shipment', shipment.id]" class="text-gray-900 text-hover-primary">
+                                                    #{{ shipment.printfulShipmentId || shipment.id }}
+                                                </a>
                                             </td>
+
+                                            <!-- Número de seguimiento y enlace -->
                                             <td>
-                                                <a href="/metronic8/demo1/apps/ecommerce/sales/details.html" class="text-gray-900 text-hover-primary">#SHP-0058133</a>
+                                                <ng-container *ngIf="shipment.trackingNumber; else pending">
+                                                    <a [href]="shipment.trackingUrl" target="_blank">{{ shipment.trackingNumber }}</a>
+                                                </ng-container>
+                                                <ng-template #pending>
+                                                    <span class="text-muted">Pendiente</span>
+                                                </ng-template>
                                             </td>
+
+                                            <!-- Estado con badge -->
                                             <td>
-                                                <!--begin::Badges-->
-                                                <div class="badge badge-light-success">Completed</div>
-                                                <!--end::Badges-->
+                                                <div class="badge" [ngClass]="{
+                                                        'badge-light-success': shipment.status === 'delivered' || shipment.status === 'shipped',
+                                                        'badge-light-primary': shipment.status === 'in_transit',
+                                                        'badge-light-warning': shipment.status === 'pending',
+                                                        'badge-light-danger': shipment.status === 'returned'
+                                                    }">
+                                                    {{ shipment.status | titlecase }}
+                                                </div>
                                             </td>
-                                            <td class="text-end pe-0 dt-type-numeric">
-                                                7 </td>
-                                            <td class="text-end dt-type-numeric">
-                                                $173.00
+
+                                            <!-- ID de venta -->
+                                            <td class="text-end pe-0">
+                                                {{ shipment.sale?.id }}
                                             </td>
-                                        </tr>
-                                        <tr>
-                                            <td data-order="2025-07-25T00:00:00+02:00">
-                                                Jul 25, 2025 </td>
-                                            <td>
-                                                Flat Shipping Rate
-                                            </td>
-                                            <td>
-                                                <a href="/metronic8/demo1/apps/ecommerce/sales/details.html" class="text-gray-900 text-hover-primary">#SHP-0035071</a>
-                                            </td>
-                                            <td>
-                                                <!--begin::Badges-->
-                                                <div class="badge badge-light-success">Completed</div>
-                                                <!--end::Badges-->
-                                            </td>
-                                            <td class="text-end pe-0 dt-type-numeric">
-                                                9 </td>
-                                            <td class="text-end dt-type-numeric">
-                                                $407.00
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td data-order="2025-04-15T00:00:00+02:00">
-                                                Apr 15, 2025 </td>
-                                            <td>
-                                                Flat Shipping Rate
-                                            </td>
-                                            <td>
-                                                <a href="/metronic8/demo1/apps/ecommerce/sales/details.html" class="text-gray-900 text-hover-primary">#SHP-0067818</a>
-                                            </td>
-                                            <td>
-                                                <!--begin::Badges-->
-                                                <div class="badge badge-light-success">Completed</div>
-                                                <!--end::Badges-->
-                                            </td>
-                                            <td class="text-end pe-0 dt-type-numeric">
-                                                1 </td>
-                                            <td class="text-end dt-type-numeric">
-                                                $323.00
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td data-order="2025-04-15T00:00:00+02:00">
-                                                Apr 15, 2025 </td>
-                                            <td>
-                                                Flat Shipping Rate
-                                            </td>
-                                            <td>
-                                                <a href="/metronic8/demo1/apps/ecommerce/sales/details.html" class="text-gray-900 text-hover-primary">#SHP-0036541</a>
-                                            </td>
-                                            <td>
-                                                <!--begin::Badges-->
-                                                <div class="badge badge-light-success">Completed</div>
-                                                <!--end::Badges-->
-                                            </td>
-                                            <td class="text-end pe-0 dt-type-numeric">
-                                                6 </td>
-                                            <td class="text-end dt-type-numeric">
-                                                $181.00
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td data-order="2025-08-19T00:00:00+02:00">
-                                                Aug 19, 2025 </td>
-                                            <td>
-                                                Flat Shipping Rate
-                                            </td>
-                                            <td>
-                                                <a href="/metronic8/demo1/apps/ecommerce/sales/details.html" class="text-gray-900 text-hover-primary">#SHP-0062838</a>
-                                            </td>
-                                            <td>
-                                                <!--begin::Badges-->
-                                                <div class="badge badge-light-success">Completed</div>
-                                                <!--end::Badges-->
-                                            </td>
-                                            <td class="text-end pe-0 dt-type-numeric">
-                                                3 </td>
-                                            <td class="text-end dt-type-numeric">
-                                                $202.00
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td data-order="2025-06-20T00:00:00+02:00">
-                                                Jun 20, 2025 </td>
-                                            <td>
-                                                Flat Shipping Rate
-                                            </td>
-                                            <td>
-                                                <a href="/metronic8/demo1/apps/ecommerce/sales/details.html" class="text-gray-900 text-hover-primary">#SHP-0039179</a>
-                                            </td>
-                                            <td>
-                                                <!--begin::Badges-->
-                                                <div class="badge badge-light-success">Completed</div>
-                                                <!--end::Badges-->
-                                            </td>
-                                            <td class="text-end pe-0 dt-type-numeric">
-                                                5 </td>
-                                            <td class="text-end dt-type-numeric">
-                                                $401.00
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td data-order="2025-06-20T00:00:00+02:00">
-                                                Jun 20, 2025 </td>
-                                            <td>
-                                                Flat Shipping Rate
-                                            </td>
-                                            <td>
-                                                <a href="/metronic8/demo1/apps/ecommerce/sales/details.html" class="text-gray-900 text-hover-primary">#SHP-0027736</a>
-                                            </td>
-                                            <td>
-                                                <!--begin::Badges-->
-                                                <div class="badge badge-light-primary">In Transit</div>
-                                                <!--end::Badges-->
-                                            </td>
-                                            <td class="text-end pe-0 dt-type-numeric">
-                                                17 </td>
-                                            <td class="text-end dt-type-numeric">
-                                                $378.00
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td data-order="2025-10-25T00:00:00+02:00">
-                                                Oct 25, 2025 </td>
-                                            <td>
-                                                Flat Shipping Rate
-                                            </td>
-                                            <td>
-                                                <a href="/metronic8/demo1/apps/ecommerce/sales/details.html" class="text-gray-900 text-hover-primary">#SHP-0064805</a>
-                                            </td>
-                                            <td>
-                                                <!--begin::Badges-->
-                                                <div class="badge badge-light-primary">In Transit</div>
-                                                <!--end::Badges-->
-                                            </td>
-                                            <td class="text-end pe-0 dt-type-numeric">
-                                                5 </td>
-                                            <td class="text-end dt-type-numeric">
-                                                $424.00
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td data-order="2025-08-19T00:00:00+02:00">
-                                                Aug 19, 2025 </td>
-                                            <td>
-                                                Flat Shipping Rate
-                                            </td>
-                                            <td>
-                                                <a href="/metronic8/demo1/apps/ecommerce/sales/details.html" class="text-gray-900 text-hover-primary">#SHP-0035470</a>
-                                            </td>
-                                            <td>
-                                                <!--begin::Badges-->
-                                                <div class="badge badge-light-primary">In Transit</div>
-                                                <!--end::Badges-->
-                                            </td>
-                                            <td class="text-end pe-0 dt-type-numeric">
-                                                14 </td>
-                                            <td class="text-end dt-type-numeric">
-                                                $306.00
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td data-order="2025-06-20T00:00:00+02:00">
-                                                Jun 20, 2025 </td>
-                                            <td>
-                                                Flat Shipping Rate
-                                            </td>
-                                            <td>
-                                                <a href="/metronic8/demo1/apps/ecommerce/sales/details.html" class="text-gray-900 text-hover-primary">#SHP-0050018</a>
-                                            </td>
-                                            <td>
-                                                <!--begin::Badges-->
-                                                <div class="badge badge-light-danger">Cancelled</div>
-                                                <!--end::Badges-->
-                                            </td>
-                                            <td class="text-end pe-0 dt-type-numeric">
-                                                1 </td>
-                                            <td class="text-end dt-type-numeric">
-                                                $340.00
+
+                                            <!-- Total de venta -->
+                                            <td class="text-end">
+                                                €{{ shipment.sale?.total | number:'1.2-2' }}
                                             </td>
                                         </tr>
                                     </tbody>
                                     <tfoot></tfoot>
                                 </table>
                             </div>
-                            <div id="" class="row">
+                            <!-- <div id="" class="row">
                                 <div id="" class="col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start dt-toolbar">
                                     <div><select aria-controls="kt_ecommerce_report_shipping_table" class="form-select form-select-solid form-select-sm" id="dt-length-0">
                                             <option value="10">10</option>
@@ -427,7 +281,56 @@
                                         </nav>
                                     </div>
                                 </div>
+                            </div> -->
+
+                            <!-- PAGINACIÓN -->
+                            <div class="row mt-4">
+                                <!-- Límite de filas -->
+                                <div class="col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start dt-toolbar">
+                                    <div>
+                                        <label class="me-2 fw-semibold text-gray-600">Mostrar</label>
+                                        <select class="form-select form-select-solid form-select-sm w-auto d-inline-block" (change)="changeLimit($event)">
+                                            <option [selected]="limit === 10" value="10">10</option>
+                                            <option [selected]="limit === 25" value="25">25</option>
+                                            <option [selected]="limit === 50" value="50">50</option>
+                                            <option [selected]="limit === 100" value="100">100</option>
+                                        </select>
+                                        <span class="ms-2 fw-semibold text-gray-500">por página</span>
+                                    </div>
+                                </div>
+
+                                <!-- Navegación -->
+                                <div class="col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end">
+                                    <div class="dt-paging paging_simple_numbers">
+                                        <nav *ngIf="totalPages > 1" aria-label="pagination">
+                                            <ul class="pagination ">
+                                                <!-- Previous -->
+                                                <li class="dt-paging-button page-item" [class.disabled]="currentPage === 1">
+                                                    <button class="page-link previous" (click)="prevPage()">
+                                                        <i class="previous"></i>
+                                                    </button>
+                                                </li>
+
+                                                <!-- Pages -->
+                                                <li class="dt-paging-button page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
+                                                    <button class="page-link" (click)="goToPage(page)">
+                                                        {{ page }}
+                                                    </button>
+                                                </li>
+
+                                                <!-- Next -->
+                                                <li class="dt-paging-button page-item" [class.disabled]="currentPage === totalPages">
+                                                    <button class="page-link next" (click)="nextPage()">
+                                                        <i class="next"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
                             </div>
+
+
                             <div class="dt-autosize" style="width: 100%; height: 0px;"></div>
                         </div>
                         <!--end::Table-->
@@ -446,8 +349,6 @@
 
     <!--begin::Footer-->
     <div id="kt_app_footer" class="app-footer ">
-
-
 
         <!--begin::Footer container-->
         <div class="app-container  container-fluid d-flex flex-column flex-md-row flex-center flex-md-stack py-3 ">

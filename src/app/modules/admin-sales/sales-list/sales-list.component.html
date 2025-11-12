@@ -19,9 +19,10 @@
                             <th>ID</th>
                             <th>Nº Transacción</th>
                             <th>Usuario</th>
-                            <th>Total</th>
-                            <th>Estado</th>
+                            <th>Printful Order ID</th>
+                            <th>Printful Status</th>
                             <th>Fecha</th>
+                            <th>Total</th>
                             <th>Items</th>
                             <th>Acción</th>
                         </tr>
@@ -37,7 +38,6 @@
                                     <span *ngIf="s.method_payment === 'PAYPAL'" class="badge bg-primary text-truncate" style="max-width: 150px" [title]="s.n_transaction">
                                         {{ s.n_transaction }}
                                     </span>
-
                                     <!-- Botón copiar -->
                                     <button class="btn btn-sm btn-light p-2" (click)="copyToClipboard(s.n_transaction, s.id)" title="Copiar número de transacción">
                                         <!-- <i class="bi bi-clipboard"></i> -->
@@ -87,18 +87,20 @@
                             </td>
 
                             <td>{{(s.user && s.user.email) || (s.guest && s.guest.email) || "—"}}</td>
-                            <td>€ {{ s.total }}</td>
+
+                            <td>{{ s.printfulOrderId }}</td>
+                            
                             <td>
                                 <span class="badge" [ngClass]="{
-                                                'bg-secondary': (s.printfulStatus || '') === 'draft',
-                                                'bg-success': (s.printfulStatus || '') === 'paid',
-                                                'bg-primary': (s.printfulStatus || '') === 'fulfilled',
-                                                'bg-danger': (s.printfulStatus || '') === 'cancelled'
+                                                'bg-secondary': (s.printfulStatus || '') === 'draft' || (s.printfulStatus || '') === 'pending',
+                                                'bg-success': (s.printfulStatus || '') === 'fulfilled',
+                                                'bg-danger': (s.printfulStatus || '') === 'canceled' || (s.printfulStatus || '') === 'failed'
                                             }">
                                     {{ s.printfulStatus || '—' }}
                                 </span>
                             </td>
                             <td>{{ s.createdAt | date : "short" }}</td>
+                            <td>€ {{ s.total }}</td>
                             <td>
                                 <div *ngFor="let it of s.items | slice : 0 : 3" class="d-flex align-items-center mb-5">
                                     <img *ngIf="it.imagen" [src]="it.imagen" class="me-2 rounded" style="width: 40px; height: 40px; object-fit: cover" />

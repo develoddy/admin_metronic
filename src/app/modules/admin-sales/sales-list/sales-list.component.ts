@@ -39,7 +39,7 @@ export class SalesListComponent implements OnInit {
         this.load(1); // siempre recarga desde página 1
     });
 
-     // Cargar la primera página al iniciar
+    // Cargar la primera página al iniciar
     this.load(1);
   }
 
@@ -71,7 +71,6 @@ export class SalesListComponent implements OnInit {
       if (resp && resp.success) {
         this.sales = resp.sales || resp.sales || [];
         this.total = resp.total || 0;
-        console.log('Total ventas:', resp.total);
         this.currentPage = resp.page || page;
         this.totalPages = resp.pages || Math.ceil(this.total / this.limit);
 
