@@ -47,7 +47,7 @@
 
   <ng-container *ngIf="extrasNotificationsLayout === 'dropdown'">
     <!--begin::Notifications-->
-    <div class="dropdown" ngbDropdown placement="bottom">
+    <div class="dropdown" ngbDropdown #notificationsDropdown="ngbDropdown" placement="bottom">
       <!--begin::Toggle-->
       <div class="topbar-item" data-toggle="dropdown" data-offset="10px,0px" ngbDropdownToggle>
         <div class="btn btn-icon btn-clean btn-dropdown btn-lg mr-1 pulse pulse-primary">
@@ -60,9 +60,7 @@
 
       <!--begin::Dropdown-->
       <div ngbDropdownMenu class="dropdown-menu p-0 m-0 dropdown-menu-anim-up dropdown-menu-lg">
-        <form>
-          <app-notifications-dropdown-inner></app-notifications-dropdown-inner>
-        </form>
+        <app-notifications-dropdown-inner (closeDropdown)="notificationsDropdown.close()"></app-notifications-dropdown-inner>
       </div>
       <!--end::Dropdown-->
     </div>

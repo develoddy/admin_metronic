@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { LayoutService } from '../../../../../core';
 import { ProductService } from 'src/app/modules/product/_services/product.service';
 import { NotificationsService } from 'src/app/_metronic/shared/crud-table/services/notifications.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-notifications-dropdown-inner',
@@ -11,6 +12,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./notifications-dropdown-inner.component.scss'],
 })
 export class NotificationsDropdownInnerComponent implements OnInit {
+  @Input() dropdownRef: NgbDropdown;
+  @Output() closeDropdown = new EventEmitter<void>();
   extrasNotificationsDropdownStyle: 'light' | 'dark' = 'dark';
   activeTabId:
     | 'topbar_notifications_notifications'
@@ -44,17 +47,9 @@ export class NotificationsDropdownInnerComponent implements OnInit {
               ...n,
               time: new Date(n.createdAt).toLocaleTimeString(),
               icon: n.icon || './assets/media/svg/icons/Shopping/Box3.svg',
+              shipment: n.shipment || null,
+              sale: n.sale || null
           }));
-          // this.notifications = resp.notifications.map((n: any) => ({
-          //   id: n.id,
-          //   title: n.title,
-          //   message: n.message,
-          //   time: new Date(n.createdAt).toLocaleTimeString(),
-          //   icon: n.icon || './assets/media/svg/icons/General/Attachment2.svg',
-          //   color: n.color || 'success',
-          //   isRead: n.isRead,
-          // }));
-
           this.cd.detectChanges();
         }
       },
@@ -69,20 +64,21 @@ export class NotificationsDropdownInnerComponent implements OnInit {
       if (exists) return;
 
       this.notifications.unshift({
-        id: notif.id || null, 
-        title: notif.title || 'Actualización de envío',
-        message: notif.message || 'Se ha actualizado un envío',
-        time: new Date().toLocaleTimeString(),
+        ...notif, // 🔹 Copia todas las propiedades originales
+        time: new Date(notif.createdAt).toLocaleTimeString(),
         icon: notif.icon || './assets/media/svg/icons/General/Attachment2.svg',
-        color: notif.color || 'success',
+        shipment: notif.shipment || null,
+        sale: notif.sale || null
       });
 
       this.cd.detectChanges();
     });
   }
 
-  openNotification(notif: any) {
-    // 🔹 Marcar como leída si no lo está
+  openNotification(event: Event, notif: any) {
+    event.preventDefault(); // Cancela la navegación nativa del <a>
+
+    // Marcar como leída si no lo está
     if (!notif.isRead) {
       this.notificationsService.markAsRead(notif.id).subscribe({
         next: (resp: any) => {
@@ -95,17 +91,18 @@ export class NotificationsDropdownInnerComponent implements OnInit {
       });
     }
 
-    console.log("Notif: ", notif);
+    // 🔹 Cerrar dropdown
+    this.closeDropdown.emit();
     
-    console.log("Notif shipment id: ", notif.shipment?.id);
-    
-    // 🔹 Redirigir a la página de shipment
-    // if (notif.shipment?.id) {
-    //   this.router.navigate(['/shipping', notif.shipment.id]);
-    // } else if (notif.sale?.id) {
-    //   // fallback: ir a la venta si no hay shipment
-    //   this.router.navigate(['/sales', notif.sale.id]);
-    // }
+    // 🔹 Navegar después de cerrar
+    setTimeout(() => {
+      if (notif.shipment?.id) {
+        this.router.navigate(['/shipping/detail', notif.shipment.id]);
+      } else if (notif.sale?.id) {
+        this.router.navigate(['/sales/detail', notif.sale.id]);
+      }
+    }, 0);
+
   }
 
   ngOnDestroy() {
