@@ -22,7 +22,22 @@ export class NotificationsDropdownInnerComponent implements OnInit {
 
   notifications: any[] = [];
   private sub: Subscription;
-  
+
+  // Mapeo de tipos de notificación a pestañas
+  typeToTab: { [key: string]: string } = {
+    'order_created': 'topbar_notifications_events',
+    'order_updated': 'topbar_notifications_events',
+    'package_shipped': 'topbar_notifications_notifications',
+    'package_returned': 'topbar_notifications_notifications',
+    'order_failed': 'topbar_notifications_logs',
+    'order_canceled': 'topbar_notifications_logs'
+  };
+
+  notificationsAlerts: any[] = [];
+  notificationsEvents: any[] = [];
+  notificationsLogs: any[] = [];
+  notificationsProveedores: any[] = [];
+    
   constructor(
     private layout: LayoutService,
     public _productService: ProductService,
@@ -48,8 +63,16 @@ export class NotificationsDropdownInnerComponent implements OnInit {
               time: new Date(n.createdAt).toLocaleTimeString(),
               icon: n.icon || './assets/media/svg/icons/Shopping/Box3.svg',
               shipment: n.shipment || null,
-              sale: n.sale || null
+              sale: n.sale || null,
+              tab: this.typeToTab[n.type] || 'topbar_notifications_notifications'
           }));
+
+          // Filtrar por tab
+          this.notificationsAlerts = this.notifications.filter(n => n.tab === 'topbar_notifications_notifications');
+          this.notificationsEvents = this.notifications.filter(n => n.tab === 'topbar_notifications_events');
+          this.notificationsLogs = this.notifications.filter(n => n.tab === 'topbar_notifications_logs');
+          this.notificationsProveedores = this.notifications.filter(n => n.tab === 'topbar_notifications_proveedores');
+
           this.cd.detectChanges();
         }
       },
@@ -63,13 +86,32 @@ export class NotificationsDropdownInnerComponent implements OnInit {
       const exists = this.notifications.find(n => n.id === notif.id);
       if (exists) return;
 
-      this.notifications.unshift({
-        ...notif, // 🔹 Copia todas las propiedades originales
-        time: new Date(notif.createdAt).toLocaleTimeString(),
-        icon: notif.icon || './assets/media/svg/icons/General/Attachment2.svg',
+      const newNotif = {
+        ...notif,
+        time: new Date(notif.createdAt || notif.date).toLocaleTimeString(),
+        icon: notif.icon || './assets/media/svg/icons/Shopping/Box3.svg',
         shipment: notif.shipment || null,
-        sale: notif.sale || null
-      });
+        sale: notif.sale || null,
+        tab: this.typeToTab[notif.type] || 'topbar_notifications_notifications'
+      };
+
+      this.notifications.unshift(newNotif);
+
+      // Actualizar tabs filtradas
+      switch (newNotif.tab) {
+        case 'topbar_notifications_notifications':
+          this.notificationsAlerts.unshift(newNotif);
+          break;
+        case 'topbar_notifications_events':
+          this.notificationsEvents.unshift(newNotif);
+          break;
+        case 'topbar_notifications_logs':
+          this.notificationsLogs.unshift(newNotif);
+          break;
+        case 'topbar_notifications_proveedores':
+          this.notificationsProveedores.unshift(newNotif);
+          break;
+      }
 
       this.cd.detectChanges();
     });

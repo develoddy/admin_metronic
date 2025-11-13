@@ -44,7 +44,7 @@
             <li class="nav-item">
                 <a class="nav-link cursor-pointer" data-toggle="tab" (click)="setActiveTabId('topbar_notifications_logs')" [ngClass]="getActiveCSSClasses('topbar_notifications_logs')">Logs</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item d-none">
                 <a class="nav-link cursor-pointer" data-toggle="tab" (click)="setActiveTabId('topbar_notifications_proveedores')" [ngClass]="getActiveCSSClasses('topbar_notifications_proveedores')">Proveedores</a>
             </li>
         </ul>
@@ -60,26 +60,27 @@
     <div class="tab-pane p-8" id="topbar_notifications_notifications" role="tabpanel" [ngClass]="getActiveCSSClasses('topbar_notifications_notifications')">
         <!--begin::Scroll-->
         <div class="scroll pr-7 mr-n7 ps" style="position: relative; max-height: 300px;" perfectScrollbar>
-          <div class="d-flex align-items-center mb-6" [ngClass]="{'bg-light': !notif.isRead}" *ngFor="let notif of notifications">
-            <div class="symbol symbol-40 symbol-light-{{ notif.color }} mr-5">
-              <span class="symbol-label">
-                <span
-                  [inlineSVG]="notif.icon"
-                  cacheSVG="true"
-                  class="svg-icon svg-icon-xl svg-icon-{{ notif.color }}"
-                ></span>
-              </span>
+          <!-- <div class="d-flex align-items-center mb-6" [ngClass]="{'bg-light': !notif.isRead}" *ngFor="let notif of notifications"> -->
+            <div class="d-flex align-items-center mb-6" *ngFor="let notif of notificationsAlerts" [ngClass]="{'bg-light': !notif.isRead}">
+                <div class="symbol symbol-40 symbol-light-{{ notif.color }} mr-5">
+                    <span class="symbol-label">
+                        <span
+                        [inlineSVG]="notif.icon"
+                        cacheSVG="true"
+                        class="svg-icon svg-icon-xl svg-icon-{{ notif.color }}"
+                        ></span>
+                    </span>
+                </div>
+                <div class="d-flex flex-column font-weight-bold">
+                    <a href="" onclick="return false;" (click)="openNotification($event, notif)" class="text-dark text-hover-primary mb-1 font-size-lg">
+                        {{ notif.title }}
+                    </a>
+                    <span class="text-muted">{{ notif.message }}</span>
+                    <small class="text-muted mt-1">{{ notif.time }}</small>
+                    <!-- <small class="text-muted mt-1">{{ notif.createdAt | date:'short' }}</small> -->
+                </div>
+                <button type="button" class="btn btn-sm btn-light" (click)="openNotification($event, notif)">Ir al pedido</button>
             </div>
-            <div class="d-flex flex-column font-weight-bold">
-              <a href="" onclick="return false;" (click)="openNotification($event, notif)" class="text-dark text-hover-primary mb-1 font-size-lg">
-                {{ notif.title }}
-              </a>
-              <span class="text-muted">{{ notif.message }}</span>
-              <small class="text-muted mt-1">{{ notif.time }}</small>
-              <!-- <small class="text-muted mt-1">{{ notif.createdAt | date:'short' }}</small> -->
-            </div>
-            <button type="button" class="btn btn-sm btn-light" (click)="openNotification($event, notif)">Ir al pedido</button>
-          </div>
         </div>
         <!--end::Scroll-->
 
@@ -237,256 +238,18 @@
 
     <!-- -------------- AUN NO TRABAJAMOS CON ESTOS TABS --------------- -->
     <!--begin::Tabpane-->
-    <div class="tab-pane d-none" id="topbar_notifications_events" role="tabpanel" [ngClass]="getActiveCSSClasses('topbar_notifications_events')">
+    <div class="tab-pane" id="topbar_notifications_events" role="tabpanel" [ngClass]="getActiveCSSClasses('topbar_notifications_events')">
         <!--begin::Nav-->
         <div class="navi navi-hover scroll my-4" data-scroll="true" style="position: relative; max-height: 300px;" perfectScrollbar>
             <!--begin::Item-->
-            <a href="#" class="navi-item">
+            <a *ngFor="let notif of notificationsEvents" href="#" class="navi-item" (click)="openNotification($event, notif)">
                 <div class="navi-link">
                     <div class="navi-icon mr-2">
                         <i class="flaticon2-line-chart text-success"></i>
                     </div>
                     <div class="navi-text">
-                        <div class="font-weight-bold">
-                            New report has been received
-                        </div>
-                        <div class="text-muted">
-                            23 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon2-paper-plane text-danger"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            Finance report has been generated
-                        </div>
-                        <div class="text-muted">
-                            25 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon2-user flaticon2-line- text-success"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            New order has been received
-                        </div>
-                        <div class="text-muted">
-                            2 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon2-pin text-primary"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            New customer is registered
-                        </div>
-                        <div class="text-muted">
-                            3 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon2-sms text-danger"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            Application has been approved
-                        </div>
-                        <div class="text-muted">
-                            3 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon2-pie-chart-3 text-warning"></i>
-                    </div>
-                    <div class="navinavinavi-text">
-                        <div class="font-weight-bold">
-                            New file has been uploaded
-                        </div>
-                        <div class="text-muted">
-                            5 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon-pie-chart-1 text-info"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            New user feedback received
-                        </div>
-                        <div class="text-muted">
-                            8 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon2-settings text-success"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            System reboot has been successfully completed
-                        </div>
-                        <div class="text-muted">
-                            12 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon-safe-shield-protection text-primary"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            New order has been placed
-                        </div>
-                        <div class="text-muted">
-                            15 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon2-notification text-primary"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            Company meeting canceled
-                        </div>
-                        <div class="text-muted">
-                            19 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon2-fax text-success"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            New report has been received
-                        </div>
-                        <div class="text-muted">
-                            23 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon-download-1 text-danger"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            Finance report has been generated
-                        </div>
-                        <div class="text-muted">
-                            25 hrs ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon-security text-warning"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            New customer comment recieved
-                        </div>
-                        <div class="text-muted">
-                            2 days ago
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!--end::Item-->
-
-            <!--begin::Item-->
-            <a href="#" class="navi-item">
-                <div class="navi-link">
-                    <div class="navi-icon mr-2">
-                        <i class="flaticon2-analytics-1 text-success"></i>
-                    </div>
-                    <div class="navi-text">
-                        <div class="font-weight-bold">
-                            New customer is registered
-                        </div>
-                        <div class="text-muted">
-                            3 days ago
-                        </div>
+                        <div class="font-weight-bold">{{ notif.title }}</div>
+                        <div class="text-muted">{{ notif.time }}</div>
                     </div>
                 </div>
             </a>
@@ -497,18 +260,30 @@
     <!--end::Tabpane-->
 
     <!--begin::Tabpane-->
-    <div class="tab-pane d-none" id="topbar_notifications_logs" role="tabpanel" [ngClass]="getActiveCSSClasses('topbar_notifications_logs')">
+    <div class="tab-pane" id="topbar_notifications_logs" role="tabpanel" [ngClass]="getActiveCSSClasses('topbar_notifications_logs')">
         <!--begin::Nav-->
-        <div class="d-flex flex-center text-center text-muted min-h-200px">
-            All caught up!
-            <br />
-            No new notifications.
+        <div class="navi navi-hover scroll my-4" data-scroll="true" style="position: relative; max-height: 300px;" perfectScrollbar>
+            <a *ngFor="let notif of notificationsLogs" href="#" class="navi-item" (click)="openNotification($event, notif)">
+                <div class="navi-link">
+                    <div class="navi-icon mr-2">
+                        <i class="flaticon2-warning text-danger"></i>
+                    </div>
+                    <div class="navi-text">
+                        <div class="font-weight-bold">{{ notif.title }}</div>
+                        <div class="text-muted">{{ notif.time }}</div>
+                    </div>
+                </div>
+            </a>
+            <div *ngIf="notificationsLogs.length === 0" class="d-flex flex-center text-center text-muted min-h-200px">
+                All caught up!<br />
+                No new notifications.
+            </div>
         </div>
         <!--end::Nav-->
     </div>
     <!--end::Tabpane-->
 
-    <!-- Proveedores -->
+    <!-- Proveedores d-none -->
     <div class="tab-pane p-8 d-none" id="topbar_notifications_proveedores" role="tabpanel" [ngClass]="getActiveCSSClasses('topbar_notifications_proveedores')">
         <!--begin::Scroll-->
         <div class="scroll pr-7 mr-n7 ps" style="position: relative; max-height: 300px;" perfectScrollbar>
