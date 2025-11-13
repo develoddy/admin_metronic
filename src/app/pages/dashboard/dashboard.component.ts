@@ -16,7 +16,7 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    console.log("------ DEBUGG: DASHBOARD LOAD -------");
+    //console.log("------ DEBUGG: DASHBOARD LOAD -------");
     //this.allCategories();
     //this.allProducts();
   }

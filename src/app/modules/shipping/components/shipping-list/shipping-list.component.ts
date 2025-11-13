@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, SimpleChanges, Input } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, SimpleChanges, Input, HostListener } from '@angular/core';
 import { debounceTime } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -20,7 +20,7 @@ export class ShippingListComponent implements OnInit {
   totalPages = 0;
   q = '';
   statusFilter: string = 'all'; // valor por defecto
-
+  openDropdownId: number | null = null;
   search$ = new Subject<string>();
 
   constructor(
@@ -95,9 +95,36 @@ export class ShippingListComponent implements OnInit {
     });
   }
 
+  // viewSale(sale: any) {
+  //   // navigate to detail route
+  //   this.router.navigate(['/sales/detail', sale.id]);
+  // }
+
+
   /** 🔹 Abrir detalle de envío */
-  openDetail(s: any) {
-    this.router.navigate(['/admin/ecommerce/shipment', s.id]);
+  viewShipping(shipment: any) {
+    this.router.navigate(['/shipping/detail', shipment.id]);
+  }
+
+  /** 🔹 Abre/cierra el menú */
+  toggleActions(event: MouseEvent, shipmentId: number): void {
+    event.stopPropagation(); // evita burbujeo que cierra el menú
+    this.openDropdownId = this.openDropdownId === shipmentId ? null : shipmentId;
+  }
+
+  /** 🔹 Cierra el menú manualmente */
+  closeDropdown(): void {
+    this.openDropdownId = null;
+  }
+
+  /** 🔹 Cierra el menú al hacer clic fuera */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    // Si el clic no está dentro de un botón Actions o del menú, se cierra
+    if (!target.closest('.dropdown-menu') && !target.closest('.btn-light')) {
+      this.openDropdownId = null;
+    }
   }
 
   /** 🔹 Cambiar número de registros por página */

@@ -67,7 +67,7 @@ export class SalesListComponent implements OnInit {
   load(page: number = this.currentPage) {
     const params: any = { page, limit: this.limit, q: this.q, timeFilter: this.timeFilter };
     this.svc.getSales(params).subscribe(resp => {
-        console.log('getSales response:', resp);
+      //console.log('getSales response:', resp);
       if (resp && resp.success) {
         this.sales = resp.sales || resp.sales || [];
         this.total = resp.total || 0;
@@ -75,7 +75,7 @@ export class SalesListComponent implements OnInit {
         this.totalPages = resp.pages || Math.ceil(this.total / this.limit);
 
         // Debug: log printfulStatus for each sale to verify the field arrives from backend
-        this.sales.forEach(s => console.log('Venta', s.id, 'printfulStatus:', s.printfulStatus));
+        //this.sales.forEach(s => console.log('Venta', s.id, 'printfulStatus:', s.printfulStatus));
 
         this.cd.detectChanges(); 
       }

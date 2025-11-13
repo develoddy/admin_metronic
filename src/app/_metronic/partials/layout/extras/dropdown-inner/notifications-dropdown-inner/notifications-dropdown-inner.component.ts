@@ -3,6 +3,7 @@ import { LayoutService } from '../../../../../core';
 import { ProductService } from 'src/app/modules/product/_services/product.service';
 import { NotificationsService } from 'src/app/_metronic/shared/crud-table/services/notifications.service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-notifications-dropdown-inner',
@@ -23,7 +24,8 @@ export class NotificationsDropdownInnerComponent implements OnInit {
     private layout: LayoutService,
     public _productService: ProductService,
     private notificationsService: NotificationsService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -36,15 +38,22 @@ export class NotificationsDropdownInnerComponent implements OnInit {
       next: (resp: any) => {
         console.log('Notificaciones históricas:', resp);
         if (resp.success && resp.notifications) {
+          this.notifications = resp.notifications;
+
           this.notifications = resp.notifications.map((n: any) => ({
-            id: n.id,
-            title: n.title,
-            message: n.message,
-            time: new Date(n.createdAt).toLocaleTimeString(),
-            icon: n.icon || './assets/media/svg/icons/General/Attachment2.svg',
-            color: n.color || 'success',
-            isRead: n.isRead,
+              ...n,
+              time: new Date(n.createdAt).toLocaleTimeString(),
+              icon: n.icon || './assets/media/svg/icons/Shopping/Box3.svg',
           }));
+          // this.notifications = resp.notifications.map((n: any) => ({
+          //   id: n.id,
+          //   title: n.title,
+          //   message: n.message,
+          //   time: new Date(n.createdAt).toLocaleTimeString(),
+          //   icon: n.icon || './assets/media/svg/icons/General/Attachment2.svg',
+          //   color: n.color || 'success',
+          //   isRead: n.isRead,
+          // }));
 
           this.cd.detectChanges();
         }
@@ -73,21 +82,30 @@ export class NotificationsDropdownInnerComponent implements OnInit {
   }
 
   openNotification(notif: any) {
-    // Si ya está leída, no hacemos nada
-    if (notif.isRead) return;
+    // 🔹 Marcar como leída si no lo está
+    if (!notif.isRead) {
+      this.notificationsService.markAsRead(notif.id).subscribe({
+        next: (resp: any) => {
+          if (resp.success) {
+            notif.isRead = true;
+            console.log('Notificación marcada como leída:', notif.id);
+          }
+        },
+        error: (err) => console.error('Error al marcar notificación como leída:', err)
+      });
+    }
 
-    // Llamada al service para marcarla como leída
-    this.notificationsService.markAsRead(notif.id).subscribe({
-      next: (resp: any) => {
-        if (resp.success) {
-          // Actualizamos la notificación en el array
-          notif.isRead = true;
-          this.cd.detectChanges();
-          console.log('Notificación marcada como leída:', notif.id);
-        }
-      },
-      error: (err) => console.error('Error al marcar notificación como leída:', err)
-    });
+    console.log("Notif: ", notif);
+    
+    console.log("Notif shipment id: ", notif.shipment?.id);
+    
+    // 🔹 Redirigir a la página de shipment
+    // if (notif.shipment?.id) {
+    //   this.router.navigate(['/shipping', notif.shipment.id]);
+    // } else if (notif.sale?.id) {
+    //   // fallback: ir a la venta si no hay shipment
+    //   this.router.navigate(['/sales', notif.sale.id]);
+    // }
   }
 
   ngOnDestroy() {

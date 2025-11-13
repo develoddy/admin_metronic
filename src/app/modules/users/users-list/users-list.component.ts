@@ -74,7 +74,6 @@ export class UsersListComponent implements OnInit {
 
   allUsers() {
     this._userService.allUsers(this.search).subscribe((resp:any) => {
-      console.log("Respuesta de allUsers:", resp);
       this.users = resp.users;
     });
   }

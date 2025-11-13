@@ -5,7 +5,7 @@ import { ShippingDetailComponent } from './components/shipping-detail/shipping-d
 
 const routes: Routes = [
   { path: 'list', component: ShippingListComponent },
-  { path: ':id',component: ShippingDetailComponent },
+  { path: 'detail/:id',component: ShippingDetailComponent },
   { path: '', redirectTo: 'list', pathMatch: 'full' }
 ];
 

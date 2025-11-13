@@ -204,6 +204,9 @@
                                             <th class="text-end min-w-100px dt-type-numeric dt-orderable-asc dt-orderable-desc" data-dt-column="5" rowspan="1" colspan="1">
                                                 <div class="dt-column-header"><span class="dt-column-title">Total</span><span class="dt-column-order" role="button" aria-label="Total: Activate to sort" tabindex="0"></span></div>
                                             </th>
+                                            <th class="text-end min-w-100px dt-type-numeric dt-orderable-asc dt-orderable-desc" data-dt-column="5" rowspan="1" colspan="1">
+                                                <div class="dt-column-header"><span class="dt-column-title">Acción</span><span class="dt-column-order" role="button" aria-label="Total: Activate to sort" tabindex="0"></span></div>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-semibold text-gray-600">
@@ -252,36 +255,26 @@
                                             <td class="text-end">
                                                 €{{ shipment.sale?.total | number:'1.2-2' }}
                                             </td>
+
+                                            <td class="text-end">
+                                            <div class="dropdown d-inline-block" style="position: relative;">
+                                                <button  class="btn btn-sm btn-light dropdown-toggle" (click)="toggleActions($event, shipment.id)">Actions</button>
+                                                <!-- Dropdown -->
+                                                <div 
+                                                    *ngIf="openDropdownId === shipment.id" 
+                                                    class="dropdown-menu show shadow bg-white border rounded py-2"
+                                                    style="position: absolute; left: 50%; transform: translateX(-76%); top: 100%; min-width: 160px; z-index: 1050;"
+                                                    (click)="$event.stopPropagation()">
+                                                
+                                                    <button class="dropdown-item" (click)="viewShipping(shipment); closeDropdown()">Ver</button>
+                                                </div>
+                                            </div>
+                                        </td>
                                         </tr>
                                     </tbody>
                                     <tfoot></tfoot>
                                 </table>
                             </div>
-                            <!-- <div id="" class="row">
-                                <div id="" class="col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start dt-toolbar">
-                                    <div><select aria-controls="kt_ecommerce_report_shipping_table" class="form-select form-select-solid form-select-sm" id="dt-length-0">
-                                            <option value="10">10</option>
-                                            <option value="25">25</option>
-                                            <option value="50">50</option>
-                                            <option value="100">100</option>
-                                        </select><label for="dt-length-0"></label></div>
-                                </div>
-                                <div id="" class="col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end">
-                                    <div class="dt-paging paging_simple_numbers">
-                                        <nav aria-label="pagination">
-                                            <ul class="pagination">
-                                                <li class="dt-paging-button page-item disabled"><button class="page-link previous" role="link" type="button" aria-controls="kt_ecommerce_report_shipping_table" aria-disabled="true" aria-label="Previous" data-dt-idx="previous" tabindex="-1"><i class="previous"></i></button></li>
-                                                <li class="dt-paging-button page-item active"><button class="page-link" role="link" type="button" aria-controls="kt_ecommerce_report_shipping_table" aria-current="page" data-dt-idx="0">1</button></li>
-                                                <li class="dt-paging-button page-item"><button class="page-link" role="link" type="button" aria-controls="kt_ecommerce_report_shipping_table" data-dt-idx="1">2</button></li>
-                                                <li class="dt-paging-button page-item"><button class="page-link" role="link" type="button" aria-controls="kt_ecommerce_report_shipping_table" data-dt-idx="2">3</button></li>
-                                                <li class="dt-paging-button page-item"><button class="page-link" role="link" type="button" aria-controls="kt_ecommerce_report_shipping_table" data-dt-idx="3">4</button></li>
-                                                <li class="dt-paging-button page-item"><button class="page-link" role="link" type="button" aria-controls="kt_ecommerce_report_shipping_table" data-dt-idx="4">5</button></li>
-                                                <li class="dt-paging-button page-item"><button class="page-link next" role="link" type="button" aria-controls="kt_ecommerce_report_shipping_table" aria-label="Next" data-dt-idx="next"><i class="next"></i></button></li>
-                                            </ul>
-                                        </nav>
-                                    </div>
-                                </div>
-                            </div> -->
 
                             <!-- PAGINACIÓN -->
                             <div class="row mt-4">
