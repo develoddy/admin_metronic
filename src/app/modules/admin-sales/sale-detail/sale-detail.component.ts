@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AdminSalesService } from '../services/admin-sales.service';
+
 
 @Component({
   selector: 'app-sale-detail',
@@ -11,7 +12,11 @@ export class SaleDetailComponent implements OnInit {
   sale: any = null;
   id: any = null;
 
-  constructor(private route: ActivatedRoute, private svc: AdminSalesService) { }
+  constructor(
+    private route: ActivatedRoute, 
+    private svc: AdminSalesService,
+    private cd: ChangeDetectorRef,
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -22,6 +27,7 @@ export class SaleDetailComponent implements OnInit {
 
   load() {
     this.svc.getSaleById(this.id).subscribe(resp => {
+      console.log('getSaleById response:', resp);
       if (resp && resp.sale) {
         this.sale = resp.sale;
       } else if (resp && resp.success && resp.sale) {
@@ -30,6 +36,8 @@ export class SaleDetailComponent implements OnInit {
         // fallback: some APIs may return sale directly
         this.sale = resp.sale || resp;
       }
+
+      this.cd.detectChanges(); 
     }, err => console.error('getSaleById error', err));
   }
 
@@ -47,6 +55,8 @@ export class SaleDetailComponent implements OnInit {
           console.warn('refreshPrintful returned unexpected response', res);
           alert('No se pudo actualizar el estado desde Printful');
         }
+
+        this.cd.detectChanges(); 
       },
       error: (err) => {
         console.error('Error refreshing Printful status', err);
@@ -54,4 +64,20 @@ export class SaleDetailComponent implements OnInit {
       }
     });
   }
+
+  getVariedadPreview(item: any): string {
+    const variedad = item.variedad;
+
+    if (variedad && Array.isArray(variedad.files) && variedad.files.length > 0) {
+      // 1️⃣ Intentar preview
+      const previewFile = variedad.files.find((f: any) => f.type === 'preview');
+      if (previewFile && previewFile.preview_url) {
+        return previewFile.preview_url;
+      }
+    }
+
+    // Si no hay preview, retorna vacío por ahora
+    return '';
+  }
+
 }

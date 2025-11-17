@@ -58,6 +58,30 @@ export class ReceiptsViewComponent implements OnInit {
     });
   }
 
+  // receipt.component.ts
+  getVariedadImage(item: any): string {
+    const variedad = item.variedad;
+
+    if (variedad && Array.isArray(variedad.files) && variedad.files.length > 0) {
+      // 1️⃣ Intentar preview
+      const previewFile = variedad.files.find((f: any) => f.type === 'preview');
+      if (previewFile && previewFile.preview_url) return previewFile.preview_url;
+
+      // 2️⃣ Intentar default
+      const defaultFile = variedad.files.find((f: any) => f.type === 'default');
+      if (defaultFile && defaultFile.preview_url) return defaultFile.preview_url;
+
+      // 3️⃣ Cualquier otra como fallback
+      const anyFile = variedad.files[0];
+      if (anyFile) return anyFile.preview_url || anyFile.thumbnail_url || anyFile.url || '';
+    }
+
+    // 4️⃣ Fallback al producto
+    return item.product?.imagen || item.product?.portada || '';
+  }
+
+
+
   /** 🖨️ Imprimir recibo directamente */
   printReceipt() {
     window.print();

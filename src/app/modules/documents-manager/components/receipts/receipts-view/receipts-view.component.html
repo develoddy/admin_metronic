@@ -193,7 +193,7 @@
                                 <div class="text-sm-end">
                                     <!--begin::Logo-->
                                     <a href="#" class="d-block mw-150px ms-sm-auto">
-                                        <img alt="Logo" src="/metronic8/demo1/assets/media/svg/brand-logos/lloyds-of-london-logo.svg" class="w-100">
+                                        <img alt="Logo" src="assets/media/logo/logo.png" class="w-100">
                                     </a>
                                     <!--end::Logo-->
 
@@ -299,7 +299,9 @@
                                                                 <!--begin::Thumbnail-->
                                                                 <a href="#" onclick="return false;" class="symbol symbol-50px">
                                                                     <!-- <span class="symbol-label" style="background-image:url(/metronic8/demo1/assets/media//stock/ecommerce/1.png);"></span> -->
-                                                                    <img [src]="item.product.imagen" alt="{{ item.product.title }}" class="rounded" />
+                                                                    <!-- <img [src]="item.product.imagen" alt="{{ item.product.title }}" class="rounded" /> -->
+                                                                     <img [src]="getVariedadImage(item)" alt="{{ item.product.title }}" class="rounded" />
+
                                                                 </a>
                                                                 <!--end::Thumbnail-->
 

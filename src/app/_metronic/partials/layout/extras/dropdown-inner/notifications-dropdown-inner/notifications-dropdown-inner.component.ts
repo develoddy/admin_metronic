@@ -54,7 +54,7 @@ export class NotificationsDropdownInnerComponent implements OnInit {
     // 🔹 Traer notificaciones históricas desde DB
     this.notificationsService.getNotifications(50).subscribe({
       next: (resp: any) => {
-        console.log('Notificaciones históricas:', resp);
+        //console.log('Notificaciones históricas:', resp);
         if (resp.success && resp.notifications) {
           this.notifications = resp.notifications;
 
