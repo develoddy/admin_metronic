@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ProductService } from '../_services/product.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CategoriesService } from '../../categories/_services/categories.service';
@@ -71,7 +71,8 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
     public _router: Router,
     public _activeRouter: ActivatedRoute,
     public toaster: Toaster,
-    public _modalService: NgbModal
+    public _modalService: NgbModal,
+    private cd: ChangeDetectorRef,
   ) { 
     
   }
@@ -82,18 +83,13 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngOnInit(): void {
-      this.tinymceINIT();
-    // this.subscriptions = this._productService.isLoading$.subscribe(isLoading => {
-    //   this.isLoading$= isLoading;
-    // });
+    this.tinymceINIT();
+    
     this.isLoading$ = this._productService.isLoading$;
     this._activeRouter.params.subscribe((resp:any) => {
       this.product_id = resp.id;
     });
     
-
-    
-
     this._productService.showProduct(this.product_id).subscribe((resp:any) => {
 
       this.product_selected = resp.product;
@@ -121,12 +117,12 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
 
     });
 
-    
-
     this._categorieService.allCategories().subscribe((resp:any) => {
       this.categories = resp.categories;
       this.loadServices();
     });
+
+    this.cd.detectChanges();
   }
 
   tinymceINIT() {
@@ -290,9 +286,10 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
         return;
       } else {
         this.toaster.open(NoticyAlertComponent, {text: `primary- El producto se modificado correctamente.`});
-       
+        this.cd.detectChanges();
         return;
       }
+      
     })
   }
 
@@ -302,8 +299,6 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
 
   checkedInventario(value) {
     this.type_inventario =  value;
-    
-    
   }
 
   saveVariedad() {

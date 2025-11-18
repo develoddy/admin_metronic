@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { URL_BACKEND } from 'src/app/config/config';
 import { ProductService } from '../_services/product.service';
 import { Router } from '@angular/router';
@@ -38,6 +38,7 @@ export class ListProductsComponent implements OnInit {
     public _router: Router,
     public _modalService: NgbModal,
     public _toaster: Toaster,
+    private cd: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
@@ -72,6 +73,8 @@ export class ListProductsComponent implements OnInit {
       this.currentPage = 1;
       this.totalPages = Math.ceil(this.products.length / this.limit);
       this.updatePagedProducts();
+      
+      this.cd.detectChanges();
     });
   }
 
