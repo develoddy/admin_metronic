@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AdminSalesService } from '../services/admin-sales.service';
+import { PriceCalculationService } from '../services/price-calculation.service';
 
 
 @Component({
@@ -16,6 +17,7 @@ export class SaleDetailComponent implements OnInit {
     private route: ActivatedRoute, 
     private svc: AdminSalesService,
     private cd: ChangeDetectorRef,
+    private priceCalculationService: PriceCalculationService
   ) { }
 
   ngOnInit(): void {
@@ -78,6 +80,37 @@ export class SaleDetailComponent implements OnInit {
 
     // Si no hay preview, retorna vacío por ahora
     return '';
+  }
+
+  // 💰 ================ MÉTODOS PARA PRECIOS ================ 💰
+
+  /**
+   * Obtiene el total de la venta con redondeo .95
+   * @param sale Objeto de venta
+   * @returns Total con redondeo .95 aplicado
+   */
+  getSaleTotal(sale: any): number {
+    return this.priceCalculationService.getSaleTotal(sale);
+  }
+
+  /**
+   * Obtiene el precio unitario con redondeo .95
+   * @param detail Detalle de la venta
+   * @returns Precio unitario con redondeo .95 aplicado
+   */
+  getUnitPrice(detail: any): number {
+    const price = detail.price_unitario || detail.unitPrice || 0;
+    return this.priceCalculationService.getAdminDisplayPrice(price);
+  }
+
+  /**
+   * Obtiene el total del detalle con redondeo .95
+   * @param detail Detalle de la venta
+   * @returns Total del detalle con redondeo .95 aplicado
+   */
+  getDetailTotal(detail: any): number {
+    const total = detail.total || detail.subtotal || 0;
+    return this.priceCalculationService.getAdminDisplayPrice(total);
   }
 
 }

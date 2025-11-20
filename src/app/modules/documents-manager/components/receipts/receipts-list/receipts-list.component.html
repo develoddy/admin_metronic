@@ -54,7 +54,7 @@
               </td>
 
               <td>{{ r.paymentMethod | titlecase }}</td>
-              <td>{{ r.amount | number:'1.2-2' }}</td>
+              <td>{{ getReceiptAmount(r) }}</td>
               <td>{{ r.paymentDate | date:'shortDate' }}</td>
 
               <td>

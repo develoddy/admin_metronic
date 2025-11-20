@@ -6,6 +6,7 @@ import { debounceTime } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { NoticyAlertComponent } from 'src/app/componets/notifications/noticy-alert/noticy-alert.component';
 import { Toaster } from 'ngx-toast-notifications';
+import { PriceCalculationService } from '../../../../admin-sales/services/price-calculation.service';
 
 @Component({
   selector: 'app-receipts-list',
@@ -39,7 +40,8 @@ export class ReceiptsListComponent implements OnInit {
     private router: Router,
     private cd: ChangeDetectorRef,
     public toaster: Toaster,
-    private http: HttpClient
+    private http: HttpClient,
+    private priceCalculationService: PriceCalculationService
   ) {}
 
   ngOnInit(): void {
@@ -101,6 +103,17 @@ export class ReceiptsListComponent implements OnInit {
    */
   newReceipt() {
     this.router.navigate(['/documents/receipts/view', 'new']);
+  }
+
+  // 💰 ================ MÉTODOS PARA PRECIOS ================ 💰
+
+  /**
+   * Obtiene el importe del recibo con redondeo .95 para consistencia con frontend
+   * @param receipt Objeto de recibo
+   * @returns Importe con redondeo .95 aplicado
+   */
+  getReceiptAmount(receipt: any): number {
+    return this.priceCalculationService.getAdminDisplayPrice(receipt.amount);
   }
 
 }

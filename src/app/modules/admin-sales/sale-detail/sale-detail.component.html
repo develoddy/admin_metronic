@@ -16,7 +16,7 @@
       <strong>Usuario:</strong> {{ (sale.user && sale.user.email) || (sale.guest && sale.guest.email) || '—' }}
     </div>
     <div class="mb-4">
-      <strong>Total:</strong> {{ sale.total }}
+      <strong>Total:</strong> € {{ getSaleTotal(sale) }}
     </div>
 
     <!-- Información Printful -->
@@ -65,9 +65,9 @@
             <td>{{ d.product?.title || d.title || d.product_title }}</td>
             <td>{{ d.product?.sku || d.sku || '—' }}</td>
             <td>{{ d.talla || d.variedad?.valor || d.variedad?.name || '—' }}</td>
-            <td>€ {{ d.price_unitario || d.unitPrice }}</td>
+            <td>€ {{ getUnitPrice(d) }}</td>
             <td>{{ d.cantidad || d.quantity }}</td>
-            <td>€ {{ d.total || d.subtotal }}</td>
+            <td>€ {{ getDetailTotal(d) }}</td>
           </tr>
         </tbody>
       </table>

@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Toaster } from 'ngx-toast-notifications';
 import { ReceiptService } from '../../../_services/receipt.service';
+import { PriceCalculationService } from '../../../../admin-sales/services/price-calculation.service';
 
 @Component({
   selector: 'app-receipts-view',
@@ -24,6 +25,7 @@ export class ReceiptsViewComponent implements OnInit {
     private receiptsService: ReceiptService,
     private toaster: Toaster,
     private cd: ChangeDetectorRef,
+    private priceCalculationService: PriceCalculationService
   ) { }
 
   ngOnInit(): void {
@@ -110,5 +112,24 @@ export class ReceiptsViewComponent implements OnInit {
   });
 }
 
+  // 💰 ================ MÉTODOS PARA PRECIOS ================ 💰
+
+  /**
+   * Obtiene el total de un item con redondeo .95
+   * @param item Item del recibo
+   * @returns Total con redondeo .95 aplicado
+   */
+  getItemTotal(item: any): number {
+    return this.priceCalculationService.getAdminDisplayPrice(item.total);
+  }
+
+  /**
+   * Obtiene el total de la venta con redondeo .95
+   * @param sale Objeto de venta
+   * @returns Total con redondeo .95 aplicado
+   */
+  getSaleTotal(sale: any): number {
+    return this.priceCalculationService.getSaleTotal(sale);
+  }
 
 }

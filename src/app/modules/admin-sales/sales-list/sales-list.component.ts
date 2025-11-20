@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ReceiptService } from '../../documents-manager/_services/receipt.service';
+import { PriceCalculationService } from '../services/price-calculation.service';
 
 
 @Component({
@@ -29,7 +30,8 @@ export class SalesListComponent implements OnInit {
     private svc: AdminSalesService, 
     private router: Router, 
     private cd: ChangeDetectorRef,
-    private receiptSvc: ReceiptService
+    private receiptSvc: ReceiptService,
+    private priceCalculationService: PriceCalculationService
   ) { }
 
   ngOnInit(): void {
@@ -160,6 +162,17 @@ export class SalesListComponent implements OnInit {
         console.log('🕒 Tooltip ocultado para venta ID:', saleId);
         }, 1500);
     });
+  }
+
+  // 💰 ================ MÉTODOS PARA PRECIOS ================ 💰
+
+  /**
+   * Obtiene el total de una venta con redondeo .95 para consistencia con frontend
+   * @param sale Objeto de venta
+   * @returns Total con redondeo .95 aplicado
+   */
+  getSaleTotal(sale: any): number {
+    return this.priceCalculationService.getSaleTotal(sale);
   }
     
 }
