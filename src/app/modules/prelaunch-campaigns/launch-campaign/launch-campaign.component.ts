@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { PrelaunchCampaignsService, LaunchCampaignConfig, LaunchCampaignResult } from '../services/prelaunch-campaigns.service';
 import Swal from 'sweetalert2';
@@ -22,7 +22,8 @@ export class LaunchCampaignComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private prelaunchService: PrelaunchCampaignsService
+    private prelaunchService: PrelaunchCampaignsService,
+    private cd: ChangeDetectorRef
   ) {
     this.campaignForm = this.createForm();
   }
@@ -89,12 +90,19 @@ export class LaunchCampaignComponent implements OnInit {
 
     this.prelaunchService.getEmailPreview(config).subscribe({
       next: (response) => {
+        console.log('✅ Preview received, HTML length:', response.html?.length);
         this.emailPreview = response.html;
         this.showPreview = true;
         this.previewLoading = false;
+        // Bloquear scroll del body
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+        // Forzar detección de cambios
+        this.cd.detectChanges();
+        console.log('🎭 Modal should be visible now. showPreview =', this.showPreview);
       },
       error: (err) => {
-        console.error('Error getting preview:', err);
+        console.error('❌ Error getting preview:', err);
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -177,11 +185,13 @@ export class LaunchCampaignComponent implements OnInit {
             }
           });
         } else {
+          // Si no hay usuarios pendientes, mostrar info en lugar de error
+          const isNoSubscribers = result.total === 0;
           Swal.fire({
-            icon: 'error',
-            title: 'Error en la Campaña',
+            icon: isNoSubscribers ? 'info' : 'error',
+            title: isNoSubscribers ? 'Sin Suscriptores Pendientes' : 'Error en la Campaña',
             text: result.message || 'Ocurrió un error al enviar la campaña',
-            footer: result.error ? `Detalles: ${result.error}` : ''
+            footer: result.error ? `💡 ${result.error}` : ''
           });
         }
       },
@@ -200,5 +210,9 @@ export class LaunchCampaignComponent implements OnInit {
 
   closePreview(): void {
     this.showPreview = false;
+    this.emailPreview = null;
+    // Restaurar scroll del body
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
   }
 }

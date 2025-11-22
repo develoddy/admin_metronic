@@ -111,9 +111,18 @@ export class PrelaunchCampaignsService {
    * Este es el endpoint principal que reemplaza el script
    */
   launchCampaign(config: LaunchCampaignConfig): Observable<LaunchCampaignResult> {
-    return this.http.post<LaunchCampaignResult>(
-      `${this.API_URL}/admin/campaigns/launch`,
+    return this.http.post<any>(
+      `${this.API_URL}/prelaunch/admin/campaigns/launch`,
       config
+    ).pipe(
+      map(response => ({
+        success: response.status === 200 && (response.data?.total > 0 || !response.warning),
+        message: response.message,
+        sent: response.data?.sent || 0,
+        errors: response.data?.errors || 0,
+        total: response.data?.total || 0,
+        error: response.error || response.warning
+      }))
     );
   }
 
@@ -122,7 +131,7 @@ export class PrelaunchCampaignsService {
    */
   getEmailPreview(config: LaunchCampaignConfig): Observable<{ html: string }> {
     return this.http.post<{ html: string }>(
-      `${this.API_URL}/admin/campaigns/preview`,
+      `${this.API_URL}/prelaunch/admin/campaigns/preview`,
       config
     );
   }
@@ -131,7 +140,7 @@ export class PrelaunchCampaignsService {
    * Reenviar email de verificación
    */
   resendVerification(email: string): Observable<any> {
-    return this.http.post(`${this.API_URL}/prelaunch/resend-verification`, { email });
+    return this.http.post(`${this.API_URL}/prelaunch/admin/resend-verification`, { email });
   }
 
   /**
@@ -139,7 +148,7 @@ export class PrelaunchCampaignsService {
    */
   exportSubscribers(filters?: any): Observable<Blob> {
     const params = filters ? { params: filters } : {};
-    return this.http.get(`${this.API_URL}/prelaunch/export`, {
+    return this.http.get(`${this.API_URL}/prelaunch/admin/export`, {
       ...params,
       responseType: 'blob'
     });
@@ -149,7 +158,7 @@ export class PrelaunchCampaignsService {
    * Obtener historial de campañas enviadas
    */
   getCampaignHistory(): Observable<any[]> {
-    return this.http.get<any>(`${this.API_URL}/admin/campaigns/history`).pipe(
+    return this.http.get<any>(`${this.API_URL}/prelaunch/admin/campaigns/history`).pipe(
       map(response => response.data || response)
     );
   }
