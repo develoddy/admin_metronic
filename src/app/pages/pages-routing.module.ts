@@ -166,6 +166,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'prelaunch',
+        loadChildren: () =>
+          import('../modules/prelaunch-campaigns/prelaunch-campaigns.module').then(
+            (m) => m.PrelaunchCampaignsModule
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',

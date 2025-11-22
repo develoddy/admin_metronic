@@ -1,0 +1,15 @@
+.email-preview-container {
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 4px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.modal.show {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-backdrop.show {
+  opacity: 0.5;
+}

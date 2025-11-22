@@ -1,0 +1,211 @@
+<div class="card card-custom">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i class="fas fa-rocket text-danger mr-2"></i>
+      Enviar Campaña de Lanzamiento
+    </h3>
+  </div>
+
+  <div class="card-body">
+    <!-- Warning Alert -->
+    <div class="alert alert-warning d-flex align-items-center mb-5">
+      <i class="fas fa-exclamation-triangle fa-2x mr-3"></i>
+      <div>
+        <strong>⚠️ Advertencia:</strong> Esta acción enviará emails masivos a todos los suscriptores verificados. 
+        Asegúrate de revisar la configuración antes de enviar.
+      </div>
+    </div>
+
+    <!-- Campaign Form -->
+    <form [formGroup]="campaignForm">
+      <div class="row">
+        <!-- Coupon Configuration -->
+        <div class="col-md-6">
+          <div class="card card-custom bg-light">
+            <div class="card-header">
+              <h5 class="card-title">🎁 Configuración del Cupón</h5>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Descuento del Cupón <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="coupon_discount"
+                  placeholder="Ej: 15%, 20%, €10"
+                />
+                <small class="form-text text-muted">Puede ser porcentaje (15%) o monto fijo (€10)</small>
+              </div>
+
+              <div class="form-group">
+                <label>Válido por (días) <span class="text-danger">*</span></label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  formControlName="coupon_expiry_days"
+                  min="1"
+                  max="30"
+                />
+                <small class="form-text text-muted">Entre 1 y 30 días</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Configuration -->
+        <div class="col-md-6">
+          <div class="card card-custom bg-light">
+            <div class="card-header">
+              <h5 class="card-title">🛍️ Productos Destacados</h5>
+            </div>
+            <div class="card-body">
+              <div formArrayName="featured_products">
+                <div *ngFor="let product of featuredProducts.controls; let i = index" class="mb-3 p-3 border rounded">
+                  <div [formGroupName]="i">
+                    <div class="d-flex justify-content-between mb-2">
+                      <strong>Producto {{ i + 1 }}</strong>
+                      <button 
+                        type="button" 
+                        class="btn btn-sm btn-light-danger" 
+                        (click)="removeProduct(i)"
+                        *ngIf="featuredProducts.length > 1"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                    
+                    <div class="form-group">
+                      <input 
+                        type="text" 
+                        class="form-control form-control-sm" 
+                        formControlName="name"
+                        placeholder="Nombre del producto"
+                      />
+                    </div>
+                    
+                    <div class="form-group">
+                      <input 
+                        type="text" 
+                        class="form-control form-control-sm" 
+                        formControlName="price"
+                        placeholder="Precio (Ej: €24.95)"
+                      />
+                    </div>
+                    
+                    <div class="form-group mb-0">
+                      <input 
+                        type="text" 
+                        class="form-control form-control-sm" 
+                        formControlName="image"
+                        placeholder="URL de la imagen"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                type="button" 
+                class="btn btn-sm btn-light-primary btn-block" 
+                (click)="addProduct()"
+                *ngIf="featuredProducts.length < 6"
+              >
+                <i class="fas fa-plus mr-2"></i> Agregar Producto
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="row mt-5">
+        <div class="col-12">
+          <div class="d-flex justify-content-between">
+            <div>
+              <button 
+                type="button" 
+                class="btn btn-light-primary btn-lg"
+                (click)="previewEmail()"
+                [disabled]="campaignForm.invalid || previewLoading"
+              >
+                <i class="fas fa-eye mr-2"></i>
+                {{ previewLoading ? 'Generando...' : 'Vista Previa' }}
+              </button>
+            </div>
+
+            <div>
+              <button 
+                type="button" 
+                class="btn btn-danger btn-lg"
+                (click)="launchCampaign()"
+                [disabled]="campaignForm.invalid || sending"
+              >
+                <i class="fas fa-rocket mr-2"></i>
+                <span *ngIf="!sending">Enviar Campaña</span>
+                <span *ngIf="sending">
+                  <span class="spinner-border spinner-border-sm mr-2"></span>
+                  Enviando... {{ sendingProgress }}%
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <!-- Result Display -->
+    <div *ngIf="result" class="mt-5">
+      <div class="alert" [ngClass]="{
+        'alert-success': result.success,
+        'alert-danger': !result.success
+      }">
+        <h5>
+          <i [ngClass]="{
+            'fas fa-check-circle': result.success,
+            'fas fa-times-circle': !result.success
+          }"></i>
+          {{ result.success ? '¡Campaña Enviada Exitosamente!' : 'Error en la Campaña' }}
+        </h5>
+        <div class="mt-3">
+          <strong>Estadísticas:</strong>
+          <ul class="mb-0 mt-2">
+            <li>Emails enviados: <strong>{{ result.sent }}</strong></li>
+            <li>Errores: <strong>{{ result.errors }}</strong></li>
+            <li>Total procesados: <strong>{{ result.total }}</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Email Preview Modal -->
+<div class="modal fade" [class.show]="showPreview" [style.display]="showPreview ? 'block' : 'none'" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-envelope mr-2"></i>
+          Vista Previa del Email
+        </h5>
+        <button type="button" class="close" (click)="closePreview()">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="emailPreview" [innerHTML]="emailPreview" class="email-preview-container"></div>
+        <div *ngIf="!emailPreview" class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+          <p class="mt-3">Generando preview...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closePreview()">Cerrar</button>
+        <button type="button" class="btn btn-danger" (click)="launchCampaign()">
+          <i class="fas fa-rocket mr-2"></i> Enviar Campaña
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showPreview" *ngIf="showPreview"></div>

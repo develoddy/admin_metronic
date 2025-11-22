@@ -1,0 +1,183 @@
+<div class="card card-custom gutter-b">
+  <div class="card-header">
+    <div class="card-title">
+      <h3 class="card-label">
+        <i class="fas fa-rocket text-primary mr-2"></i>
+        Dashboard de Pre-lanzamiento
+      </h3>
+    </div>
+    <div class="card-toolbar">
+      <button type="button" class="btn btn-sm btn-light-primary" (click)="refresh()" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center py-10">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Cargando...</span>
+      </div>
+      <p class="mt-3 text-muted">Cargando estadísticas...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="alert alert-danger d-flex align-items-center">
+      <i class="fas fa-exclamation-triangle mr-3"></i>
+      <div>{{ error }}</div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div *ngIf="stats && !loading" class="row">
+      <!-- Total Subscribers -->
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card bg-primary text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="text-white-75 small">Total Suscriptores</div>
+                <div class="h2 mb-0 font-weight-bold">{{ stats.total }}</div>
+              </div>
+              <div class="text-white-50">
+                <i class="fas fa-users fa-3x"></i>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-white-10">
+            <a routerLink="/prelaunch/subscribers" class="text-white small">
+              Ver todos <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verified -->
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card bg-success text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="text-white-75 small">Verificados</div>
+                <div class="h2 mb-0 font-weight-bold">{{ stats.verified }}</div>
+              </div>
+              <div class="text-white-50">
+                <i class="fas fa-check-circle fa-3x"></i>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-white-10">
+            <div class="text-white small">
+              {{ stats.conversion_rate }}% tasa de conversión
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending -->
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card bg-warning text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="text-white-75 small">Pendientes</div>
+                <div class="h2 mb-0 font-weight-bold">{{ stats.pending }}</div>
+              </div>
+              <div class="text-white-50">
+                <i class="fas fa-clock fa-3x"></i>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-white-10">
+            <div class="text-white small">
+              Esperando verificación
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notified -->
+      <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card bg-info text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="text-white-75 small">Notificados</div>
+                <div class="h2 mb-0 font-weight-bold">{{ stats.notified }}</div>
+              </div>
+              <div class="text-white-50">
+                <i class="fas fa-envelope-open fa-3x"></i>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-white-10">
+            <div class="text-white small">
+              Campaña de lanzamiento enviada
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div *ngIf="stats && !loading" class="row mt-5">
+      <div class="col-12">
+        <div class="card card-custom">
+          <div class="card-header">
+            <h3 class="card-title">Acciones Rápidas</h3>
+          </div>
+          <div class="card-body">
+            <div class="d-flex flex-wrap gap-3">
+              <a routerLink="/prelaunch/launch" class="btn btn-primary btn-lg">
+                <i class="fas fa-rocket mr-2"></i>
+                Enviar Campaña de Lanzamiento
+              </a>
+              <a routerLink="/prelaunch/subscribers" class="btn btn-light-primary btn-lg">
+                <i class="fas fa-list mr-2"></i>
+                Ver Suscriptores
+              </a>
+              <a routerLink="/prelaunch/stats" class="btn btn-light-info btn-lg">
+                <i class="fas fa-chart-bar mr-2"></i>
+                Estadísticas Detalladas
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sources Breakdown (if available) -->
+    <div *ngIf="stats && stats.by_source && !loading" class="row mt-5">
+      <div class="col-12">
+        <div class="card card-custom">
+          <div class="card-header">
+            <h3 class="card-title">Suscriptores por Fuente</h3>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-head-custom table-vertical-center">
+                <thead>
+                  <tr>
+                    <th>Fuente</th>
+                    <th class="text-right">Cantidad</th>
+                    <th class="text-right">Porcentaje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let source of stats.by_source | keyvalue">
+                    <td>
+                      <span class="badge badge-light-primary">{{ source.key }}</span>
+                    </td>
+                    <td class="text-right font-weight-bold">{{ source.value }}</td>
+                    <td class="text-right">{{ (source.value / stats.total * 100).toFixed(1) }}%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

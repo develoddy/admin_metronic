@@ -226,6 +226,36 @@ export const AsideMenuAdminGeneral = {
         ]
       },
 
+      /** --------- SECCION MARKETING ---------*/
+      { section: 'Marketing' },
+      {
+        title: 'Pre-lanzamiento',
+        root: true,
+        name: "prelaunch",
+        bullet: 'dot',
+        icon: 'flaticon2-rocket',
+        svg: './assets/media/svg/icons/Communication/Send.svg',
+        page: '/prelaunch',
+        submenu: [
+          {
+            title: 'Dashboard',
+            page: '/prelaunch/dashboard'
+          },
+          {
+            title: 'Suscriptores',
+            page: '/prelaunch/subscribers'
+          },
+          {
+            title: 'Enviar Campaña',
+            page: '/prelaunch/launch'
+          },
+          {
+            title: 'Estadísticas',
+            page: '/prelaunch/stats'
+          }
+        ]
+      },
+
       /** --------- SECCION GESTOR DE DOCUMENTOS ---------*/
       { section: 'Gestor de Documentos' },
       {
