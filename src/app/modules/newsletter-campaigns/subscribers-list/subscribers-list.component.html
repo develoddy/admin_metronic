@@ -1,0 +1,53 @@
+<div class="card card-custom">
+  <div class="card-header">
+    <div class="card-title"><h3>Lista de Suscriptores</h3></div>
+    <div class="card-toolbar">
+      <button class="btn btn-success" (click)="exportCSV()">
+        <i class="fas fa-download mr-2"></i>Exportar CSV
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <!-- Filters -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <select class="form-control" [(ngModel)]="filters.status" (change)="onFilterChange()">
+          <option value="all">Todos</option>
+          <option value="subscribed">Suscritos</option>
+          <option value="unsubscribed">Desuscritos</option>
+          <option value="bounced">Rebotados</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="loading" class="text-center py-5">Cargando...</div>
+    <table *ngIf="!loading" class="table table-hover">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Fuente</th>
+          <th>Estado</th>
+          <th>Verificado</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sub of subscribers">
+          <td>{{ sub.email }}</td>
+          <td><span class="badge badge-light">{{ sub.source }}</span></td>
+          <td><span class="badge" [ngClass]="{'badge-success': sub.status === 'subscribed', 'badge-warning': sub.status === 'unsubscribed'}">{{ sub.status }}</span></td>
+          <td><i class="fas" [ngClass]="sub.email_verified ? 'fa-check text-success' : 'fa-times text-danger'"></i></td>
+          <td>{{ sub.createdAt | date:'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div *ngIf="pagination.pages > 1" class="d-flex justify-content-center mt-4">
+      <button class="btn btn-sm btn-light" [disabled]="pagination.page === 1" (click)="onPageChange(pagination.page - 1)">Anterior</button>
+      <span class="mx-3">Página {{ pagination.page }} de {{ pagination.pages }}</span>
+      <button class="btn btn-sm btn-light" [disabled]="pagination.page === pagination.pages" (click)="onPageChange(pagination.page + 1)">Siguiente</button>
+    </div>
+  </div>
+</div>

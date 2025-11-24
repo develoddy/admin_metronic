@@ -173,6 +173,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'newsletter-campaigns',
+        loadChildren: () =>
+          import('../modules/newsletter-campaigns/newsletter-campaigns.module').then(
+            (m) => m.NewsletterCampaignsModule
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',

@@ -1,0 +1,116 @@
+<div class="card card-custom">
+  <div class="card-header">
+    <div class="card-title"><h3>Crear Campaña de Newsletter</h3></div>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="campaignForm">
+      <!-- Basic Info -->
+      <div class="form-group row">
+        <label class="col-lg-2 col-form-label">Nombre:</label>
+        <div class="col-lg-10">
+          <input type="text" class="form-control" formControlName="name" placeholder="Ej: Lanzamiento Nueva Colección" />
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-lg-2 col-form-label">Asunto:</label>
+        <div class="col-lg-10">
+          <input type="text" class="form-control" formControlName="subject" placeholder="Ej: ¡Nueva colección disponible! 🚀" />
+        </div>
+      </div>
+
+      <!-- HTML Body -->
+      <div class="form-group row">
+        <label class="col-lg-2 col-form-label">Contenido HTML:</label>
+        <div class="col-lg-10">
+          <textarea class="form-control" formControlName="htmlBody" rows="10" 
+                    placeholder="<h1>Título</h1><p>Contenido...</p>"></textarea>
+          <small class="form-text text-muted">Usa HTML para el contenido del email</small>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="separator separator-dashed my-7"></div>
+      <h4 class="mb-4">Filtros de Destinatarios</h4>
+
+      <div class="form-group row">
+        <label class="col-lg-2 col-form-label">Fuente:</label>
+        <div class="col-lg-4">
+          <select class="form-control" formControlName="filterSource" (change)="calculateRecipients()">
+            <option value="">Todas</option>
+            <option value="home">Home</option>
+            <option value="footer">Footer</option>
+            <option value="checkout">Checkout</option>
+          </select>
+        </div>
+
+        <label class="col-lg-2 col-form-label">Solo Verificados:</label>
+        <div class="col-lg-4">
+          <div class="checkbox-inline">
+            <label class="checkbox">
+              <input type="checkbox" formControlName="filterVerified" (change)="calculateRecipients()" />
+              <span></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <strong>Destinatarios:</strong> {{ recipientsCount }} suscriptores
+      </div>
+
+      <!-- Test Emails -->
+      <div class="separator separator-dashed my-7"></div>
+      <h4 class="mb-4">Envío de Prueba</h4>
+
+      <div class="form-group row">
+        <label class="col-lg-2 col-form-label">Emails de Prueba:</label>
+        <div class="col-lg-8">
+          <input type="text" class="form-control" [(ngModel)]="testEmailsString" [ngModelOptions]="{standalone: true}"
+                 placeholder="test1@email.com, test2@email.com" />
+          <small class="form-text text-muted">Separar con comas</small>
+        </div>
+        <div class="col-lg-2">
+          <button type="button" class="btn btn-info" (click)="sendTestEmails()" [disabled]="sending">
+            <i class="fas fa-paper-plane mr-2"></i>Enviar Prueba
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="separator separator-dashed my-7"></div>
+      <div class="form-group row">
+        <div class="col-lg-12 text-right">
+          <button type="button" class="btn btn-secondary mr-2" (click)="preview()">
+            <i class="fas fa-eye mr-2"></i>Vista Previa
+          </button>
+          <button type="button" class="btn btn-primary mr-2" (click)="sendCampaign()" [disabled]="sending || campaignForm.invalid">
+            <span *ngIf="!sending"><i class="fas fa-paper-plane mr-2"></i>Enviar Campaña</span>
+            <span *ngIf="sending"><i class="fas fa-spinner fa-spin mr-2"></i>Enviando...</span>
+          </button>
+          <a routerLink="/newsletter-campaigns/dashboard" class="btn btn-light">Cancelar</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div *ngIf="showPreview" class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Vista Previa</h5>
+        <button type="button" class="close" (click)="closePreview()">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div [innerHTML]="previewHtml"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closePreview()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

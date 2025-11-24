@@ -255,6 +255,29 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
+      {
+        title: 'Newsletter',
+        root: true,
+        name: "newsletter",
+        bullet: 'dot',
+        icon: 'flaticon2-mail',
+        svg: './assets/media/svg/icons/Communication/Mail-opened.svg',
+        page: '/newsletter-campaigns',
+        submenu: [
+          {
+            title: 'Dashboard',
+            page: '/newsletter-campaigns/dashboard'
+          },
+          {
+            title: 'Suscriptores',
+            page: '/newsletter-campaigns/subscribers'
+          },
+          {
+            title: 'Crear Campaña',
+            page: '/newsletter-campaigns/campaign/create'
+          }
+        ]
+      },
 
       /** --------- SECCION GESTOR DE DOCUMENTOS ---------*/
       { section: 'Gestor de Documentos' },
