@@ -5,6 +5,14 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   font-family: 'Courier New', Courier, monospace;
+  transition: all 0.3s ease;
+  
+  // Estado colapsado
+  &.terminal-collapsed {
+    .sync-terminal-header {
+      border-bottom: none;
+    }
+  }
   
   .sync-terminal-header {
     background: #2d2d2d;
@@ -13,16 +21,49 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #404040;
+    transition: border-bottom 0.3s ease;
     
     .terminal-title {
       color: #c5c5c5;
       font-size: 12px;
       font-weight: 500;
+      display: flex;
+      align-items: center;
+      
+      .badge {
+        font-size: 10px;
+        padding: 2px 8px;
+      }
     }
     
     .terminal-controls {
       display: flex;
       align-items: center;
+      gap: 4px;
+      
+      .btn-terminal-action {
+        background: transparent;
+        border: none;
+        color: #c5c5c5;
+        padding: 4px 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 4px;
+        
+        &:hover {
+          background: #404040;
+          color: #fff;
+        }
+        
+        &:focus {
+          outline: none;
+          box-shadow: none;
+        }
+        
+        i {
+          font-size: 12px;
+        }
+      }
     }
   }
   

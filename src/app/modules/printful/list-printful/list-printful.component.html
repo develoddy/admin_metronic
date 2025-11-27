@@ -58,21 +58,40 @@
       <p class="text-muted mt-3" *ngIf="syncStartTime">
         Iniciado: {{ syncStartTime | date:'short' }}
       </p>
-      
-      <!-- Terminal de Logs en Tiempo Real -->
-      <div *ngIf="showTerminal" class="sync-terminal mt-5">
+    </div>
+    
+    <!-- Terminal de Logs en Tiempo Real (FUERA del div de isLoading) -->
+    <div *ngIf="showTerminal" class="sync-terminal mt-5" [class.terminal-collapsed]="terminalCollapsed">
         <div class="sync-terminal-header">
           <span class="terminal-title">
             <i class="fas fa-terminal mr-2"></i>
             Proceso de Sincronización
+            <span class="badge badge-light-success ml-2" *ngIf="syncCompleted && !isLoading">
+              Completado
+            </span>
+            <span class="badge badge-light-primary ml-2" *ngIf="isLoading">
+              En progreso...
+            </span>
           </span>
           <span class="terminal-controls">
-            <i class="fas fa-circle text-danger mr-1" style="font-size: 8px;"></i>
-            <i class="fas fa-circle text-warning mr-1" style="font-size: 8px;"></i>
-            <i class="fas fa-circle text-success" style="font-size: 8px;"></i>
+            <!-- Botón para minimizar/expandir -->
+            <button 
+              class="btn btn-sm btn-icon btn-terminal-action" 
+              (click)="toggleTerminal()"
+              [attr.title]="terminalCollapsed ? 'Expandir' : 'Minimizar'">
+              <i class="fas" [ngClass]="terminalCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+            </button>
+            <!-- Botón para cerrar (solo visible cuando no está en progreso) -->
+            <button 
+              class="btn btn-sm btn-icon btn-terminal-action ml-1" 
+              (click)="closeTerminal()"
+              *ngIf="!isLoading"
+              title="Cerrar terminal">
+              <i class="fas fa-times"></i>
+            </button>
           </span>
         </div>
-        <div class="sync-terminal-body">
+        <div class="sync-terminal-body" [class.d-none]="terminalCollapsed">
           <div *ngFor="let log of terminalLogs" class="terminal-line" [ngClass]="'terminal-' + log.type">
             <span class="terminal-timestamp">{{ log.timestamp | date:'HH:mm:ss' }}</span>
             <span class="terminal-icon">
@@ -86,7 +105,6 @@
           <div class="terminal-cursor" *ngIf="isLoading">_</div>
         </div>
       </div>
-    </div>
 
     <!-- Mensaje de Éxito -->
     <div *ngIf="successMessage && !isLoading" class="alert alert-success" role="alert">

@@ -39,6 +39,7 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
   // Terminal de logs en tiempo real
   public terminalLogs: Array<{message: string, type: 'info' | 'success' | 'warning' | 'error', timestamp: Date}> = [];
   public showTerminal = false;
+  public terminalCollapsed = false;
 
   constructor(
     public _printfulService: PrintfulService,
@@ -282,6 +283,21 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Colapsa/expande el terminal
+   */
+  toggleTerminal(): void {
+    this.terminalCollapsed = !this.terminalCollapsed;
+  }
+  
+  /**
+   * Cierra el terminal completamente
+   */
+  closeTerminal(): void {
+    this.showTerminal = false;
+    this.terminalCollapsed = false;
+  }
+
+  /**
    * Resetea el estado de sincronización
    */
   private resetSyncState(): void {
@@ -297,6 +313,7 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
     this.syncDuration = null;
     this.terminalLogs = [];
     this.showTerminal = false;
+    this.terminalCollapsed = false;
   }
 
   /**
