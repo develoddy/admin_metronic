@@ -6,6 +6,7 @@ import { ProductsPrintfulComponent } from './products-printful/products-printful
 import { DashboardPrintfulComponent } from './dashboard-printful/dashboard-printful.component';
 import { OrdersPrintfulComponent } from './orders-printful/orders-printful.component';
 import { OrderDetailPrintfulComponent } from './order-detail-printful/order-detail-printful.component';
+import { ShippingCalculatorPrintfulComponent } from './shipping-calculator-printful/shipping-calculator-printful.component';
 
 const routes: Routes = [
   {
@@ -31,6 +32,10 @@ const routes: Routes = [
       {
         path: 'orders/:id',
         component: OrderDetailPrintfulComponent,
+      },
+      {
+        path: 'shipping-calculator',
+        component: ShippingCalculatorPrintfulComponent,
       }
     ]
   }

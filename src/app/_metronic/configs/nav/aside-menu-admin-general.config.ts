@@ -38,6 +38,10 @@ export const AsideMenuAdminGeneral = {
           {
             title: 'Órdenes',
             page: '/printful/orders'
+          },
+          {
+            title: 'Calculadora de Envío',
+            page: '/printful/shipping-calculator'
           }
         ]
       },

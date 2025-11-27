@@ -35,6 +35,168 @@
 
 <!-- Dashboard Content -->
 <div *ngIf="!loading && !error">
+  
+  <!-- SECCIÓN FINANCIERA -->
+  <div *ngIf="financialStats" class="mb-10">
+    <h2 class="text-dark fw-bolder mb-5">💰 Analytics Financieros</h2>
+    
+    <!-- Financial KPIs -->
+    <div class="row g-5 g-xl-8 mb-8">
+      <!-- Total Revenue -->
+      <div class="col-xl-3">
+        <div class="card card-flush h-100 bg-light-success">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span class="text-gray-700 fw-bold fs-6">💵 Ingresos Totales</span>
+              <i class="bi bi-cash-coin fs-2x text-success"></i>
+            </div>
+            <span class="fw-bolder fs-2hx text-success d-block">
+              {{ formatCurrency(financialStats.totalRevenue) }}
+            </span>
+            <span class="text-gray-600 fw-semibold fs-7 d-block mt-2">
+              {{ financialStats.totalOrders }} órdenes
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Total Cost -->
+      <div class="col-xl-3">
+        <div class="card card-flush h-100 bg-light-danger">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span class="text-gray-700 fw-bold fs-6">🏭 Costes Printful</span>
+              <i class="bi bi-coin fs-2x text-danger"></i>
+            </div>
+            <span class="fw-bolder fs-2hx text-danger d-block">
+              {{ formatCurrency(financialStats.totalCost) }}
+            </span>
+            <span class="text-gray-600 fw-semibold fs-7 d-block mt-2">
+              Costes de producción
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Total Profit -->
+      <div class="col-xl-3">
+        <div class="card card-flush h-100" [ngClass]="financialStats.totalProfit >= 0 ? 'bg-light-primary' : 'bg-light-warning'">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span class="text-gray-700 fw-bold fs-6">📊 Beneficio Neto</span>
+              <i class="bi bi-graph-up-arrow fs-2x" [ngClass]="financialStats.totalProfit >= 0 ? 'text-primary' : 'text-warning'"></i>
+            </div>
+            <span class="fw-bolder fs-2hx d-block" [ngClass]="financialStats.totalProfit >= 0 ? 'text-primary' : 'text-warning'">
+              {{ formatCurrency(financialStats.totalProfit) }}
+            </span>
+            <span class="text-gray-600 fw-semibold fs-7 d-block mt-2">
+              {{ financialStats.averageMargin }}% margen
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Average Margin -->
+      <div class="col-xl-3">
+        <div class="card card-flush h-100 bg-light-info">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span class="text-gray-700 fw-bold fs-6">📈 Margen Promedio</span>
+              <i class="bi bi-percent fs-2x text-info"></i>
+            </div>
+            <span class="fw-bolder fs-2hx text-info d-block">
+              {{ financialStats.averageMargin }}%
+            </span>
+            <span class="text-gray-600 fw-semibold fs-7 d-block mt-2">
+              De rentabilidad
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Revenue Chart -->
+    <div class="card card-flush mb-8" *ngIf="timelineData && timelineData.length > 0">
+      <div class="card-header">
+        <h3 class="card-title">📈 Ingresos vs Costes (Últimos 30 días)</h3>
+      </div>
+      <div class="card-body">
+        <apx-chart
+          *ngIf="revenueChartOptions"
+          [series]="revenueChartOptions.series"
+          [chart]="revenueChartOptions.chart"
+          [xaxis]="revenueChartOptions.xaxis"
+          [yaxis]="revenueChartOptions.yaxis"
+          [dataLabels]="revenueChartOptions.dataLabels"
+          [stroke]="revenueChartOptions.stroke"
+          [tooltip]="revenueChartOptions.tooltip"
+          [grid]="revenueChartOptions.grid"
+          [legend]="revenueChartOptions.legend">
+        </apx-chart>
+      </div>
+    </div>
+    
+    <!-- Products Ranking -->
+    <div class="row g-5 mb-8">
+      <!-- Top Profitable Products -->
+      <div class="col-xl-6">
+        <div class="card card-flush h-100">
+          <div class="card-header">
+            <h3 class="card-title">🏆 Top 5 Productos Rentables</h3>
+          </div>
+          <div class="card-body pt-2">
+            <div *ngIf="topProfitableProducts.length === 0" class="text-center py-10 text-gray-500">
+              No hay datos disponibles
+            </div>
+            <div *ngFor="let product of topProfitableProducts; let i = index" class="d-flex align-items-center mb-5">
+              <div class="symbol symbol-50px me-3">
+                <img [src]="product.image" [alt]="product.name" class="w-100">
+              </div>
+              <div class="flex-grow-1">
+                <span class="text-dark fw-bold d-block">{{ product.name }}</span>
+                <span class="text-muted fs-7">{{ product.totalQuantity }} unidades vendidas</span>
+              </div>
+              <div class="text-end">
+                <span class="text-success fw-bold d-block">{{ formatCurrency(product.totalProfit) }}</span>
+                <span class="badge badge-light-success">{{ product.averageMargin }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Top Losing Products -->
+      <div class="col-xl-6">
+        <div class="card card-flush h-100">
+          <div class="card-header">
+            <h3 class="card-title">⚠️ Productos con Pérdidas</h3>
+          </div>
+          <div class="card-body pt-2">
+            <div *ngIf="topLosingProducts.length === 0" class="text-center py-10 text-gray-500">
+              ✅ No hay productos con pérdidas
+            </div>
+            <div *ngFor="let product of topLosingProducts; let i = index" class="d-flex align-items-center mb-5">
+              <div class="symbol symbol-50px me-3">
+                <img [src]="product.image" [alt]="product.name" class="w-100">
+              </div>
+              <div class="flex-grow-1">
+                <span class="text-dark fw-bold d-block">{{ product.name }}</span>
+                <span class="text-muted fs-7">{{ product.totalQuantity }} unidades vendidas</span>
+              </div>
+              <div class="text-end">
+                <span class="text-danger fw-bold d-block">{{ formatCurrency(product.totalProfit) }}</span>
+                <span class="badge badge-light-danger">{{ product.averageMargin }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SECCIÓN INVENTARIO -->
+  <h2 class="text-dark fw-bolder mb-5">🏭 Inventario de Productos</h2>
+  
   <!-- KPI Cards Row -->
   <div class="row g-5 g-xl-8 mb-8">
     <!-- Total Products -->

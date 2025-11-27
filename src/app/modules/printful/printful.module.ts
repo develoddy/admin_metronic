@@ -11,11 +11,14 @@ import { ProductsPrintfulComponent } from './products-printful/products-printful
 import { DashboardPrintfulComponent } from './dashboard-printful/dashboard-printful.component';
 import { OrdersPrintfulComponent } from './orders-printful/orders-printful.component';
 import { OrderDetailPrintfulComponent } from './order-detail-printful/order-detail-printful.component';
+import { ShippingCalculatorPrintfulComponent } from './shipping-calculator-printful/shipping-calculator-printful.component';
 
 // Importar servicios
 import { ProductService } from '../product/_services/product.service';
 import { PrintfulService } from './_services/printful.service';
 import { OrderPrintfulService } from './_services/order-printful.service';
+import { AnalyticsPrintfulService } from './_services/analytics-printful.service';
+import { ShippingPrintfulService } from './_services/shipping-printful.service';
 
 
 @NgModule({
@@ -25,7 +28,8 @@ import { OrderPrintfulService } from './_services/order-printful.service';
     ProductsPrintfulComponent,
     DashboardPrintfulComponent,
     OrdersPrintfulComponent,
-    OrderDetailPrintfulComponent
+    OrderDetailPrintfulComponent,
+    ShippingCalculatorPrintfulComponent
   ],
   imports: [
     CommonModule,
@@ -37,7 +41,9 @@ import { OrderPrintfulService } from './_services/order-printful.service';
   providers: [
     ProductService,
     PrintfulService,
-    OrderPrintfulService
+    OrderPrintfulService,
+    AnalyticsPrintfulService,
+    ShippingPrintfulService
   ]
 })
 export class PrintfulModule { }

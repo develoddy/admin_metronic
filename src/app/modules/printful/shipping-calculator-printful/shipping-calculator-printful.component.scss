@@ -1,0 +1,245 @@
+// Shipping Calculator Styles
+
+.container-fluid {
+  padding: 1.5rem;
+}
+
+// Cards
+.card {
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  border: none;
+  
+  &-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eff2f5;
+    
+    .card-title {
+      margin: 0;
+      font-weight: 600;
+      font-size: 1.25rem;
+    }
+  }
+  
+  &-body {
+    padding: 1.5rem;
+  }
+  
+  &-flush {
+    .card-body {
+      padding: 1.5rem;
+    }
+  }
+}
+
+// Form Elements
+.form-label {
+  font-weight: 500;
+  color: #3f4254;
+  margin-bottom: 0.5rem;
+  
+  &.required::after {
+    content: '*';
+    color: #f1416c;
+    margin-left: 0.25rem;
+  }
+}
+
+.form-select,
+.form-control {
+  border-color: #e4e6ef;
+  transition: all 0.2s ease-in-out;
+  
+  &:focus {
+    border-color: #009ef7;
+    box-shadow: 0 0 0 0.2rem rgba(0, 158, 247, 0.15);
+  }
+}
+
+// Buttons
+.btn {
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+  
+  &-primary {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 158, 247, 0.3);
+    }
+  }
+  
+  &-light-primary {
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+  
+  &-light-danger {
+    &:hover:not(:disabled) {
+      background-color: #f1416c;
+      color: #fff;
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Badges
+.badge {
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.475rem;
+  
+  &-success {
+    background-color: #50cd89;
+  }
+  
+  &-info {
+    background-color: #7239ea;
+  }
+  
+  &-warning {
+    background-color: #ffc700;
+    color: #3f4254;
+  }
+  
+  &-primary {
+    background-color: #009ef7;
+  }
+}
+
+// Shipping Rate Cards
+.border {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  &-primary {
+    border-color: #009ef7 !important;
+    border-width: 2px !important;
+  }
+}
+
+.bg-light-primary {
+  background-color: rgba(0, 158, 247, 0.1) !important;
+}
+
+// Summary Cards
+.bg-light {
+  background-color: #f5f8fa !important;
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    background-color: #e4e6ef !important;
+  }
+}
+
+// Separator
+.separator {
+  border-top: 1px dashed #e4e6ef;
+  margin: 1.5rem 0;
+}
+
+// Icons
+.bi,
+.fa {
+  vertical-align: middle;
+}
+
+// Empty State
+.text-gray-400 {
+  color: #b5b5c3 !important;
+}
+
+.text-gray-500 {
+  color: #a1a5b7 !important;
+}
+
+.text-gray-600 {
+  color: #7e8299 !important;
+}
+
+.text-gray-700 {
+  color: #5e6278 !important;
+}
+
+// Loading States
+.spinner-border {
+  vertical-align: middle;
+}
+
+// Toast Notification
+.toast-container {
+  z-index: 9999;
+}
+
+.toast {
+  min-width: 300px;
+  
+  &-header {
+    background-color: transparent;
+    border-bottom: none;
+    padding: 1rem;
+  }
+  
+  &-body {
+    padding: 1rem;
+    font-weight: 500;
+  }
+  
+  .btn-close-white {
+    filter: invert(1);
+  }
+}
+
+// Responsive
+@media (max-width: 1399px) {
+  .col-xl-8,
+  .col-xl-4 {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .col-md-6,
+  .col-md-8,
+  .col-md-3,
+  .col-md-1 {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .d-flex {
+    &.justify-content-between {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 1rem;
+    }
+  }
+  
+  .card-header {
+    .btn {
+      width: 100%;
+      margin-top: 1rem;
+    }
+  }
+}
+
+// Utilities
+.fw-semibold {
+  font-weight: 600 !important;
+}
+
+.fs-7 {
+  font-size: 0.95rem !important;
+}
+
+.fs-2 {
+  font-size: 1.5rem !important;
+}
+
+.fs-3x {
+  font-size: 3rem !important;
+}

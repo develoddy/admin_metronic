@@ -1,0 +1,248 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-6">
+    <div>
+      <h1 class="text-dark fw-bolder mb-0">📦 Calculadora de Envíos Printful</h1>
+      <p class="text-muted mb-0">Calcula costes de envío antes de crear órdenes</p>
+    </div>
+    <button class="btn btn-light-primary" (click)="resetCalculator()">
+      <i class="fa fa-redo me-2"></i>
+      Reiniciar
+    </button>
+  </div>
+
+  <div class="row g-5">
+    <!-- Form Column -->
+    <div class="col-xl-8">
+      <!-- Recipient Information -->
+      <div class="card card-flush mb-5">
+        <div class="card-header">
+          <h3 class="card-title">📍 Información del Destinatario</h3>
+        </div>
+        <div class="card-body">
+          <div class="row g-4">
+            <!-- Country -->
+            <div class="col-md-6">
+              <label class="form-label required">País</label>
+              <select class="form-select" [(ngModel)]="recipient.country_code" (change)="onCountryChange()">
+                <option value="">Selecciona un país</option>
+                <option *ngFor="let country of countries" [value]="country.code">
+                  {{ country.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- State (if applicable) -->
+            <div class="col-md-6" *ngIf="states && states.length > 0">
+              <label class="form-label">Estado/Provincia</label>
+              <select class="form-select" [(ngModel)]="recipient.state_code">
+                <option value="">Selecciona estado</option>
+                <option *ngFor="let state of states" [value]="state.code">
+                  {{ state.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- City -->
+            <div class="col-md-6">
+              <label class="form-label required">Ciudad</label>
+              <input type="text" class="form-control" [(ngModel)]="recipient.city" placeholder="Madrid">
+            </div>
+
+            <!-- ZIP -->
+            <div class="col-md-6">
+              <label class="form-label required">Código Postal</label>
+              <input type="text" class="form-control" [(ngModel)]="recipient.zip" placeholder="28001">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div class="card card-flush mb-5">
+        <div class="card-header">
+          <h3 class="card-title">📦 Productos</h3>
+          <button class="btn btn-sm btn-light-primary" (click)="addItem()">
+            <i class="fa fa-plus me-2"></i>
+            Agregar Producto
+          </button>
+        </div>
+        <div class="card-body">
+          <div *ngFor="let item of items; let i = index" class="row g-3 mb-4 align-items-end">
+            <!-- Variant -->
+            <div class="col-md-8">
+              <label class="form-label">Producto</label>
+              <select class="form-select" [(ngModel)]="item.variant_id">
+                <option [value]="0">Selecciona un producto</option>
+                <option *ngFor="let variant of variants" [value]="variant.variant_id">
+                  {{ variant.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Quantity -->
+            <div class="col-md-3">
+              <label class="form-label">Cantidad</label>
+              <input type="number" class="form-control" [(ngModel)]="item.quantity" min="1" max="100">
+            </div>
+
+            <!-- Remove Button -->
+            <div class="col-md-1">
+              <button 
+                class="btn btn-icon btn-light-danger w-100" 
+                (click)="removeItem(i)"
+                [disabled]="items.length === 1"
+                title="Eliminar producto">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="separator my-5"></div>
+
+          <!-- Calculate Button -->
+          <button 
+            class="btn btn-primary btn-lg w-100" 
+            (click)="calculateRates()"
+            [disabled]="loading || loadingCountries || loadingVariants">
+            <span *ngIf="!loading">
+              <i class="fa fa-calculator me-2"></i>
+              Calcular Tarifas de Envío
+            </span>
+            <span *ngIf="loading">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Calculando...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Column -->
+    <div class="col-xl-4">
+      <!-- Summary Card (if calculated) -->
+      <div class="card card-flush mb-5" *ngIf="calculated && summary">
+        <div class="card-header bg-light-primary">
+          <h3 class="card-title text-primary">✨ Recomendaciones</h3>
+        </div>
+        <div class="card-body">
+          <!-- Recommended -->
+          <div class="mb-5">
+            <div class="text-gray-700 fw-bold mb-2">⭐ Recomendado</div>
+            <div class="d-flex justify-content-between align-items-center bg-light rounded p-3">
+              <div>
+                <span class="fw-bold d-block">{{ summary.recommended.speed_label }}</span>
+                <span class="text-muted fs-7">
+                  {{ summary.recommended.minDeliveryDays }}-{{ summary.recommended.maxDeliveryDays }} días
+                </span>
+              </div>
+              <span class="badge badge-success fs-4">
+                {{ formatCurrency(summary.recommended.rate, summary.recommended.currency) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Cheapest -->
+          <div class="mb-5">
+            <div class="text-gray-700 fw-bold mb-2">💰 Más Económico</div>
+            <div class="d-flex justify-content-between align-items-center bg-light rounded p-3">
+              <div>
+                <span class="fw-bold d-block">{{ summary.cheapest.speed_label }}</span>
+                <span class="text-muted fs-7">
+                  {{ summary.cheapest.minDeliveryDays }}-{{ summary.cheapest.maxDeliveryDays }} días
+                </span>
+              </div>
+              <span class="badge badge-info fs-4">
+                {{ formatCurrency(summary.cheapest.rate, summary.cheapest.currency) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Fastest -->
+          <div>
+            <div class="text-gray-700 fw-bold mb-2">⚡ Más Rápido</div>
+            <div class="d-flex justify-content-between align-items-center bg-light rounded p-3">
+              <div>
+                <span class="fw-bold d-block">{{ summary.fastest.speed_label }}</span>
+                <span class="text-muted fs-7">
+                  {{ summary.fastest.minDeliveryDays }}-{{ summary.fastest.maxDeliveryDays }} días
+                </span>
+              </div>
+              <span class="badge badge-warning fs-4">
+                {{ formatCurrency(summary.fastest.rate, summary.fastest.currency) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Rates -->
+      <div class="card card-flush" *ngIf="calculated && shippingRates.length > 0">
+        <div class="card-header">
+          <h3 class="card-title">🚚 Todas las Opciones</h3>
+        </div>
+        <div class="card-body pt-2">
+          <div *ngFor="let rate of shippingRates" 
+               class="border rounded p-4 mb-3"
+               [class.border-primary]="rate.recommended"
+               [class.bg-light-primary]="rate.recommended">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div class="flex-grow-1">
+                <h4 class="fw-bold mb-1">
+                  {{ rate.speed_label }}
+                  <span *ngIf="rate.recommended" class="badge badge-primary ms-2">Recomendado</span>
+                </h4>
+                <p class="text-muted mb-2 fs-7">{{ rate.description_es }}</p>
+                <div class="d-flex align-items-center text-gray-700">
+                  <i class="bi bi-clock me-2"></i>
+                  <span class="fw-semibold">
+                    {{ rate.minDeliveryDays }}-{{ rate.maxDeliveryDays }} días laborables
+                  </span>
+                </div>
+              </div>
+              <div class="text-end ms-3">
+                <span class="fs-2 fw-bolder text-dark d-block">
+                  {{ formatCurrency(rate.rate, rate.currency) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="card card-flush" *ngIf="!calculated">
+        <div class="card-body text-center py-15">
+          <i class="bi bi-calculator fs-3x text-gray-400 mb-5"></i>
+          <h3 class="text-gray-600 fw-bold mb-2">Calcula tus envíos</h3>
+          <p class="text-gray-500">
+            Completa la información del destinatario y productos para ver las tarifas disponibles
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+  <div *ngIf="showToast" 
+       class="toast show" 
+       role="alert"
+       [class.bg-success]="toastType === 'success'"
+       [class.bg-danger]="toastType === 'error'"
+       [class.bg-warning]="toastType === 'warning'"
+       [class.bg-info]="toastType === 'info'">
+    <div class="toast-header">
+      <i class="fa fa-check-circle me-2" *ngIf="toastType === 'success'"></i>
+      <i class="fa fa-exclamation-circle me-2" *ngIf="toastType === 'error'"></i>
+      <i class="fa fa-exclamation-triangle me-2" *ngIf="toastType === 'warning'"></i>
+      <i class="fa fa-info-circle me-2" *ngIf="toastType === 'info'"></i>
+      <strong class="me-auto text-white">{{ toastType === 'success' ? 'Éxito' : toastType === 'error' ? 'Error' : 'Aviso' }}</strong>
+      <button type="button" class="btn-close btn-close-white" (click)="closeToast()"></button>
+    </div>
+    <div class="toast-body text-white">
+      {{ toastMessage }}
+    </div>
+  </div>
+</div>

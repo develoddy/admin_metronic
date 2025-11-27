@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PrintfulService } from '../_services/printful.service';
 import { ProductService } from '../../product/_services/product.service';
+import { AnalyticsPrintfulService } from '../_services/analytics-printful.service';
 
 interface DashboardStats {
   totalProducts: number;
@@ -48,9 +49,17 @@ export class DashboardPrintfulComponent implements OnInit, OnDestroy {
   loading = true;
   error = false;
 
+  // Financial Analytics
+  financialStats: any = null;
+  topProfitableProducts: any[] = [];
+  topLosingProducts: any[] = [];
+  timelineData: any[] = [];
+  loadingAnalytics = true;
+
   // Chart options for ApexCharts
   categoryChartOptions: any;
   statusChartOptions: any;
+  revenueChartOptions: any;
 
   // Toast notification
   showToast = false;
@@ -60,11 +69,13 @@ export class DashboardPrintfulComponent implements OnInit, OnDestroy {
   constructor(
     private printfulService: PrintfulService,
     private productService: ProductService,
+    private analyticsService: AnalyticsPrintfulService,
     private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadDashboardStats();
+    this.loadFinancialAnalytics();
   }
 
   ngOnDestroy(): void {
@@ -256,6 +267,155 @@ export class DashboardPrintfulComponent implements OnInit, OnDestroy {
     if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
     if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
     return d.toLocaleDateString('es-ES');
+  }
+
+  loadFinancialAnalytics(): void {
+    this.loadingAnalytics = true;
+
+    // Cargar estadísticas financieras
+    this.analyticsService.getFinancialStats()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.financialStats = response.stats;
+            this.initializeRevenueChart();
+          }
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error loading financial stats:', err);
+        }
+      });
+
+    // Cargar top productos rentables
+    this.analyticsService.getProductsRanking(5, 'profit')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.topProfitableProducts = response.ranking.filter(p => p.totalProfit > 0);
+          }
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error loading profitable products:', err);
+        }
+      });
+
+    // Cargar productos con pérdidas
+    this.analyticsService.getProductsRanking(100, 'profit')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.topLosingProducts = response.ranking
+              .filter(p => p.totalProfit < 0)
+              .slice(0, 5);
+          }
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error loading losing products:', err);
+        }
+      });
+
+    // Cargar timeline
+    this.analyticsService.getTimeline(30)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.timelineData = response.timeline;
+            this.initializeRevenueChart();
+          }
+          this.loadingAnalytics = false;
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error loading timeline:', err);
+          this.loadingAnalytics = false;
+        }
+      });
+  }
+
+  initializeRevenueChart(): void {
+    if (!this.timelineData || this.timelineData.length === 0) return;
+
+    const categories = this.timelineData.map(d => {
+      const date = new Date(d.date);
+      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    });
+
+    const revenueData = this.timelineData.map(d => d.revenue);
+    const costData = this.timelineData.map(d => d.cost);
+    const profitData = this.timelineData.map(d => d.profit);
+
+    this.revenueChartOptions = {
+      series: [
+        {
+          name: 'Ingresos',
+          data: revenueData,
+          color: '#50cd89'
+        },
+        {
+          name: 'Costes',
+          data: costData,
+          color: '#f1416c'
+        },
+        {
+          name: 'Beneficio',
+          data: profitData,
+          color: '#009ef7'
+        }
+      ],
+      chart: {
+        type: 'area',
+        height: 350,
+        toolbar: {
+          show: false
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'smooth',
+        width: 2
+      },
+      xaxis: {
+        categories: categories,
+        labels: {
+          style: {
+            colors: '#a1a5b7'
+          }
+        }
+      },
+      yaxis: {
+        labels: {
+          style: {
+            colors: '#a1a5b7'
+          },
+          formatter: (value: number) => {
+            return '€' + value.toFixed(2);
+          }
+        }
+      },
+      tooltip: {
+        y: {
+          formatter: (value: number) => {
+            return '€' + value.toFixed(2);
+          }
+        }
+      },
+      grid: {
+        borderColor: '#eff2f5'
+      },
+      legend: {
+        position: 'top',
+        horizontalAlign: 'right'
+      }
+    };
   }
 
   showToastNotification(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
