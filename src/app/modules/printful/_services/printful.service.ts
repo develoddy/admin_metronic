@@ -79,4 +79,35 @@ export class PrintfulService {
       })
     );
   }
+
+  /**
+   * Obtiene las estadísticas del dashboard Printful
+   * - KPIs (total productos, variantes, categorías, etc.)
+   * - Distribución por categorías
+   * - Análisis de precios
+   * - Alertas del sistema
+   * - Productos destacados (más caros/baratos)
+   */
+  getDashboardStats(): Observable<any> {
+    this.isLoadingSubject.next(true);
+    
+    const headers = new HttpHeaders({
+      'token': this._authservice.token
+    });
+
+    const url = `${URL_SERVICIOS}/printful/dashboard-stats`;
+    
+    console.log('📊 Obteniendo estadísticas del dashboard:', url);
+
+    return this._http.get(url, { headers }).pipe(
+      timeout(30000), // Timeout de 30 segundos
+      catchError(error => {
+        console.error('❌ Error al obtener estadísticas del dashboard:', error);
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this.isLoadingSubject.next(false);
+      })
+    );
+  }
 }

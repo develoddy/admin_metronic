@@ -1,0 +1,307 @@
+<!-- Dashboard Header -->
+<div class="d-flex flex-wrap flex-stack mb-6">
+  <h3 class="fw-bolder my-2">
+    Dashboard Printful
+    <span class="fs-6 text-gray-400 fw-bold ms-1">Inventario y Estadísticas</span>
+  </h3>
+  <div class="d-flex align-items-center my-2">
+    <button class="btn btn-sm btn-light-primary me-3" (click)="refreshDashboard()">
+      <i class="fa fa-sync-alt fs-4 me-2"></i>
+      Actualizar
+    </button>
+    <button class="btn btn-sm btn-primary" (click)="syncCatalog()">
+      <i class="fa fa-cloud-download-alt fs-4 me-2"></i>
+      Sincronizar con Printful
+    </button>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="text-center py-10">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+  <p class="text-gray-600 mt-3">Cargando estadísticas...</p>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !loading" class="alert alert-danger d-flex align-items-center">
+  <i class="fa fa-exclamation-circle fs-2 me-3"></i>
+  <div>
+    <strong>Error al cargar el dashboard</strong>
+    <p class="mb-0">No se pudieron obtener las estadísticas. Intenta recargar la página.</p>
+  </div>
+</div>
+
+<!-- Dashboard Content -->
+<div *ngIf="!loading && !error">
+  <!-- KPI Cards Row -->
+  <div class="row g-5 g-xl-8 mb-8">
+    <!-- Total Products -->
+    <div class="col-xl-3">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div class="d-flex flex-stack mb-5">
+            <span class="text-gray-400 fw-bold fs-6">Total Productos</span>
+            <i class="fa fa-box fs-2x text-primary"></i>
+          </div>
+          <div class="d-flex flex-column">
+            <span class="fw-bolder fs-2x text-dark">{{ stats.totalProducts }}</span>
+            <span class="text-muted fw-bold fs-7 mt-1">
+              {{ stats.activeProducts }} activos / {{ stats.inactiveProducts }} inactivos
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Variants -->
+    <div class="col-xl-3">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div class="d-flex flex-stack mb-5">
+            <span class="text-gray-400 fw-bold fs-6">Total Variantes</span>
+            <i class="fa fa-th fs-2x text-success"></i>
+          </div>
+          <div class="d-flex flex-column">
+            <span class="fw-bolder fs-2x text-dark">{{ stats.totalVariants }}</span>
+            <span class="text-muted fw-bold fs-7 mt-1">
+              Tallas y colores disponibles
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory Value -->
+    <div class="col-xl-3">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div class="d-flex flex-stack mb-5">
+            <span class="text-gray-400 fw-bold fs-6">Valor Inventario</span>
+            <i class="fa fa-euro-sign fs-2x text-warning"></i>
+          </div>
+          <div class="d-flex flex-column">
+            <span class="fw-bolder fs-2x text-dark">{{ formatCurrency(stats.totalInventoryValue) }}</span>
+            <span class="text-muted fw-bold fs-7 mt-1">
+              Precio promedio: {{ formatCurrency(stats.averagePrice) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="col-xl-3">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex flex-column justify-content-between">
+          <div class="d-flex flex-stack mb-5">
+            <span class="text-gray-400 fw-bold fs-6">Categorías</span>
+            <i class="fa fa-folder fs-2x text-info"></i>
+          </div>
+          <div class="d-flex flex-column">
+            <span class="fw-bolder fs-2x text-dark">{{ stats.totalCategories }}</span>
+            <span class="text-muted fw-bold fs-7 mt-1">
+              Última sincronización: {{ formatDate(stats.lastSync) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row g-5 g-xl-8 mb-8">
+    <!-- Category Distribution Chart -->
+    <div class="col-xl-6">
+      <div class="card card-flush h-100">
+        <div class="card-header pt-5">
+          <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bolder text-dark">Distribución por Categoría</span>
+            <span class="text-muted mt-1 fw-bold fs-7">Productos por categoría</span>
+          </h3>
+        </div>
+        <div class="card-body pt-0">
+          <div id="category-chart" *ngIf="stats.categoriesDistribution.length > 0">
+            <apx-chart
+              [series]="categoryChartOptions.series"
+              [chart]="categoryChartOptions.chart"
+              [plotOptions]="categoryChartOptions.plotOptions"
+              [dataLabels]="categoryChartOptions.dataLabels"
+              [xaxis]="categoryChartOptions.xaxis"
+              [colors]="categoryChartOptions.colors"
+              [title]="categoryChartOptions.title"
+            ></apx-chart>
+          </div>
+          <div *ngIf="stats.categoriesDistribution.length === 0" class="text-center py-10">
+            <i class="fa fa-chart-bar fs-3x text-gray-400"></i>
+            <p class="text-gray-600 mt-3">No hay datos disponibles</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Distribution Chart -->
+    <div class="col-xl-6">
+      <div class="card card-flush h-100">
+        <div class="card-header pt-5">
+          <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bolder text-dark">Estado del Catálogo</span>
+            <span class="text-muted mt-1 fw-bold fs-7">Productos activos vs inactivos</span>
+          </h3>
+        </div>
+        <div class="card-body pt-0">
+          <div id="status-chart" *ngIf="stats.totalProducts > 0">
+            <apx-chart
+              [series]="statusChartOptions.series"
+              [chart]="statusChartOptions.chart"
+              [labels]="statusChartOptions.labels"
+              [colors]="statusChartOptions.colors"
+              [legend]="statusChartOptions.legend"
+              [title]="statusChartOptions.title"
+            ></apx-chart>
+          </div>
+          <div *ngIf="stats.totalProducts === 0" class="text-center py-10">
+            <i class="fa fa-chart-pie fs-3x text-gray-400"></i>
+            <p class="text-gray-600 mt-3">No hay datos disponibles</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Price Analysis & Alerts Row -->
+  <div class="row g-5 g-xl-8 mb-8">
+    <!-- Price Analysis -->
+    <div class="col-xl-4">
+      <div class="card card-flush h-100">
+        <div class="card-header pt-5">
+          <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bolder text-dark">Análisis de Precios</span>
+            <span class="text-muted mt-1 fw-bold fs-7">Rango y promedios</span>
+          </h3>
+        </div>
+        <div class="card-body pt-3">
+          <div class="d-flex flex-column mb-5">
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-gray-600 fw-bold">Precio Mínimo:</span>
+              <span class="fw-bolder text-dark">{{ formatCurrency(stats.priceRange.min) }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-gray-600 fw-bold">Precio Máximo:</span>
+              <span class="fw-bolder text-dark">{{ formatCurrency(stats.priceRange.max) }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-gray-600 fw-bold">Precio Promedio:</span>
+              <span class="fw-bolder text-primary">{{ formatCurrency(stats.averagePrice) }}</span>
+            </div>
+          </div>
+
+          <!-- Top Expensive Products -->
+          <div class="mb-5" *ngIf="stats.topExpensive.length > 0">
+            <h5 class="text-gray-700 fw-bold mb-3">Más Caros</h5>
+            <div *ngFor="let product of stats.topExpensive" class="d-flex align-items-center mb-3">
+              <div class="symbol symbol-35px me-3">
+                <img [src]="getProductImage(product.imagen)" [alt]="product.title" style="object-fit: cover; width: 35px; height: 35px; border-radius: 4px;">
+              </div>
+              <div class="flex-grow-1">
+                <span class="text-gray-800 fw-bold d-block fs-7">{{ product.title }}</span>
+                <span class="text-muted fw-bold fs-8">{{ formatCurrency(product.price_usd) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Cheap Products -->
+          <div *ngIf="stats.topCheap.length > 0">
+            <h5 class="text-gray-700 fw-bold mb-3">Más Baratos</h5>
+            <div *ngFor="let product of stats.topCheap" class="d-flex align-items-center mb-3">
+              <div class="symbol symbol-35px me-3">
+                <img [src]="getProductImage(product.imagen)" [alt]="product.title" style="object-fit: cover; width: 35px; height: 35px; border-radius: 4px;">
+              </div>
+              <div class="flex-grow-1">
+                <span class="text-gray-800 fw-bold d-block fs-7">{{ product.title }}</span>
+                <span class="text-muted fw-bold fs-8">{{ formatCurrency(product.price_usd) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts Panel -->
+    <div class="col-xl-8">
+      <div class="card card-flush h-100">
+        <div class="card-header pt-5">
+          <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bolder text-dark">Alertas del Sistema</span>
+            <span class="text-muted mt-1 fw-bold fs-7">Problemas detectados</span>
+          </h3>
+        </div>
+        <div class="card-body pt-3">
+          <div *ngIf="stats.alerts.length === 0" class="text-center py-10">
+            <i class="fa fa-check-circle fs-3x text-success"></i>
+            <p class="text-gray-600 mt-3 fw-bold">¡Todo en orden! No hay alertas</p>
+          </div>
+
+          <div *ngFor="let alert of stats.alerts" class="alert alert-{{ getAlertClass(alert.type) }} d-flex align-items-center mb-5">
+            <i class="fa {{ getAlertIcon(alert.type) }} fs-2 me-4"></i>
+            <div class="flex-grow-1">
+              <div class="fw-bold">{{ alert.message }}</div>
+              <div class="text-muted fs-7 mt-1">{{ alert.count }} producto(s) afectado(s)</div>
+            </div>
+            <a [routerLink]="['/printful/products']" [queryParams]="getAlertQueryParams(alert.type)" class="btn btn-sm btn-light-{{ getAlertClass(alert.type) }}">
+              Ver Productos
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row g-5 g-xl-8">
+    <div class="col-xl-12">
+      <div class="card card-flush">
+        <div class="card-header pt-5">
+          <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bolder text-dark">Acciones Rápidas</span>
+            <span class="text-muted mt-1 fw-bold fs-7">Gestión del catálogo</span>
+          </h3>
+        </div>
+        <div class="card-body pt-5">
+          <div class="d-flex flex-wrap gap-3">
+            <a routerLink="/printful/products" class="btn btn-light-primary">
+              <i class="fa fa-box fs-4 me-2"></i>
+              Ver Todos los Productos
+            </a>
+            <button class="btn btn-light-success" (click)="syncCatalog()">
+              <i class="fa fa-sync-alt fs-4 me-2"></i>
+              Sincronizar Catálogo
+            </button>
+            <a routerLink="/printful/products" [queryParams]="{ state: '2' }" class="btn btn-light-info">
+              <i class="fa fa-eye fs-4 me-2"></i>
+              Ver Activos
+            </a>
+            <a routerLink="/printful/products" [queryParams]="{ state: '1' }" class="btn btn-light-warning">
+              <i class="fa fa-eye-slash fs-4 me-2"></i>
+              Ver Inactivos
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+  <div *ngIf="showToast" class="toast show align-items-center text-white bg-{{ toastType === 'success' ? 'success' : toastType === 'error' ? 'danger' : toastType === 'warning' ? 'warning' : 'info' }} border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center">
+        <i class="fa {{ toastType === 'success' ? 'fa-check-circle' : toastType === 'error' ? 'fa-times-circle' : toastType === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle' }} fs-3 me-3"></i>
+        {{ toastMessage }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="closeToast()"></button>
+    </div>
+  </div>
+</div>

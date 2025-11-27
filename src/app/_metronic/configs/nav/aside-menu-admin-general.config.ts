@@ -24,6 +24,10 @@ export const AsideMenuAdminGeneral = {
         page: '/printful',
         submenu: [
           {
+            title: 'Dashboard',
+            page: '/printful/dashboard'
+          },
+          {
             title: 'Sincronizar',
             page: '/printful/list'
           },

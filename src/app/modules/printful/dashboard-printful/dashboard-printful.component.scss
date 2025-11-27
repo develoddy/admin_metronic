@@ -1,0 +1,60 @@
+.card-flush {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.toast-container {
+  z-index: 9999;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.alert {
+  border-left: 4px solid;
+  
+  &.alert-warning {
+    border-left-color: #ffc700;
+  }
+  
+  &.alert-danger {
+    border-left-color: #f1416c;
+  }
+  
+  &.alert-info {
+    border-left-color: #009ef7;
+  }
+  
+  &.alert-secondary {
+    border-left-color: #7e8299;
+  }
+}
+
+.symbol {
+  img {
+    object-fit: cover;
+    border-radius: 4px;
+  }
+}
+
+.btn {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}

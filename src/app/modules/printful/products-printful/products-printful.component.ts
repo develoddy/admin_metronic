@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../product/_services/product.service';
 import { PrintfulService } from '../_services/printful.service';
 import { Subject } from 'rxjs';
@@ -73,11 +74,23 @@ export class ProductsPrintfulComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private printfulService: PrintfulService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    this.loadProducts();
+    // Read query params from URL and apply filters
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      if (params['state']) {
+        this.filters.state = params['state'];
+        this.cd.detectChanges();
+      }
+      if (params['filter']) {
+        // Handle other filter types if needed
+        console.log('Filter type:', params['filter']);
+      }
+      this.loadProducts();
+    });
   }
 
   ngOnDestroy(): void {
@@ -206,8 +219,12 @@ export class ProductsPrintfulComponent implements OnInit, OnDestroy {
     );
 
     // Filtro por estado
-    if (this.filters.state !== null) {
-      filtered = filtered.filter(p => p.state == this.filters.state);
+    if (this.filters.state !== null && this.filters.state !== '') {
+      // Convert to number for comparison since query params come as strings
+      const stateFilter = typeof this.filters.state === 'string' 
+        ? parseInt(this.filters.state) 
+        : this.filters.state;
+      filtered = filtered.filter(p => p.state === stateFilter);
     }
 
     // Filtro por colores
