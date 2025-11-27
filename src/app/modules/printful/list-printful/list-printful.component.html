@@ -1,14 +1,240 @@
+<!-- Header Card -->
+<div class="card card-custom mb-5">
+  <div class="card-header">
+    <div class="card-title">
+      <h3 class="card-label">
+        <i class="fas fa-sync-alt text-primary mr-2"></i>
+        Sincronización de Productos Printful
+      </h3>
+    </div>
+    <div class="card-toolbar">
+      <button 
+        class="btn btn-success font-weight-bolder" 
+        (click)="synProducts()"
+        [disabled]="isLoading">
+        <i class="fas fa-cloud-download-alt mr-2"></i>
+        {{ isLoading ? 'Sincronizando...' : 'Sincronizar Ahora' }}
+      </button>
+    </div>
+  </div>
+  
+  <div class="card-body">
+    <!-- Descripción -->
+    <div class="alert alert-light-info mb-5" role="alert">
+      <div class="alert-icon">
+        <i class="fas fa-info-circle"></i>
+      </div>
+      <div class="alert-text">
+        <strong>¿Qué hace esta sincronización?</strong>
+        <ul class="mb-0 mt-2">
+          <li>Obtiene todos los productos desde tu tienda Printful</li>
+          <li>Crea nuevos productos en tu base de datos</li>
+          <li>Actualiza productos existentes con cambios de precio, título o estado</li>
+          <li>Elimina productos que ya no existen en Printful</li>
+          <li>Sincroniza variantes, colores, tallas, imágenes y archivos</li>
+        </ul>
+      </div>
+    </div>
 
-<ng-container *ngIf="this._printfulService.isLoadingSubject | async; else loaded">
-    <span class="spinner spinner-primary ml-5"></span>
-</ng-container>
-<h4>Sincronizar productos de Printful</h4>
+    <!-- Spinner de Carga -->
+    <div *ngIf="isLoading" class="text-center py-10">
+      <div class="spinner spinner-primary spinner-lg mb-5"></div>
+      <h4 class="text-muted">Sincronizando productos...</h4>
+      <p class="text-muted">Este proceso puede tardar varios minutos dependiendo de la cantidad de productos</p>
+      
+      <!-- Barra de Progreso -->
+      <div class="progress mt-5" style="height: 30px;">
+        <div 
+          class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+          role="progressbar" 
+          [style.width.%]="syncProgress"
+          [attr.aria-valuenow]="syncProgress" 
+          aria-valuemin="0" 
+          aria-valuemax="100">
+          {{ syncProgress }}%
+        </div>
+      </div>
+      
+      <p class="text-muted mt-3" *ngIf="syncStartTime">
+        Iniciado: {{ syncStartTime | date:'short' }}
+      </p>
+    </div>
 
-<ng-container #loaded>
-    <button class="btn btn-success w-50" (click)="synProducts()">Sincronizar con Printful</button>
-    
-    <ng-container *ngIf="isLoaded">
-        <br><br>
-        <small class="bg-secondary p-3 rounded">Productos sincronizados correctamente. <a routerLink="/products/list-all-products">Ir a la lista de productos</a></small> 
-    </ng-container>
-</ng-container>
+    <!-- Mensaje de Éxito -->
+    <div *ngIf="successMessage && !isLoading" class="alert alert-success" role="alert">
+      <div class="alert-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="alert-text">
+        <strong>{{ successMessage }}</strong>
+        <p class="mb-0 mt-2" *ngIf="syncDuration">
+          <i class="fas fa-clock mr-1"></i> Duración: {{ syncDuration }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Mensaje de Advertencia -->
+    <div *ngIf="warningMessage && !isLoading" class="alert alert-warning" role="alert">
+      <div class="alert-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <div class="alert-text">
+        {{ warningMessage }}
+      </div>
+    </div>
+
+    <!-- Mensaje de Error -->
+    <div *ngIf="errorMessage && !isLoading" class="alert alert-danger" role="alert">
+      <div class="alert-icon">
+        <i class="fas fa-exclamation-circle"></i>
+      </div>
+      <div class="alert-text">
+        <strong>{{ errorMessage }}</strong>
+        <p class="mb-0 mt-2">
+          <small>Si el error persiste, revisa la conexión con Printful API o contacta soporte.</small>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Estadísticas Cards -->
+<div *ngIf="syncStats && syncCompleted" class="row">
+  <!-- Total Procesados -->
+  <div class="col-xl-3 col-md-6 mb-5">
+    <div class="card card-custom bg-light-primary">
+      <div class="card-body">
+        <i class="fas fa-boxes text-primary icon-3x"></i>
+        <div class="text-dark font-weight-bolder font-size-h2 mt-3">
+          {{ syncStats.productsProcessed }}
+        </div>
+        <div class="font-weight-bold text-muted font-size-sm mt-1">
+          Productos Procesados
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Creados -->
+  <div class="col-xl-3 col-md-6 mb-5">
+    <div class="card card-custom bg-light-success">
+      <div class="card-body">
+        <i class="fas fa-plus-circle text-success icon-3x"></i>
+        <div class="text-dark font-weight-bolder font-size-h2 mt-3">
+          {{ syncStats.created }}
+        </div>
+        <div class="font-weight-bold text-muted font-size-sm mt-1">
+          Nuevos Creados
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actualizados -->
+  <div class="col-xl-3 col-md-6 mb-5">
+    <div class="card card-custom bg-light-info">
+      <div class="card-body">
+        <i class="fas fa-sync-alt text-info icon-3x"></i>
+        <div class="text-dark font-weight-bolder font-size-h2 mt-3">
+          {{ syncStats.updated }}
+        </div>
+        <div class="font-weight-bold text-muted font-size-sm mt-1">
+          Actualizados
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Eliminados -->
+  <div class="col-xl-3 col-md-6 mb-5">
+    <div class="card card-custom bg-light-warning">
+      <div class="card-body">
+        <i class="fas fa-trash-alt text-warning icon-3x"></i>
+        <div class="text-dark font-weight-bolder font-size-h2 mt-3">
+          {{ syncStats.deleted }}
+        </div>
+        <div class="font-weight-bold text-muted font-size-sm mt-1">
+          Eliminados
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabla de Errores -->
+<div *ngIf="syncStats?.errors && syncStats.errors.length > 0" class="card card-custom mt-5">
+  <div class="card-header">
+    <div class="card-title">
+      <h3 class="card-label text-danger">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        Errores Durante la Sincronización ({{ syncStats.errors.length }})
+      </h3>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-head-custom table-vertical-center">
+        <thead>
+          <tr>
+            <th class="pl-0" style="width: 50px">#</th>
+            <th style="min-width: 100px">Tipo</th>
+            <th style="min-width: 120px">Producto ID</th>
+            <th style="min-width: 200px">Mensaje</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let error of syncStats.errors; let i = index">
+            <td class="pl-0">
+              <span class="text-dark-75 font-weight-bolder d-block font-size-lg">
+                {{ i + 1 }}
+              </span>
+            </td>
+            <td>
+              <span class="label label-danger label-inline font-weight-bold">
+                {{ error.type || 'ERROR' }}
+              </span>
+            </td>
+            <td>
+              <span class="text-dark-75 font-weight-normal d-block font-size-lg">
+                {{ error.productId || 'N/A' }}
+              </span>
+            </td>
+            <td>
+              <span class="text-muted font-weight-normal">
+                {{ error.message || 'Error desconocido' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Acciones Rápidas -->
+<div *ngIf="syncCompleted" class="card card-custom mt-5">
+  <div class="card-header">
+    <div class="card-title">
+      <h3 class="card-label">
+        <i class="fas fa-bolt text-warning mr-2"></i>
+        Acciones Rápidas
+      </h3>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="d-flex flex-wrap">
+      <a 
+        routerLink="/products/list-all-products" 
+        class="btn btn-light-primary font-weight-bold mr-3 mb-3">
+        <i class="fas fa-list mr-2"></i>
+        Ver Lista de Productos
+      </a>
+      <button 
+        (click)="synProducts()" 
+        class="btn btn-light-success font-weight-bold mr-3 mb-3">
+        <i class="fas fa-redo mr-2"></i>
+        Sincronizar de Nuevo
+      </button>
+    </div>
+  </div>
+</div>
