@@ -26,6 +26,10 @@ export const AsideMenuAdminGeneral = {
           {
             title: 'Sincronizar',
             page: '/printful/list'
+          },
+          {
+            title: 'Productos Printful',
+            page: '/printful/products'
           }
         ]
       },

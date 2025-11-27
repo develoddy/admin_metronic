@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { PrintfulComponent } from './printful.component';
 import { ListPrintfulComponent } from './list-printful/list-printful.component';
+import { ProductsPrintfulComponent } from './products-printful/products-printful.component';
 
 const routes: Routes = [
   {
@@ -11,6 +12,10 @@ const routes: Routes = [
       {
         path: 'list',
         component: ListPrintfulComponent,
+      },
+      {
+        path: 'products',
+        component: ProductsPrintfulComponent,
       }
     ]
   }

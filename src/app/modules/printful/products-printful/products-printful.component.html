@@ -1,0 +1,691 @@
+<div class="card">
+  <!-- Header -->
+  <div class="card-header border-0 pt-5">
+    <h3 class="card-title align-items-start flex-column">
+      <span class="card-label fw-bolder fs-3 mb-1">Productos Printful</span>
+      <span class="text-muted mt-1 fw-bold fs-7">{{ totalItems }} productos encontrados</span>
+    </h3>
+    <div class="card-toolbar">
+      <div class="btn-group" role="group">
+        <button 
+          type="button" 
+          class="btn btn-sm"
+          [class.btn-primary]="viewMode === 'grid'"
+          [class.btn-light]="viewMode !== 'grid'"
+          (click)="setViewMode('grid')">
+          <i class="fa fa-th"></i> Grid
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-sm"
+          [class.btn-primary]="viewMode === 'list'"
+          [class.btn-light]="viewMode !== 'list'"
+          (click)="setViewMode('list')">
+          <i class="fa fa-list"></i> Lista
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card-body pt-0">
+    <div class="filters-section mb-6">
+      <!-- Búsqueda y Categoría -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label class="form-label">Buscar</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Buscar por título o SKU..."
+            [(ngModel)]="filters.search"
+            (input)="onSearchChange()">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Categoría</label>
+          <select 
+            class="form-select" 
+            [(ngModel)]="filters.category"
+            (change)="onCategoryChange()">
+            <option [value]="null">Todas las categorías</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">
+              {{ cat.title }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Estado</label>
+          <select 
+            class="form-select" 
+            [(ngModel)]="filters.state"
+            (change)="onStateChange()">
+            <option [value]="null">Todos</option>
+            <option [value]="2">Activo</option>
+            <option [value]="1">Inactivo</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Rango de Precio -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <label class="form-label">Rango de Precio: S/ {{ filters.minPrice }} - S/ {{ filters.maxPrice }}</label>
+          <div class="d-flex align-items-center gap-3">
+            <input 
+              type="number" 
+              class="form-control" 
+              placeholder="Mín"
+              [(ngModel)]="filters.minPrice"
+              (change)="onPriceRangeChange()"
+              style="width: 120px;">
+            <span>-</span>
+            <input 
+              type="number" 
+              class="form-control" 
+              placeholder="Máx"
+              [(ngModel)]="filters.maxPrice"
+              (change)="onPriceRangeChange()"
+              style="width: 120px;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros de Colores -->
+      <div class="row mb-4" *ngIf="availableColors.length > 0">
+        <div class="col-md-12">
+          <label class="form-label">Colores</label>
+          <div class="d-flex flex-wrap gap-2">
+            <button 
+              *ngFor="let color of availableColors"
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="isColorSelected(color)"
+              [class.btn-light]="!isColorSelected(color)"
+              (click)="toggleColorFilter(color)">
+              {{ color }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros de Tallas -->
+      <div class="row mb-4" *ngIf="availableSizes.length > 0">
+        <div class="col-md-12">
+          <label class="form-label">Tallas</label>
+          <div class="d-flex flex-wrap gap-2">
+            <button 
+              *ngFor="let size of availableSizes"
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="isSizeSelected(size)"
+              [class.btn-light]="!isSizeSelected(size)"
+              (click)="toggleSizeFilter(size)">
+              {{ size }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón Reset -->
+      <div class="row">
+        <div class="col-md-12">
+          <button 
+            type="button" 
+            class="btn btn-light-danger btn-sm"
+            (click)="resetFilters()">
+            <i class="fa fa-times-circle"></i> Limpiar Filtros
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="text-center py-10">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="text-muted mt-3">Cargando productos...</p>
+    </div>
+
+    <!-- Sin Resultados -->
+    <div *ngIf="!isLoading && filteredProducts.length === 0" class="text-center py-10">
+      <i class="fa fa-inbox fs-3x text-muted"></i>
+      <p class="text-muted mt-3">No se encontraron productos con los filtros aplicados</p>
+    </div>
+
+    <!-- Vista Grid -->
+    <div *ngIf="!isLoading && filteredProducts.length > 0 && viewMode === 'grid'" class="row g-6">
+      <div *ngFor="let product of paginatedProducts" class="col-md-6 col-xl-4">
+        <div class="card card-flush h-100">
+          <!-- Imagen -->
+          <div class="card-header pt-5">
+            <div class="w-100 text-center">
+              <img 
+                [src]="getProductImage(product)" 
+                [alt]="product.title"
+                class="img-fluid rounded"
+                style="max-height: 200px; object-fit: cover;">
+            </div>
+          </div>
+
+          <!-- Contenido -->
+          <div class="card-body pt-3">
+            <!-- Título -->
+            <h4 class="fs-6 fw-bold mb-2">{{ product.title }}</h4>
+            
+            <!-- SKU -->
+            <p class="text-muted fs-7 mb-2">
+              <span class="badge badge-light-info">{{ product.sku }}</span>
+            </p>
+
+            <!-- Categoría -->
+            <p class="text-muted fs-8 mb-2" *ngIf="product.categorie">
+              <i class="bi bi-folder"></i> {{ product.categorie.title }}
+            </p>
+
+            <!-- Precio -->
+            <div class="d-flex align-items-center mb-2">
+              <span class="fs-4 fw-bold text-dark me-2">S/ {{ product.price_soles }}</span>
+              <span class="badge" [ngClass]="getStateBadgeClass(product.state)">
+                {{ getStateText(product.state) }}
+              </span>
+            </div>
+
+            <!-- Variantes -->
+            <div class="mb-2" *ngIf="product.variedades?.length > 0">
+              <p class="text-muted fs-8 mb-1">
+                <i class="fa fa-ruler"></i> {{ getVariantsCount(product) }} variante(s)
+              </p>
+              <div class="d-flex flex-wrap gap-1">
+                <span 
+                  *ngFor="let variedad of product.variedades.slice(0, 3)" 
+                  class="badge badge-light-secondary"
+                  style="font-size: 0.7rem;">
+                  {{ variedad.valor }}
+                </span>
+                <span 
+                  *ngIf="product.variedades.length > 3"
+                  class="badge badge-light-info"
+                  style="font-size: 0.7rem;">
+                  +{{ product.variedades.length - 3 }}
+                </span>
+              </div>
+            </div>
+            <p class="text-muted fs-8 mb-0" *ngIf="!product.variedades || product.variedades.length === 0">
+              <i class="fa fa-ruler"></i> Sin variantes
+            </p>
+          </div>
+
+          <!-- Footer con Acciones -->
+          <div class="card-footer pt-0">
+            <div class="d-flex gap-1">
+              <button 
+                type="button" 
+                class="btn btn-sm btn-light-info flex-grow-1"
+                (click)="viewDetails(product)"
+                title="Ver detalles">
+                <i class="fa fa-eye"></i>
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-sm"
+                [class.btn-light-success]="product.state === 2"
+                [class.btn-light-secondary]="product.state !== 2"
+                (click)="toggleState(product)"
+                title="Activar/Desactivar">
+                <i class="fa fa-power-off"></i>
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-sm btn-light-primary"
+                (click)="syncProduct(product)"
+                [disabled]="isSyncing(product._id)"
+                title="Re-sincronizar">
+                <i class="fa fa-sync-alt" [class.fa-spin]="isSyncing(product._id)"></i>
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-sm btn-light-danger"
+                (click)="deleteProduct(product)"
+                [disabled]="isDeleting(product._id)"
+                title="Eliminar">
+                <i class="fa fa-trash" *ngIf="!isDeleting(product._id)"></i>
+                <span class="spinner-border spinner-border-sm" *ngIf="isDeleting(product._id)"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista Lista -->
+    <div *ngIf="!isLoading && filteredProducts.length > 0 && viewMode === 'list'" class="table-responsive">
+      <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4">
+        <thead>
+          <tr class="fw-bolder text-muted">
+            <th class="min-w-100px">Imagen</th>
+            <th class="min-w-200px">Producto</th>
+            <th class="min-w-100px">SKU</th>
+            <th class="min-w-150px">Categoría</th>
+            <th class="min-w-100px">Precio</th>
+            <th class="min-w-80px">Variantes</th>
+            <th class="min-w-80px">Estado</th>
+            <th class="min-w-100px text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of paginatedProducts">
+            <!-- Imagen -->
+            <td>
+              <img 
+                [src]="getProductImage(product)" 
+                [alt]="product.title"
+                class="img-thumbnail"
+                style="width: 60px; height: 60px; object-fit: cover;">
+            </td>
+            
+            <!-- Producto -->
+            <td>
+              <span class="text-dark fw-bold d-block fs-7">{{ product.title }}</span>
+            </td>
+
+            <!-- SKU -->
+            <td>
+              <span class="badge badge-light-info">{{ product.sku }}</span>
+            </td>
+
+            <!-- Categoría -->
+            <td>
+              <span class="text-muted" *ngIf="product.categorie">{{ product.categorie.title }}</span>
+            </td>
+
+            <!-- Precio -->
+            <td>
+              <span class="text-dark fw-bold">S/ {{ product.price_soles }}</span>
+            </td>
+
+            <!-- Variantes -->
+            <td>
+              <span class="badge badge-light">{{ getVariantsCount(product) }}</span>
+            </td>
+
+            <!-- Estado -->
+            <td>
+              <span class="badge" [ngClass]="getStateBadgeClass(product.state)">
+                {{ getStateText(product.state) }}
+              </span>
+            </td>
+
+            <!-- Acciones -->
+            <td class="text-end">
+              <div class="d-flex justify-content-end gap-2">
+                <button 
+                  type="button" 
+                  class="btn btn-icon btn-bg-light btn-active-color-info btn-sm"
+                  (click)="viewDetails(product)"
+                  title="Ver detalles">
+                  <i class="fa fa-eye fs-4"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-icon btn-bg-light btn-sm"
+                  [class.btn-active-color-success]="product.state === 2"
+                  [class.btn-active-color-secondary]="product.state !== 2"
+                  (click)="toggleState(product)"
+                  title="Activar/Desactivar">
+                  <i class="fa fa-power-off fs-4"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm"
+                  (click)="syncProduct(product)"
+                  [disabled]="isSyncing(product._id)"
+                  title="Re-sincronizar">
+                  <i class="fa fa-sync-alt fs-4" [class.fa-spin]="isSyncing(product._id)"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
+                  (click)="deleteProduct(product)"
+                  [disabled]="isDeleting(product._id)"
+                  title="Eliminar">
+                  <i class="fa fa-trash fs-4" *ngIf="!isDeleting(product._id)"></i>
+                  <span class="spinner-border spinner-border-sm" *ngIf="isDeleting(product._id)"></span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <div *ngIf="!isLoading && filteredProducts.length > 0" class="d-flex justify-content-between align-items-center mt-6">
+      <div class="text-muted">
+        Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+        {{ currentPage * itemsPerPage > totalItems ? totalItems : currentPage * itemsPerPage }} de {{ totalItems }}
+      </div>
+      <nav>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="goToPage(currentPage - 1)">Anterior</button>
+          </li>
+          <li 
+            *ngFor="let page of [].constructor(totalPages); let i = index" 
+            class="page-item"
+            [class.active]="currentPage === i + 1">
+            <button class="page-link" (click)="goToPage(i + 1)">{{ i + 1 }}</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="goToPage(currentPage + 1)">Siguiente</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Detalles del Producto -->
+<div class="modal fade show" 
+     *ngIf="showModal && selectedProduct" 
+     [style.display]="showModal ? 'block' : 'none'"
+     tabindex="-1" 
+     role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <!-- Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ selectedProduct.title }}
+        </h5>
+        <button 
+          type="button" 
+          class="btn-close" 
+          (click)="closeModal()"
+          aria-label="Close">
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <div class="row">
+          <!-- Imagen Principal -->
+          <div class="col-md-5">
+            <img 
+              [src]="selectedProduct.imagen" 
+              [alt]="selectedProduct.title"
+              class="img-fluid rounded shadow-sm mb-4"
+              style="width: 100%; max-height: 400px; object-fit: cover;">
+            
+            <!-- Galería adicional -->
+            <div class="d-flex gap-2 flex-wrap" *ngIf="selectedProduct.galerias?.length > 0">
+              <img 
+                *ngFor="let galeria of selectedProduct.galerias" 
+                [src]="galeria.imagen"
+                class="img-thumbnail"
+                style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;">
+            </div>
+          </div>
+
+          <!-- Información del Producto -->
+          <div class="col-md-7">
+            <!-- SKU y Estado -->
+            <div class="mb-4">
+              <span class="badge badge-light-info me-2">{{ selectedProduct.sku }}</span>
+              <span class="badge" [ngClass]="getStateBadgeClass(selectedProduct.state)">
+                {{ getStateText(selectedProduct.state) }}
+              </span>
+            </div>
+
+            <!-- Categoría -->
+            <div class="mb-3" *ngIf="selectedProduct.categorie">
+              <strong class="text-muted"><i class="fa fa-folder"></i> Categoría:</strong>
+              <span class="ms-2">{{ selectedProduct.categorie.title }}</span>
+            </div>
+
+            <!-- Precio -->
+            <div class="mb-3">
+              <strong class="text-muted">Precio:</strong>
+              <span class="ms-2 fs-3 fw-bold text-dark">S/ {{ selectedProduct.price_soles }}</span>
+              <span class="text-muted ms-2">(USD ${{ selectedProduct.price_usd }})</span>
+            </div>
+
+            <!-- Stock -->
+            <div class="mb-3">
+              <strong class="text-muted">Stock:</strong>
+              <span class="ms-2">{{ selectedProduct.stock }}</span>
+            </div>
+
+            <!-- Colores disponibles -->
+            <div class="mb-3" *ngIf="selectedProduct.tags?.length > 0">
+              <strong class="text-muted">🎨 Colores disponibles:</strong>
+              <div class="mt-2">
+                <span 
+                  *ngFor="let color of selectedProduct.tags" 
+                  class="badge badge-light-primary me-2">
+                  {{ color }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Tallas/Variantes -->
+            <div class="mb-4">
+              <strong class="text-muted">📏 Variantes:</strong>
+              <span class="ms-2">
+                {{ getVariantsCount(selectedProduct) }} 
+                {{ getVariantsCount(selectedProduct) === 1 ? 'variante' : 'variantes' }}
+              </span>
+              
+              <!-- Tabla de Variantes -->
+              <div class="mt-3" *ngIf="selectedProduct.variedades?.length > 0">
+                <div class="table-responsive">
+                  <table class="table table-sm table-striped table-bordered">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Talla</th>
+                        <th>Color</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>SKU</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let variedad of selectedProduct.variedades">
+                        <td>
+                          <span class="badge badge-light-primary">{{ variedad.valor }}</span>
+                        </td>
+                        <td>{{ variedad.color }}</td>
+                        <td>
+                          <strong>S/ {{ variedad.retail_price }}</strong>
+                          <small class="text-muted d-block">{{ variedad.currency }}</small>
+                        </td>
+                        <td>
+                          <span class="badge" 
+                                [class.badge-success]="variedad.stock > 0"
+                                [class.badge-danger]="variedad.stock === 0">
+                            {{ variedad.stock }}
+                          </span>
+                        </td>
+                        <td>
+                          <small class="text-muted">{{ variedad.sku }}</small>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <!-- Mensaje si no hay variantes -->
+              <div class="mt-2" *ngIf="!selectedProduct.variedades || selectedProduct.variedades.length === 0">
+                <small class="text-muted">No hay variantes configuradas</small>
+              </div>
+            </div>
+
+            <!-- Tipo de Inventario -->
+            <div class="mb-3">
+              <strong class="text-muted">Tipo de Inventario:</strong>
+              <span class="ms-2 badge badge-light-warning">
+                {{ selectedProduct.type_inventario === 2 ? 'Printful (POD)' : 'Manual' }}
+              </span>
+            </div>
+
+            <!-- Link a Printful -->
+            <div class="mb-4">
+              <a 
+                [href]="getPrintfulLink(selectedProduct.sku)" 
+                target="_blank"
+                class="btn btn-sm btn-light-primary">
+                <i class="fa fa-external-link-alt"></i> Ver en Printful Dashboard
+              </a>
+            </div>
+
+            <!-- Descripción -->
+            <div class="separator separator-dashed my-4"></div>
+            
+            <div class="mb-3">
+              <strong class="text-muted">📝 Descripción (ES):</strong>
+              <div class="mt-2 text-gray-700" style="max-height: 200px; overflow-y: auto;" [innerHTML]="selectedProduct.description_es">
+              </div>
+            </div>
+
+            <!-- Información de Sincronización -->
+            <div class="separator separator-dashed my-4"></div>
+            
+            <div class="bg-light-info rounded p-3">
+              <div class="d-flex align-items-center mb-2">
+                <i class="fa fa-info-circle fs-3 text-info me-2"></i>
+                <strong>Información de Sincronización</strong>
+              </div>
+              <div class="text-muted small">
+                <div><strong>Última actualización:</strong> {{ formatDate(selectedProduct.updatedAt) }}</div>
+                <div><strong>Fecha de creación:</strong> {{ formatDate(selectedProduct.createdAt) }}</div>
+                <div><strong>ID interno:</strong> {{ selectedProduct._id }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="btn btn-light-primary"
+          (click)="syncProduct(selectedProduct); closeModal()"
+          [disabled]="isSyncing(selectedProduct._id)">
+          <i class="fa fa-sync-alt"></i> Re-sincronizar
+        </button>
+        <button 
+          type="button" 
+          class="btn"
+          [class.btn-light-success]="selectedProduct.state !== 2"
+          [class.btn-light-secondary]="selectedProduct.state === 2"
+          (click)="toggleState(selectedProduct)">
+          <i class="fa fa-power-off"></i> 
+          {{ selectedProduct.state === 2 ? 'Desactivar' : 'Activar' }}
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-light-danger"
+          (click)="deleteProduct(selectedProduct); closeModal()"
+          [disabled]="isDeleting(selectedProduct._id)">
+          <i class="fa fa-trash"></i> Eliminar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="closeModal()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay del Modal -->
+<div 
+  class="modal-backdrop fade show" 
+  *ngIf="showModal"
+  (click)="closeModal()">
+</div>
+
+<!-- Toast Notification -->
+<div 
+  class="toast-container position-fixed top-0 end-0 p-3" 
+  style="z-index: 9999;">
+  <div 
+    *ngIf="showToast"
+    class="toast show align-items-center border-0"
+    [ngClass]="{
+      'bg-success text-white': toastType === 'success',
+      'bg-danger text-white': toastType === 'error',
+      'bg-warning text-dark': toastType === 'warning',
+      'bg-info text-white': toastType === 'info'
+    }"
+    role="alert">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="fa" 
+           [ngClass]="{
+             'fa-check-circle': toastType === 'success',
+             'fa-times-circle': toastType === 'error',
+             'fa-exclamation-triangle': toastType === 'warning',
+             'fa-info-circle': toastType === 'info'
+           }"></i>
+        {{ toastMessage }}
+      </div>
+      <button 
+        type="button" 
+        class="btn-close btn-close-white me-2 m-auto" 
+        (click)="closeToast()">
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade show" 
+     *ngIf="showConfirmModal" 
+     [style.display]="showConfirmModal ? 'block' : 'none'"
+     tabindex="-1" 
+     role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fa fa-exclamation-triangle text-warning me-2"></i>
+          {{ confirmTitle }}
+        </h5>
+        <button 
+          type="button" 
+          class="btn-close" 
+          (click)="cancelConfirmation()">
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="white-space: pre-line;">{{ confirmMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="cancelConfirmation()">
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="executeConfirmation()">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay del Modal de Confirmación -->
+<div 
+  class="modal-backdrop fade show" 
+  *ngIf="showConfirmModal"
+  (click)="cancelConfirmation()">
+</div>
