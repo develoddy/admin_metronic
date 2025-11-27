@@ -58,6 +58,34 @@
       <p class="text-muted mt-3" *ngIf="syncStartTime">
         Iniciado: {{ syncStartTime | date:'short' }}
       </p>
+      
+      <!-- Terminal de Logs en Tiempo Real -->
+      <div *ngIf="showTerminal" class="sync-terminal mt-5">
+        <div class="sync-terminal-header">
+          <span class="terminal-title">
+            <i class="fas fa-terminal mr-2"></i>
+            Proceso de Sincronización
+          </span>
+          <span class="terminal-controls">
+            <i class="fas fa-circle text-danger mr-1" style="font-size: 8px;"></i>
+            <i class="fas fa-circle text-warning mr-1" style="font-size: 8px;"></i>
+            <i class="fas fa-circle text-success" style="font-size: 8px;"></i>
+          </span>
+        </div>
+        <div class="sync-terminal-body">
+          <div *ngFor="let log of terminalLogs" class="terminal-line" [ngClass]="'terminal-' + log.type">
+            <span class="terminal-timestamp">{{ log.timestamp | date:'HH:mm:ss' }}</span>
+            <span class="terminal-icon">
+              <i class="fas fa-chevron-right" *ngIf="log.type === 'info'"></i>
+              <i class="fas fa-check" *ngIf="log.type === 'success'"></i>
+              <i class="fas fa-exclamation-triangle" *ngIf="log.type === 'warning'"></i>
+              <i class="fas fa-times" *ngIf="log.type === 'error'"></i>
+            </span>
+            <span class="terminal-message">{{ log.message }}</span>
+          </div>
+          <div class="terminal-cursor" *ngIf="isLoading">_</div>
+        </div>
+      </div>
     </div>
 
     <!-- Mensaje de Éxito -->

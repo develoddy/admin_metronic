@@ -1,0 +1,147 @@
+// Terminal estilo CMD
+.sync-terminal {
+  background: #1e1e1e;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  font-family: 'Courier New', Courier, monospace;
+  
+  .sync-terminal-header {
+    background: #2d2d2d;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #404040;
+    
+    .terminal-title {
+      color: #c5c5c5;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .terminal-controls {
+      display: flex;
+      align-items: center;
+    }
+  }
+  
+  .sync-terminal-body {
+    background: #1e1e1e;
+    padding: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+    min-height: 200px;
+    
+    // Scrollbar personalizado
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #2d2d2d;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 4px;
+      
+      &:hover {
+        background: #777;
+      }
+    }
+    
+    .terminal-line {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      font-size: 13px;
+      line-height: 1.6;
+      
+      .terminal-timestamp {
+        color: #666;
+        margin-right: 8px;
+        font-size: 11px;
+        min-width: 65px;
+      }
+      
+      .terminal-icon {
+        margin-right: 8px;
+        min-width: 16px;
+      }
+      
+      .terminal-message {
+        flex: 1;
+        word-break: break-word;
+      }
+      
+      // Tipos de log
+      &.terminal-info {
+        color: #4fc3f7;
+        
+        .terminal-icon {
+          color: #4fc3f7;
+        }
+      }
+      
+      &.terminal-success {
+        color: #81c784;
+        
+        .terminal-icon {
+          color: #81c784;
+        }
+      }
+      
+      &.terminal-warning {
+        color: #ffb74d;
+        
+        .terminal-icon {
+          color: #ffb74d;
+        }
+      }
+      
+      &.terminal-error {
+        color: #e57373;
+        
+        .terminal-icon {
+          color: #e57373;
+        }
+      }
+    }
+    
+    .terminal-cursor {
+      color: #81c784;
+      font-weight: bold;
+      animation: blink 1s infinite;
+      display: inline-block;
+    }
+  }
+}
+
+@keyframes blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .sync-terminal {
+    .sync-terminal-body {
+      max-height: 300px;
+      padding: 12px;
+      
+      .terminal-line {
+        font-size: 12px;
+        
+        .terminal-timestamp {
+          font-size: 10px;
+          min-width: 60px;
+        }
+      }
+    }
+  }
+}

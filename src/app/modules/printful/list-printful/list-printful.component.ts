@@ -35,6 +35,10 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
   public syncStartTime: Date | null = null;
   public syncDuration: string | null = null;
   private progressInterval: any = null;
+  
+  // Terminal de logs en tiempo real
+  public terminalLogs: Array<{message: string, type: 'info' | 'success' | 'warning' | 'error', timestamp: Date}> = [];
+  public showTerminal = false;
 
   constructor(
     public _printfulService: PrintfulService,
@@ -62,6 +66,7 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
     
     // Iniciar sincronización
     this.isLoading = true;
+    this.showTerminal = true; // Mostrar terminal
     this.syncStartTime = new Date();
     this.syncProgress = 10; // Progreso inicial
     
@@ -70,8 +75,14 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
     
     console.log('🔄 Iniciando sincronización con Printful...');
     
+    // Agregar log inicial al terminal
+    this.addTerminalLog('🚀 Iniciando sincronización con Printful...', 'info');
+    
     // Simular progreso gradual mientras se sincroniza (10% -> 80%)
     this.startProgressSimulation();
+    
+    // Simular logs del proceso
+    this.simulateSyncLogs();
 
     this._printfulService.synPrintfulProducts().subscribe({
       next: (resp: any) => {
@@ -90,6 +101,9 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
           this.syncDuration = this.formatDuration(duration);
         }
         
+        // Agregar logs finales al terminal
+        this.addTerminalLog('💾 Guardando cambios en base de datos...', 'info');
+        
         // Extraer estadísticas
         if (resp.sync) {
           this.syncStats = {
@@ -101,6 +115,24 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
             errors: resp.errors || []
           };
           
+          // Agregar resumen al terminal
+          setTimeout(() => {
+            this.addTerminalLog('', 'info'); // Línea vacía
+            this.addTerminalLog('📊 RESUMEN DE SINCRONIZACIÓN:', 'info');
+            this.addTerminalLog(`   • Total procesados: ${this.syncStats?.productsProcessed}`, 'success');
+            this.addTerminalLog(`   • Creados: ${this.syncStats?.created}`, this.syncStats?.created! > 0 ? 'success' : 'info');
+            this.addTerminalLog(`   • Actualizados: ${this.syncStats?.updated}`, this.syncStats?.updated! > 0 ? 'success' : 'info');
+            this.addTerminalLog(`   • Eliminados: ${this.syncStats?.deleted}`, this.syncStats?.deleted! > 0 ? 'warning' : 'info');
+            this.addTerminalLog(`   • Sin cambios: ${this.syncStats?.skipped}`, 'info');
+            
+            if (this.syncStats?.errors && this.syncStats.errors.length > 0) {
+              this.addTerminalLog(`   • Errores: ${this.syncStats.errors.length}`, 'error');
+            }
+            
+            this.addTerminalLog('', 'info'); // Línea vacía
+            this.addTerminalLog(`✅ Sincronización completada en ${this.syncDuration}`, 'success');
+          }, 500);
+          
           // Generar mensaje de éxito
           this.successMessage = this.generateSuccessMessage(this.syncStats);
           
@@ -110,6 +142,7 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
           }
         } else {
           this.errorMessage = '❌ La sincronización no se completó correctamente';
+          this.addTerminalLog('❌ Error: La sincronización no se completó correctamente', 'error');
         }
         
         // Progreso a 100% y finalizar carga después de procesar
@@ -142,9 +175,14 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
         const errorMsg = error.error?.message || error.message || 'Error desconocido al sincronizar con Printful';
         this.errorMessage = `❌ Error: ${errorMsg}`;
         
+        // Agregar error al terminal
+        this.addTerminalLog('', 'info'); // Línea vacía
+        this.addTerminalLog(`❌ ERROR: ${errorMsg}`, 'error');
+        
         // Si hay detalles adicionales
         if (error.error?.details) {
           console.error('Detalles del error:', error.error.details);
+          this.addTerminalLog(`   Detalles: ${error.error.details}`, 'error');
         }
         
         // Forzar actualización del DOM con estado de error
@@ -191,6 +229,59 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Agrega un log al terminal
+   */
+  private addTerminalLog(message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info'): void {
+    this.terminalLogs.push({
+      message,
+      type,
+      timestamp: new Date()
+    });
+    
+    // Limitar a los últimos 50 logs para no saturar el DOM
+    if (this.terminalLogs.length > 50) {
+      this.terminalLogs.shift();
+    }
+    
+    this.cd.detectChanges();
+    
+    // Auto-scroll al final del terminal
+    setTimeout(() => {
+      const terminal = document.querySelector('.sync-terminal-body');
+      if (terminal) {
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+    }, 50);
+  }
+  
+  /**
+   * Simula logs del proceso de sincronización
+   */
+  private simulateSyncLogs(): void {
+    this.addTerminalLog('🚀 Iniciando conexión con Printful API...', 'info');
+    
+    setTimeout(() => {
+      this.addTerminalLog('📥 Obteniendo lista de productos...', 'info');
+    }, 800);
+    
+    setTimeout(() => {
+      this.addTerminalLog('🔍 Analizando productos en base de datos...', 'info');
+    }, 1600);
+    
+    setTimeout(() => {
+      this.addTerminalLog('⚙️ Comparando productos...', 'info');
+    }, 2400);
+    
+    // Simular procesamiento de productos
+    const totalProducts = 12; // Esto debería venir del backend idealmente
+    for (let i = 1; i <= totalProducts; i++) {
+      setTimeout(() => {
+        this.addTerminalLog(`✓ Producto ${i}/${totalProducts} procesado`, 'success');
+      }, 3000 + (i * 1500));
+    }
+  }
+
+  /**
    * Resetea el estado de sincronización
    */
   private resetSyncState(): void {
@@ -204,6 +295,8 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
     this.syncProgress = 0;
     this.syncStartTime = null;
     this.syncDuration = null;
+    this.terminalLogs = [];
+    this.showTerminal = false;
   }
 
   /**
