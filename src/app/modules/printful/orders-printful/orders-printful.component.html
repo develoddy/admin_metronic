@@ -1,0 +1,236 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+      <h1 class="text-dark fw-bolder">Órdenes Printful</h1>
+      <p class="text-muted mb-0">Gestiona las órdenes enviadas a Printful</p>
+    </div>
+    <button class="btn btn-primary" (click)="refreshOrders()" [disabled]="isLoading">
+      <i class="fa fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card card-flush mb-5">
+    <div class="card-body">
+      <div class="row g-3">
+        <!-- Status Filter -->
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Estado</label>
+          <select class="form-select" [(ngModel)]="filters.status" (change)="applyFilters()">
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Search -->
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Buscar</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="ID, nombre o email..."
+            [(ngModel)]="filters.search"
+            (input)="applyFilters()"
+          >
+        </div>
+
+        <!-- Start Date -->
+        <div class="col-md-2">
+          <label class="form-label fw-bold">Desde</label>
+          <input 
+            type="date" 
+            class="form-control"
+            [(ngModel)]="filters.startDate"
+            (change)="applyFilters()"
+          >
+        </div>
+
+        <!-- End Date -->
+        <div class="col-md-2">
+          <label class="form-label fw-bold">Hasta</label>
+          <input 
+            type="date" 
+            class="form-control"
+            [(ngModel)]="filters.endDate"
+            (change)="applyFilters()"
+          >
+        </div>
+
+        <!-- Clear Filters -->
+        <div class="col-md-2 d-flex align-items-end">
+          <button class="btn btn-light-danger w-100" (click)="clearFilters()">
+            <i class="fa fa-times me-2"></i>
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="card card-flush">
+    <div class="card-header pt-5">
+      <h3 class="card-title align-items-start flex-column">
+        <span class="card-label fw-bolder text-dark">Lista de Órdenes</span>
+        <span class="text-muted mt-1 fw-bold fs-7">{{ totalItems }} órdenes encontradas</span>
+      </h3>
+    </div>
+    <div class="card-body pt-0">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="text-center py-10">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="text-muted mt-3">Cargando órdenes...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && filteredOrders.length === 0" class="text-center py-10">
+        <i class="fa fa-shopping-cart fs-3x text-gray-400"></i>
+        <p class="text-gray-600 mt-3 fw-bold">No hay órdenes disponibles</p>
+        <p class="text-gray-500">Las órdenes enviadas a Printful aparecerán aquí</p>
+      </div>
+
+      <!-- Table -->
+      <div *ngIf="!isLoading && filteredOrders.length > 0" class="table-responsive">
+        <table class="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3">
+          <thead>
+            <tr class="fw-bolder text-muted">
+              <th class="min-w-100px">ID Orden</th>
+              <th class="min-w-140px">Cliente</th>
+              <th class="min-w-120px">País</th>
+              <th class="min-w-100px">Items</th>
+              <th class="min-w-100px">Total</th>
+              <th class="min-w-100px">Estado</th>
+              <th class="min-w-140px">Fecha</th>
+              <th class="min-w-150px text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of getPaginatedOrders()">
+              <!-- Order ID -->
+              <td>
+                <a [routerLink]="['/printful/orders', order.id]" class="text-dark fw-bolder text-hover-primary">
+                  #{{ order.external_id }}
+                </a>
+              </td>
+
+              <!-- Customer -->
+              <td>
+                <div class="d-flex flex-column">
+                  <span class="text-dark fw-bold">{{ order.recipient.name }}</span>
+                  <span class="text-muted fs-7">{{ order.recipient.email }}</span>
+                </div>
+              </td>
+
+              <!-- Country -->
+              <td>
+                <span class="text-gray-700">{{ order.recipient.country_name }}</span>
+              </td>
+
+              <!-- Items -->
+              <td>
+                <span class="badge badge-light-primary">{{ order.items }} items</span>
+              </td>
+
+              <!-- Total -->
+              <td>
+                <span class="text-dark fw-bold">
+                  {{ formatCurrency(order.retail_costs.total, order.retail_costs.currency) }}
+                </span>
+              </td>
+
+              <!-- Status -->
+              <td>
+                <span class="badge badge-{{ getStatusBadgeClass(order.status) }}">
+                  {{ getStatusLabel(order.status) }}
+                </span>
+              </td>
+
+              <!-- Date -->
+              <td>
+                <span class="text-muted fw-bold">{{ formatDate(order.created) }}</span>
+              </td>
+
+              <!-- Actions -->
+              <td class="text-end">
+                <button 
+                  class="btn btn-sm btn-icon btn-light-primary me-2" 
+                  (click)="syncOrder(order.id)"
+                  title="Sincronizar estado"
+                >
+                  <i class="fa fa-sync-alt"></i>
+                </button>
+                
+                <a 
+                  [routerLink]="['/printful/orders', order.id]" 
+                  class="btn btn-sm btn-icon btn-light-info me-2"
+                  title="Ver detalles"
+                >
+                  <i class="fa fa-eye"></i>
+                </a>
+
+                <button 
+                  *ngIf="order.status === 'failed'"
+                  class="btn btn-sm btn-icon btn-light-warning me-2" 
+                  (click)="retryOrder(order.id)"
+                  title="Reintentar orden"
+                >
+                  <i class="fa fa-redo"></i>
+                </button>
+
+                <button 
+                  *ngIf="order.status === 'draft' || order.status === 'pending'"
+                  class="btn btn-sm btn-icon btn-light-danger" 
+                  (click)="cancelOrder(order.id)"
+                  title="Cancelar orden"
+                >
+                  <i class="fa fa-times"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="!isLoading && totalPages > 1" class="d-flex justify-content-between align-items-center mt-5">
+        <div class="text-muted">
+          Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+          {{ Math.min(currentPage * itemsPerPage, totalItems) }} de {{ totalItems }}
+        </div>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)">Anterior</a>
+          </li>
+          <li 
+            class="page-item" 
+            *ngFor="let page of [].constructor(totalPages); let i = index"
+            [class.active]="currentPage === i + 1"
+          >
+            <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="changePage(currentPage + 1)">Siguiente</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+  <div *ngIf="showToast" class="toast show align-items-center text-white bg-{{ toastType === 'success' ? 'success' : toastType === 'error' ? 'danger' : toastType === 'warning' ? 'warning' : 'info' }} border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center">
+        <i class="fa {{ toastType === 'success' ? 'fa-check-circle' : toastType === 'error' ? 'fa-times-circle' : toastType === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle' }} fs-3 me-3"></i>
+        {{ toastMessage }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="closeToast()"></button>
+    </div>
+  </div>
+</div>

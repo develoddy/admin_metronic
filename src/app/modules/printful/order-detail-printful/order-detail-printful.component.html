@@ -1,0 +1,361 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+      <button class="btn btn-sm btn-light-primary mb-3" (click)="goBack()">
+        <i class="fa fa-arrow-left me-2"></i>
+        Volver a Órdenes
+      </button>
+      <h1 class="text-dark fw-bolder mb-0">Orden #{{ order?.external_id || orderId }}</h1>
+      <p class="text-muted mb-0" *ngIf="order">
+        Creada el {{ formatDate(order.created) }}
+      </p>
+    </div>
+    <div *ngIf="order">
+      <a [href]="order.dashboard_url || 'https://www.printful.com/es/dashboard/default/orders'" 
+         target="_blank" 
+         class="btn btn-light-success me-2"
+         [title]="'Buscar orden: ' + order.external_id">
+        <i class="bi bi-box-arrow-up-right me-2"></i>
+        Ver en Printful
+      </a>
+      <button class="btn btn-light-primary me-2" (click)="syncOrderStatus()" [disabled]="isLoading">
+        <i class="fa fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>
+        Sincronizar
+      </button>
+      <button 
+        *ngIf="order.status === 'draft' || order.status === 'pending'"
+        class="btn btn-light-danger" 
+        (click)="cancelOrder()"
+        [disabled]="isLoading"
+      >
+        <i class="fa fa-times me-2"></i>
+        Cancelar Orden
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-20">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted mt-3">Cargando detalles de la orden...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !order" class="card card-flush">
+    <div class="card-body text-center py-20">
+      <i class="fa fa-exclamation-triangle fs-3x text-warning"></i>
+      <p class="text-gray-600 mt-3 fw-bold fs-4">Orden no encontrada</p>
+      <p class="text-gray-500">Esta orden no existe o ha sido eliminada</p>
+      <button class="btn btn-primary mt-3" (click)="goBack()">
+        Volver a Órdenes
+      </button>
+    </div>
+  </div>
+
+  <!-- Order Details -->
+  <div *ngIf="!isLoading && order" class="row g-5">
+    <!-- Left Column -->
+    <div class="col-xl-8">
+      <!-- Order Status -->
+      <div class="card card-flush mb-5">
+        <div class="card-header">
+          <h3 class="card-title">Estado de la Orden</h3>
+        </div>
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-4">
+            <span class="badge badge-{{ getStatusBadgeClass(order.status) }} fs-3 me-4">
+              {{ getStatusLabel(order.status) }}
+            </span>
+            <div>
+              <div class="text-gray-700 fw-bold">Última actualización:</div>
+              <div class="text-muted">{{ formatDate(order.updated) }}</div>
+            </div>
+          </div>
+          
+          <!-- Draft Notice -->
+          <div *ngIf="order.status === 'draft'" class="bg-light-warning rounded p-4 mt-4">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-info-circle fs-2x text-warning me-3"></i>
+              <div>
+                <div class="text-gray-800 fw-bold mb-1">⚠️ Orden en Borrador</div>
+                <div class="text-gray-700 fs-7">
+                  Esta orden aún no ha sido confirmada en Printful. Los SKUs, fechas de entrega estimadas 
+                  y otros detalles estarán disponibles una vez que la orden sea procesada.
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Estimated Delivery -->
+          <div *ngIf="hasEstimatedDelivery()" class="bg-light-info rounded p-4 mt-4">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-calendar-check fs-2x text-info me-4"></i>
+              <div class="flex-grow-1">
+                <div class="text-gray-700 fw-semibold fs-7 mb-1">📦 Entrega Estimada Printful</div>
+                <div class="text-dark fw-bold fs-4">{{ getEstimatedDelivery() }}</div>
+                <div class="text-muted fs-7 mt-1">Método: {{ order.shipping }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="card card-flush mb-5">
+        <div class="card-header">
+          <h3 class="card-title">Productos ({{ order.items.length }})</h3>
+        </div>
+        <div class="card-body pt-0">
+          <div class="table-responsive">
+            <table class="table align-middle table-row-bordered">
+              <thead>
+                <tr class="fw-bolder text-muted bg-light">
+                  <th class="ps-4 rounded-start">Producto</th>
+                  <th>SKU</th>
+                  <th>Cantidad</th>
+                  <th class="text-end pe-4 rounded-end">Precio</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of order.items">
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center">
+                      <div class="symbol symbol-50px me-3">
+                        <img [src]="item.product.image" [alt]="item.name" class="w-100">
+                      </div>
+                      <div class="d-flex flex-column">
+                        <span class="text-dark fw-bold">{{ item.name }}</span>
+                        <a [href]="'https://www.printful.com/dashboard/product-templates/' + item.variant_id" 
+                           target="_blank" 
+                           class="text-primary fs-7 text-hover-primary">
+                          Variant ID: {{ item.variant_id }} <i class="bi bi-box-arrow-up-right fs-8"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="text-muted" 
+                          [attr.title]="item.sku === null ? 'El SKU estará disponible cuando Printful confirme la orden' : ''">
+                      {{ getItemSku(item) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge badge-light-primary">{{ item.quantity }}</span>
+                  </td>
+                  <td class="text-end pe-4">
+                    <span class="text-dark fw-bold">
+                      {{ formatCurrency(item.retail_price, order.retail_costs.currency) }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Order Totals - Customer Payment -->
+          <div class="mt-5 border-top pt-5">
+            <h5 class="text-gray-800 fw-bold mb-4">💰 Lo que el Cliente Pagó</h5>
+            <div class="d-flex justify-content-end mb-3">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Subtotal:</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.retail_costs.subtotal, order.retail_costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end mb-3" *ngIf="parseFloat(order.retail_costs.discount) > 0">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Descuento:</span>
+              <span class="text-success fw-bold">-{{ formatCurrency(order.retail_costs.discount, order.retail_costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end mb-3">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Envío:</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.retail_costs.shipping, order.retail_costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end mb-3" *ngIf="parseFloat(order.retail_costs.tax) > 0">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Impuestos:</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.retail_costs.tax, order.retail_costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end border-top pt-3 mb-5">
+              <span class="text-gray-800 fw-bolder fs-4 me-5 w-200px text-end">Total Cliente:</span>
+              <span class="text-success fw-bolder fs-4">{{ formatCurrency(order.retail_costs.total, order.retail_costs.currency) }}</span>
+            </div>
+
+            <!-- Printful Costs -->
+            <h5 class="text-gray-800 fw-bold mb-4 mt-5">🏭 Costes Reales de Printful</h5>
+            <div class="d-flex justify-content-end mb-3">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Subtotal Producción:</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.costs.subtotal, order.costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end mb-3" *ngIf="parseFloat(order.costs.digitization) > 0">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Digitalización de Archivo:</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.costs.digitization, order.costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end mb-3">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Envío ({{ order.shipping }}):</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.costs.shipping, order.costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end mb-3" *ngIf="parseFloat(order.costs.fulfillment_fee) > 0">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Tarifa de Fulfillment:</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.costs.fulfillment_fee, order.costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end mb-3" *ngIf="parseFloat(order.costs.retail_delivery_fee) > 0">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Tarifa Entrega Retail:</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.costs.retail_delivery_fee, order.costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end mb-3" *ngIf="parseFloat(order.costs.additional_fee) > 0">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Tarifa Adicional:</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.costs.additional_fee, order.costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end mb-3" *ngIf="parseFloat(order.costs.tax) > 0">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">Impuestos:</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.costs.tax, order.costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end mb-3" *ngIf="parseFloat(order.costs.vat) > 0">
+              <span class="text-gray-600 fw-bold me-5 w-200px text-end">IVA:</span>
+              <span class="text-dark fw-bold">{{ formatCurrency(order.costs.vat, order.costs.currency) }}</span>
+            </div>
+            <div class="d-flex justify-content-end border-top pt-3 mb-5">
+              <span class="text-gray-800 fw-bolder fs-4 me-5 w-200px text-end">Total Printful:</span>
+              <span class="text-danger fw-bolder fs-4">{{ formatCurrency(order.costs.total, order.costs.currency) }}</span>
+            </div>
+
+            <!-- Profit Calculation -->
+            <div class="bg-light-primary rounded p-4 mb-3">
+              <h5 class="text-primary fw-bold mb-3">📊 Análisis de Margen</h5>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-gray-700 fw-bold">Ingreso Cliente:</span>
+                <span class="text-success fw-bold">+{{ formatCurrency(order.retail_costs.total, order.retail_costs.currency) }}</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-gray-700 fw-bold">Coste Printful:</span>
+                <span class="text-danger fw-bold">-{{ formatCurrency(order.costs.total, order.costs.currency) }}</span>
+              </div>
+              <div class="d-flex justify-content-between border-top pt-3">
+                <span class="text-gray-800 fw-bolder fs-3">Tu Beneficio:</span>
+                <span [class]="getProfit() >= 0 ? 'text-success' : 'text-danger'" class="fw-bolder fs-3">
+                  {{ formatCurrency(getProfit(), order.costs.currency) }}
+                </span>
+              </div>
+              <div class="mt-2 text-center">
+                <span class="badge" [class]="getProfit() >= 0 ? 'badge-success' : 'badge-danger'">
+                  Margen: {{ getProfitPercentage() }}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipments -->
+      <div class="card card-flush mb-5" *ngIf="order.shipments && order.shipments.length > 0">
+        <div class="card-header">
+          <h3 class="card-title">Envíos ({{ order.shipments.length }})</h3>
+        </div>
+        <div class="card-body">
+          <div *ngFor="let shipment of order.shipments; let i = index" class="border rounded p-4 mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <span class="badge badge-success mb-2">Envío #{{ i + 1 }}</span>
+                <div class="text-gray-700 fw-bold">{{ shipment.carrier }} - {{ shipment.service }}</div>
+                <div class="text-muted fs-7">Enviado el {{ formatDate(shipment.shipped_at) }}</div>
+              </div>
+              <a 
+                *ngIf="shipment.tracking_url" 
+                [href]="shipment.tracking_url" 
+                target="_blank" 
+                class="btn btn-sm btn-light-primary"
+              >
+                <i class="fa fa-truck me-2"></i>
+                Rastrear
+              </a>
+            </div>
+            <div class="d-flex align-items-center bg-light rounded p-3">
+              <i class="fa fa-barcode fs-2 text-primary me-3"></i>
+              <div>
+                <div class="text-gray-600 fs-7">Número de seguimiento</div>
+                <div class="text-dark fw-bold">{{ shipment.tracking_number }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-xl-4">
+      <!-- Customer Information -->
+      <div class="card card-flush mb-5">
+        <div class="card-header">
+          <h3 class="card-title">Información del Cliente</h3>
+        </div>
+        <div class="card-body">
+          <div class="mb-4">
+            <div class="text-gray-600 fs-7 fw-bold mb-1">Nombre</div>
+            <div class="text-dark fw-bold">{{ order.recipient.name }}</div>
+          </div>
+          <div class="mb-4">
+            <div class="text-gray-600 fs-7 fw-bold mb-1">Email</div>
+            <div class="text-dark">{{ order.recipient.email }}</div>
+          </div>
+          <div class="mb-4" *ngIf="order.recipient.phone">
+            <div class="text-gray-600 fs-7 fw-bold mb-1">Teléfono</div>
+            <div class="text-dark">{{ order.recipient.phone }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipping Address -->
+      <div class="card card-flush mb-5">
+        <div class="card-header">
+          <h3 class="card-title">Dirección de Envío</h3>
+        </div>
+        <div class="card-body">
+          <div class="text-dark">
+            <div>{{ order.recipient.address1 }}</div>
+            <div *ngIf="order.recipient.address2">{{ order.recipient.address2 }}</div>
+            <div>{{ order.recipient.city }}, {{ order.recipient.state_name }}</div>
+            <div>{{ order.recipient.zip }}</div>
+            <div class="fw-bold mt-2">{{ order.recipient.country_name }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Metadata -->
+      <div class="card card-flush">
+        <div class="card-header">
+          <h3 class="card-title">Información de la Orden</h3>
+        </div>
+        <div class="card-body">
+          <div class="mb-4">
+            <div class="text-gray-600 fs-7 fw-bold mb-1">ID Externo</div>
+            <div class="text-dark fw-bold">#{{ order.external_id }}</div>
+          </div>
+          <div class="mb-4">
+            <div class="text-gray-600 fs-7 fw-bold mb-1">Método de Envío</div>
+            <div class="text-dark">{{ order.shipping }}</div>
+          </div>
+          <div class="mb-4">
+            <div class="text-gray-600 fs-7 fw-bold mb-1">Fecha de Creación</div>
+            <div class="text-dark">{{ formatDate(order.created) }}</div>
+          </div>
+          <div>
+            <div class="text-gray-600 fs-7 fw-bold mb-1">Última Actualización</div>
+            <div class="text-dark">{{ formatDate(order.updated) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+  <div *ngIf="showToast" class="toast show align-items-center text-white bg-{{ toastType === 'success' ? 'success' : toastType === 'error' ? 'danger' : toastType === 'warning' ? 'warning' : 'info' }} border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body d-flex align-items-center">
+        <i class="fa {{ toastType === 'success' ? 'fa-check-circle' : toastType === 'error' ? 'fa-times-circle' : toastType === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle' }} fs-3 me-3"></i>
+        {{ toastMessage }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="closeToast()"></button>
+    </div>
+  </div>
+</div>

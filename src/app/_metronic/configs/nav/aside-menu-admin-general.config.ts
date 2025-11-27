@@ -34,6 +34,10 @@ export const AsideMenuAdminGeneral = {
           {
             title: 'Productos Printful',
             page: '/printful/products'
+          },
+          {
+            title: 'Órdenes',
+            page: '/printful/orders'
           }
         ]
       },
