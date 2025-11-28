@@ -98,6 +98,14 @@ export class WebhookLogsPrintfulComponent implements OnInit {
   }
 
   /**
+   * Actualizar todos los datos (stats + logs)
+   */
+  refreshAllData(): void {
+    this.loadStats();
+    this.loadLogs();
+  }
+
+  /**
    * Carga los logs de webhooks
    */
   loadLogs(): void {

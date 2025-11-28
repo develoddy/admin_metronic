@@ -14,8 +14,8 @@
             </span>
           </h3>
           <div class="card-toolbar">
-            <button class="btn btn-sm btn-light-primary" (click)="loadLogs()" [disabled]="isLoadingLogs">
-              <i class="fas fa-sync-alt me-2" [class.fa-spin]="isLoadingLogs"></i>
+            <button class="btn btn-sm btn-light-primary" (click)="refreshAllData()" [disabled]="isLoadingLogs || isLoadingStats">
+              <i class="fas fa-sync-alt me-2" [class.fa-spin]="isLoadingLogs || isLoadingStats"></i>
               Actualizar
             </button>
           </div>
