@@ -31,7 +31,7 @@
           <input 
             type="text" 
             class="form-control" 
-            placeholder="ID, nombre o email..."
+            placeholder="#PF, ID interno, nombre o email..."
             [(ngModel)]="filters.search"
             (input)="applyFilters()"
           >
@@ -113,9 +113,12 @@
             <tr *ngFor="let order of getPaginatedOrders()">
               <!-- Order ID -->
               <td>
-                <a [routerLink]="['/printful/orders', order.id]" class="text-dark fw-bolder text-hover-primary">
-                  #{{ order.external_id }}
-                </a>
+                <div class="d-flex flex-column">
+                  <a [routerLink]="['/printful/orders', order.id]" class="text-dark fw-bolder text-hover-primary">
+                    #PF{{ order.id }}
+                  </a>
+                  <span class="text-muted fs-7">(#{{ order.external_id }})</span>
+                </div>
               </td>
 
               <!-- Customer -->

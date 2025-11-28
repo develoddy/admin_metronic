@@ -123,14 +123,34 @@ export class OrdersPrintfulComponent implements OnInit, OnDestroy {
       filtered = filtered.filter(order => order.status === this.filters.status);
     }
 
-    // Filter by search (external_id, recipient name or email)
+    // Filter by search (external_id, Printful ID, recipient name or email)
     if (this.filters.search) {
-      const search = this.filters.search.toLowerCase();
-      filtered = filtered.filter(order =>
-        order.external_id.toLowerCase().includes(search) ||
-        order.recipient.name.toLowerCase().includes(search) ||
-        order.recipient.email.toLowerCase().includes(search)
-      );
+      const search = this.filters.search.toLowerCase().trim();
+      
+      // Limpiar prefijos para búsqueda más flexible
+      const searchClean = search
+        .replace(/^#/, '')           // Remover # inicial
+        .replace(/^sale_/, '')       // Remover prefijo sale_
+        .replace(/^pf/, '');         // Remover prefijo pf
+      
+      filtered = filtered.filter(order => {
+        const externalId = order.external_id.toLowerCase();
+        const printfulId = order.id.toString();
+        const name = order.recipient.name.toLowerCase();
+        const email = order.recipient.email.toLowerCase();
+        
+        return (
+          // Búsqueda en external_id (completo o parcial)
+          externalId.includes(search) ||
+          externalId.includes(searchClean) ||
+          // Búsqueda en Printful ID (con o sin prefijo #PF)
+          printfulId.includes(search) ||
+          printfulId.includes(searchClean) ||
+          // Búsqueda en nombre y email
+          name.includes(search) ||
+          email.includes(search)
+        );
+      });
     }
 
     // Filter by date range
