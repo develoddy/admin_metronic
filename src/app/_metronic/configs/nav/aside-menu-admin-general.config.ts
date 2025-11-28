@@ -42,6 +42,10 @@ export const AsideMenuAdminGeneral = {
           {
             title: 'Calculadora de Envío',
             page: '/printful/shipping-calculator'
+          },
+          {
+            title: 'Webhooks',
+            page: '/printful/webhook-logs'
           }
         ]
       },

@@ -1,0 +1,49 @@
+// Animación para el toast
+:host ::ng-deep .toast-notification {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Estilo para el código JSON
+pre {
+  background-color: #1e1e2d;
+  color: #a1a5b7;
+  border-radius: 0.475rem;
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+  
+  code {
+    color: #a1a5b7;
+  }
+}
+
+// Mejorar la tabla
+.table {
+  tbody tr {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: #f5f8fa;
+    }
+  }
+}
+
+// Cards de estadísticas
+.card-xl-stretch {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+}

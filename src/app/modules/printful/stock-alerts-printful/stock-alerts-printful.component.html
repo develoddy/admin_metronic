@@ -1,0 +1,226 @@
+<div class="card card-flush h-100">
+  <!-- Header -->
+  <div class="card-header pt-5">
+    <h3 class="card-title align-items-start flex-column">
+      <span class="card-label fw-bolder text-dark">⚠️ Alertas de Inventario</span>
+      <span class="text-gray-400 mt-1 fw-bold fs-7">Sincronización con Printful</span>
+    </h3>
+    <div class="card-toolbar">
+      <button 
+        class="btn btn-sm btn-light-primary"
+        (click)="syncStock()"
+        [disabled]="syncing">
+        <span *ngIf="!syncing">
+          <i class="fa fa-sync me-2"></i>
+          Sincronizar
+        </span>
+        <span *ngIf="syncing">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Sincronizando...
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body pt-6">
+    <!-- Loading -->
+    <div *ngIf="loadingStats" class="text-center py-10">
+      <span class="spinner-border spinner-border-lg text-primary"></span>
+      <p class="text-muted mt-3">Cargando estadísticas...</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div *ngIf="!loadingStats && stats" class="row g-3 mb-5">
+      <!-- Total Sincronizados -->
+      <div class="col-6">
+        <div class="bg-light-info rounded p-4 text-center">
+          <i class="bi bi-box-seam fs-2x text-info mb-2"></i>
+          <div class="fs-2x fw-bolder text-dark">{{ stats.totalSynced }}</div>
+          <div class="fs-7 text-muted">Total Sincronizados</div>
+        </div>
+      </div>
+
+      <!-- Activos -->
+      <div class="col-6">
+        <div class="bg-light-success rounded p-4 text-center">
+          <i class="bi bi-check-circle fs-2x text-success mb-2"></i>
+          <div class="fs-2x fw-bolder text-dark">{{ stats.active }}</div>
+          <div class="fs-7 text-muted">Activos</div>
+        </div>
+      </div>
+
+      <!-- Discontinuados -->
+      <div class="col-6">
+        <div class="bg-light-warning rounded p-4 text-center cursor-pointer" (click)="loadDiscontinuedProducts()">
+          <i class="bi bi-exclamation-triangle fs-2x text-warning mb-2"></i>
+          <div class="fs-2x fw-bolder text-dark">{{ stats.discontinued }}</div>
+          <div class="fs-7 text-muted">Discontinuados</div>
+          <div class="fs-8 text-primary mt-1">
+            <i class="bi bi-arrow-right"></i> Ver detalles
+          </div>
+        </div>
+      </div>
+
+      <!-- Sin Stock (Solo relevante si gestionas inventario físico) -->
+      <div class="col-6" *ngIf="stats.outOfStock > 0">
+        <div class="bg-light-danger rounded p-4 text-center">
+          <i class="bi bi-x-circle fs-2x text-danger mb-2"></i>
+          <div class="fs-2x fw-bolder text-dark">{{ stats.outOfStock }}</div>
+          <div class="fs-7 text-muted">Sin Stock</div>
+          <div class="fs-8 text-muted mt-1">⚠️ No relevante para POD</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Última Sincronización -->
+    <div *ngIf="stats" class="mb-5">
+      <div class="d-flex align-items-center text-gray-600 fs-7">
+        <i class="bi bi-clock me-2"></i>
+        Última sincronización: {{ formatDate(stats.lastSync) }}
+      </div>
+    </div>
+
+    <!-- Productos Discontinuados -->
+    <div *ngIf="showDiscontinued" class="mb-5">
+      <div class="separator my-4"></div>
+      <h4 class="fw-bold text-dark mb-3">
+        <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+        Productos Discontinuados
+      </h4>
+
+      <div *ngIf="loadingDiscontinued" class="text-center py-5">
+        <span class="spinner-border text-primary"></span>
+      </div>
+
+      <div *ngIf="!loadingDiscontinued && discontinuedProducts.length === 0" class="alert alert-success">
+        <i class="bi bi-check-circle me-2"></i>
+        No hay productos discontinuados
+      </div>
+
+      <div *ngIf="!loadingDiscontinued && discontinuedProducts.length > 0" class="table-responsive">
+        <table class="table table-sm table-row-bordered">
+          <thead>
+            <tr class="fw-bold text-gray-700 bg-light">
+              <th>Producto</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of discontinuedProducts">
+              <td>
+                <div class="d-flex align-items-center">
+                  <img [src]="product.portada" class="w-40px h-40px rounded me-3" alt="">
+                  <div>
+                    <div class="text-dark fw-bold">{{ product.title }}</div>
+                    <div class="text-muted fs-7">ID Printful: {{ product.idProduct }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-end">
+                <span class="badge badge-light-warning">Discontinuado</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Cambios de Precio -->
+    <div *ngIf="showPriceChanges" class="mb-5">
+      <div class="separator my-4"></div>
+      <h4 class="fw-bold text-dark mb-3">
+        <i class="bi bi-currency-dollar text-info me-2"></i>
+        Cambios de Precio Detectados
+      </h4>
+
+      <div *ngIf="loadingPriceChanges" class="text-center py-5">
+        <span class="spinner-border text-primary"></span>
+      </div>
+
+      <div *ngIf="!loadingPriceChanges && priceChanges.length === 0" class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        No se detectaron cambios de precio
+      </div>
+
+      <div *ngIf="!loadingPriceChanges && priceChanges.length > 0" class="table-responsive">
+        <table class="table table-sm table-row-bordered">
+          <thead>
+            <tr class="fw-bold text-gray-700 bg-light">
+              <th>Producto</th>
+              <th>Precio Anterior</th>
+              <th>Precio Nuevo</th>
+              <th>Cambio</th>
+              <th class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let change of priceChanges">
+              <td>
+                <div class="text-dark fw-bold">{{ change.productTitle }}</div>
+                <div class="text-muted fs-7">{{ change.variantName }}</div>
+              </td>
+              <td>{{ formatCurrency(change.oldPrice, change.currency) }}</td>
+              <td>{{ formatCurrency(change.newPrice, change.currency) }}</td>
+              <td>
+                <span 
+                  class="badge"
+                  [class.badge-light-success]="change.changeType === 'decrease'"
+                  [class.badge-light-danger]="change.changeType === 'increase'">
+                  <i 
+                    class="bi me-1"
+                    [class.bi-arrow-down]="change.changeType === 'decrease'"
+                    [class.bi-arrow-up]="change.changeType === 'increase'"></i>
+                  {{ change.percentageChange }}%
+                </span>
+              </td>
+              <td class="text-end">
+                <button 
+                  class="btn btn-sm btn-light-primary"
+                  (click)="updateProduct(change.productId, change.productTitle)">
+                  <i class="bi bi-arrow-repeat me-1"></i>
+                  Actualizar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Acción: Ver Cambios de Precio -->
+    <div *ngIf="!showPriceChanges && stats" class="text-center">
+      <button 
+        class="btn btn-sm btn-light-info"
+        (click)="loadPriceChanges()">
+        <i class="bi bi-currency-dollar me-2"></i>
+        Detectar Cambios de Precio
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+  <div *ngIf="showToast" 
+       class="toast show" 
+       role="alert"
+       [class.bg-success]="toastType === 'success'"
+       [class.bg-danger]="toastType === 'error'"
+       [class.bg-warning]="toastType === 'warning'"
+       [class.bg-info]="toastType === 'info'">
+    <div class="toast-header">
+      <i class="fa fa-check-circle me-2" *ngIf="toastType === 'success'"></i>
+      <i class="fa fa-exclamation-circle me-2" *ngIf="toastType === 'error'"></i>
+      <i class="fa fa-exclamation-triangle me-2" *ngIf="toastType === 'warning'"></i>
+      <i class="fa fa-info-circle me-2" *ngIf="toastType === 'info'"></i>
+      <strong class="me-auto text-white">
+        {{ toastType === 'success' ? 'Éxito' : toastType === 'error' ? 'Error' : toastType === 'warning' ? 'Advertencia' : 'Información' }}
+      </strong>
+      <button type="button" class="btn-close btn-close-white" (click)="closeToast()"></button>
+    </div>
+    <div class="toast-body text-white">
+      {{ toastMessage }}
+    </div>
+  </div>
+</div>

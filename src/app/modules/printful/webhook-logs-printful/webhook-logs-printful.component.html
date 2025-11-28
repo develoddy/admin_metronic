@@ -1,0 +1,337 @@
+<div class="content d-flex flex-column flex-column-fluid" id="kt_content">
+  <!--begin::Post-->
+  <div class="post d-flex flex-column-fluid" id="kt_post">
+    <!--begin::Container-->
+    <div id="kt_content_container" class="container-xxl">
+      
+      <!-- Header -->
+      <div class="card mb-5 mb-xl-8">
+        <div class="card-header border-0 pt-5">
+          <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bold fs-3 mb-1">Historial de Webhooks de Printful</span>
+            <span class="text-muted mt-1 fw-semibold fs-7">
+              Eventos recibidos en tiempo real desde Printful
+            </span>
+          </h3>
+          <div class="card-toolbar">
+            <button class="btn btn-sm btn-light-primary" (click)="loadLogs()" [disabled]="isLoadingLogs">
+              <i class="fas fa-sync-alt me-2" [class.fa-spin]="isLoadingLogs"></i>
+              Actualizar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="row g-5 g-xl-8 mb-5 mb-xl-8">
+        <!-- Total Webhooks -->
+        <div class="col-xl-3">
+          <div class="card card-xl-stretch">
+            <div class="card-body d-flex align-items-center">
+              <span class="svg-icon svg-icon-primary svg-icon-3x ms-n1">
+                <i class="fas fa-bell fs-2x text-primary"></i>
+              </span>
+              <div class="ms-5">
+                <div class="fw-bold text-gray-400 fs-7">Total Webhooks</div>
+                <div class="fs-2 fw-bold text-gray-800">
+                  <span *ngIf="!isLoadingStats">{{ totalWebhooks }}</span>
+                  <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Procesados -->
+        <div class="col-xl-3">
+          <div class="card card-xl-stretch">
+            <div class="card-body d-flex align-items-center">
+              <span class="svg-icon svg-icon-success svg-icon-3x ms-n1">
+                <i class="fas fa-check-circle fs-2x text-success"></i>
+              </span>
+              <div class="ms-5">
+                <div class="fw-bold text-gray-400 fs-7">Procesados</div>
+                <div class="fs-2 fw-bold text-gray-800">
+                  <span *ngIf="!isLoadingStats">{{ totalProcessed }}</span>
+                  <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fallidos -->
+        <div class="col-xl-3">
+          <div class="card card-xl-stretch">
+            <div class="card-body d-flex align-items-center">
+              <span class="svg-icon svg-icon-danger svg-icon-3x ms-n1">
+                <i class="fas fa-exclamation-circle fs-2x text-danger"></i>
+              </span>
+              <div class="ms-5">
+                <div class="fw-bold text-gray-400 fs-7">Fallidos</div>
+                <div class="fs-2 fw-bold text-gray-800">
+                  <span *ngIf="!isLoadingStats">{{ totalFailed }}</span>
+                  <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tasa de Éxito -->
+        <div class="col-xl-3">
+          <div class="card card-xl-stretch">
+            <div class="card-body d-flex align-items-center">
+              <span class="svg-icon svg-icon-info svg-icon-3x ms-n1">
+                <i class="fas fa-chart-pie fs-2x text-info"></i>
+              </span>
+              <div class="ms-5">
+                <div class="fw-bold text-gray-400 fs-7">Tasa de Éxito</div>
+                <div class="fs-2 fw-bold text-gray-800">
+                  <span *ngIf="!isLoadingStats">{{ successRate }}%</span>
+                  <span *ngIf="isLoadingStats" class="spinner-border spinner-border-sm"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas por Tipo de Evento -->
+      <div class="card mb-5 mb-xl-8" *ngIf="stats.length > 0">
+        <div class="card-header border-0 pt-5">
+          <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bold fs-5">Estadísticas por Tipo de Evento</span>
+          </h3>
+        </div>
+        <div class="card-body py-3">
+          <div class="table-responsive">
+            <table class="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3">
+              <thead>
+                <tr class="fw-bold text-muted">
+                  <th class="min-w-200px">Tipo de Evento</th>
+                  <th class="min-w-100px text-center">Total</th>
+                  <th class="min-w-100px text-center">Procesados</th>
+                  <th class="min-w-100px text-center">Fallidos</th>
+                  <th class="min-w-100px text-center">Tasa de Éxito</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let stat of stats">
+                  <td>
+                    <span class="badge badge-light-{{ getEventBadgeColor(stat.event_type) }}">
+                      {{ getEventName(stat.event_type) }}
+                    </span>
+                  </td>
+                  <td class="text-center fw-bold">{{ stat.total }}</td>
+                  <td class="text-center">
+                    <span class="badge badge-light-success">{{ stat.processed }}</span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge badge-light-danger" *ngIf="stat.failed > 0">{{ stat.failed }}</span>
+                    <span class="text-muted" *ngIf="stat.failed === 0">0</span>
+                  </td>
+                  <td class="text-center">
+                    <span class="fw-bold" [class.text-success]="(stat.processed / stat.total * 100) >= 90"
+                          [class.text-warning]="(stat.processed / stat.total * 100) >= 70 && (stat.processed / stat.total * 100) < 90"
+                          [class.text-danger]="(stat.processed / stat.total * 100) < 70">
+                      {{ (stat.processed / stat.total * 100).toFixed(1) }}%
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="card mb-5 mb-xl-8">
+        <div class="card-body">
+          <div class="row g-3">
+            <!-- Tipo de Evento -->
+            <div class="col-md-3">
+              <label class="form-label fw-bold fs-7">Tipo de Evento</label>
+              <select class="form-select form-select-solid" 
+                      [(ngModel)]="selectedEventType" 
+                      (change)="onEventTypeChange()">
+                <option value="">Todos</option>
+                <option *ngFor="let type of eventTypes" [value]="type">
+                  {{ getEventName(type) }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Estado de Procesamiento -->
+            <div class="col-md-3">
+              <label class="form-label fw-bold fs-7">Estado</label>
+              <select class="form-select form-select-solid" 
+                      [(ngModel)]="selectedProcessedStatus" 
+                      (change)="onProcessedStatusChange()">
+                <option value="">Todos</option>
+                <option value="true">Procesados</option>
+                <option value="false">Pendientes</option>
+              </select>
+            </div>
+
+            <!-- Buscar por Order ID -->
+            <div class="col-md-4">
+              <label class="form-label fw-bold fs-7">Buscar Order ID</label>
+              <input type="text" 
+                     class="form-control form-control-solid" 
+                     placeholder="Ej: 123456789"
+                     [(ngModel)]="searchOrderId"
+                     (input)="onSearchChange()">
+            </div>
+
+            <!-- Botón Resetear -->
+            <div class="col-md-2 d-flex align-items-end">
+              <button class="btn btn-light-secondary w-100" (click)="resetFilters()">
+                <i class="fas fa-redo me-2"></i>
+                Resetear
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Logs -->
+      <div class="card">
+        <div class="card-header border-0 pt-5">
+          <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bold fs-5">Logs de Webhooks</span>
+            <span class="text-muted mt-1 fw-semibold fs-7">
+              Mostrando {{ filteredLogs.length }} de {{ logs.length }} registros
+            </span>
+          </h3>
+        </div>
+        <div class="card-body py-3">
+          <!-- Loading State -->
+          <div *ngIf="isLoadingLogs" class="text-center py-10">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="text-muted mt-3">Cargando logs...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!isLoadingLogs && filteredLogs.length === 0" class="text-center py-10">
+            <i class="fas fa-inbox fs-3x text-muted mb-3"></i>
+            <p class="text-muted">No se encontraron webhooks</p>
+          </div>
+
+          <!-- Tabla -->
+          <div class="table-responsive" *ngIf="!isLoadingLogs && filteredLogs.length > 0">
+            <table class="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3">
+              <thead>
+                <tr class="fw-bold text-muted">
+                  <th class="min-w-50px">ID</th>
+                  <th class="min-w-150px">Tipo de Evento</th>
+                  <th class="min-w-120px">Order ID</th>
+                  <th class="min-w-150px">Fecha Recepción</th>
+                  <th class="min-w-100px text-center">Estado</th>
+                  <th class="min-w-100px text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let log of filteredLogs">
+                  <td>
+                    <span class="text-muted fw-semibold">#{{ log.id }}</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-light-{{ getEventBadgeColor(log.event_type) }}">
+                      {{ getEventName(log.event_type) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="fw-bold" *ngIf="log.order_id">{{ log.order_id }}</span>
+                    <span class="text-muted" *ngIf="!log.order_id">-</span>
+                  </td>
+                  <td>
+                    <span class="text-dark fw-semibold d-block fs-7">
+                      {{ formatDate(log.received_at) }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge badge-light-success" *ngIf="log.processed">
+                      <i class="fas fa-check-circle me-1"></i> Procesado
+                    </span>
+                    <span class="badge badge-light-danger" *ngIf="!log.processed">
+                      <i class="fas fa-times-circle me-1"></i> Fallido
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-light-primary" 
+                            (click)="viewEventData(log)"
+                            title="Ver JSON del evento">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Ver JSON -->
+<div class="modal fade" id="webhookJsonModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Datos del Webhook 
+          <span class="badge badge-light-{{ getEventBadgeColor(selectedLog?.event_type || '') }} ms-2" *ngIf="selectedLog">
+            {{ getEventName(selectedLog.event_type) }}
+          </span>
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-4" *ngIf="selectedLog">
+          <div class="row">
+            <div class="col-md-4">
+              <strong>ID:</strong> #{{ selectedLog.id }}
+            </div>
+            <div class="col-md-4">
+              <strong>Order ID:</strong> {{ selectedLog.order_id || '-' }}
+            </div>
+            <div class="col-md-4">
+              <strong>Fecha:</strong> {{ formatDate(selectedLog.received_at) }}
+            </div>
+          </div>
+          <div class="row mt-2" *ngIf="!selectedLog.processed">
+            <div class="col-12">
+              <div class="alert alert-danger d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <div>
+                  <strong>Error:</strong> {{ selectedLog.processing_error }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="position-relative">
+          <button class="btn btn-sm btn-light-primary position-absolute top-0 end-0 mt-2 me-2" 
+                  (click)="copyJsonToClipboard()"
+                  style="z-index: 10;"
+                  title="Copiar JSON al portapapeles">
+            <i class="fas fa-copy me-1"></i> Copiar
+          </button>
+          <textarea 
+            readonly
+            class="form-control bg-light-dark text-white p-5 rounded font-monospace"
+            style="max-height: 500px; min-height: 400px; overflow-y: auto; resize: vertical; font-size: 12px; line-height: 1.5;"
+            [value]="selectedLogJson"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" (click)="closeModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

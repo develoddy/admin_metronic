@@ -7,6 +7,7 @@ import { DashboardPrintfulComponent } from './dashboard-printful/dashboard-print
 import { OrdersPrintfulComponent } from './orders-printful/orders-printful.component';
 import { OrderDetailPrintfulComponent } from './order-detail-printful/order-detail-printful.component';
 import { ShippingCalculatorPrintfulComponent } from './shipping-calculator-printful/shipping-calculator-printful.component';
+import { WebhookLogsPrintfulComponent } from './webhook-logs-printful/webhook-logs-printful.component';
 
 const routes: Routes = [
   {
@@ -36,6 +37,10 @@ const routes: Routes = [
       {
         path: 'shipping-calculator',
         component: ShippingCalculatorPrintfulComponent,
+      },
+      {
+        path: 'webhook-logs',
+        component: WebhookLogsPrintfulComponent,
       }
     ]
   }

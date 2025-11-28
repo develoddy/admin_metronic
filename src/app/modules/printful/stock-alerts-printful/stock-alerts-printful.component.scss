@@ -1,0 +1,58 @@
+// Stock Alerts Styles
+
+.cursor-pointer {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.w-40px {
+  width: 40px !important;
+}
+
+.h-40px {
+  height: 40px !important;
+}
+
+.fs-8 {
+  font-size: 0.85rem;
+}
+
+.table {
+  &-sm {
+    font-size: 0.9rem;
+  }
+}
+
+.separator {
+  border-top: 1px dashed #e4e6ef;
+  margin: 1.5rem 0;
+}
+
+// Toast Notification
+.toast-container {
+  z-index: 9999;
+}
+
+.toast {
+  min-width: 350px;
+  
+  &-header {
+    background-color: transparent;
+    border-bottom: none;
+    padding: 1rem;
+  }
+  
+  &-body {
+    padding: 1rem;
+    font-weight: 500;
+  }
+  
+  .btn-close-white {
+    filter: invert(1);
+  }
+}
