@@ -1,0 +1,369 @@
+.analytics-dashboard {
+  padding: 24px;
+  background-color: #f5f5f5;
+  min-height: calc(100vh - 100px);
+
+  // Header
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .header-content {
+      flex: 1;
+      min-width: 250px;
+
+      .dashboard-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 28px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 8px 0;
+
+        .title-icon {
+          font-size: 32px;
+          width: 32px;
+          height: 32px;
+          color: #2196F3;
+        }
+      }
+
+      .dashboard-subtitle {
+        color: #666;
+        font-size: 14px;
+        margin: 0;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .period-selector {
+        width: 180px;
+        margin-bottom: 0;
+
+        ::ng-deep .mat-form-field-wrapper {
+          padding-bottom: 0;
+        }
+      }
+    }
+  }
+
+  // Loading State
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 20px;
+
+    p {
+      color: #666;
+      font-size: 16px;
+    }
+  }
+
+  // Error State
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 16px;
+
+    .error-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: #f44336;
+    }
+
+    p {
+      color: #666;
+      font-size: 16px;
+      text-align: center;
+    }
+  }
+
+  // Dashboard Content
+  .dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  // KPI Cards Grid
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+
+    .kpi-card {
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      }
+
+      ::ng-deep .mat-card-content {
+        padding: 20px;
+      }
+
+      .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+
+        .kpi-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          mat-icon {
+            color: white;
+            font-size: 28px;
+            width: 28px;
+            height: 28px;
+          }
+        }
+
+        .kpi-trend {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 8px;
+          border-radius: 16px;
+          font-size: 12px;
+          font-weight: 600;
+
+          .trend-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+
+          &.trend-up {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+          }
+
+          &.trend-down {
+            background-color: #FFEBEE;
+            color: #C62828;
+          }
+
+          &.trend-neutral {
+            background-color: #F5F5F5;
+            color: #666;
+          }
+        }
+      }
+
+      .kpi-body {
+        .kpi-title {
+          font-size: 14px;
+          font-weight: 500;
+          color: #666;
+          margin: 0 0 8px 0;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+          font-size: 28px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin: 0 0 4px 0;
+        }
+
+        .kpi-subtitle {
+          font-size: 13px;
+          color: #999;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  // Top Products Card
+  .top-products-card {
+    ::ng-deep .mat-card-header {
+      margin-bottom: 20px;
+    }
+
+    .section-icon {
+      margin-right: 8px;
+      vertical-align: middle;
+      color: #FF9800;
+    }
+
+    .products-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .product-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: #f9f9f9;
+          border-color: #2196F3;
+        }
+
+        .product-rank {
+          .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            color: #666;
+            font-weight: 700;
+            font-size: 14px;
+
+            &.rank-1 {
+              background-color: #FFD700;
+              color: #fff;
+            }
+
+            &.rank-2 {
+              background-color: #C0C0C0;
+              color: #fff;
+            }
+
+            &.rank-3 {
+              background-color: #CD7F32;
+              color: #fff;
+            }
+          }
+        }
+
+        .product-info {
+          flex: 1;
+          min-width: 0;
+
+          .product-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 4px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .product-sku {
+            font-size: 13px;
+            color: #999;
+            margin: 0;
+          }
+        }
+
+        .product-metrics {
+          display: flex;
+          gap: 24px;
+
+          .metric {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+
+            .metric-label {
+              font-size: 11px;
+              color: #999;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+
+            .metric-value {
+              font-size: 16px;
+              font-weight: 600;
+              color: #1a1a1a;
+
+              &.success {
+                color: #2E7D32;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Charts Section
+  .charts-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+
+    .chart-card {
+      ::ng-deep .mat-card-content {
+        padding: 24px;
+      }
+    }
+  }
+
+  // Responsive
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .dashboard-header {
+      .dashboard-title {
+        font-size: 24px;
+
+        .title-icon {
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+        }
+      }
+
+      .header-actions {
+        width: 100%;
+
+        .period-selector {
+          flex: 1;
+        }
+      }
+    }
+
+    .kpi-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .product-item {
+      flex-direction: column;
+      align-items: flex-start !important;
+
+      .product-metrics {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  }
+}

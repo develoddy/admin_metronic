@@ -37,7 +37,7 @@
         "highlight.js": "^10.4.0",
         "highlightjs-line-numbers.js": "^2.9.0",
         "moment": "^2.30.1",
-        "ng-apexcharts": "1.5.7",
+        "ng-apexcharts": "^1.4.0",
         "ng-inline-svg": "^10.1.0",
         "ng-recaptcha": "^7.0.1",
         "ngx-clipboard": "^13.0.1",

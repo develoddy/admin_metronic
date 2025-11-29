@@ -49,6 +49,21 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
+      {
+        title: 'Analytics',
+        root: true,
+        name: "analytics",
+        bullet: 'dot',
+        icon: 'flaticon2-chart',
+        svg: './assets/media/svg/icons/Shopping/Chart-line1.svg',
+        page: '/analytics',
+        submenu: [
+          {
+            title: 'Dashboard',
+            page: '/analytics/dashboard'
+          }
+        ]
+      },
 
       /** --------- SECCION USUARIOS ---------*/
       { section: 'User Management' },

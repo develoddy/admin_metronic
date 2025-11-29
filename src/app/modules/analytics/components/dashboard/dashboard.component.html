@@ -1,0 +1,147 @@
+<div class="analytics-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1 class="dashboard-title">
+        <mat-icon class="title-icon">analytics</mat-icon>
+        Analytics Dashboard
+      </h1>
+      <p class="dashboard-subtitle">Métricas y análisis de rendimiento del negocio</p>
+    </div>
+    
+    <div class="header-actions">
+      <!-- Period Selector -->
+      <mat-form-field appearance="outline" class="period-selector">
+        <mat-label>Período</mat-label>
+        <mat-select [(ngModel)]="selectedPeriod" (selectionChange)="onPeriodChange()">
+          <mat-option *ngFor="let option of periodOptions" [value]="option.value">
+            {{ option.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Refresh Button -->
+      <button mat-icon-button 
+              matTooltip="Actualizar datos"
+              (click)="refreshDashboard()"
+              [disabled]="loading$ | async">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading$ | async" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando datos...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !(loading$ | async)" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <p>{{ errorMessage }}</p>
+    <button mat-raised-button color="primary" (click)="loadDashboard()">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="dashboard && !(loading$ | async)" class="dashboard-content">
+    
+    <!-- KPI Cards Grid -->
+    <div class="kpi-grid">
+      <mat-card *ngFor="let card of kpiCards" class="kpi-card" [class.has-trend]="card.trend !== undefined">
+        <mat-card-content>
+          <div class="kpi-header">
+            <div class="kpi-icon" [style.background-color]="card.iconColor">
+              <mat-icon>{{ card.icon }}</mat-icon>
+            </div>
+            <div class="kpi-trend" *ngIf="card.trend !== undefined" [ngClass]="getTrendClass(card.trend)">
+              <mat-icon class="trend-icon">{{ getTrendIcon(card.trend) }}</mat-icon>
+              <span class="trend-value">{{ card.trend | number:'1.1-1' }}%</span>
+            </div>
+          </div>
+          
+          <div class="kpi-body">
+            <h3 class="kpi-title">{{ card.title }}</h3>
+            <p class="kpi-value">{{ card.value }}</p>
+            <p class="kpi-subtitle">{{ card.subtitle }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Top Products Section -->
+    <mat-card *ngIf="hasTopProducts()" class="top-products-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">emoji_events</mat-icon>
+          Productos Top ({{ selectedPeriod === 'daily' ? 'Hoy' : selectedPeriod === 'weekly' ? 'Esta Semana' : selectedPeriod === 'monthly' ? 'Este Mes' : 'Este Año' }})
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="products-grid">
+          <div *ngFor="let product of dashboard!.topProducts; let i = index" class="product-item">
+            <div class="product-rank">
+              <span class="rank-badge" [class.rank-1]="i === 0" [class.rank-2]="i === 1" [class.rank-3]="i === 2">
+                #{{ i + 1 }}
+              </span>
+            </div>
+            <div class="product-info">
+              <h4 class="product-title">{{ product.product?.titulo || 'Producto sin título' }}</h4>
+              <p class="product-sku">SKU: {{ product.product?.sku || 'N/A' }}</p>
+            </div>
+            <div class="product-metrics">
+              <div class="metric">
+                <span class="metric-label">Ventas</span>
+                <span class="metric-value">{{ product.totalUnits || 0 }}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Ingresos</span>
+                <span class="metric-value">{{ formatCurrency(product.totalRevenue || 0) }}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">Ganancia</span>
+                <span class="metric-value success">{{ formatCurrency(product.totalProfit || 0) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <!-- Revenue Chart -->
+      <mat-card class="chart-card">
+        <mat-card-content>
+          <app-revenue-chart
+            [data]="metricsData"
+            [loading]="loadingCharts"
+          ></app-revenue-chart>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Orders Chart -->
+      <mat-card class="chart-card">
+        <mat-card-content>
+          <app-orders-chart
+            [data]="metricsData"
+            [loading]="loadingCharts"
+          ></app-orders-chart>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Fulfillment Chart -->
+      <mat-card class="chart-card">
+        <mat-card-content>
+          <app-fulfillment-chart
+            [data]="metricsData"
+            [loading]="loadingCharts"
+          ></app-fulfillment-chart>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  </div>
+</div>
