@@ -25,8 +25,9 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
   thumbnail_url:any = null;
   categories:any = [];
   categorie:any = "";
-  price_soles:any = 0;
-  price_usd:any = 0;
+  price_eur:any = 0; // EUR is the only currency
+  price_soles:any = 0; // Legacy - deprecated
+  price_usd:any = 0; // Legacy - deprecated
   imagen_file:any=null;
   image_preview:any=null;
   //description:any=null;
@@ -98,6 +99,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
       this.sku = this.product_selected.sku;
       this.categorie = this.product_selected.categorie.id;
       //this.categorie = this.product_selected.categorie ? this.product_selected.categorie._id : 0;
+      this.price_eur = this.product_selected.price_eur || this.product_selected.price || this.product_selected.price_usd;
       this.price_soles = this.product_selected.price_soles;     
       this.price_usd = this.product_selected.price_usd;
       this.stock = this.product_selected.stock;      
@@ -255,7 +257,7 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
 
     this.description_en = tinymce.get('description_en').getContent();
 
-    if ( !this.title || !this.categorie || !this.price_soles || !this.price_usd || !this.resumen || !this.description_en || !this.description_es || !this.sku || this.tags.length == 0 ) {
+    if ( !this.title || !this.categorie || !this.price_eur || !this.resumen || !this.description_en || !this.description_es || !this.sku || this.tags.length == 0 ) {
       this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesitas digitar todos los campos del formulario.`});
       return;
     }
@@ -264,8 +266,9 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
     formData.append("_id", this.product_id);
     formData.append("title", this.title);
     formData.append("categorie", this.categorie);
-    formData.append("price_soles", this.price_soles);
-    formData.append("price_usd", this.price_usd);
+    formData.append("price_eur", this.price_eur);
+    formData.append("price_soles", this.price_eur); // Backend compatibility
+    formData.append("price_usd", this.price_eur); // Backend compatibility
     formData.append("resumen", this.resumen);
     formData.append("description_en", this.description_en);
     formData.append("description_es", this.description_es);

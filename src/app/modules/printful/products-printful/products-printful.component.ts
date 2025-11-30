@@ -213,10 +213,10 @@ export class ProductsPrintfulComponent implements OnInit, OnDestroy {
     }
 
     // Filtro por rango de precio
-    filtered = filtered.filter(p => 
-      p.price_soles >= this.filters.minPrice && 
-      p.price_soles <= this.filters.maxPrice
-    );
+    filtered = filtered.filter(p => {
+      const price = p.price_eur || p.price || p.price_usd || 0;
+      return price >= this.filters.minPrice && price <= this.filters.maxPrice;
+    });
 
     // Filtro por estado
     if (this.filters.state !== null && this.filters.state !== '') {
@@ -441,8 +441,7 @@ export class ProductsPrintfulComponent implements OnInit, OnDestroy {
           title: product.title,
           sku: product.sku,
           categorie: product.categorie?.id,
-          price_soles: product.price_soles,
-          price_usd: product.price_usd,
+          price_eur: product.price_eur || product.price || product.price_usd,
           stock: product.stock
         };
 

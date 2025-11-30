@@ -12,6 +12,11 @@ interface OrdersResponse {
     offset: number;
     limit: number;
   };
+  stats?: {
+    active: number;
+    total: number;
+    archived: number;
+  };
 }
 
 interface OrderResponse {
@@ -43,14 +48,15 @@ export class OrderPrintfulService {
   /**
    * Get all orders with optional filters
    */
-  getOrders(status?: string, limit: number = 100, offset: number = 0): Observable<OrdersResponse> {
-    console.log('📦 OrderPrintfulService: Obteniendo órdenes', { status, limit, offset });
+  getOrders(status?: string, limit: number = 100, offset: number = 0, includeArchived: boolean = false): Observable<OrdersResponse> {
+    console.log('📦 OrderPrintfulService: Obteniendo órdenes', { status, limit, offset, includeArchived });
 
     const headers = new HttpHeaders({ 'token': this.authService.token });
 
     let params = new HttpParams()
       .set('limit', limit.toString())
-      .set('offset', offset.toString());
+      .set('offset', offset.toString())
+      .set('includeArchived', includeArchived.toString());
 
     if (status) {
       params = params.set('status', status);

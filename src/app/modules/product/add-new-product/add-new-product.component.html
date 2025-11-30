@@ -39,18 +39,11 @@
         </div>
 
         <div class="form-group row">
-            <div class="col-3">
+            <div class="col-6">
                 <div class="form-group">
-                    <label for="">Precio PEN: <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" placeholder="" [(ngModel)]="price_soles" name="price_soles">
-                    <span class="form-text text-muted">Ingresa el nombre del producto</span>
-                </div>
-            </div>
-            <div class="col-3">
-                <div class="form-group">
-                    <label for="">Precio USD <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" placeholder="" [(ngModel)]="price_usd" name="price_usd">
-                    <span class="form-text text-muted">Ingresa el nombre del producto</span>
+                    <label for="">Precio EUR: <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" placeholder="Precio en Euros" [(ngModel)]="price_eur" name="price_eur" step="0.01">
+                    <span class="form-text text-muted">Ingresa el precio del producto en Euros (€)</span>
                 </div>
             </div>
         </div>

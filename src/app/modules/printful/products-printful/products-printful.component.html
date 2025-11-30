@@ -69,7 +69,7 @@
       <!-- Rango de Precio -->
       <div class="row mb-4">
         <div class="col-md-12">
-          <label class="form-label">Rango de Precio: S/ {{ filters.minPrice }} - S/ {{ filters.maxPrice }}</label>
+          <label class="form-label">Rango de Precio: € {{ filters.minPrice }} - € {{ filters.maxPrice }}</label>
           <div class="d-flex align-items-center gap-3">
             <input 
               type="number" 
@@ -185,7 +185,7 @@
 
             <!-- Precio -->
             <div class="d-flex align-items-center mb-2">
-              <span class="fs-4 fw-bold text-dark me-2">S/ {{ product.price_soles }}</span>
+              <span class="fs-4 fw-bold text-dark me-2">{{ product.price_eur || product.price || product.price_usd || 0 | number:'1.2-2' }} €</span>
               <span class="badge" [ngClass]="getStateBadgeClass(product.state)">
                 {{ getStateText(product.state) }}
               </span>
@@ -301,7 +301,7 @@
 
             <!-- Precio -->
             <td>
-              <span class="text-dark fw-bold">S/ {{ product.price_soles }}</span>
+              <span class="text-dark fw-bold">{{ product.price_eur || product.price || product.price_usd || 0 | number:'1.2-2' }} €</span>
             </td>
 
             <!-- Variantes -->
@@ -446,8 +446,7 @@
             <!-- Precio -->
             <div class="mb-3">
               <strong class="text-muted">Precio:</strong>
-              <span class="ms-2 fs-3 fw-bold text-dark">S/ {{ selectedProduct.price_soles }}</span>
-              <span class="text-muted ms-2">(USD ${{ selectedProduct.price_usd }})</span>
+              <span class="ms-2 fs-3 fw-bold text-dark">{{ selectedProduct.price_eur || selectedProduct.price || selectedProduct.price_usd || 0 | number:'1.2-2' }} €</span>
             </div>
 
             <!-- Stock -->
@@ -496,8 +495,8 @@
                         </td>
                         <td>{{ variedad.color }}</td>
                         <td>
-                          <strong>S/ {{ variedad.retail_price }}</strong>
-                          <small class="text-muted d-block">{{ variedad.currency }}</small>
+                          <strong>{{ variedad.retail_price | number:'1.2-2' }} €</strong>
+                          <small class="text-muted d-block">EUR</small>
                         </td>
                         <td>
                           <span class="badge" 

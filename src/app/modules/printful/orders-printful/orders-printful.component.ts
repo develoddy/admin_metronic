@@ -53,6 +53,9 @@ export class OrdersPrintfulComponent implements OnInit, OnDestroy {
     endDate: ''
   };
 
+  // Show archived orders toggle
+  showArchivedOrders = false;
+
   statusOptions = [
     { value: '', label: 'Todos los estados' },
     { value: 'draft', label: 'Borrador' },
@@ -62,7 +65,8 @@ export class OrdersPrintfulComponent implements OnInit, OnDestroy {
     { value: 'onhold', label: 'En espera' },
     { value: 'inprocess', label: 'En producción' },
     { value: 'partial', label: 'Parcial' },
-    { value: 'fulfilled', label: 'Completada' }
+    { value: 'fulfilled', label: 'Completada' },
+    { value: 'archived', label: 'Archivada' }
   ];
 
   // Pagination
@@ -92,14 +96,15 @@ export class OrdersPrintfulComponent implements OnInit, OnDestroy {
   loadOrders(): void {
     this.isLoading = true;
     
-    this.orderService.getOrders(this.filters.status, 100, 0)
+    this.orderService.getOrders(this.filters.status, 100, 0, this.showArchivedOrders)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           if (response.success) {
             this.orders = response.orders || [];
             this.applyFilters();
-            console.log(`✅ ${this.orders.length} órdenes cargadas`);
+            const archivedInfo = this.showArchivedOrders ? '' : ` (${response.stats?.archived || 0} archivadas ocultas)`;
+            console.log(`✅ ${this.orders.length} órdenes cargadas${archivedInfo}`);
           }
           this.isLoading = false;
           this.cd.detectChanges();
@@ -183,6 +188,15 @@ export class OrdersPrintfulComponent implements OnInit, OnDestroy {
     this.displayToast('Órdenes actualizadas', 'success');
   }
 
+  toggleArchivedOrders(): void {
+    this.showArchivedOrders = !this.showArchivedOrders;
+    this.loadOrders();
+    const message = this.showArchivedOrders 
+      ? 'Mostrando órdenes archivadas' 
+      : 'Ocultando órdenes archivadas';
+    this.displayToast(message, 'info');
+  }
+
   syncOrder(orderId: number): void {
     this.isLoading = true;
     this.orderService.syncOrderStatus(orderId)
@@ -260,7 +274,8 @@ export class OrdersPrintfulComponent implements OnInit, OnDestroy {
       'onhold': 'info',
       'inprocess': 'primary',
       'partial': 'info',
-      'fulfilled': 'success'
+      'fulfilled': 'success',
+      'archived': 'light'
     };
     return statusMap[status] || 'secondary';
   }

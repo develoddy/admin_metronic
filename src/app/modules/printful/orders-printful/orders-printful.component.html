@@ -5,10 +5,22 @@
       <h1 class="text-dark fw-bolder">Órdenes Printful</h1>
       <p class="text-muted mb-0">Gestiona las órdenes enviadas a Printful</p>
     </div>
-    <button class="btn btn-primary" (click)="refreshOrders()" [disabled]="isLoading">
-      <i class="fa fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>
-      Actualizar
-    </button>
+    <div class="d-flex gap-2">
+      <button 
+        class="btn btn-sm"
+        [class.btn-light-warning]="showArchivedOrders"
+        [class.btn-light-secondary]="!showArchivedOrders"
+        (click)="toggleArchivedOrders()" 
+        [disabled]="isLoading"
+        title="Mostrar/Ocultar órdenes archivadas">
+        <i class="fa fa-archive me-2"></i>
+        {{ showArchivedOrders ? 'Ocultar archivadas' : 'Mostrar archivadas' }}
+      </button>
+      <button class="btn btn-primary" (click)="refreshOrders()" [disabled]="isLoading">
+        <i class="fa fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>
+        Actualizar
+      </button>
+    </div>
   </div>
 
   <!-- Filters -->

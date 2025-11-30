@@ -15,8 +15,9 @@ export class AddNewProductComponent implements OnInit {
   sku:any = null;
   categories:any = [];
   categorie:any = "";
-  price_soles:any = 0;
-  price_usd:any = 0;
+  price_eur:any = 0; // EUR is the only currency
+  price_soles:any = 0; // Legacy - deprecated
+  price_usd:any = 0; // Legacy - deprecated
   imagen_file:any=null;
   image_preview:any=null;
   description:any=null;
@@ -73,7 +74,7 @@ export class AddNewProductComponent implements OnInit {
   save() {
     console.log(this.tags.length == 0);
     
-    if ( !this.title || !this.categorie || !this.price_soles || !this.price_usd || !this.resumen || !this.sku || !this.imagen_file || this.tags.length == 0 ) {
+    if ( !this.title || !this.categorie || !this.price_eur || !this.resumen || !this.sku || !this.imagen_file || this.tags.length == 0 ) {
       this.toaster.open(NoticyAlertComponent, {text: `danger-Ups! Necesitas digitar todos los campos del formulario.`});
       return;
     }
@@ -81,8 +82,9 @@ export class AddNewProductComponent implements OnInit {
     let formData = new FormData();
     formData.append("title", this.title);
     formData.append("categorie", this.categorie);
-    formData.append("price_soles", this.price_soles);
-    formData.append("price_usd", this.price_usd);
+    formData.append("price_eur", this.price_eur);
+    formData.append("price_soles", this.price_eur); // Backend compatibility
+    formData.append("price_usd", this.price_eur); // Backend compatibility
     formData.append("resumen", this.resumen);
     formData.append("description", this.description);
     formData.append("sku", this.sku);
@@ -98,6 +100,7 @@ export class AddNewProductComponent implements OnInit {
         this.toaster.open(NoticyAlertComponent, {text: `primary- El producto se registro correctamente.`});
         this.title = null;
         this.categorie = null;
+        this.price_eur = null;
         this.price_soles = null;
         this.price_usd = null;
         this.resumen = null;

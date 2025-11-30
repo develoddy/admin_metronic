@@ -130,9 +130,7 @@
             </td>
 
             <!-- Precio -->
-            <td>{{ product.price_soles }} PEN</td>
-            <td *ngIf="product.price_usd">{{ product.price_usd }} USD</td>
-            <td *ngIf="!product.price_usd">-</td>
+            <td>{{ product.price_eur || product.price || product.price_usd || '-' }} €</td>
 
             <!-- Logo -->
             <td>{{ product.logo_position }}</td>
