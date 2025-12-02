@@ -54,7 +54,7 @@ export class LaunchCampaignComponent implements OnInit {
     return this.fb.group({
       name: [name, Validators.required],
       price: [price, Validators.required],
-      image: [`http://localhost:3500/api/products/uploads/product/${image}`, Validators.required]
+      image: [`${environment.URL_BACKEND}api/products/uploads/product/${image}`, Validators.required]
     });
   }
 

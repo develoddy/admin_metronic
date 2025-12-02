@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 // Interfaces
 export interface PrelaunchSubscriber {
@@ -59,7 +60,7 @@ export interface LaunchCampaignResult {
   providedIn: 'root'
 })
 export class PrelaunchCampaignsService {
-  private API_URL = 'http://localhost:3500/api'; // TODO: Usar environment variable
+  private API_URL = environment.URL_SERVICIOS;
   
   // Observable para progreso en tiempo real
   private campaignProgressSubject = new BehaviorSubject<any>(null);
