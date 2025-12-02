@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { PrelaunchCampaignsService, LaunchCampaignConfig, LaunchCampaignResult } from '../services/prelaunch-campaigns.service';
+import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 
 @Component({
