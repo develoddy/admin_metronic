@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   OnDestroy,
@@ -14,6 +15,12 @@ import { Toaster } from 'ngx-toast-notifications';
 import { NoticyAlertComponent } from 'src/app/componets/notifications/noticy-alert/noticy-alert.component';
 import { ReturnsService } from "src/app/modules/returns/_services/returns.service";
 import { AdminSalesService } from "src/app/modules/admin-sales/services/admin-sales.service";
+import { CustomerContextService } from "../../services/customer-context.service";
+import { ChatIntentService } from "../../services/chat-intent.service";
+import { PrintfulRealTimeService } from "../../services/printful-realtime.service";
+import { AutoResponseService, AutoResponseSuggestion, AutoResponseTemplate } from "../../services/auto-response.service";
+import { CustomerContext, ChatIntent } from "../../models/customer-context.model";
+import { WebhookNotificationService } from "../../services/webhook-notification.service";
 
 @Component({
   selector: "app-conversation-detail",
@@ -31,19 +38,41 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
   menuOpen = false;
   isTyping = false;
 
+  // ✅ Nuevas propiedades para Customer Context Panel
+  customerContext: CustomerContext | null = null;
+  isLoadingContext = false;
+  lastDetectedIntent: ChatIntent | null = null;
+
+  // FASE 2B: Auto-respuesta
+  autoResponseSuggestion: AutoResponseSuggestion | null = null;
+  autoResponseTemplates: AutoResponseTemplate[] = [];
+  selectedTemplateIndex: number | null = null;
+  showAutoResponsePanel = false;
+  isGeneratingResponse = false;
+
   constructor(
     private router: Router,
     public chat: AdminChatService,
     private returnsService: ReturnsService,
     public userService: UsersService,
     public toaster: Toaster,
-    public salesService: AdminSalesService
+    public salesService: AdminSalesService,
+    private contextService: CustomerContextService,
+    public intentService: ChatIntentService,
+    private printfulService: PrintfulRealTimeService,
+    private autoResponseService: AutoResponseService,
+    private webhookService: WebhookNotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    // Iniciar escucha de webhooks Printful
+    this.webhookService.startListening();
+    console.log('[ConversationDetail] WebhookNotificationService iniciado');
 
     this.subscribeToSelectedConversation();
     this.subscribeToMessages();
+    this.subscribeToContextRefresh();
 
     // this.subs.push(
     //   this.chat.selectedConversation$.subscribe((c) => {
@@ -68,6 +97,13 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
       this.chat.selectedConversation$.subscribe(conversation => {
         this.selected = conversation;
         this.updateMessages(conversation?.messages);
+        
+        // ✅ Cargar contexto del cliente cuando cambia la conversación
+        if (conversation) {
+          this.loadCustomerContext(conversation);
+        } else {
+          this.customerContext = null;
+        }
       })
     );
   }
@@ -77,8 +113,227 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
     this.subs.push(
       this.chat.messages$.subscribe(msgs => {
         this.updateMessages(msgs);
+        
+        // ✅ Detectar intención del último mensaje de usuario
+        if (msgs && msgs.length > 0) {
+          const lastMsg = msgs[msgs.length - 1];
+          if (lastMsg.sender_type === 'user') {
+            this.lastDetectedIntent = this.intentService.detectIntent(lastMsg.message);
+            console.log('[ChatIntent] Detectado:', this.lastDetectedIntent);
+            
+            // FASE 2A: Validar intents con tracking
+            this.handleIntentWithTracking(this.lastDetectedIntent);
+
+            // FASE 2B: Generar auto-respuesta
+            this.generateAutoResponse(this.lastDetectedIntent);
+          }
+        }
       })
     );
+  }
+
+  /**
+   * FASE 2B: Suscribe a eventos de actualización de contexto desde webhooks
+   */
+  private subscribeToContextRefresh(): void {
+    this.subs.push(
+      this.chat.contextRefresh$.subscribe((event) => {
+        console.log('[ConversationDetail] 🔄 Context refresh event:', event);
+
+        // Insertar mensaje system si viene de webhook
+        if (event.data.systemMessage) {
+          this.insertSystemMessage(event.data.systemMessage);
+        }
+
+        // Refrescar contexto del cliente si está abierta la conversación
+        if (this.selected && this.customerContext) {
+          console.log('[ConversationDetail] Refrescando contexto del cliente...');
+          this.loadCustomerContext(this.selected);
+        }
+      })
+    );
+  }
+
+  /**
+   * Inserta mensaje system en la conversación actual
+   */
+  private insertSystemMessage(systemMsg: any): void {
+    console.log('[ConversationDetail] 💬 Insertando mensaje system:', systemMsg);
+
+    // Agregar a la lista de mensajes
+    const newMessage = {
+      id: `system_${Date.now()}`,
+      conversation_id: this.selected?.conversation_id || this.selected?.id,
+      sender_type: 'system',
+      message: systemMsg.message,
+      timestamp: new Date().toISOString(),
+      meta: systemMsg.meta
+    };
+
+    this.messages = [...this.messages, newMessage];
+    setTimeout(() => this.scrollToBottom(), 100);
+
+    // Mostrar toast
+    this.toaster.open({
+      text: `🔔 ${systemMsg.label}: ${systemMsg.message.substring(0, 60)}...`,
+      type: 'info',
+      duration: 5000
+    });
+  }
+
+  /**
+   * FASE 2A: Maneja intents relacionados con problemas de entrega
+   * Consulta Printful en tiempo real si es necesario
+   */
+  private handleIntentWithTracking(intent: ChatIntent): void {
+    if (!intent || !this.customerContext) return;
+
+    // Solo procesar intents relacionados con tracking
+    if (intent.type !== 'DELIVERY_PROBLEM' && intent.type !== 'TRACKING_INFO') {
+      return;
+    }
+
+    console.log('[ConversationDetail] 🔍 Validando intent con tracking...');
+
+    // Buscar orden mencionada o usar la más reciente
+    const orderId = intent.extractedData?.orderId;
+    let targetOrder = null;
+
+    if (orderId) {
+      targetOrder = this.customerContext.activeOrders.find(o => o.id === orderId);
+    } else if (this.customerContext.activeOrders.length > 0) {
+      // Usar la orden más reciente
+      targetOrder = this.customerContext.activeOrders[0];
+    }
+
+    if (!targetOrder) {
+      console.warn('[ConversationDetail] No se encontró orden para validar tracking');
+      return;
+    }
+
+    // Verificar si es orden de Printful
+    if (!targetOrder.printfulOrderId) {
+      console.log('[ConversationDetail] Orden no es de Printful');
+      
+      if (intent.type === 'DELIVERY_PROBLEM') {
+        // Sugerencia automática al admin
+        this.suggestResponseForNonPrintful(targetOrder);
+      }
+      return;
+    }
+
+    // Consultar Printful en tiempo real
+    this.validatePrintfulTracking(targetOrder, intent);
+  }
+
+  /**
+   * Valida tracking de orden Printful en tiempo real
+   */
+  private validatePrintfulTracking(order: any, intent: ChatIntent): void {
+    console.log(`[ConversationDetail] 📍 Consultando Printful para orden #${order.id}...`);
+
+    this.printfulService.getOrderStatus(order.printfulOrderId).subscribe({
+      next: (printfulData) => {
+        if (!printfulData) {
+          console.error('[ConversationDetail] No se obtuvo respuesta de Printful');
+          return;
+        }
+
+        // Verificar si tiene tracking
+        const hasTracking = printfulData.shipments && printfulData.shipments.length > 0;
+
+        if (hasTracking) {
+          // Orden enviada: Consultar estado de tracking
+          this.printfulService.getTracking(order.printfulOrderId).subscribe({
+            next: (tracking) => {
+              const isDelayed = this.printfulService.isDelayed(order);
+              const daysDelayed = isDelayed ? this.printfulService.getDaysDelayed(order) : 0;
+
+              this.suggestTrackingResponse(order, tracking, isDelayed, daysDelayed, printfulData);
+            }
+          });
+        } else {
+          // Orden NO enviada aún
+          this.suggestNoTrackingResponse(order, printfulData);
+        }
+      },
+      error: (err) => {
+        console.error('[ConversationDetail] Error al consultar Printful:', err);
+      }
+    });
+  }
+
+  /**
+   * Sugiere respuesta cuando la orden tiene tracking
+   */
+  private suggestTrackingResponse(order: any, tracking: any, isDelayed: boolean, daysDelayed: number, printfulData: any): void {
+    const status = this.printfulService.translateStatus(printfulData.status);
+    
+    let suggestion = `📦 Información de tu pedido #${order.id}:\n\n`;
+    suggestion += `🔹 Estado actual: ${status}\n`;
+    
+    if (tracking) {
+      suggestion += `🔹 Tracking: ${tracking.trackingNumber}\n`;
+      suggestion += `🔹 Transportista: ${tracking.carrier}\n`;
+      
+      if (tracking.trackingUrl) {
+        suggestion += `🔗 Puedes rastrearlo aquí: ${tracking.trackingUrl}\n\n`;
+      }
+    }
+
+    if (isDelayed) {
+      suggestion += `⚠️ NOTA: Tu pedido tiene un retraso de ${daysDelayed} días respecto a la fecha estimada.\n`;
+      suggestion += `Estamos trabajando para resolver esta situación. Te mantendremos informado.`;
+    } else {
+      suggestion += `✅ Tu pedido va según lo previsto.`;
+    }
+
+    console.log('[ConversationDetail] 💡 Sugerencia de respuesta generada (con tracking)');
+    console.log(suggestion);
+
+    // Aquí podrías mostrar esta sugerencia en la UI o enviarla automáticamente
+    // Por ahora solo la registramos en consola
+  }
+
+  /**
+   * Sugiere respuesta cuando NO hay tracking
+   */
+  private suggestNoTrackingResponse(order: any, printfulData: any): void {
+    const status = this.printfulService.translateStatus(printfulData.status);
+    
+    let suggestion = `📦 Estado de tu pedido #${order.id}:\n\n`;
+    suggestion += `🔹 Estado actual: ${status}\n`;
+    suggestion += `🔹 Tracking: Aún no disponible\n\n`;
+    
+    if (printfulData.status === 'draft' || printfulData.status === 'pending') {
+      suggestion += `⏳ Tu pedido está siendo preparado en nuestra planta de producción.\n`;
+      suggestion += `El tracking estará disponible una vez que sea enviado (normalmente 3-5 días hábiles).\n\n`;
+      suggestion += `📅 Entrega estimada: ${order.minDeliveryDate ? this.formatDate(order.minDeliveryDate) : 'Calculando...'}`;
+    } else if (printfulData.status === 'inprocess') {
+      suggestion += `🖨️ Tu producto está siendo impreso en este momento.\n`;
+      suggestion += `Una vez completado, será empaquetado y enviado (1-2 días hábiles).\n\n`;
+      suggestion += `Te notificaremos cuando esté en camino.`;
+    } else {
+      suggestion += `La orden aún no ha sido enviada por Printful.\n`;
+      suggestion += `Te avisaremos en cuanto tengamos novedades.`;
+    }
+
+    console.log('[ConversationDetail] 💡 Sugerencia de respuesta generada (sin tracking)');
+    console.log(suggestion);
+  }
+
+  /**
+   * Sugiere respuesta para órdenes NO Printful
+   */
+  private suggestResponseForNonPrintful(order: any): void {
+    const suggestion = `📦 Pedido #${order.id}:\n\nEsta orden no es manejada por Printful, es un pedido directo.\n\nPuedes consultar el estado en nuestro panel de ventas.`;
+    
+    console.log('[ConversationDetail] 💡 Sugerencia de respuesta (orden no Printful)');
+    console.log(suggestion);
+  }
+
+  private formatDate(date: string): string {
+    return new Date(date).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
   }
 
   // Actualiza los mensajes y hace scroll al final
@@ -90,6 +345,116 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
   // Scroll con retraso para asegurar que el DOM se actualice
   private scrollToBottomWithDelay(): void {
     setTimeout(() => this.scrollToBottom(), 50);
+  }
+
+  // ✅ Carga el contexto completo del cliente (pedidos, devoluciones, stats)
+  private loadCustomerContext(conversation: any): void {
+    console.log('[CustomerContext] Iniciando carga para conversación:', conversation);
+    
+    // Intentar obtener identificador directamente
+    let identifier = this.getCustomerIdentifier(conversation);
+    
+    if (!identifier) {
+      console.warn('[CustomerContext] No hay email en conversación, intentando obtener de usuario/guest...');
+      console.log('[CustomerContext] Conversación data:', {
+        user_id: conversation.user_id,
+        guest_id: conversation.guest_id,
+        user_email: conversation.user_email,
+        guest_email: conversation.guest_email
+      });
+      
+      // Si hay user_id, obtener datos del usuario
+      if (conversation.user_id) {
+        this.fetchUserEmail(conversation.user_id, conversation);
+        return;
+      }
+      
+      // Si es guest, intentar obtener datos del guest
+      if (conversation.guest_id) {
+        this.fetchGuestEmail(conversation.guest_id, conversation);
+        return;
+      }
+      
+      // Si no hay ni user_id ni guest_id, no podemos cargar contexto
+      console.error('[CustomerContext] No se puede obtener identificador: sin user_id ni guest_id');
+      this.customerContext = null;
+      return;
+    }
+
+    console.log('[CustomerContext] Identificador encontrado:', identifier);
+    this.loadContextWithIdentifier(identifier, conversation);
+  }
+
+  // ✅ Obtiene el email del usuario desde el backend
+  private fetchUserEmail(userId: number, conversation: any): void {
+    console.log('[CustomerContext] Obteniendo email de usuario:', userId);
+    this.isLoadingContext = true;
+
+    // Usar el endpoint de users para obtener el email
+    this.userService.allUsers('').subscribe({
+      next: (resp: any) => {
+        const users = resp.users || [];
+        const user = users.find((u: any) => u._id === userId || u.id === userId);
+        
+        if (user && user.email) {
+          console.log('[CustomerContext] ✅ Email de usuario encontrado:', user.email);
+          this.loadContextWithIdentifier(user.email, conversation);
+        } else {
+          console.error('[CustomerContext] ❌ Usuario no encontrado o sin email');
+          this.customerContext = null;
+          this.isLoadingContext = false;
+        }
+      },
+      error: (err) => {
+        console.error('[CustomerContext] ❌ Error obteniendo usuario:', err);
+        this.customerContext = null;
+        this.isLoadingContext = false;
+      }
+    });
+  }
+
+  // ✅ Obtiene el email del guest desde session_id o guest_id
+  private fetchGuestEmail(guestId: string, conversation: any): void {
+    console.log('[CustomerContext] Guest detectado:', guestId);
+    // Por ahora, los guests no tienen email garantizado
+    // Podríamos usar session_id como fallback o mejorar el backend
+    console.warn('[CustomerContext] Los guests no tienen email garantizado, usando guest_id como identificador');
+    
+    // Temporal: usar guest_id como identificador (esto puede no funcionar bien)
+    // TODO: Mejorar backend para incluir guest_email en conversaciones
+    this.customerContext = null;
+    this.isLoadingContext = false;
+  }
+
+  // ✅ Carga el contexto una vez que tenemos el identificador
+  private loadContextWithIdentifier(identifier: string, conversation: any): void {
+    const type = this.isGuest(conversation) ? 'guest' : 'user';
+    console.log('[CustomerContext] Tipo de cliente:', type);
+    
+    this.isLoadingContext = true;
+
+    this.contextService.getCustomerContext(identifier, type).subscribe({
+      next: (context) => {
+        this.customerContext = context;
+        this.isLoadingContext = false;
+        console.log('[CustomerContext] ✅ Cargado exitosamente:', context);
+        console.log('[CustomerContext] Stats:', context.stats);
+        console.log('[CustomerContext] Pedidos activos:', context.activeOrders.length);
+      },
+      error: (err) => {
+        console.error('[CustomerContext] ❌ Error al cargar:', err);
+        this.customerContext = null;
+        this.isLoadingContext = false;
+      }
+    });
+  }
+
+  // ✅ Obtiene el identificador del cliente (email preferentemente)
+  private getCustomerIdentifier(conversation: any): string | null {
+    return conversation.user_email || 
+           conversation.guest_email || 
+           conversation.email || 
+           null;
   }
 
   getAvatar(senderType: string, userId?: number): string {
@@ -495,6 +860,172 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
     console.log('Ver pedidos activos de userId:', userId);
     // Igual, abrir modal o panel lateral con pedidos en curso
     this.menuOpen = false;
+  }
+
+  // ========================================
+  // FASE 2B: Auto-respuesta
+  // ========================================
+
+  /**
+   * Genera auto-respuestas basadas en intent detectado (FASE 2B mejorado)
+   */
+  private async generateAutoResponse(intent: ChatIntent): Promise<void> {
+    if (!intent || !this.autoResponseService.shouldAutoRespond(intent)) {
+      this.autoResponseTemplates = [];
+      this.showAutoResponsePanel = false;
+      return;
+    }
+
+    console.log('[ConversationDetail] 🤖 Generando plantillas de auto-respuesta...');
+    this.isGeneratingResponse = true;
+
+    try {
+      // Usar nuevo método que devuelve múltiples plantillas
+      const templates = await this.autoResponseService.generateAutoResponses(
+        this.selected,
+        intent,
+        this.customerContext
+      );
+      
+      if (templates && templates.length > 0) {
+        this.autoResponseTemplates = templates;
+        this.selectedTemplateIndex = 0; // Seleccionar primera por defecto
+        this.showAutoResponsePanel = true;
+        this.isGeneratingResponse = false; // ✅ FIX: Resetear antes para que UI se actualice
+        this.cdr.detectChanges(); // ✅ Forzar detección de cambios inmediata
+        
+        console.log(`[ConversationDetail] ✅ ${templates.length} plantillas generadas`);
+        
+        // Si puede enviarse automáticamente y la configuración lo permite
+        const config = this.autoResponseService.getConfig();
+        if (!config.requireApproval && templates[0].confidence >= config.minConfidence) {
+          console.log('[ConversationDetail] 📤 Enviando respuesta automáticamente...');
+          setTimeout(() => this.sendSelectedTemplate(), 1000); // Delay para UX
+        }
+      } else {
+        this.autoResponseTemplates = [];
+        this.showAutoResponsePanel = false;
+        console.log('[ConversationDetail] ⚠️ No se generaron plantillas');
+      }
+    } catch (error) {
+      console.error('[ConversationDetail] ❌ Error al generar auto-respuesta:', error);
+      this.autoResponseTemplates = [];
+      this.showAutoResponsePanel = false;
+    } finally {
+      this.isGeneratingResponse = false;
+    }
+  }
+
+  /**
+   * Selecciona una plantilla
+   */
+  selectTemplate(index: number): void {
+    this.selectedTemplateIndex = index;
+    console.log('[ConversationDetail] Plantilla seleccionada:', index);
+  }
+
+  /**
+   * Envía la plantilla seleccionada
+   */
+  sendSelectedTemplate(): void {
+    if (this.selectedTemplateIndex === null || !this.autoResponseTemplates[this.selectedTemplateIndex] || !this.selected) {
+      console.warn('[ConversationDetail] No hay plantilla seleccionada para enviar');
+      return;
+    }
+
+    const template = this.autoResponseTemplates[this.selectedTemplateIndex];
+    console.log('[ConversationDetail] 📤 Enviando plantilla...');
+    
+    // Enviar mensaje usando el servicio de chat
+    this.chat.sendAgentMessage(this.selected, template.text);
+    
+    // Cerrar panel de sugerencia
+    this.closeAutoResponsePanel();
+    
+    // Mostrar notificación
+    this.toaster.open({
+      text: '✅ Respuesta automática enviada',
+      type: 'success',
+      duration: 3000
+    });
+  }
+
+  /**
+   * Inserta la plantilla seleccionada como borrador editable
+   */
+  insertTemplateAsDraft(): void {
+    if (this.selectedTemplateIndex === null || !this.autoResponseTemplates[this.selectedTemplateIndex]) {
+      console.warn('[ConversationDetail] No hay plantilla seleccionada');
+      return;
+    }
+
+    const template = this.autoResponseTemplates[this.selectedTemplateIndex];
+    console.log('[ConversationDetail] 📝 Insertando plantilla como borrador');
+    
+    // Copiar texto al textarea
+    this.newMessage = template.text;
+    
+    // Cerrar panel
+    this.closeAutoResponsePanel();
+    
+    // Focus en textarea
+    setTimeout(() => {
+      const textarea = document.querySelector('textarea[name="message"]') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+      }
+    }, 100);
+  }
+
+  /**
+   * Cierra el panel de auto-respuesta
+   */
+  closeAutoResponsePanel(): void {
+    this.showAutoResponsePanel = false;
+    this.autoResponseTemplates = [];
+    this.selectedTemplateIndex = null;
+  }
+
+  /**
+   * Regenera la auto-respuesta
+   */
+  async regenerateAutoResponse(): Promise<void> {
+    if (!this.lastDetectedIntent) return;
+    
+    console.log('[ConversationDetail] 🔄 Regenerando auto-respuesta...');
+    await this.generateAutoResponse(this.lastDetectedIntent);
+  }
+
+  /**
+   * Obtiene etiqueta legible para tipo de plantilla
+   */
+  getTemplateLabel(type: string): string {
+    const labels: Record<string, string> = {
+      'default': 'Estado',
+      'tracking': 'Tracking',
+      'delay': 'Retraso',
+      'cancel': 'Cancelación',
+      'return': 'Devolución'
+    };
+    return labels[type] || type;
+  }
+
+  /**
+   * Obtiene clase CSS para badge de confianza
+   */
+  getConfidenceBadgeClass(confidence: number): string {
+    if (confidence >= 0.9) return 'badge-success';
+    if (confidence >= 0.8) return 'badge-info';
+    if (confidence >= 0.7) return 'badge-warning';
+    return 'badge-secondary';
+  }
+
+  /**
+   * Formatea porcentaje de confianza
+   */
+  formatConfidence(confidence: number): string {
+    return `${Math.round(confidence * 100)}%`;
   }
 
 }

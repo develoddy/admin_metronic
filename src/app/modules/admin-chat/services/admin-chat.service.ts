@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { URL_SERVICIOS } from 'src/app/config/config';
@@ -15,9 +15,13 @@ export class AdminChatService {
   private selectedConversationSubject = new BehaviorSubject<any>(null);
   private messagesSubject = new BehaviorSubject<any[]>([]);
 
+  // FASE 2B: Subject para actualizaciones de contexto
+  private contextRefreshSubject = new Subject<{ type: string; data: any }>();
+
   public conversations$ = this.conversationsSubject.asObservable();
   public selectedConversation$ = this.selectedConversationSubject.asObservable();
   public messages$ = this.messagesSubject.asObservable();
+  public contextRefresh$ = this.contextRefreshSubject.asObservable();
 
   constructor(private http: HttpClient, private _authservice: AuthService) { }
 
@@ -198,6 +202,31 @@ export class AdminChatService {
     this.socket.on('user-connected', (data) => {
       // optional: refresh conversations
       // this.loadActiveConversations();
+    });
+
+    // FASE 2B: Escuchar eventos de Printful webhooks
+    this.socket.on('printful:update', (event: any) => {
+      console.log('[AdminChat] 📦 printful:update recibido', event);
+      this.contextRefreshSubject.next({
+        type: 'printful:update',
+        data: event
+      });
+    });
+
+    this.socket.on('printful:tracking_update', (event: any) => {
+      console.log('[AdminChat] 🚚 printful:tracking_update recibido', event);
+      this.contextRefreshSubject.next({
+        type: 'printful:tracking_update',
+        data: event
+      });
+    });
+
+    this.socket.on('printful:delay', (event: any) => {
+      console.log('[AdminChat] ⚠️ printful:delay recibido', event);
+      this.contextRefreshSubject.next({
+        type: 'printful:delay',
+        data: event
+      });
     });
   }
 
@@ -525,5 +554,85 @@ export class AdminChatService {
     if (!agent_id) return;
     const url = `${URL_SERVICIOS}/chat/assign/${conv.id || conv.conversation_id}`;
     return this.http.put<any>(url, { agent_id }, this.getAuthHeaders()).toPromise();
+  }
+
+  // ========================================
+  // FASE 2B: Actualizaciones en tiempo real
+  // ========================================
+
+  /**
+   * Actualiza información de una orden en el contexto actual
+   * Llamado cuando llega webhook de Printful
+   */
+  updateOrderInRealTime(orderId: number, updates: any): void {
+    console.log(`[AdminChat] 🔄 Actualizando orden #${orderId} en tiempo real:`, updates);
+
+    // Emitir evento para que CustomerContextPanel se refresque
+    this.contextRefreshSubject.next({
+      type: 'order_updated',
+      data: {
+        orderId,
+        updates,
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+
+  /**
+   * Notifica que un paquete fue enviado
+   */
+  notifyPackageShipped(orderId: number, trackingData: any): void {
+    console.log(`[AdminChat] 📬 Paquete enviado para orden #${orderId}`);
+
+    this.contextRefreshSubject.next({
+      type: 'package_shipped',
+      data: {
+        orderId,
+        trackingNumber: trackingData.trackingNumber,
+        carrier: trackingData.carrier,
+        trackingUrl: trackingData.trackingUrl,
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+
+  /**
+   * Notifica error en orden
+   */
+  notifyOrderFailed(orderId: number, error: any): void {
+    console.error(`[AdminChat] ❌ Orden #${orderId} falló:`, error);
+
+    this.contextRefreshSubject.next({
+      type: 'order_failed',
+      data: {
+        orderId,
+        error,
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+
+  /**
+   * Refresca el contexto del cliente actual
+   */
+  refreshCurrentContext(): void {
+    const selected = this.selectedConversationSubject.value;
+    if (!selected) return;
+
+    console.log('[AdminChat] 🔄 Solicitando refresco de contexto...');
+    this.contextRefreshSubject.next({
+      type: 'refresh_requested',
+      data: {
+        conversationId: selected.id || selected.conversation_id,
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+
+  /**
+   * Observable para escuchar actualizaciones de contexto
+   */
+  onContextRefresh() {
+    return this.contextRefresh$;
   }
 }

@@ -15,10 +15,54 @@
 .send-box textarea { width:100%; resize:vertical; padding:8px; border-radius:6px; border:1px solid #ddd; }
 .actions { display:flex; gap:8px; justify-content:flex-end; }
 
+/* ✅ Layout de 2 columnas: Chat + Customer Context Panel */
+.conversation-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  height: calc(100vh - 160px);
+  min-height: 360px;
+  gap: 0;
+  background: #f5f7f9;
+  overflow: hidden;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr 300px;
+  }
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: 1fr;
+    
+    .customer-context-sidebar {
+      display: none; // Ocultar panel lateral en móviles por ahora
+    }
+  }
+}
+
 /* WhatsApp-like redesign styles */
 /* Make the wrapper use viewport height minus page chrome so the chat area can scroll internally */
-.chat-wrapper { display:flex; flex-direction:column; height: calc(100vh - 160px); min-height: 360px; }
-.chat-card { display:flex; flex-direction:column; height:100%; background: #f5f7f9; border-radius: 0px; box-shadow: 0 6px 18px rgba(16,24,40,0.04); overflow:hidden; }
+.chat-wrapper { 
+  display:flex; 
+  flex-direction:column; 
+  height: 100%;
+  min-height: 360px;
+  overflow: hidden;
+}
+
+.chat-card { 
+  display:flex; 
+  flex-direction:column; 
+  height:100%; 
+  background: #f5f7f9; 
+  border-radius: 0px; 
+  box-shadow: 0 6px 18px rgba(16,24,40,0.04); 
+  overflow:hidden; 
+}
+
+.customer-context-sidebar {
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+}
 
 .chat-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background: #fff; border-bottom:1px solid #e9edf2; position: sticky; top: 0; z-index: 20; }
 .chat-header .left { display:flex; align-items:center; gap:12px; }
@@ -80,7 +124,329 @@
 .typing .dot:nth-child(2){ animation-delay:0.2s } .typing .dot:nth-child(3){ animation-delay:0.4s }
 @keyframes blink { 0%{opacity:0.3}50%{opacity:1}100%{opacity:0.3} }
 
-.chat-footer { padding:12px 16px; background:#fff; border-top:1px solid #e9edf2; position: sticky; bottom: 0; z-index: 25; }
+.chat-footer { 
+  padding:12px 16px; 
+  background:#fff; 
+  border-top:1px solid #e9edf2; 
+  position: sticky; 
+  bottom: 0; 
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ✅ Intent Detection Badge */
+// ===================================
+// FASE 2B: Auto-Response Panel
+// ===================================
+.auto-response-panel {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); // Default morado
+  color: white;
+  border-radius: 12px;
+  margin: 12px 16px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  animation: slideUp 0.3s ease-in-out;
+
+  // 🎨 Colores específicos por tipo de intent
+  &.intent-order_status {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); // Azul
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  }
+
+  &.intent-tracking_info {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); // Verde
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+  }
+
+  &.intent-delivery_problem {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); // Rojo
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+  }
+
+  &.intent-delivery_date {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); // Naranja
+    box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+  }
+
+  &.intent-cancel_request {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); // Gris
+    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+    .title {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+
+      i {
+        font-size: 16px;
+      }
+
+      .badge {
+        font-size: 10px;
+        padding: 4px 8px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+
+  .panel-body {
+    padding: 16px;
+
+    .suggested-message {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+
+      &.admin-view {
+        border-left: 3px solid rgba(255, 255, 255, 0.5);
+        background: rgba(0, 0, 0, 0.15); // Más oscuro para vista técnica
+      }
+
+      &.customer-view {
+        border-left: 3px solid rgba(46, 204, 113, 0.8);
+        background: rgba(255, 255, 255, 0.25); // Más claro para vista cliente
+      }
+
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 1.5;
+        color: white;
+      }
+    }
+
+    .suggested-actions {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+
+      small {
+        display: block;
+        margin-bottom: 8px;
+        opacity: 0.9;
+      }
+
+      .actions-list {
+        margin: 0;
+        padding-left: 20px;
+
+        li {
+          font-size: 12px;
+          margin-bottom: 4px;
+          opacity: 0.95;
+        }
+      }
+    }
+  }
+
+  // Template Selector (Chips)
+  .template-selector {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+    .template-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid transparent;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      font-size: 12px;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+      }
+
+      &.selected {
+        background: rgba(255, 255, 255, 0.35);
+        border-color: rgba(255, 255, 255, 0.6);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .chip-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        font-size: 10px;
+
+        &.chip-default { color: #3498db; }
+        &.chip-tracking { color: #2ecc71; }
+        &.chip-delay { color: #e74c3c; }
+        &.chip-cancel { color: #e67e22; }
+        &.chip-return { color: #9b59b6; }
+      }
+
+      .chip-label {
+        font-weight: 600;
+        color: white;
+      }
+
+      .chip-confidence {
+        font-size: 10px;
+        opacity: 0.8;
+        color: white;
+      }
+    }
+  }
+
+  .panel-body {
+    padding: 16px;
+
+    .template-preview {
+      .preview-label {
+        margin-bottom: 8px;
+        
+        small {
+          opacity: 0.9;
+        }
+      }
+    }
+
+    .suggested-message {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+
+      &.admin-view {
+        border-left: 3px solid rgba(255, 255, 255, 0.5);
+        background: rgba(0, 0, 0, 0.15); // Más oscuro para vista técnica
+      }
+
+      &.customer-view {
+        border-left: 3px solid rgba(46, 204, 113, 0.8);
+        background: rgba(255, 255, 255, 0.25); // Más claro para vista cliente
+      }
+
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 1.5;
+        color: white;
+      }
+    }
+
+    .action-buttons {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+
+      small {
+        opacity: 0.9;
+      }
+
+      .btn-group {
+        .btn {
+          font-size: 11px;
+          padding: 4px 10px;
+        }
+      }
+    }
+  }
+
+  .panel-actions {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    justify-content: flex-end;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+
+    .btn {
+      font-size: 12px;
+      padding: 6px 12px;
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.intent-badge-container {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0 4px;
+  animation: slideDown 0.3s ease-in-out;
+
+  .intent-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    gap: 4px;
+
+    &.badge-primary { background: #e1f0ff; color: #009ef7; }
+    &.badge-info { background: #e1f0ff; color: #009ef7; }
+    &.badge-warning { background: #fff4de; color: #f1a500; }
+    &.badge-danger { background: #ffe2e5; color: #f1416c; }
+    &.badge-success { background: #e8fff3; color: #50cd89; }
+    &.badge-secondary { background: #f5f8fa; color: #7e8299; }
+
+    .confidence-score {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
+
+    i {
+      font-size: 11px;
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .input-wrap { display:flex; gap:8px; align-items:center; max-width:100%; }
 .chat-input { flex:1 1 auto; padding:10px 12px; border-radius:20px; border:1px solid #e6eef4; outline:none; }
 .chat-input:focus { box-shadow:0 0 0 3px rgba(11,107,58,0.06); }

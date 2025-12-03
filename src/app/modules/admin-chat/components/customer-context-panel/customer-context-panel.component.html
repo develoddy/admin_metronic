@@ -1,0 +1,250 @@
+<div class="customer-context-panel" [class.collapsed]="isCollapsed">
+  
+  <!-- Toggle button -->
+  <button class="toggle-btn" (click)="toggleCollapse()" [title]="isCollapsed ? 'Expandir panel' : 'Colapsar panel'">
+    <i class="fas" [class.fa-chevron-left]="!isCollapsed" [class.fa-chevron-right]="isCollapsed"></i>
+  </button>
+
+  <div class="panel-content" *ngIf="!isCollapsed && context">
+    
+    <!-- Header -->
+    <div class="panel-header">
+      <h5 class="mb-0">Información del Cliente</h5>
+      <span class="badge" [class.badge-primary]="context.type === 'user'" [class.badge-secondary]="context.type === 'guest'">
+        {{ context.type === 'user' ? 'Usuario' : 'Invitado' }}
+      </span>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs nav-tabs-sm">
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="isActive('overview')" (click)="setActiveTab('overview')">
+          Resumen
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="isActive('orders')" (click)="setActiveTab('orders')">
+          Pedidos <span class="badge badge-light ms-1">{{ context.activeOrders.length }}</span>
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="isActive('returns')" (click)="setActiveTab('returns')">
+          Devoluciones <span class="badge badge-light ms-1">{{ context.returns.length }}</span>
+        </button>
+      </li>
+      <!-- FASE 2A: Tab de Tracking -->
+      <li class="nav-item" *ngIf="shouldShowTrackingTab()">
+        <button class="nav-link" [class.active]="isActive('tracking')" (click)="setActiveTab('tracking')">
+          <i class="fas fa-shipping-fast"></i> Tracking
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      
+      <!-- DEBUG INFO -->
+      <div style="padding: 10px; background: #f0f0f0; margin-bottom: 10px; font-size: 11px;" *ngIf="context">
+        <strong>DEBUG:</strong> activeTab = "{{ activeTab }}" | context = {{ context ? 'exists' : 'null' }}
+      </div>
+      
+      <!-- OVERVIEW TAB -->
+      <div class="tab-pane" *ngIf="activeTab === 'overview' && context" style="display: block;">
+        <section class="info-section">
+          <h6 class="section-title">Datos Generales</h6>
+          <div class="info-row">
+            <span class="label">Email:</span>
+            <span class="value">{{ context.identifier }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Tipo:</span>
+            <span class="value">{{ context.type === 'user' ? 'Usuario registrado' : 'Invitado' }}</span>
+          </div>
+        </section>
+
+        <section class="info-section mt-3">
+          <h6 class="section-title">Estadísticas</h6>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">💰</div>
+              <div class="stat-value">{{ context?.stats?.totalSpent | number:'1.2-2' }}€</div>
+              <div class="stat-label">Total gastado</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📦</div>
+              <div class="stat-value">{{ context?.stats?.activeOrders }}</div>
+              <div class="stat-label">Pedidos activos</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">✅</div>
+              <div class="stat-value">{{ context?.stats?.completedOrders }}</div>
+              <div class="stat-label">Completados</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">↩️</div>
+              <div class="stat-value">{{ context?.stats?.returns }}</div>
+              <div class="stat-label">Devoluciones</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ORDERS TAB -->
+      <div class="tab-pane" *ngIf="activeTab === 'orders' && context" style="display: block;">
+        
+        <div class="empty-state" *ngIf="context?.activeOrders?.length === 0">
+          <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No hay pedidos activos</p>
+        </div>
+
+        <div class="orders-list" *ngIf="context?.activeOrders?.length > 0">
+          <div class="order-card" *ngFor="let order of context.activeOrders">
+            
+            <div class="order-header">
+              <div class="order-id-section">
+                <span class="order-id">#{{ order.id }}</span>
+                <!-- Mostrar status si existe, sino printfulStatus -->
+                <span class="badge badge-sm" [ngClass]="getStatusClass(order.status || order.printfulStatus)">
+                  {{ order.status ? translateStatus(order.status) : translatePrintfulStatus(order.printfulStatus) }}
+                </span>
+              </div>
+              <button class="btn-icon" (click)="viewOrderDetail(order.id)" title="Ver detalle">
+                <i class="fas fa-external-link-alt"></i>
+              </button>
+            </div>
+
+            <div class="order-body">
+              <div class="order-info">
+                <div class="info-item">
+                  <i class="fas fa-calendar-alt text-muted"></i>
+                  <span>{{ formatDate(order.createdAt) }}</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-euro-sign text-muted"></i>
+                  <span>{{ (order.total || order.amount) | number:'1.2-2' }}€</span>
+                </div>
+              </div>
+
+              <!-- Printful Info -->
+              <div class="printful-section" *ngIf="order.printfulOrderId">
+                <div class="printful-header">
+                  <i class="fas fa-print text-primary"></i>
+                  <span class="printful-label">Printful #{{ order.printfulOrderId }}</span>
+                  
+                  <!-- FASE 2A: Badge de retraso -->
+                  <span 
+                    *ngIf="isOrderDelayed(order)" 
+                    class="badge badge-danger badge-sm ml-2"
+                    title="Pedido retrasado">
+                    <i class="fas fa-clock"></i> Retraso ({{ getDaysDelayed(order) }}d)
+                  </span>
+                </div>
+                <div class="printful-details">
+                  <div class="detail-row" *ngIf="order.minDeliveryDate && order.maxDeliveryDate">
+                    <small class="text-muted">📅 Entrega estimada:</small>
+                    <small>{{ formatDate(order.minDeliveryDate) }} - {{ formatDate(order.maxDeliveryDate) }}</small>
+                  </div>
+                  <div class="detail-row" *ngIf="order.trackingNumber">
+                    <small class="text-muted">📍 Tracking:</small>
+                    <small class="text-primary">{{ order.trackingNumber }}</small>
+                  </div>
+                  
+                  <!-- FASE 2A: Estado de Printful en tiempo real -->
+                  <div class="detail-row" *ngIf="order.printfulData">
+                    <small class="text-muted">🔄 Estado actual:</small>
+                    <small>{{ getPrintfulStatusLabel(order.printfulData.status) }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="order-actions">
+              <button class="btn btn-sm btn-outline-primary" (click)="sendOrderInfoToChat(order)">
+                <i class="fas fa-paper-plane me-1"></i> Enviar info
+              </button>
+              
+              <!-- FASE 2A: Botones nuevos para Printful -->
+              <div *ngIf="isPrintfulOrder(order)" class="printful-actions mt-2">
+                <button 
+                  class="btn btn-sm btn-light-info"
+                  (click)="refreshPrintfulOrder(order)"
+                  [disabled]="loadingPrintfulData"
+                  title="Refrescar estado desde Printful">
+                  <i class="fas fa-sync-alt" [class.fa-spin]="loadingPrintfulData"></i>
+                  Refrescar estado
+                </button>
+                
+                <button 
+                  *ngIf="hasTracking(order)"
+                  class="btn btn-sm btn-light-primary ml-2"
+                  (click)="openExternalTracking(order)"
+                  title="Ver tracking en transportista">
+                  <i class="fas fa-shipping-fast"></i>
+                  Ver tracking
+                </button>
+
+                <button 
+                  class="btn btn-sm btn-light-success ml-2"
+                  (click)="openTrackingTab(order)"
+                  title="Ver timeline completo">
+                  <i class="fas fa-list-alt"></i>
+                  Timeline
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RETURNS TAB -->
+      <div class="tab-pane" *ngIf="activeTab === 'returns' && context" style="display: block;">
+        
+        <div class="empty-state" *ngIf="context?.returns?.length === 0">
+          <i class="fas fa-undo-alt fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No hay devoluciones registradas</p>
+          <button class="btn btn-sm btn-primary mt-2" (click)="createReturn()">
+            <i class="fas fa-plus me-1"></i> Crear devolución
+          </button>
+        </div>
+
+        <div class="returns-list" *ngIf="context?.returns?.length > 0">
+          <div class="return-card" *ngFor="let return of context.returns">
+            <div class="return-header">
+              <span class="return-id">#{{ return.id }}</span>
+              <span class="badge" [ngClass]="getStatusClass(return.status)">
+                {{ return.status }}
+              </span>
+            </div>
+            <div class="return-body">
+              <p class="mb-1"><strong>Pedido:</strong> #{{ return.sale_id }}</p>
+              <p class="mb-1"><strong>Motivo:</strong> {{ return.reason || 'No especificado' }}</p>
+              <p class="mb-0 text-muted"><small>{{ formatDate(return.createdAt) }}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FASE 2A: TRACKING TAB -->
+      <div class="tab-pane" *ngIf="activeTab === 'tracking' && selectedOrderForTracking" style="display: block;">
+        <app-tracking-tab
+          [orderId]="selectedOrderForTracking.id"
+          [printfulOrderId]="selectedOrderForTracking.printfulOrderId"
+          (onRefresh)="onTrackingRefresh()">
+        </app-tracking-tab>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Collapsed state indicator -->
+  <div class="collapsed-indicator" *ngIf="isCollapsed && context">
+    <div class="indicator-content">
+      <i class="fas fa-user-circle fa-2x text-muted mb-2"></i>
+      <small class="text-muted d-block">Info</small>
+      <small class="text-muted d-block">Cliente</small>
+    </div>
+  </div>
+
+</div>

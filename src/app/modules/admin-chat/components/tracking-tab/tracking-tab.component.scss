@@ -1,0 +1,82 @@
+.tracking-tab-container {
+  padding: 1rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.tracking-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e4e6ef;
+}
+
+.tracking-info {
+  border-left: 3px solid #3699ff;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e4e6ef;
+  }
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 1.5rem;
+  
+  &.active .timeline-marker {
+    border-color: #3699ff;
+  }
+  
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #e4e6ef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  
+  .badge {
+    font-size: 10px;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.timeline-content {
+  padding-left: 1rem;
+}
+
+.badge-lg {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+code {
+  background: #f3f6f9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: #3f4254;
+}
