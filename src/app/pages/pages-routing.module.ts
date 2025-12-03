@@ -144,13 +144,15 @@ const routes: Routes = [
             (m) => m.DocumentsManagerModule
           ),
       },
-      {
-        path: 'shipping',
-        loadChildren: () =>
-          import('../modules/shipping/shipping.module').then(
-            (m) => m.ShippingModule
-          ),
-      },
+      // ⚠️ DEPRECATED: Shipping module removido. Tracking info disponible en Admin-Sales
+      // (datos desde Sales table actualizada por Printful webhooks)
+      // {
+      //   path: 'shipping',
+      //   loadChildren: () =>
+      //     import('../modules/shipping/shipping.module').then(
+      //       (m) => m.ShippingModule
+      //     ),
+      // },
       {
         path: 'discounts',
         loadChildren: () =>

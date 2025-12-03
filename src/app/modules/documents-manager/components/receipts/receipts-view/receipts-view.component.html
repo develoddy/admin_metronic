@@ -351,18 +351,46 @@
                             <div class="d-flex flex-stack flex-wrap mt-lg-20 pt-13">
                                 <!-- begin::Actions-->
                                 <div class="my-1 me-5">
-                                    <!-- begin::Pint-->
-                                    <button type="button" class="btn btn-success my-1 me-12" (click)="printReceipt()">Imprimir Recibo</button>
-                                    <!-- end::Pint-->
+                                    <!-- begin::Print-->
+                                    <button type="button" class="btn btn-success my-1 me-2" (click)="printReceipt()">
+                                        <i class="bi bi-printer me-2"></i>Imprimir Recibo
+                                    </button>
+                                    <!-- end::Print-->
 
                                     <!-- begin::Download-->
-                                    <button type="button" class="btn btn-light-success my-1" (click)="downloadReceipt()">Descargar Recibo</button>
+                                    <button type="button" class="btn btn-light-success my-1 me-2" (click)="downloadReceipt()">
+                                        <i class="bi bi-download me-2"></i>Descargar PDF
+                                    </button>
                                     <!-- end::Download-->
+
+                                    <!-- begin::View Printful Order (Cross-module link) -->
+                                    <button 
+                                        *ngIf="sale?.printfulOrderId" 
+                                        type="button" 
+                                        class="btn btn-light-info my-1 me-2" 
+                                        (click)="viewPrintfulOrder()"
+                                        title="Ver esta orden en el módulo Printful">
+                                        <i class="bi bi-box-arrow-up-right me-2"></i>🎨 Ver en Printful
+                                    </button>
+                                    <!-- end::View Printful Order -->
+
+                                    <!-- begin::View Admin Sale (Cross-module link) -->
+                                    <button 
+                                        *ngIf="sale?.id" 
+                                        type="button" 
+                                        class="btn btn-light-primary my-1" 
+                                        (click)="viewAdminSale()"
+                                        title="Ver esta venta en el módulo Admin-Sales">
+                                        <i class="bi bi-cart-check me-2"></i>📋 Ver Venta
+                                    </button>
+                                    <!-- end::View Admin Sale -->
                                 </div>
                                 <!-- end::Actions-->
 
                                 <!-- begin::Action-->
-                                <a href="#" onclick="return false;" [routerLink]="['/documents-manager/receipts/create']" class="btn btn-primary my-1">Crear Recibo</a>
+                                <a href="#" onclick="return false;" [routerLink]="['/documents-manager/receipts/create']" class="btn btn-primary my-1">
+                                    <i class="bi bi-plus-circle me-2"></i>Crear Recibo
+                                </a>
                                 <!-- end::Action-->
                             </div>
                             <!-- end::Footer-->

@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Toaster } from 'ngx-toast-notifications';
 import { ReceiptService } from '../../../_services/receipt.service';
 import { PriceCalculationService } from '../../../../admin-sales/services/price-calculation.service';
@@ -22,6 +22,7 @@ export class ReceiptsViewComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private receiptsService: ReceiptService,
     private toaster: Toaster,
     private cd: ChangeDetectorRef,
@@ -130,6 +131,41 @@ export class ReceiptsViewComponent implements OnInit {
    */
   getSaleTotal(sale: any): number {
     return this.priceCalculationService.getSaleTotal(sale);
+  }
+
+  // 🔗 ================ NAVEGACIÓN CRUZADA ENTRE MÓDULOS ================ 🔗
+
+  /**
+   * 🎨 Navega al detalle de la orden en Printful
+   * Enlace cruzado: Documents-Manager → Printful
+   */
+  viewPrintfulOrder() {
+    if (!this.sale?.printfulOrderId) {
+      this.toaster.open({
+        text: 'Esta orden no tiene ID de Printful asociado',
+        type: 'warning'
+      });
+      return;
+    }
+    
+    this.router.navigate(['/printful/orders', this.sale.printfulOrderId]);
+  }
+
+  /**
+   * 📋 Navega al detalle de la venta en Admin-Sales
+   * Enlace cruzado: Documents-Manager → Admin-Sales
+   */
+  viewAdminSale() {
+    if (!this.sale?.id) {
+      this.toaster.open({
+        text: 'No hay venta asociada a este recibo',
+        type: 'warning'
+      });
+      return;
+    }
+    
+    // Navegar a la lista de ventas (ruta correcta es /sales no /admin-sales)
+    this.router.navigate(['/sales/list']);
   }
 
 }

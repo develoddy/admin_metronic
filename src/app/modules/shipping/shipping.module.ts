@@ -1,3 +1,19 @@
+/**
+ * ⚠️ DEPRECATED: Este módulo está obsoleto y fue removido del routing principal.
+ * 
+ * Motivo: 
+ * - La tabla Shipments es redundante con los campos de tracking en Sales
+ * - Printful webhooks actualizan directamente Sales.trackingNumber, Sales.carrier, Sales.shippedAt
+ * - Este módulo no aporta funcionalidad única
+ * 
+ * Reemplazo: Use el módulo Admin-Sales
+ * - Ruta: /admin-sales
+ * - Componente: sale-detail muestra tracking info desde Sales table
+ * - Servicio: AdminSalesService.refreshPrintfulStatus() sincroniza datos
+ * 
+ * @deprecated Use Admin-Sales module. Route /shipping has been removed from pages-routing.module.ts
+ */
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 

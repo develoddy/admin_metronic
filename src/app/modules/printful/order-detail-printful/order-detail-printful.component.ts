@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { OrderPrintfulService } from '../_services/order-printful.service';
+import { ReceiptService } from '../../documents-manager/_services/receipt.service';
+import { AdminSalesService } from '../../admin-sales/services/admin-sales.service';
 
 interface OrderDetail {
   id: number;
@@ -92,6 +94,8 @@ export class OrderDetailPrintfulComponent implements OnInit, OnDestroy {
   orderId: number = 0;
   order: OrderDetail | null = null;
   isLoading = false;
+  receiptId: number | null = null; // ID del recibo asociado a esta orden
+  isLoadingReceipt = false;
 
   // Toast
   showToast = false;
@@ -102,7 +106,9 @@ export class OrderDetailPrintfulComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private orderService: OrderPrintfulService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private receiptService: ReceiptService,
+    private adminSalesService: AdminSalesService
   ) {}
 
   ngOnInit(): void {
@@ -364,5 +370,91 @@ export class OrderDetailPrintfulComponent implements OnInit, OnDestroy {
     return !!(this.order.estimated_delivery 
       || this.order.estimated_fulfillment 
       || (this.order.shipments && this.order.shipments.length > 0));
+  }
+
+  // 🔗 ================ NAVEGACIÓN CRUZADA ENTRE MÓDULOS ================ 🔗
+
+  /**
+   * 🧾 Navega al recibo de pago asociado a esta orden Printful
+   * Enlace cruzado: Printful → Documents-Manager
+   * 
+   * Flujo:
+   * 1. Busca el Sale por external_id (printfulOrderId)
+   * 2. Busca el Receipt asociado a ese Sale
+   * 3. Navega al componente receipts-view con el ID del recibo
+   */
+  viewReceipt() {
+    if (!this.order?.id) {
+      this.displayToast('No se puede buscar el recibo: falta ID de orden', 'warning');
+      return;
+    }
+
+    this.isLoadingReceipt = true;
+    
+    console.log('🔍 [Receipt Search] Printful Order ID:', this.order.id);
+    console.log('🔍 [Receipt Search] Order external_id:', this.order.external_id);
+    
+    // Estrategia: Buscar el Sale que tiene este printfulOrderId
+    // El campo Sale.printfulOrderId almacena el ID de Printful (order.id)
+    this.adminSalesService.getSales().subscribe({
+      next: (resp) => {
+        console.log('✅ [Receipt Search] Sales response:', resp);
+        
+        if (!resp?.success || !resp.sales || resp.sales.length === 0) {
+          this.isLoadingReceipt = false;
+          this.displayToast('No se encontraron ventas', 'warning');
+          return;
+        }
+        
+        // Buscar el Sale que tiene este printfulOrderId
+        const sale = resp.sales.find((s: any) => 
+          s.printfulOrderId === this.order!.id || 
+          s.printfulOrderId === String(this.order!.id)
+        );
+        
+        console.log('🔍 [Receipt Search] Found sale:', sale);
+        
+        if (!sale) {
+          this.isLoadingReceipt = false;
+          console.warn('⚠️ [Receipt Search] No sale found with printfulOrderId:', this.order!.id);
+          this.displayToast('No se encontró la venta asociada a esta orden de Printful', 'info');
+          return;
+        }
+        
+        const saleId = sale.id;
+        console.log('✅ [Receipt Search] Sale ID found:', saleId);
+        
+        // Ahora buscar el Receipt por saleId
+        this.receiptService.getReceiptsBySaleId(saleId).subscribe({
+          next: (receiptResp) => {
+            this.isLoadingReceipt = false;
+            console.log('✅ [Receipt Search] Receipt response:', receiptResp);
+            
+            if (receiptResp?.success && receiptResp.receipts?.length > 0) {
+              const receipt = receiptResp.receipts[0];
+              this.receiptId = receipt.id;
+              
+              console.log('✅ [Receipt Search] Found receipt ID:', this.receiptId);
+              
+              // Navegar al recibo
+              this.router.navigate(['/documents-manager/receipts/view', this.receiptId]);
+            } else {
+              console.warn('⚠️ [Receipt Search] No receipts found for saleId:', saleId);
+              this.displayToast('No se encontró un recibo para esta venta', 'info');
+            }
+          },
+          error: (err) => {
+            this.isLoadingReceipt = false;
+            console.error('❌ [Receipt Search] Error fetching receipt:', err);
+            this.displayToast('Error al buscar el recibo: ' + (err?.error?.message || 'Error desconocido'), 'error');
+          }
+        });
+      },
+      error: (err) => {
+        this.isLoadingReceipt = false;
+        console.error('❌ [Receipt Search] Error fetching sales:', err);
+        this.displayToast('Error al buscar ventas: ' + (err?.error?.message || 'Error desconocido'), 'error');
+      }
+    });
   }
 }

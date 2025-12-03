@@ -304,6 +304,25 @@
             <div class="text-gray-600 fs-7 fw-bold mb-1">Teléfono</div>
             <div class="text-dark">{{ order.recipient.phone }}</div>
           </div>
+          
+          <!-- 🔗 Cross-module link to Receipt -->
+          <div class="mt-5 pt-5 border-top border-gray-300">
+            <button 
+              class="btn btn-light-success btn-sm w-100"
+              (click)="viewReceipt()"
+              [disabled]="isLoadingReceipt"
+              title="Ver recibo de pago en Documents Manager">
+              <i class="bi bi-receipt me-2"></i>
+              <span *ngIf="!isLoadingReceipt">🧾 Ver Recibo de Pago</span>
+              <span *ngIf="isLoadingReceipt">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Cargando...
+              </span>
+            </button>
+            <div class="text-muted fs-8 text-center mt-2" *ngIf="!receiptId && !isLoadingReceipt">
+              Se buscará el recibo asociado a esta orden
+            </div>
+          </div>
         </div>
       </div>
 
