@@ -1,41 +1,46 @@
-<div class="customer-context-panel" [class.collapsed]="isCollapsed">
+<div class="customer-context-panel">
   
-  <!-- Toggle button -->
-  <button class="toggle-btn" (click)="toggleCollapse()" [title]="isCollapsed ? 'Expandir panel' : 'Colapsar panel'">
-    <i class="fas" [class.fa-chevron-left]="!isCollapsed" [class.fa-chevron-right]="isCollapsed"></i>
-  </button>
-
-  <div class="panel-content" *ngIf="!isCollapsed && context">
+  <div class="panel-content" *ngIf="context">
     
-    <!-- Header -->
+    <!-- Header enterprise -->
     <div class="panel-header">
-      <h5 class="mb-0">Información del Cliente</h5>
-      <span class="badge" [class.badge-primary]="context.type === 'user'" [class.badge-secondary]="context.type === 'guest'">
-        {{ context.type === 'user' ? 'Usuario' : 'Invitado' }}
-      </span>
+      <div class="header-top">
+        <h5 class="panel-title">Información del Cliente</h5>
+        <span class="type-badge" [class.is-user]="context.type === 'user'" [class.is-guest]="context.type === 'guest'">
+          <i class="fas" [class.fa-user]="context.type === 'user'" [class.fa-user-secret]="context.type === 'guest'"></i>
+          {{ context.type === 'user' ? 'Registrado' : 'Invitado' }}
+        </span>
+      </div>
+      <p class="client-identifier">{{ context.identifier }}</p>
     </div>
 
-    <!-- Tabs Navigation -->
-    <ul class="nav nav-tabs nav-tabs-sm">
+    <!-- Tabs Navigation enterprise -->
+    <ul class="nav nav-tabs nav-tabs-enterprise">
       <li class="nav-item">
-        <button class="nav-link" [class.active]="isActive('overview')" (click)="setActiveTab('overview')">
-          Resumen
+        <button class="nav-link" [class.active]="isActive('overview')" (click)="setActiveTab('overview')" title="Información general">
+          <i class="fas fa-info-circle"></i>
+          <span>Cliente</span>
         </button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" [class.active]="isActive('orders')" (click)="setActiveTab('orders')">
-          Pedidos <span class="badge badge-light ms-1">{{ context.activeOrders.length }}</span>
+        <button class="nav-link" [class.active]="isActive('orders')" (click)="setActiveTab('orders')" title="Historial de pedidos">
+          <i class="fas fa-shopping-bag"></i>
+          <span>Pedidos</span>
+          <span class="count-badge" *ngIf="context.activeOrders.length > 0">{{ context.activeOrders.length }}</span>
         </button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" [class.active]="isActive('returns')" (click)="setActiveTab('returns')">
-          Devoluciones <span class="badge badge-light ms-1">{{ context.returns.length }}</span>
+        <button class="nav-link" [class.active]="isActive('assistant')" (click)="setActiveTab('assistant')" title="Asistente IA">
+          <i class="fas fa-robot"></i>
+          <span>IA</span>
+          <span class="active-indicator" *ngIf="hasActiveIntent()"></span>
         </button>
       </li>
-      <!-- FASE 2A: Tab de Tracking -->
-      <li class="nav-item" *ngIf="shouldShowTrackingTab()">
-        <button class="nav-link" [class.active]="isActive('tracking')" (click)="setActiveTab('tracking')">
-          <i class="fas fa-shipping-fast"></i> Tracking
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="isActive('returns')" (click)="setActiveTab('returns')" title="Gestión de devoluciones">
+          <i class="fas fa-undo-alt"></i>
+          <span>Acciones</span>
+          <span class="count-badge" *ngIf="context.returns.length > 0">{{ context.returns.length }}</span>
         </button>
       </li>
     </ul>
@@ -43,27 +48,60 @@
     <!-- Tab Content -->
     <div class="tab-content">
       
-      <!-- DEBUG INFO -->
-      <div style="padding: 10px; background: #f0f0f0; margin-bottom: 10px; font-size: 11px;" *ngIf="context">
-        <strong>DEBUG:</strong> activeTab = "{{ activeTab }}" | context = {{ context ? 'exists' : 'null' }}
-      </div>
-      
       <!-- OVERVIEW TAB -->
       <div class="tab-pane" *ngIf="activeTab === 'overview' && context" style="display: block;">
         <section class="info-section">
-          <h6 class="section-title">Datos Generales</h6>
-          <div class="info-row">
-            <span class="label">Email:</span>
-            <span class="value">{{ context.identifier }}</span>
+          <h6 class="section-title">
+            <i class="fas fa-user-circle"></i>
+            Datos del Cliente
+          </h6>
+          <div class="info-row" *ngIf="context.name || context.surname">
+            <span class="label"><i class="fas fa-user"></i> Nombre:</span>
+            <span class="value">{{ (context.name || '') + (context.surname ? ' ' + context.surname : '') || 'N/A' }}</span>
           </div>
           <div class="info-row">
-            <span class="label">Tipo:</span>
+            <span class="label"><i class="fas fa-envelope"></i> Email:</span>
+            <span class="value">{{ context.email || context.identifier || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label"><i class="fas fa-id-badge"></i> Tipo:</span>
             <span class="value">{{ context.type === 'user' ? 'Usuario registrado' : 'Invitado' }}</span>
+          </div>
+          <div class="info-row" *ngIf="context.phone">
+            <span class="label"><i class="fas fa-phone"></i> Teléfono:</span>
+            <span class="value">{{ context.phone }}</span>
+          </div>
+        </section>
+
+        <!-- Sección de dirección (solo si hay datos) -->
+        <section class="info-section mt-3" *ngIf="context.address || context.city || context.zipcode || context.country">
+          <h6 class="section-title">
+            <i class="fas fa-map-marker-alt"></i>
+            Dirección
+          </h6>
+          <div class="info-row" *ngIf="context.address">
+            <span class="label"><i class="fas fa-home"></i> Dirección:</span>
+            <span class="value">{{ context.address }}</span>
+          </div>
+          <div class="info-row" *ngIf="context.city">
+            <span class="label"><i class="fas fa-city"></i> Ciudad:</span>
+            <span class="value">{{ context.city }}</span>
+          </div>
+          <div class="info-row" *ngIf="context.zipcode">
+            <span class="label"><i class="fas fa-mail-bulk"></i> Código Postal:</span>
+            <span class="value">{{ context.zipcode }}</span>
+          </div>
+          <div class="info-row" *ngIf="context.country">
+            <span class="label"><i class="fas fa-flag"></i> País:</span>
+            <span class="value">{{ context.country }}</span>
           </div>
         </section>
 
         <section class="info-section mt-3">
-          <h6 class="section-title">Estadísticas</h6>
+          <h6 class="section-title">
+            <i class="fas fa-chart-line"></i>
+            Estadísticas
+          </h6>
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-icon">💰</div>
@@ -234,17 +272,125 @@
         </app-tracking-tab>
       </div>
 
+      <!-- ✅ FASE 2B: ASISTENTE IA TAB -->
+      <div class="tab-pane assistant-tab" *ngIf="activeTab === 'assistant'" style="display: block;">
+        
+        <!-- Contenido del Panel Inteligente -->
+        <div class="ai-assistant-panel" 
+             [ngClass]="'intent-' + (aiAssistantData?.intent?.type || 'default').toLowerCase()"
+             *ngIf="aiAssistantData && aiAssistantData.templates && aiAssistantData.templates.length > 0">
+          
+          <!-- Header -->
+          <div class="panel-header">
+            <div class="title">
+              <i class="fas fa-magic text-warning me-2"></i>
+              <strong>Respuestas Sugeridas</strong>
+              <span class="badge badge-primary ms-2">
+                {{ aiAssistantData.templates.length }} plantilla<span *ngIf="aiAssistantData.templates.length > 1">s</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Template Selector (Chips) -->
+          <div class="template-selector" *ngIf="aiAssistantData.templates.length > 1">
+            <div 
+              *ngFor="let template of aiAssistantData.templates; let i = index" 
+              class="template-chip"
+              [class.selected]="aiAssistantData.selectedIndex === i"
+              (click)="onTemplateSelect(i)">
+              <span class="chip-icon" [ngClass]="'chip-' + template.type">
+                <i class="fas" [ngClass]="{
+                  'fa-box': template.type === 'default',
+                  'fa-truck': template.type === 'tracking',
+                  'fa-exclamation-triangle': template.type === 'delay',
+                  'fa-times-circle': template.type === 'cancel',
+                  'fa-undo': template.type === 'return'
+                }"></i>
+              </span>
+              <span class="chip-label">{{ getTemplateLabel(template.type) }}</span>
+              <span class="chip-confidence">{{ (template.confidence * 100).toFixed(0) }}%</span>
+            </div>
+          </div>
+
+          <!-- Selected Template Preview -->
+          <div class="panel-body" *ngIf="aiAssistantData.selectedIndex !== null && aiAssistantData.templates[aiAssistantData.selectedIndex]">
+            <div class="template-preview">
+              <!-- Texto Técnico (Admin) -->
+              <div class="preview-section mb-3">
+                <div class="preview-label">
+                  <small class="text-muted">
+                    <i class="fas fa-user-shield me-1"></i><strong>Vista técnica (Admin):</strong>
+                  </small>
+                </div>
+                <div class="suggested-message admin-view">
+                  <pre>{{ aiAssistantData.templates[aiAssistantData.selectedIndex].text }}</pre>
+                </div>
+              </div>
+
+              <!-- Texto Sugerido para Cliente (si existe) -->
+              <div class="preview-section" *ngIf="aiAssistantData.templates[aiAssistantData.selectedIndex].customerFriendlyText">
+                <div class="preview-label">
+                  <small class="text-muted">
+                    <i class="fas fa-comment-dots me-1"></i><strong>Sugerencia para el cliente:</strong>
+                  </small>
+                </div>
+                <div class="suggested-message customer-view">
+                  <pre>{{ aiAssistantData.templates[aiAssistantData.selectedIndex].customerFriendlyText }}</pre>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="action-buttons mt-3" *ngIf="aiAssistantData.templates[aiAssistantData.selectedIndex].actionButtons?.length">
+                <small class="text-muted d-block mb-2">
+                  <i class="fas fa-mouse-pointer"></i> <strong>Acciones rápidas:</strong>
+                </small>
+                <div class="btn-group btn-group-sm">
+                  <button 
+                    *ngFor="let btn of aiAssistantData.templates[aiAssistantData.selectedIndex].actionButtons" 
+                    class="btn"
+                    [ngClass]="'btn-light-' + btn.variant"
+                    title="{{ btn.label }}">
+                    {{ btn.label }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions Footer -->
+          <div class="panel-actions">
+            <button 
+              class="btn btn-sm btn-light-primary" 
+              (click)="onInsertTemplate()"
+              [disabled]="aiAssistantData.selectedIndex === null"
+              title="Insertar en editor">
+              <i class="fas fa-edit me-1"></i> Insertar
+            </button>
+            
+            <button 
+              class="btn btn-sm btn-success" 
+              (click)="onSendTemplate()"
+              [disabled]="aiAssistantData.selectedIndex === null"
+              title="Enviar directamente">
+              <i class="fas fa-paper-plane me-1"></i> Enviar
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado vacío -->
+        <div class="ai-assistant-empty" *ngIf="!aiAssistantData || !aiAssistantData.templates || aiAssistantData.templates.length === 0">
+          <p class="text-muted text-center py-4">
+            <i class="fas fa-magic fa-2x mb-3 d-block"></i>
+            El asistente IA se activará automáticamente cuando detecte intenciones del cliente.
+          </p>
+          <p class="text-muted text-center small">
+            Detecta: Estado del pedido, Tracking, Problemas de entrega, Cancelaciones, etc.
+          </p>
+        </div>
+      </div>
+
     </div>
 
-  </div>
-
-  <!-- Collapsed state indicator -->
-  <div class="collapsed-indicator" *ngIf="isCollapsed && context">
-    <div class="indicator-content">
-      <i class="fas fa-user-circle fa-2x text-muted mb-2"></i>
-      <small class="text-muted d-block">Info</small>
-      <small class="text-muted d-block">Cliente</small>
-    </div>
   </div>
 
 </div>

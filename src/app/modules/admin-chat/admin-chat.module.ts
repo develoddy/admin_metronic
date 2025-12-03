@@ -14,6 +14,9 @@ import { TrackingTabComponent } from './components/tracking-tab/tracking-tab.com
 // Pipes
 import { FirstLetterPipe } from './firstLetter.pipe';
 
+// Directives
+import { ClickOutsideDirective } from './directives/click-outside.directive';
+
 // Modules compartidos
 import { UsersSharedModule } from '../users/users-shared.module';
 import { AdminSalesSharedModule } from '../admin-sales/admin-sales-shared.module';
@@ -34,7 +37,8 @@ import { AutoResponseService } from './services/auto-response.service';
     ConversationDetailComponent,
     CustomerContextPanelComponent,
     FirstLetterPipe,
-    TrackingTabComponent
+    TrackingTabComponent,
+    ClickOutsideDirective
   ],
   imports: [
     CommonModule,

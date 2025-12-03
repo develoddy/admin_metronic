@@ -10,6 +10,16 @@ export interface CustomerContext {
   returns: any[]; // Return[] (simplificado por ahora)
   stats: CustomerStats;
   type: 'user' | 'guest';
+  // Datos del usuario/guest
+  name?: string;
+  surname?: string;
+  email?: string;
+  phone?: string;
+  zipcode?: string;
+  // Datos de dirección
+  address?: string;
+  city?: string;
+  country?: string;
 }
 
 export interface OrderWithPrintful {

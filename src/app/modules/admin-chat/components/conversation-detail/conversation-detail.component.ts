@@ -50,6 +50,10 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
   showAutoResponsePanel = false;
   isGeneratingResponse = false;
 
+  // ✅ FASE 2B: Datos para el panel IA en el sidebar
+  aiAssistantPanelData: any = null;
+  @ViewChild('contextSidebar') contextSidebar: any;
+
   constructor(
     private router: Router,
     public chat: AdminChatService,
@@ -481,6 +485,41 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
     return ((this.selected?.user_name ?? "U") + "").slice(0, 1).toUpperCase();
   }
 
+  /**
+   * Obtiene el nombre de visualización del usuario para mostrar en el header
+   * Prioridad: user_name > guest_name > "Usuario #user_id" > "Invitado #guest_id" > "Conversación #id"
+   */
+  getUserDisplayName(conversation: any): string {
+    if (!conversation) return 'Sin nombre';
+    
+    // Prioridad 1: user_name del backend (nombre completo del usuario)
+    if (conversation.user_name) {
+      return conversation.user_name;
+    }
+    
+    // Prioridad 2: guest_name del backend
+    if (conversation.guest_name) {
+      return conversation.guest_name;
+    }
+    
+    // Prioridad 3: Si tiene user_id, mostrar como "Usuario #123"
+    if (conversation.user_id) {
+      return `Usuario #${conversation.user_id}`;
+    }
+    
+    // Prioridad 4: Si tiene guest_id, mostrar como "Invitado"
+    if (conversation.guest_id) {
+      // Si es un UUID/string largo, solo mostrar "Invitado"
+      if (typeof conversation.guest_id === 'string' && conversation.guest_id.length > 10) {
+        return 'Invitado';
+      }
+      return `Invitado #${conversation.guest_id}`;
+    }
+    
+    // Fallback: mostrar ID de conversación
+    return `Conversación #${conversation.id}`;
+  }
+
   send() {
     if (!this.newMessage || !this.selected) return;
     this.chat.sendAgentMessage(this.selected, this.newMessage);
@@ -892,9 +931,29 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
         this.selectedTemplateIndex = 0; // Seleccionar primera por defecto
         this.showAutoResponsePanel = true;
         this.isGeneratingResponse = false; // ✅ FIX: Resetear antes para que UI se actualice
+        
+        // ✅ FASE 2B: Actualizar datos del panel IA y auto-abrir tab "Asistente IA"
+        this.aiAssistantPanelData = {
+          intent: intent,
+          templates: templates,
+          selectedIndex: 0
+        };
+        
+        // Auto-abrir tab "Asistente IA" en el panel derecho
+        if (this.contextSidebar && this.contextSidebar.nativeElement) {
+          const panelComponent = this.contextSidebar.nativeElement.querySelector('app-customer-context-panel');
+          if (panelComponent) {
+            // Triggear cambio de tab mediante DOM (fallback si no hay referencia directa)
+            const assistantTab = panelComponent.querySelector('button[class*="assistant"]');
+            if (assistantTab) {
+              assistantTab.click();
+            }
+          }
+        }
+        
         this.cdr.detectChanges(); // ✅ Forzar detección de cambios inmediata
         
-        console.log(`[ConversationDetail] ✅ ${templates.length} plantillas generadas`);
+        console.log(`[ConversationDetail] ✅ ${templates.length} plantillas generadas y enviadas al panel IA`);
         
         // Si puede enviarse automáticamente y la configuración lo permite
         const config = this.autoResponseService.getConfig();
@@ -921,6 +980,10 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
    */
   selectTemplate(index: number): void {
     this.selectedTemplateIndex = index;
+    // ✅ FASE 2B: Sincronizar con aiAssistantPanelData
+    if (this.aiAssistantPanelData) {
+      this.aiAssistantPanelData.selectedIndex = index;
+    }
     console.log('[ConversationDetail] Plantilla seleccionada:', index);
   }
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CustomerContext } from '../../models/customer-context.model';
@@ -25,9 +25,14 @@ export class CustomerContextPanelComponent implements OnChanges, OnDestroy {
   @Input() context: CustomerContext | null = null;
   @Input() conversationId: number | null = null;
   @Input() conversation: any = null; // Conversación completa para enviar mensajes
+  @Input() aiAssistantData: any = null; // ✅ FASE 2B: Datos del panel inteligente
   
-  activeTab: 'overview' | 'orders' | 'returns' | 'tracking' = 'overview';
-  isCollapsed = false;
+  // ✅ FASE 2B: Outputs para comunicación con conversation-detail
+  @Output() templateSelected = new EventEmitter<number>();
+  @Output() templateInserted = new EventEmitter<void>();
+  @Output() templateSent = new EventEmitter<void>();
+  
+  activeTab: 'overview' | 'orders' | 'returns' | 'tracking' | 'assistant' = 'overview';
 
   // FASE 2A: Control de tracking y Printful
   selectedOrderForTracking: any = null;
@@ -45,18 +50,25 @@ export class CustomerContextPanelComponent implements OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['context'] && changes['context'].currentValue) {
-      // Reset al tab overview cuando cambia el contexto
-      this.activeTab = 'overview';
-      this.isCollapsed = false;
+      // Reset al tab overview cuando cambia el contexto (solo si no hay intent activo)
+      if (!this.hasActiveIntent()) {
+        this.activeTab = 'overview';
+      }
       this.selectedOrderForTracking = null;
-      console.log('[CustomerContextPanel] Contexto actualizado:', this.context);
-      console.log('[CustomerContextPanel] activeTab:', this.activeTab);
-      console.log('[CustomerContextPanel] Stats:', this.context?.stats);
       
       // FASE 2A: Cargar datos de Printful para órdenes activas
       this.loadPrintfulDataForOrders();
       
       this.cd.detectChanges();
+    }
+
+    // ✅ FASE 2B: Auto-abrir tab "Asistente IA" cuando llegan nuevos datos del intent
+    if (changes['aiAssistantData'] && changes['aiAssistantData'].currentValue) {
+      if (this.aiAssistantData && this.aiAssistantData.templates && this.aiAssistantData.templates.length > 0) {
+        console.log('[CustomerContextPanel] 🤖 Intent detectado, abriendo tab Asistente IA...');
+        this.activeTab = 'assistant';
+        this.cd.detectChanges();
+      }
     }
   }
 
@@ -65,19 +77,43 @@ export class CustomerContextPanelComponent implements OnChanges, OnDestroy {
     this.destroy$.complete();
   }
 
-  setActiveTab(tab: 'overview' | 'orders' | 'returns' | 'tracking'): void {
+  setActiveTab(tab: 'overview' | 'orders' | 'returns' | 'tracking' | 'assistant'): void {
     console.log('[CustomerContextPanel] Cambiando tab a:', tab);
     this.activeTab = tab;
     this.cd.detectChanges();
   }
 
-  isActive(tab: string): boolean {
-    return this.activeTab === tab;
+  // ✅ FASE 2B: Método para verificar si hay intent activo
+  hasActiveIntent(): boolean {
+    return this.aiAssistantData && this.aiAssistantData.templates && this.aiAssistantData.templates.length > 0;
   }
 
-  toggleCollapse(): void {
-    this.isCollapsed = !this.isCollapsed;
-    this.cd.detectChanges();
+  // ✅ FASE 2B: Métodos del panel IA
+  onTemplateSelect(index: number): void {
+    this.templateSelected.emit(index);
+  }
+
+  onInsertTemplate(): void {
+    this.templateInserted.emit();
+  }
+
+  onSendTemplate(): void {
+    this.templateSent.emit();
+  }
+
+  getTemplateLabel(type: string): string {
+    const labels: any = {
+      'default': 'General',
+      'tracking': 'Tracking',
+      'delay': 'Retraso',
+      'cancel': 'Cancelación',
+      'return': 'Devolución'
+    };
+    return labels[type] || 'Plantilla';
+  }
+
+  isActive(tab: string): boolean {
+    return this.activeTab === tab;
   }
 
   /**

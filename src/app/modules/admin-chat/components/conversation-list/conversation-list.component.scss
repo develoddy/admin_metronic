@@ -1,60 +1,448 @@
-/* Conversation list — WhatsApp-like styling */
-/* Use a white background instead of transparent so list cards are readable on all layouts */
+// ========================================
+// CONVERSATION LIST - ENTERPRISE STYLE
+// Inspirado en Zendesk/Intercom
+// ========================================
 
-/* Make the contacts card a full-height column so header stays fixed and list can scroll */
-.card.card-flush {
-	background: #ffffff;
-	border: none;
-	border-right: 1px solid #ece7e7;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
+.contacts-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  border-right: 1px solid #e4e6ef;
 }
-.card-header { padding: 2rem 1rem; }
-.card-header .form-control { border-radius: 999px; padding-left: 40px; background: #fff; border: 1px solid #e6eef4; }
-.card-header .ki-magnifier { left: 14px; }
 
-.card .card-body { padding: 0rem 1rem !important; display:flex; flex-direction:column; flex:1 1 auto; }
+// ========================================
+// HEADER CON BÚSQUEDA
+// ========================================
 
-.chat-contacts { padding: 8px; }
-.chat-contacts .filters { display:flex; gap:8px; justify-content:space-between; margin-bottom: 8px; }
-.chat-contacts .filters .btn { border-radius: 999px; padding:6px 10px; background:transparent; border:1px solid transparent; color:#6b7680; }
-.chat-contacts .filters .btn.active { background:#e6f9ee; color:#083a20; border-color: #d8f0de; }
+.contacts-header {
+  padding: 16px;
+  border-bottom: 1px solid #e4e6ef;
+  background: #fff;
+  flex-shrink: 0;
+}
 
-/* .scroll-y becomes the flexible scroll area inside the card body */
-.card .card-body .scroll-y { flex: 1 1 auto; overflow: auto; -webkit-overflow-scrolling: touch; }
-.scroll-y .d-flex { padding: 0px 5px; align-items:flex-start; gap:5px; }
-// .scroll-y .d-flex:hover { background: rgba(11,107,58,0.03); }
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 
-.symbol.symbol-45px { width:45px; height:45px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:#fff; box-shadow: 0 1px 0 rgba(16,24,40,0.02); }
-.symbol-label { font-weight:700; color:#0b6b3a; }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 14px;
+    color: #7e8299;
+    pointer-events: none;
+  }
 
-.contact-details { display:flex; flex-direction:column; min-width:0; }
-.contact-details .fw-bold { font-size:14px; color:#0b1820; }
-.contact-details .fw-semibold { font-size:13px; color:#6b7680; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+  .search-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 40px 0 40px;
+    border: 1px solid #e4e6ef;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #181c32;
+    background: #f5f8fa;
+    transition: all 0.2s ease;
 
-.contact-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; min-width:60px; }
-.contact-right .text-muted { font-size:12px; color:#98a0a8; }
-.badge-light-danger { background:#ff6b6b; color:#fff; padding:4px 8px; border-radius:12px; font-size:12px; }
+    &::placeholder {
+      color: #a1a5b7;
+    }
 
-/* Make list rows more spacious and touch-friendly */
-// .scroll-y .d-flex {  border-bottom:1px solid rgba(16,24,40,0.04); }
+    &:focus {
+      outline: none;
+      border-color: #009ef7;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(0, 158, 247, 0.1);
+    }
+  }
 
-/* Responsive rules */
+  .results-count {
+    position: absolute;
+    right: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7e8299;
+    background: #f5f8fa;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+}
+
+// ========================================
+// FILTROS HORIZONTALES
+// ========================================
+
+.filters-bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e4e6ef;
+  background: #f9fafb;
+  flex-shrink: 0;
+
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid #e4e6ef;
+    border-radius: 6px;
+    background: #fff;
+    color: #7e8299;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background: #f5f8fa;
+      border-color: #d1d5dc;
+      color: #181c32;
+    }
+
+    &.active {
+      background: #e1f0ff;
+      border-color: #009ef7;
+      color: #009ef7;
+      font-weight: 600;
+    }
+
+    .count {
+      font-size: 11px;
+      padding: 2px 6px;
+      background: rgba(0, 158, 247, 0.1);
+      border-radius: 10px;
+      font-weight: 600;
+    }
+  }
+}
+
+// ========================================
+// ESTADO VACÍO
+// ========================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 48px;
+    color: #d1d5dc;
+    margin-bottom: 16px;
+  }
+
+  .empty-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #3f4254;
+    margin: 0 0 8px 0;
+  }
+
+  .empty-hint {
+    font-size: 13px;
+    color: #a1a5b7;
+    margin: 0;
+  }
+}
+
+// ========================================
+// LISTA DE CONVERSACIONES
+// ========================================
+
+.conversations-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  // Scrollbar personalizado
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f5f8fa;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5dc;
+    border-radius: 3px;
+
+    &:hover {
+      background: #a1a5b7;
+    }
+  }
+}
+
+.conversation-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f5f8fa;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+
+  &:hover {
+    background: #f9fafb;
+  }
+
+  &.selected {
+    background: #e1f0ff;
+    border-left: 3px solid #009ef7;
+    padding-left: 13px;
+
+    .conv-name {
+      color: #009ef7;
+      font-weight: 600;
+    }
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.conv-main {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+// ========================================
+// AVATAR
+// ========================================
+
+.avatar {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+
+  .avatar-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+  }
+
+  .status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #50cd89;
+    border: 2px solid #fff;
+  }
+}
+
+// ========================================
+// INFO DE CONVERSACIÓN
+// ========================================
+
+.conv-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.conv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+
+  .conv-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #181c32;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .conv-time {
+    font-size: 11px;
+    color: #a1a5b7;
+    flex-shrink: 0;
+  }
+}
+
+.conv-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+
+  .preview-text {
+    font-size: 13px;
+    color: #7e8299;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+}
+
+// ========================================
+// BADGES
+// ========================================
+
+.conv-badges {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 2px 6px;
+
+    &.badge-unread {
+      background: #f1416c;
+      color: #fff;
+      min-width: 20px;
+    }
+
+    &.badge-order {
+      background: #e1f0ff;
+      color: #009ef7;
+
+      i {
+        font-size: 10px;
+      }
+
+      &[data-status="shipped"] {
+        background: #e8f5e9;
+        color: #1bc5bd;
+      }
+
+      &[data-status="delivered"] {
+        background: #e8f5e9;
+        color: #50cd89;
+      }
+    }
+
+    &.badge-return {
+      background: #fff4e6;
+      color: #ffa800;
+
+      i {
+        font-size: 10px;
+      }
+    }
+  }
+}
+
+// ========================================
+// RESUMEN DE PEDIDO
+// ========================================
+
+.order-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #f9fafb;
+  border-radius: 6px;
+  margin-top: 4px;
+
+  .order-icon {
+    font-size: 11px;
+    color: #a1a5b7;
+  }
+
+  .order-text {
+    font-size: 11px;
+    color: #7e8299;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .order-status {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+
+    &[data-status="pending"] {
+      background: #fff4e6;
+      color: #ffa800;
+    }
+
+    &[data-status="processing"] {
+      background: #e1f0ff;
+      color: #009ef7;
+    }
+
+    &[data-status="shipped"] {
+      background: #e8f5e9;
+      color: #1bc5bd;
+    }
+
+    &[data-status="delivered"] {
+      background: #e8f5e9;
+      color: #50cd89;
+    }
+  }
+}
+
+// ========================================
+// RESPONSIVE
+// ========================================
+
 @media (max-width: 767.98px) {
-	/* Sidebar becomes full-width; rows wrap and previews are multi-line */
-	.flex-column.flex-lg-row-auto { width:100% !important; }
-	.card { border-radius: 0; }
-	.card-body { padding: 8px; }
-	.scroll-y { max-height: calc(100vh - 160px); }
-	.contact-details .fw-semibold { white-space: normal; max-width: 100%; }
-	.contact-right { min-width: 48px; }
-}
+  .contacts-header {
+    padding: 12px;
+  }
 
-@media (min-width: 768px) {
-	.scroll-y { max-height: 72vh; }
-}
+  .filters-bar {
+    padding: 8px 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 
-/* small visual helpers */
-.cursor-pointer { cursor: pointer; }
-.hover\:bg-light:hover { background: #f1f1f45e; border-radius: 10px; }
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .conversation-item {
+    padding: 10px 12px;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+
+    .avatar-text {
+      font-size: 14px;
+    }
+  }
+
+  .order-summary {
+    flex-wrap: wrap;
+  }
+}

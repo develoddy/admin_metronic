@@ -101,4 +101,52 @@ export class ConversationListComponent implements OnInit, OnDestroy {
   take(conv: any) {
     this.chat.takeConversation(conv);
   }
+
+  // ✅ Helpers para mostrar datos correctamente en la lista
+  getUserName(conv: any): string {
+    if (!conv) return 'Sin nombre';
+    
+    // Prioridad 1: user_name del backend (nombre completo del usuario)
+    if (conv.user_name) {
+      return conv.user_name;
+    }
+    
+    // Prioridad 2: guest_name del backend
+    if (conv.guest_name) {
+      return conv.guest_name;
+    }
+    
+    // Prioridad 3: Si tiene user_id, mostrar como "Usuario #123"
+    if (conv.user_id) {
+      return `Usuario #${conv.user_id}`;
+    }
+    
+    // Prioridad 4: Si tiene guest_id, mostrar como "Invitado"
+    if (conv.guest_id) {
+      // Si es un UUID/string largo, solo mostrar "Invitado"
+      if (typeof conv.guest_id === 'string' && conv.guest_id.length > 10) {
+        return 'Invitado';
+      }
+      return `Invitado #${conv.guest_id}`;
+    }
+    
+    // Fallback: mostrar ID de conversación
+    return `Conversación #${conv.id}`;
+  }
+
+  getLastMessage(conv: any): string {
+    if (conv.last_message) return conv.last_message;
+    if (conv.messages && conv.messages.length > 0) {
+      return conv.messages[conv.messages.length - 1].message;
+    }
+    return 'Sin mensajes';
+  }
+
+  getUnreadCount(conv: any): number {
+    return conv.unread_count || 0;
+  }
+
+  hasActiveOrder(conv: any): boolean {
+    return !!(conv.lastOrderTotal || conv.orderStatus);
+  }
 }

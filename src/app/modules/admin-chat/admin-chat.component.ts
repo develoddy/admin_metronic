@@ -11,27 +11,53 @@ import { Router } from '@angular/router';
 export class AdminChatComponent implements OnInit, OnDestroy {
   subs: Subscription[] = [];
   
-  activeTab: string = 'chat'; // Controla el tab activo
+  // ✅ FASE 2B: Control de drawer de contactos (responsive)
+  contactsDrawerOpen: boolean = false;
+  contextSidebarOpen: boolean = false;
 
   constructor(public chat: AdminChatService, private router: Router) { }
 
   ngOnInit(): void {
     this.chat.connect();
     this.chat.loadActiveConversations();
+    
+    // ✅ Auto-detectar si debe mostrar drawer abierto en desktop grande
+    this.checkScreenSize();
+    window.addEventListener('resize', () => this.checkScreenSize());
   }
 
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
     this.chat.disconnect();
+    window.removeEventListener('resize', () => this.checkScreenSize());
   }
 
-  // Cambiar el tab (solo Angular, sin reload)
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
+  // ✅ FASE 2B: Toggle drawer de contactos
+  toggleContactsDrawer(): void {
+    this.contactsDrawerOpen = !this.contactsDrawerOpen;
+    
+    // ✅ Collision management: En pantallas medias (1200-1399px), si abrimos contactos, cerramos el panel derecho
+    if (this.contactsDrawerOpen && window.innerWidth >= 1200 && window.innerWidth < 1400 && this.contextSidebarOpen) {
+      this.contextSidebarOpen = false;
+    }
   }
 
-  // Saber si un tab está activo (para estilos)
-  isActive(tab: string): boolean {
-    return this.activeTab === tab;
+  // ✅ Handler para cuando el panel de contexto se abre/cierra
+  onContextSidebarToggle(isOpen: boolean): void {
+    this.contextSidebarOpen = isOpen;
+    
+    // ✅ Collision management: En pantallas medias, si abrimos panel derecho, cerramos contactos
+    if (this.contextSidebarOpen && window.innerWidth >= 1200 && window.innerWidth < 1400 && this.contactsDrawerOpen) {
+      this.contactsDrawerOpen = false;
+    }
+  }
+
+  // ✅ Auto-detectar tamaño de pantalla
+  private checkScreenSize(): void {
+    if (window.innerWidth >= 1400) {
+      this.contactsDrawerOpen = true; // Desktop grande: siempre visible
+    } else {
+      this.contactsDrawerOpen = false; // Responsive: cerrado por defecto
+    }
   }
 }

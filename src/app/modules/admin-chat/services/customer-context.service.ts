@@ -36,6 +36,7 @@ export class CustomerContextService {
     return forkJoin({
       sales: this.loadSales(identifier),
       returns: this.loadReturns(identifier),
+      userData: this.loadUserData(identifier, type)
     }).pipe(
       map(data => {
         const activeOrders = this.filterActiveOrders(data.sales);
@@ -48,7 +49,16 @@ export class CustomerContextService {
           activeOrders,
           completedOrders,
           returns: data.returns,
-          stats
+          stats,
+          // Agregar datos del usuario/guest
+          name: data.userData.name,
+          surname: data.userData.surname,
+          email: data.userData.email,
+          phone: data.userData.phone,
+          zipcode: data.userData.zipcode,
+          address: data.userData.address,
+          city: data.userData.city,
+          country: data.userData.country
         };
       }),
       catchError(error => {
@@ -182,6 +192,60 @@ export class CustomerContextService {
       
       return false;
     });
+  }
+
+  /**
+   * Carga datos del usuario/guest desde el backend
+   */
+  private loadUserData(identifier: string, type: 'user' | 'guest'): Observable<any> {
+    return this.usersService.allUsers('').pipe(
+      map((resp: any) => {
+        const users = resp.users || [];
+        const user = users.find((u: any) => u.email === identifier);
+        
+        if (user) {
+          // Buscar dirección del usuario (si tiene)
+          // Por ahora, devolvemos solo los datos básicos del User
+          return {
+            name: user.name || '',
+            surname: user.surname || '',
+            email: user.email || identifier,
+            phone: user.phone || '',
+            zipcode: user.zipcode || '',
+            // Estos campos vienen de AddressClient, por ahora vacíos
+            // TODO: Implementar carga de AddressClient si es necesario
+            address: '',
+            city: '',
+            country: ''
+          };
+        }
+        
+        // Si no se encuentra, devolver datos vacíos
+        return {
+          name: '',
+          surname: '',
+          email: identifier,
+          phone: '',
+          zipcode: '',
+          address: '',
+          city: '',
+          country: ''
+        };
+      }),
+      catchError(err => {
+        console.error('[CustomerContextService] Error loading user data:', err);
+        return of({
+          name: '',
+          surname: '',
+          email: identifier,
+          phone: '',
+          zipcode: '',
+          address: '',
+          city: '',
+          country: ''
+        });
+      })
+    );
   }
 
   /**

@@ -6,7 +6,14 @@ import { AdminChatComponent } from './admin-chat.component';
 const routes: Routes = [
   {
     path: '',
-    component: AdminChatComponent
+    component: AdminChatComponent,
+    data: {
+      layout: {
+        contentExtended: true, // ✅ Usa layout extendido (sin container limitado)
+        subheader: { display: false }, // ✅ Oculta subheader de Metronic
+        footer: { display: false } // ✅ Oculta footer
+      }
+    }
   }
 ];
 

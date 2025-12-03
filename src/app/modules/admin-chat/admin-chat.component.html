@@ -11,88 +11,22 @@
 
 
 
-<!--begin::Content-->
-<div class="content flex-column-fluid p-0" id="kt_content">
-    <!--begin::Toolbar-->
-    <div class="toolbar d-flex flex-stack flex-wrap mb-5 mb-lg-7" id="kt_toolbar">
-        <!--begin::Page title-->
-        <div class="page-title d-flex flex-column py-1">
-            <!--begin::Title-->
-            <h1 class="d-flex align-items-center my-1">
-                <span class="text-gray-900 fw-bold fs-1">Chat Lujandev </span>
-            </h1>
-            <!--end::Title-->
-
-            <!--begin::Tabs Section-->
-            <ul class="breadcrumb breadcrumb-separatorless nav nav-tabs nav-line-tabs fw-semibold fs-7 my-1">
-
-
-                <li class="nav-item breadcrumb-item">
-                    <button
-                    type="button"
-                    class="nav-link"
-                    [class.active]="isActive('chat')"
-                    (click)="setActiveTab('chat')"
-                    >
-                    Chat
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button
-                    type="button"
-                    class="nav-link"
-                    [class.active]="isActive('users')"
-                    (click)="setActiveTab('users')"
-                    >
-                    Usuarios
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button
-                    type="button"
-                    class="nav-link"
-                    [class.active]="isActive('products')"
-                    (click)="setActiveTab('products')"
-                    >
-                    Productos
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button
-                    type="button"
-                    class="nav-link"
-                    [class.active]="isActive('sales')"
-                    (click)="setActiveTab('sales')"
-                    >
-                    Ventas
-                    </button>
-                </li>
-
-                <li class="nav-item">
-                    <button
-                    type="button"
-                    class="nav-link"
-                    [class.active]="isActive('returns')"
-                    (click)="setActiveTab('returns')"
-                    >
-                    Devoluciones
-                    </button>
-                </li>
-
-            </ul>
-            <!--end::Tabs Section-->
+<!-- ✅ FASE 2B: Layout Profesional limpio (sin wrappers pesados de Metronic) -->
+<div class="admin-chat-wrapper">
+    <!-- Header limpio profesional (solo título, sin tabs antiguos) -->
+    <div class="chat-header-bar">
+        <div class="header-left">
+            <button class="toggle-contacts-btn" (click)="toggleContactsDrawer()" 
+                    *ngIf="!contactsDrawerOpen" 
+                    title="Mostrar contactos">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="header-title">Chat Lujandev</h1>
         </div>
-        <!--end::Page title-->
-        <!--begin::Actions-->
-        <div class="d-flex align-items-center py-1">
-            <!--begin::Button-->
-            <a href="#" class="btn btn-flex btn-sm btn-primary fw-bold border-0 fs-6 h-40px" data-bs-toggle="modal" data-bs-target="#kt_modal_create_campaign" id="kt_toolbar_primary_button">
-                Create </a>
-            <!--end::Button-->
+        <div class="header-right">
+            <span class="header-subtitle">Panel de atención al cliente</span>
         </div>
-        <!--end::Actions-->
     </div>
-    <!--end::Toolbar-->
 
 
     <!--  -->
@@ -101,46 +35,23 @@
 
 
     <!--begin::Post-->
-    <div class="post" id="kt_post">
-        <div class="tab-content" id="adminChatTabs">
-            <!-- CHAT TAB -->
-            <div *ngIf="isActive('chat')" class="tab-pane show active"><!-- <div class="tab-pane fade show active" id="tab_chat"> -->
-                <!--begin::Layout-->
-                <div class="d-flex flex-column flex-lg-row">
-                    <!--begin::Sidebar-->
-                    <div class="chat-list">
-                        <app-conversation-list></app-conversation-list>
-                    </div>
-                    <!--end::Sidebar-->
-                    
-                    <!--begin::Content-->
-                    <div class="chat-detail">
-                        <app-conversation-detail></app-conversation-detail>
-                    </div>
-                    <!--end::Content-->
-                </div>
-                <!--end::Layout-->
-            </div>
-
-            <!-- USERS TAB -->
-            <div *ngIf="isActive('users')" class="tab-pane show active">
-                <app-users-list></app-users-list>
-            </div>
-
-            <!-- PRODUCTS TAB -->
-            <div *ngIf="isActive('products')" class="tab-pane show active">
-                <app-list-products></app-list-products>
-            </div>
-
-            <!-- VENTAS TAB-->
-            <div *ngIf="isActive('sales')" class="tab-pane show active">
-                <app-sales-list></app-sales-list>
-            </div>
-
-            <!-- DEVOLUCIONES TAB-->
-            <div *ngIf="isActive('returns')" class="tab-pane show active">
-                <app-returns-list></app-returns-list>
-            </div>
+    <!-- ✅ Layout limpio: Chat siempre visible (sin tabs) -->
+    <div class="chat-container">
+        <!-- Overlay para cerrar drawer (solo móvil/tablet) -->
+        <div class="drawer-overlay" [class.active]="contactsDrawerOpen" (click)="toggleContactsDrawer()"></div>
+        
+        <!--begin::Sidebar (Contactos)-->
+        <div class="chat-list" [class.open]="contactsDrawerOpen">
+            <app-conversation-list></app-conversation-list>
+        </div>
+        <!--end::Sidebar-->
+        
+        <!--begin::Content (Chat Central)-->
+        <div class="chat-detail">
+            <app-conversation-detail></app-conversation-detail>
+        </div>
+        <!--end::Content-->
+    </div>
 
 
             <!--begin::Modals-->
@@ -1687,30 +1598,5 @@
                     <!--end::Modal dialog-->
                 </div>
             <!--end::Modal - Users Search--><!--end::Modals-->
-        </div>
-
-    </div>
-    <!--end::Post-->
 </div>
-<!--end::Content-->
-
-<!--begin::Footer-->
-<div class="footer pt-10 pb-5 d-flex flex-column flex-md-row flex-stack" id="kt_footer">
-    <!--begin::Copyright-->
-    <div class="text-gray-900 order-2 order-md-1">
-        <span class="text-muted fw-semibold me-1">2025©</span>
-        <a href="https://keenthemes.com" target="_blank" class="text-gray-800 text-hover-primary">Keenthemes</a>
-    </div>
-    <!--end::Copyright-->
-
-    <!--begin::Menu-->
-    <ul class="menu menu-gray-600 menu-hover-primary fw-semibold order-1">
-        <li class="menu-item"><a href="https://keenthemes.com" target="_blank" class="menu-link px-2">About</a></li>
-
-        <li class="menu-item"><a href="https://devs.keenthemes.com" target="_blank" class="menu-link px-2">Support</a></li>
-
-        <li class="menu-item"><a href="https://1.envato.market/EA4JP" target="_blank" class="menu-link ps-2 pe-0">Purchase</a></li>
-    </ul>
-    <!--end::Menu-->
-</div>
-<!--end::Footer-->
+<!-- Cierre del nuevo wrapper limpio admin-chat-wrapper -->
