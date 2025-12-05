@@ -50,6 +50,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { UsersSharedModule } from 'src/app/modules/users/users-shared.module';
 import { AdminSalesSharedModule } from 'src/app/modules/admin-sales/admin-sales-shared.module';
+// Fiscal Data Warning
+import { FiscalDataWarningComponent } from './fiscal-data-warning/fiscal-data-warning.component';
 
 
 
@@ -97,6 +99,8 @@ import { AdminSalesSharedModule } from 'src/app/modules/admin-sales/admin-sales-
     // Other
     Widget4DropdownComponent,
     Widget3DropdownComponent,
+    // Fiscal Data Warning
+    FiscalDataWarningComponent,
 
   ],
   imports: [
@@ -155,6 +159,8 @@ import { AdminSalesSharedModule } from 'src/app/modules/admin-sales/admin-sales-
     // Other
     Widget4DropdownComponent,
     Widget3DropdownComponent,
+    // Fiscal Data Warning
+    FiscalDataWarningComponent,
   ],
 })
 export class WidgetsModule { }
