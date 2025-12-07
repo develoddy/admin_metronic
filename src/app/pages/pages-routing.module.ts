@@ -189,6 +189,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'backups',
+        loadChildren: () =>
+          import('../modules/backups/backups.module').then(
+            (m) => m.BackupsModule
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',

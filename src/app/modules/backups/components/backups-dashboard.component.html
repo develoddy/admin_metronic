@@ -1,0 +1,621 @@
+<div class="d-flex flex-column flex-lg-row">
+  <div class="flex-column flex-lg-row-auto w-100">
+
+    <!-- Header -->
+    <div class="card mb-5 mb-xl-8">
+      <div class="card-header border-0 pt-6">
+        <div class="card-title">
+          <div class="d-flex align-items-center position-relative my-1">
+            <i class="ki-duotone ki-magnifier fs-1 position-absolute ms-6">
+              <span class="path1"></span>
+              <span class="path2"></span>
+            </i>
+            <input type="text" 
+                   [(ngModel)]="searchTerm" 
+                   (input)="onSearchChange()"
+                   class="form-control form-control-solid w-250px ps-15" 
+                   placeholder="Buscar backups...">
+          </div>
+        </div>
+        
+        <div class="card-toolbar">
+          <div class="d-flex justify-content-end" data-kt-docs-table-toolbar="base">
+            <!-- Crear Backup Manual -->
+            <button type="button" 
+                    class="btn btn-primary me-3"
+                    [disabled]="operationStatus?.isLoading"
+                    (click)="createManualBackup()"
+                    title="Crear un backup completo de la base de datos ahora"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top">
+              🛡️ Crear Backup
+            </button>
+            
+            <!-- Refresh -->
+            <button type="button" 
+                    class="btn btn-light-primary me-3"
+                    [disabled]="isLoadingBackups || isLoadingStatus"
+                    (click)="refresh()"
+                    title="Actualizar lista de backups y estado del sistema"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top">
+              <span *ngIf="isLoadingBackups || isLoadingStatus" class="spinner-border spinner-border-sm me-2"></span>
+              <span *ngIf="!isLoadingBackups && !isLoadingStatus">🔄</span>
+              Actualizar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado del Sistema -->
+    <div class="row g-6 g-xl-9 mb-6 mb-xl-9" *ngIf="backupStatus">
+      <div class="col-md-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="symbol symbol-40px me-3">
+                <div class="symbol-label bg-light-success">
+                  <i class="ki-duotone ki-shield-tick fs-2 text-success" *ngIf="isSystemHealthy">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                  </i>
+                  <i class="ki-duotone ki-cross-circle fs-2 text-danger" *ngIf="!isSystemHealthy">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                  </i>
+                </div>
+              </div>
+              <div class="d-flex flex-column">
+                <span class="fw-bold fs-6" [class]="systemStatusClass">
+                  {{ systemStatusText }}
+                </span>
+                <span class="text-muted fw-semibold">Estado del Sistema</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="symbol symbol-40px me-3">
+                <div class="symbol-label bg-light-primary">
+                  <i class="ki-duotone ki-timer fs-2 text-primary">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                    <span class="path3"></span>
+                  </i>
+                </div>
+              </div>
+              <div class="d-flex flex-column">
+                <span class="fw-bold fs-6 text-gray-800">
+                  {{ backupStatus.status.lastBackup ? formatDate(backupStatus.status.lastBackup.createdAt) : 'Sin backups' }}
+                </span>
+                <span class="text-muted fw-semibold">Último Backup</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="symbol symbol-40px me-3">
+                <div class="symbol-label bg-light-warning">
+                  <i class="ki-duotone ki-crown fs-2 text-warning">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                  </i>
+                </div>
+              </div>
+              <div class="d-flex flex-column">
+                <span class="fw-bold fs-6 text-gray-800" 
+                      [class.text-success]="backupStatus.status.cronConfigured"
+                      [class.text-danger]="!backupStatus.status.cronConfigured">
+                  {{ backupStatus.status.cronConfigured ? 'Configurado' : 'No configurado' }}
+                </span>
+                <span class="text-muted fw-semibold">Backup Automático</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Configuración Automática -->
+    <div class="row g-6 g-xl-9 mb-6 mb-xl-9">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">⚙️ Configuración Automática</h3>
+            <div class="card-toolbar">
+              <button 
+                class="btn btn-sm btn-primary me-2" 
+                (click)="setupAutomaticBackups()"
+                [disabled]="operationStatus?.isLoading"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="Configurar backups automáticos con cron job">
+                <span *ngIf="operationStatus?.operation === 'setup' && operationStatus?.isLoading" 
+                      class="spinner-border spinner-border-sm me-2" 
+                      role="status" 
+                      aria-hidden="true"></span>
+                🔄 Configurar
+              </button>
+              <button 
+                *ngIf="backupStatus?.status?.hasDuplicates"
+                class="btn btn-sm btn-warning me-2" 
+                (click)="cleanupCronDuplicates()"
+                [disabled]="operationStatus?.isLoading"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="Limpiar entradas duplicadas del cron job">
+                <span *ngIf="operationStatus?.operation === 'cleanup' && operationStatus?.isLoading" 
+                      class="spinner-border spinner-border-sm me-2" 
+                      role="status" 
+                      aria-hidden="true"></span>
+                🧹 Limpiar Duplicados
+              </button>
+              <button 
+                class="btn btn-sm btn-outline-info" 
+                (click)="viewBackupLogs()"
+                [disabled]="operationStatus?.isLoading"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top" 
+                title="Ver logs de backups automáticos">
+                <span *ngIf="operationStatus?.operation === 'logs' && operationStatus?.isLoading" 
+                      class="spinner-border spinner-border-sm me-2" 
+                      role="status" 
+                      aria-hidden="true"></span>
+                📋 Ver Logs
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <p class="text-muted mb-2">
+                  <strong>Estado:</strong> 
+                  <span *ngIf="backupStatus?.status?.cronConfigured && !backupStatus?.status?.hasDuplicates" class="badge badge-success ms-2">
+                    ✅ Configurado - Diario 2:00 AM
+                  </span>
+                  <span *ngIf="backupStatus?.status?.cronConfigured && backupStatus?.status?.hasDuplicates" class="badge badge-warning ms-2">
+                    ⚠️ Configurado con {{backupStatus?.status?.cronEntriesCount}} duplicados
+                  </span>
+                  <span *ngIf="!backupStatus?.status?.cronConfigured" class="badge badge-warning ms-2">
+                    ⚠️ No configurado
+                  </span>
+                </p>
+                <p class="text-muted mb-0">
+                  Configura backups automáticos para que se ejecuten diariamente sin intervención manual.
+                  Ideal para uso en producción donde necesitas backups regulares y confiables.
+                </p>
+                <div *ngIf="backupStatus?.status?.hasDuplicates" class="alert alert-warning mt-2 mb-2 py-2">
+                  <small>
+                    <strong>⚠️ Duplicados detectados:</strong> 
+                    Se encontraron {{backupStatus?.status?.cronEntriesCount}} entradas de cron idénticas.
+                    Esto puede causar ejecuciones múltiples simultáneas.
+                  </small>
+                </div>
+                <p class="text-muted mb-0 mt-2" *ngIf="backupStatus?.status?.nextExecution">
+                  <small>
+                    <strong>Próxima ejecución:</strong> 
+                    {{backupStatus?.status?.nextExecution}}
+                  </small>
+                </p>
+              </div>
+              <div class="col-md-4">
+                <div class="d-flex flex-column align-items-center text-center">
+                  <div class="symbol symbol-60px mb-3">
+                    <div class="symbol-label" [class.bg-light-success]="backupStatus?.status?.cronConfigured" 
+                         [class.bg-light-warning]="!backupStatus?.status?.cronConfigured">
+                      <span class="fs-2" *ngIf="backupStatus?.status?.cronConfigured">⏰</span>
+                      <span class="fs-2" *ngIf="!backupStatus?.status?.cronConfigured">⚠️</span>
+                    </div>
+                  </div>
+                  <span class="fw-bold fs-7 text-gray-600">
+                    {{ backupStatus?.status?.cronConfigured ? 'Sistema Automático' : 'Configuración Manual' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información del Cron Job -->
+    <div class="row g-6 g-xl-9 mb-6 mb-xl-9" *ngIf="backupStatus && backupStatus.status.cronConfigured">
+      <div class="col-12">
+        <div class="card border-primary">
+          <div class="card-header bg-light-primary">
+            <h3 class="card-title">📅 Información de Backups Automáticos</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="d-flex flex-column">
+                  <span class="fw-bold text-gray-900">📅 Horario</span>
+                  <span class="text-primary fs-6 fw-bold">{{ backupStatus.status.nextExecution || 'Diario a las 2:00 AM' }}</span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="d-flex flex-column">
+                  <span class="fw-bold text-gray-900">🔄 Frecuencia</span>
+                  <span class="text-muted fs-6 fw-semibold">Automático - Cada día</span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="d-flex flex-column">
+                  <span class="fw-bold text-gray-900">📊 Estado</span>
+                  <span class="badge badge-light-success fs-7" *ngIf="!backupStatus?.status?.hasDuplicates">✅ Funcionando</span>
+                  <span class="badge badge-light-warning fs-7" *ngIf="backupStatus?.status?.hasDuplicates">⚠️ Con duplicados</span>
+                </div>
+              </div>
+            </div>
+            <div class="separator my-4"></div>
+            <div class="row">
+              <div class="col-12">
+                <div class="alert alert-info d-flex align-items-center p-5">
+                  <i class="ki-duotone ki-information fs-2hx text-info me-4">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                    <span class="path3"></span>
+                  </i>
+                  <div class="d-flex flex-column">
+                    <h4 class="mb-1 text-info">Backups Automáticos Configurados</h4>
+                    <span>Los backups se ejecutan automáticamente según el horario configurado. Los archivos se guardan en formato comprimido (.sql.gz) para optimizar el espacio en disco.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advertencia si no hay cron configurado -->
+    <div class="row g-6 g-xl-9 mb-6 mb-xl-9" *ngIf="backupStatus && !backupStatus.status.cronConfigured">
+      <div class="col-12">
+        <div class="alert alert-warning d-flex align-items-center p-5">
+          <i class="ki-duotone ki-shield-slash fs-2hx text-warning me-4">
+            <span class="path1"></span>
+            <span class="path2"></span>
+          </i>
+          <div class="d-flex flex-column">
+            <h4 class="mb-1 text-warning">Backups Automáticos No Configurados</h4>
+            <span>Para configurar backups automáticos, ejecuta el script: <code>bash scripts/setup-backup-cron.sh</code></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row g-6 g-xl-9 mb-6 mb-xl-9" *ngIf="backupStats && backups.length > 0">
+      <div class="col-md-6 col-xl-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <div class="text-gray-900 fw-bold fs-2 mb-2 mt-5">
+              {{ backupStats.totalBackups }}
+            </div>
+            <div class="fw-semibold text-gray-400">Total Backups</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6 col-xl-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <div class="text-gray-900 fw-bold fs-2 mb-2 mt-5">
+              {{ backupStats.totalSizeFormatted }}
+            </div>
+            <div class="fw-semibold text-gray-400">Espacio Total</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6 col-xl-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <div class="text-gray-900 fw-bold fs-2 mb-2 mt-5">
+              {{ backupStats.averageSizeFormatted }}
+            </div>
+            <div class="fw-semibold text-gray-400">Tamaño Promedio</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6 col-xl-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <div class="text-gray-900 fw-bold fs-2 mb-2 mt-5">
+              {{ backupStats.oldestBackup ? formatDate(backupStats.oldestBackup.createdAt).split(' ')[0] : 'N/A' }}
+            </div>
+            <div class="fw-semibold text-gray-400">Backup Más Antiguo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Backups -->
+    <div class="card">
+      <div class="card-header border-0 pt-6">
+        <div class="card-title">
+          <h3 class="fw-bold m-0">
+            Backups Disponibles 
+            <span class="badge badge-light-primary ms-2" *ngIf="backups.length > 0">
+              {{ filteredBackups.length }}
+            </span>
+          </h3>
+        </div>
+        
+        <div class="card-toolbar">
+          <div class="d-flex align-items-center">
+            <!-- Loading indicator -->
+            <div class="spinner-border spinner-border-sm text-primary me-3" 
+                 *ngIf="operationStatus?.isLoading"></div>
+            
+            <!-- Operation status -->
+            <span class="badge badge-light-info me-3" 
+                  *ngIf="operationStatus?.operation && operationStatus?.isLoading">
+              {{ operationStatus.operation | titlecase }}...
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <!-- Loading State -->
+        <div class="text-center py-10" *ngIf="isLoadingBackups">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <div class="mt-3 text-muted">Cargando backups...</div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="text-center py-10" *ngIf="!isLoadingBackups && backups.length === 0">
+          <div class="mb-7">
+            <i class="ki-duotone ki-folder fs-3x text-primary">
+              <span class="path1"></span>
+              <span class="path2"></span>
+            </i>
+          </div>
+          <div class="fw-semibold fs-6 text-gray-500 mb-7">
+            No se encontraron backups disponibles
+          </div>
+          <button type="button" 
+                  class="btn btn-primary"
+                  (click)="createManualBackup()">
+            <i class="ki-duotone ki-plus fs-2"></i>
+            Crear Primer Backup
+          </button>
+        </div>
+
+        <!-- Backups Table -->
+        <div class="table-responsive" *ngIf="!isLoadingBackups && backups.length > 0">
+          <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4">
+            <thead>
+              <tr class="fw-bold text-muted">
+                <th class="min-w-200px cursor-pointer" (click)="changeSort('name')">
+                  <div class="d-flex align-items-center">
+                    Archivo
+                    <i class="ki-duotone ki-arrow-up fs-5 ms-1" 
+                       *ngIf="sortBy === 'name' && sortOrder === 'asc'">
+                      <span class="path1"></span>
+                      <span class="path2"></span>
+                    </i>
+                    <i class="ki-duotone ki-arrow-down fs-5 ms-1" 
+                       *ngIf="sortBy === 'name' && sortOrder === 'desc'">
+                      <span class="path1"></span>
+                      <span class="path2"></span>
+                    </i>
+                  </div>
+                </th>
+                <th class="min-w-150px cursor-pointer" (click)="changeSort('date')">
+                  <div class="d-flex align-items-center">
+                    Fecha
+                    <i class="ki-duotone ki-arrow-up fs-5 ms-1" 
+                       *ngIf="sortBy === 'date' && sortOrder === 'asc'">
+                      <span class="path1"></span>
+                      <span class="path2"></span>
+                    </i>
+                    <i class="ki-duotone ki-arrow-down fs-5 ms-1" 
+                       *ngIf="sortBy === 'date' && sortOrder === 'desc'">
+                      <span class="path1"></span>
+                      <span class="path2"></span>
+                    </i>
+                  </div>
+                </th>
+                <th class="min-w-100px cursor-pointer" (click)="changeSort('size')">
+                  <div class="d-flex align-items-center">
+                    Tamaño
+                    <i class="ki-duotone ki-arrow-up fs-5 ms-1" 
+                       *ngIf="sortBy === 'size' && sortOrder === 'asc'">
+                      <span class="path1"></span>
+                      <span class="path2"></span>
+                    </i>
+                    <i class="ki-duotone ki-arrow-down fs-5 ms-1" 
+                       *ngIf="sortBy === 'size' && sortOrder === 'desc'">
+                      <span class="path1"></span>
+                      <span class="path2"></span>
+                    </i>
+                  </div>
+                </th>
+                <th class="min-w-200px text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let backup of paginatedBackups; trackBy: trackByFilename">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="symbol symbol-45px me-5">
+                      <div class="symbol-label bg-light-primary">
+                        <i class="ki-duotone ki-folder fs-2 text-primary">
+                          <span class="path1"></span>
+                          <span class="path2"></span>
+                        </i>
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-start flex-column">
+                      <span class="text-dark fw-bold text-hover-primary fs-6">
+                        {{ backup.filename }}
+                      </span>
+                      <span class="text-muted fw-semibold text-muted d-block fs-7" *ngIf="backup.backupDate">
+                        {{ backup.backupDate }}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="d-flex flex-column w-100 me-2">
+                    <div class="d-flex flex-stack mb-2">
+                      <span class="text-muted me-2 fs-7 fw-bold">
+                        {{ formatDate(backup.createdAt) }}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge badge-light-info">
+                    {{ backup.sizeFormatted }}
+                  </span>
+                </td>
+                <td>
+                  <div class="d-flex justify-content-end flex-shrink-0">
+                    <!-- Descargar -->
+                    <button class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
+                            [disabled]="operationStatus?.isLoading"
+                            (click)="downloadBackup(backup)"
+                            title="Descargar backup a tu computadora"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top">
+                      💾
+                    </button>
+                    
+                    <!-- Restaurar -->
+                    <button class="btn btn-icon btn-bg-light btn-active-color-warning btn-sm me-1"
+                            [disabled]="operationStatus?.isLoading"
+                            (click)="showRestoreConfirmation(backup)"
+                            title="Restaurar base de datos desde este backup (⚠️ Acción irreversible)"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top">
+                      ⚡
+                    </button>
+                    
+                    <!-- Eliminar -->
+                    <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
+                            [disabled]="operationStatus?.isLoading"
+                            (click)="showDeleteConfirmation(backup)"
+                            title="Eliminar backup permanentemente (libera espacio en disco)"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top">
+                      ❌
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-5" 
+             *ngIf="!isLoadingBackups && filteredBackups.length > itemsPerPage">
+          <div class="text-muted">
+            Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+            {{ Math.min(currentPage * itemsPerPage, filteredBackups.length) }} 
+            de {{ filteredBackups.length }} backups
+          </div>
+          
+          <ul class="pagination">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="changePage(currentPage - 1)">
+                <i class="previous"></i>
+              </button>
+            </li>
+            
+            <li class="page-item" 
+                *ngFor="let page of getPages()"
+                [class.active]="page === currentPage">
+              <button class="page-link" (click)="changePage(page)">
+                {{ page }}
+              </button>
+            </li>
+            
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="changePage(currentPage + 1)">
+                <i class="next"></i>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal de Restauración -->
+<div class="modal fade" 
+     [class.show]="showRestoreModal" 
+     [style.display]="showRestoreModal ? 'block' : 'none'"
+     tabindex="-1" 
+     *ngIf="showRestoreModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">⚠️ Confirmar Restauración</h5>
+        <button type="button" class="btn-close" (click)="closeRestoreModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <div class="alert-text">
+            <strong>¡ADVERTENCIA!</strong> Esta acción reemplazará completamente la base de datos actual.
+          </div>
+        </div>
+        
+        <div *ngIf="selectedBackup">
+          <p><strong>Backup a restaurar:</strong></p>
+          <div class="bg-light p-3 rounded mb-3">
+            <div class="fw-bold">{{ selectedBackup.filename }}</div>
+            <div class="text-muted">Creado: {{ formatDate(selectedBackup.createdAt) }}</div>
+            <div class="text-muted">Tamaño: {{ selectedBackup.sizeFormatted }}</div>
+          </div>
+          
+          <p class="text-danger">
+            <i class="ki-duotone ki-information fs-1 text-danger">
+              <span class="path1"></span>
+              <span class="path2"></span>
+              <span class="path3"></span>
+            </i>
+            Se perderán todos los datos posteriores a esta fecha.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeRestoreModal()">
+          Cancelar
+        </button>
+        <button type="button" 
+                class="btn btn-danger" 
+                [disabled]="operationStatus?.isLoading"
+                (click)="executeRestore()">
+          <span class="spinner-border spinner-border-sm me-2" 
+                *ngIf="operationStatus?.isLoading && operationStatus?.operation === 'restore'"></span>
+          Confirmar Restauración
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop para modal -->
+<div class="modal-backdrop fade show" 
+     *ngIf="showRestoreModal"
+     (click)="closeRestoreModal()"></div>

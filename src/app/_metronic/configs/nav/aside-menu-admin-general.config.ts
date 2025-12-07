@@ -387,5 +387,23 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
+
+      /** --------- SECCION SISTEMA ---------*/
+      { section: 'Sistema' },
+      {
+        title: 'Backups MySQL',
+        root: true,
+        name: "backups",
+        bullet: 'dot',
+        icon: 'flaticon2-protection',
+        svg: './assets/media/svg/icons/Tools/Tools.svg',
+        page: '/backups',
+        submenu: [
+          {
+            title: 'Dashboard',
+            page: '/backups'
+          }
+        ]
+      },
     ]
 }
