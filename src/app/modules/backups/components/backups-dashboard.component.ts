@@ -30,6 +30,7 @@ export class BackupsDashboardComponent implements OnInit, OnDestroy {
   isLoading$ = new BehaviorSubject<boolean>(false);
   isLoadingBackups = false;
   isLoadingStatus = false;
+  isCreatingBackup = false;
   
   // Estados de la UI
   selectedBackup: Backup | null = null;
@@ -167,25 +168,71 @@ export class BackupsDashboardComponent implements OnInit, OnDestroy {
   }
 
   private executeManualBackup(): void {
+    // Mostrar loading inmediatamente
+    this.isCreatingBackup = true;
+    
+    // Mostrar SweetAlert con loading
+    Swal.fire({
+      title: 'Creando backup...',
+      html: `
+        <div class="text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Creando...</span>
+          </div>
+          <p class="mt-3 mb-1">Por favor espera mientras se crea el backup</p>
+          <small class="text-muted">Este proceso puede tomar algunos segundos</small>
+        </div>
+      `,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     this.backupsService.createManualBackup()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isCreatingBackup = false;
+        })
+      )
       .subscribe({
         next: (response) => {
           if (response.success) {
             Swal.fire({
-              title: 'Éxito',
-              text: 'Backup manual creado exitosamente',
+              title: '¡Backup creado exitosamente!',
+              html: `
+                <div class="text-center">
+                  <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+                  <p class="mb-2">El backup se ha creado correctamente</p>
+                  <small class="text-muted">Archivo: ${response.createdAt || 'Backup manual'}</small>
+                </div>
+              `,
               icon: 'success',
-              timer: 3000
+              timer: 4000,
+              timerProgressBar: true
             });
             this.loadBackups(); // Recargar lista
             this.loadBackupStatus(); // Actualizar estado
           } else {
-            this.handleError('Error al crear backup', response.message);
+            Swal.fire({
+              title: 'Error al crear backup',
+              text: response.message || 'Ha ocurrido un error inesperado',
+              icon: 'error',
+              confirmButtonText: 'Entendido'
+            });
           }
         },
         error: (error) => {
-          this.handleError('Error al crear backup manual', error);
+          Swal.fire({
+            title: 'Error al crear backup',
+            text: 'Ha ocurrido un error al crear el backup manual',
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+          });
+          console.error('Error al crear backup manual:', error);
         }
       });
   }

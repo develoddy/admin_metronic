@@ -23,28 +23,44 @@
             <!-- Crear Backup Manual -->
             <button type="button" 
                     class="btn btn-primary me-3"
-                    [disabled]="operationStatus?.isLoading"
+                    [disabled]="operationStatus?.isLoading || isCreatingBackup"
                     (click)="createManualBackup()"
                     title="Crear un backup completo de la base de datos ahora"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top">
-              🛡️ Crear Backup
+              <span *ngIf="isCreatingBackup" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <span *ngIf="!isCreatingBackup">🛡️</span>
+              <span *ngIf="isCreatingBackup">Creando...</span>
+              <span *ngIf="!isCreatingBackup">Crear Backup</span>
             </button>
             
             <!-- Refresh -->
             <button type="button" 
                     class="btn btn-light-primary me-3"
-                    [disabled]="isLoadingBackups || isLoadingStatus"
+                    [disabled]="isLoadingBackups || isLoadingStatus || isCreatingBackup"
                     (click)="refresh()"
                     title="Actualizar lista de backups y estado del sistema"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top">
-              <span *ngIf="isLoadingBackups || isLoadingStatus" class="spinner-border spinner-border-sm me-2"></span>
+              <span *ngIf="isLoadingBackups || isLoadingStatus" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
               <span *ngIf="!isLoadingBackups && !isLoadingStatus">🔄</span>
-              Actualizar
+              <span *ngIf="isLoadingBackups || isLoadingStatus">Actualizando...</span>
+              <span *ngIf="!isLoadingBackups && !isLoadingStatus">Actualizar</span>
             </button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Indicador de Backup en Progreso -->
+    <div class="alert alert-info d-flex align-items-center mb-6" *ngIf="isCreatingBackup">
+      <div class="spinner-border spinner-border-sm me-3" role="status" aria-hidden="true"></div>
+      <div>
+        <h6 class="alert-heading mb-1">🛡️ Creando backup en progreso</h6>
+        <p class="mb-0">
+          Se está generando un backup completo de la base de datos. 
+          <small class="text-muted">Este proceso puede tomar algunos segundos...</small>
+        </p>
       </div>
     </div>
 
