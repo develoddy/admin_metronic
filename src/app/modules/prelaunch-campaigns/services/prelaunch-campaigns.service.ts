@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import { AuthService } from 'src/app/modules/auth/_services/auth.service';
 
 // Interfaces
 export interface PrelaunchSubscriber {
@@ -56,6 +57,18 @@ export interface LaunchCampaignResult {
   error?: string;
 }
 
+export interface PrelaunchConfig {
+  enabled: boolean;
+  updated_at: Date;
+  updated_by?: number;
+}
+
+export interface PrelaunchStatusResponse {
+  status: number;
+  enabled: boolean;
+  error?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -66,7 +79,10 @@ export class PrelaunchCampaignsService {
   private campaignProgressSubject = new BehaviorSubject<any>(null);
   public campaignProgress$ = this.campaignProgressSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private _authService: AuthService
+  ) {}
 
   /**
    * Obtener estadísticas generales de prelaunch
@@ -169,5 +185,38 @@ export class PrelaunchCampaignsService {
    */
   updateCampaignProgress(progress: any) {
     this.campaignProgressSubject.next(progress);
+  }
+
+  // ============================================================================
+  //                    MÉTODOS DE CONFIGURACIÓN PRE-LAUNCH MODE
+  // ============================================================================
+
+  /**
+   * Obtener configuración actual del pre-launch mode
+   */
+  getPrelaunchConfig(): Observable<PrelaunchConfig> {
+    const headers = new HttpHeaders({ 'token': this._authService.token || '' });
+    return this.http.get<any>(`${this.API_URL}/prelaunch/config`, { headers }).pipe(
+      map(response => response.data || response)
+    );
+  }
+
+  /**
+   * Actualizar configuración del pre-launch mode
+   */
+  updatePrelaunchConfig(enabled: boolean): Observable<PrelaunchConfig> {
+    const headers = new HttpHeaders({ 'token': this._authService.token || '' });
+    return this.http.put<any>(`${this.API_URL}/prelaunch/config`, { enabled }, { headers }).pipe(
+      map(response => response.data || response)
+    );
+  }
+
+  /**
+   * Obtener estado del pre-launch mode (endpoint público)
+   */
+  getPrelaunchStatus(): Observable<boolean> {
+    return this.http.get<PrelaunchStatusResponse>(`${this.API_URL}/prelaunch/status`).pipe(
+      map(response => response.enabled || false)
+    );
   }
 }

@@ -15,6 +15,63 @@
   </div>
 
   <div class="card-body">
+    <!-- ============================================================================ -->
+    <!--                       CONTROL DE PRE-LAUNCH MODE                            -->
+    <!-- ============================================================================ -->
+    <div class="card card-custom mb-8">
+      <div class="card-header">
+        <div class="card-title">
+          <h3 class="card-label">
+            <i class="fas fa-toggle-on text-success mr-2"></i>
+            Control de Pre-lanzamiento
+          </h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <div *ngIf="config">
+              <h5 class="mb-3">
+                Estado actual: 
+                <span class="badge badge-lg" 
+                      [class.badge-warning]="config.enabled" 
+                      [class.badge-success]="!config.enabled">
+                  <i class="fas" [class.fa-rocket]="config.enabled" [class.fa-store]="!config.enabled"></i>
+                  {{ config.enabled ? 'PRE-LAUNCH ACTIVADO' : 'TIENDA COMPLETA' }}
+                </span>
+              </h5>
+              <p class="text-muted mb-3">
+                {{ config.enabled 
+                   ? 'Los visitantes ven el landing de pre-lanzamiento y pueden suscribirse.' 
+                   : 'Los visitantes pueden acceder a toda la funcionalidad de la tienda.' }}
+              </p>
+              <p class="text-muted small mb-0" *ngIf="config.updated_at">
+                <i class="fas fa-clock mr-1"></i>
+                Última actualización: {{ config.updated_at | date:'dd/MM/yyyy HH:mm' }}
+              </p>
+            </div>
+            <div *ngIf="configLoading" class="d-flex align-items-center">
+              <div class="spinner-border spinner-border-sm text-primary mr-2"></div>
+              <span class="text-muted">Cargando configuración...</span>
+            </div>
+          </div>
+          <div class="col-md-4 text-right">
+            <button type="button" 
+                    class="btn btn-lg font-weight-bold"
+                    [class.btn-warning]="config?.enabled"
+                    [class.btn-success]="!config?.enabled"
+                    [disabled]="configLoading || !config"
+                    (click)="togglePrelaunchMode()">
+              <i class="fas" 
+                 [class.fa-store]="config?.enabled" 
+                 [class.fa-rocket]="!config?.enabled"></i>
+              {{ config?.enabled ? 'Activar Tienda Completa' : 'Activar Pre-launch' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Loading State -->
     <div *ngIf="loading" class="text-center py-10">
       <div class="spinner-border text-primary" role="status">
