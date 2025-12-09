@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { PrelaunchCampaignsService, PrelaunchSubscriber } from '../services/prelaunch-campaigns.service';
 
 @Component({
@@ -17,7 +17,7 @@ export class SubscribersListComponent implements OnInit {
   filterNotified: string = 'all';
   searchTerm: string = '';
 
-  constructor(private prelaunchService: PrelaunchCampaignsService) {}
+  constructor(private prelaunchService: PrelaunchCampaignsService, private cd: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.loadSubscribers();
@@ -33,6 +33,7 @@ export class SubscribersListComponent implements OnInit {
         this.subscribers = Array.isArray(data) ? data : [];
         console.log('Subscribers loaded:', this.subscribers.length);
         this.loading = false;
+        this.cd.detectChanges();
       },
       error: (err) => {
         console.error('Error loading subscribers:', err);

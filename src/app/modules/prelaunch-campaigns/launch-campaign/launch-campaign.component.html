@@ -57,61 +57,134 @@
           <div class="card card-custom bg-light">
             <div class="card-header">
               <h5 class="card-title">🛍️ Productos Destacados</h5>
+              <p class="text-muted mb-0 small">Configura los productos que aparecerán en el email</p>
             </div>
             <div class="card-body">
               <div formArrayName="featured_products">
-                <div *ngFor="let product of featuredProducts.controls; let i = index" class="mb-3 p-3 border rounded">
-                  <div [formGroupName]="i">
-                    <div class="d-flex justify-content-between mb-2">
-                      <strong>Producto {{ i + 1 }}</strong>
-                      <button 
-                        type="button" 
-                        class="btn btn-sm btn-light-danger" 
-                        (click)="removeProduct(i)"
-                        *ngIf="featuredProducts.length > 1"
-                      >
-                        <i class="fas fa-trash"></i>
-                      </button>
+                <div *ngFor="let product of featuredProducts.controls; let i = index" class="mb-4">
+                  <div [formGroupName]="i" class="card border-2 border-light-primary">
+                    <div class="card-header bg-light-primary py-2">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-primary">
+                          <i class="fas fa-box-open mr-2"></i>Producto {{ i + 1 }}
+                        </h6>
+                        <button 
+                          type="button" 
+                          class="btn btn-sm btn-light-danger" 
+                          (click)="removeProduct(i)"
+                          *ngIf="featuredProducts.length > 1"
+                          title="Eliminar producto"
+                        >
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
                     </div>
                     
-                    <div class="form-group">
-                      <input 
-                        type="text" 
-                        class="form-control form-control-sm" 
-                        formControlName="name"
-                        placeholder="Nombre del producto"
-                      />
-                    </div>
-                    
-                    <div class="form-group">
-                      <input 
-                        type="text" 
-                        class="form-control form-control-sm" 
-                        formControlName="price"
-                        placeholder="Precio (Ej: €24.95)"
-                      />
-                    </div>
-                    
-                    <div class="form-group mb-0">
-                      <input 
-                        type="text" 
-                        class="form-control form-control-sm" 
-                        formControlName="image"
-                        placeholder="URL de la imagen"
-                      />
+                    <div class="card-body">
+                      <div class="row">
+                        <!-- Preview de imagen -->
+                        <div class="col-4">
+                          <div class="text-center mb-2">
+                            <div class="product-preview-container position-relative">
+                              <img 
+                                *ngIf="product.get('image')?.value && product.get('image')?.value.length > 0"
+                                [src]="product.get('image')?.value" 
+                                class="img-fluid rounded border"
+                                style="max-height: 80px; width: auto;"
+                                (error)="$event.target.src='assets/media/icons/placeholder-image.svg'"
+                                [title]="product.get('name')?.value || 'Producto'"
+                              />
+                              <div 
+                                *ngIf="!product.get('image')?.value || product.get('image')?.value.length === 0"
+                                class="d-flex align-items-center justify-content-center bg-light border rounded"
+                                style="height: 80px; min-width: 80px;"
+                              >
+                                <i class="fas fa-image text-muted fa-2x"></i>
+                              </div>
+                            </div>
+                            <small class="text-muted d-block mt-1">Preview</small>
+                          </div>
+                        </div>
+                        
+                        <!-- Campos de entrada -->
+                        <div class="col-8">
+                          <div class="form-group mb-2">
+                            <label class="form-label text-dark font-weight-bold small">Nombre</label>
+                            <input 
+                              type="text" 
+                              class="form-control form-control-sm" 
+                              formControlName="name"
+                              placeholder="Ej: Camiseta Premium Developer"
+                            />
+                          </div>
+                          
+                          <div class="form-group mb-2">
+                            <label class="form-label text-dark font-weight-bold small">Precio</label>
+                            <input 
+                              type="text" 
+                              class="form-control form-control-sm" 
+                              formControlName="price"
+                              placeholder="Ej: €24.95"
+                            />
+                          </div>
+                          
+                          <div class="form-group mb-0">
+                            <label class="form-label text-dark font-weight-bold small">URL de Imagen</label>
+                            <div class="input-group input-group-sm">
+                              <input 
+                                type="text" 
+                                class="form-control form-control-sm" 
+                                formControlName="image"
+                                placeholder="URL completa de la imagen del producto"
+                              />
+                              <div class="input-group-append">
+                                <span class="input-group-text">
+                                  <i class="fas fa-link" 
+                                     [class.text-success]="product.get('image')?.value && product.get('image')?.value.length > 10"
+                                     [class.text-muted]="!product.get('image')?.value || product.get('image')?.value.length <= 10">
+                                  </i>
+                                </span>
+                              </div>
+                            </div>
+                            <small class="text-muted">La imagen se mostrará en el email de la campaña</small>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Información adicional del producto -->
+                      <div class="mt-2 p-2 bg-light-info rounded" *ngIf="product.get('name')?.value && product.get('price')?.value">
+                        <small class="text-info">
+                          <i class="fas fa-info-circle mr-1"></i>
+                          <strong>{{ product.get('name')?.value }}</strong> - {{ product.get('price')?.value }}
+                        </small>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <button 
-                type="button" 
-                class="btn btn-sm btn-light-primary btn-block" 
-                (click)="addProduct()"
-                *ngIf="featuredProducts.length < 6"
-              >
-                <i class="fas fa-plus mr-2"></i> Agregar Producto
-              </button>
+              <!-- Botón agregar producto -->
+              <div class="text-center mt-3">
+                <button 
+                  type="button" 
+                  class="btn btn-light-primary btn-sm" 
+                  (click)="addProduct()"
+                  *ngIf="featuredProducts.length < 6"
+                >
+                  <i class="fas fa-plus mr-2"></i> Agregar Producto
+                </button>
+                
+                <!-- Información sobre límites -->
+                <div class="mt-2" *ngIf="featuredProducts.length >= 4">
+                  <small class="text-muted">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    {{ featuredProducts.length }}/6 productos configurados
+                    <span *ngIf="featuredProducts.length >= 6" class="text-warning">
+                      - Límite alcanzado
+                    </span>
+                  </small>
+                </div>
+              </div>
             </div>
           </div>
         </div>
