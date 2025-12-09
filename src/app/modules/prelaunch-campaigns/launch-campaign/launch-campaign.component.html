@@ -9,7 +9,7 @@
   <div class="card-body">
     <!-- Warning Alert -->
     <div class="alert alert-warning d-flex align-items-center mb-5">
-      <i class="fas fa-exclamation-triangle fa-2x mr-3"></i>
+      <i class="fas fa-exclamation-triangle fa-2x mr-3 text-white"></i>
       <div>
         <strong>⚠️ Advertencia:</strong> Esta acción enviará emails masivos a todos los suscriptores verificados. 
         Asegúrate de revisar la configuración antes de enviar.
@@ -23,30 +23,112 @@
         <div class="col-md-6">
           <div class="card card-custom bg-light">
             <div class="card-header">
-              <h5 class="card-title">🎁 Configuración del Cupón</h5>
+              <h5 class="card-title">🎁 Selección de Cupón</h5>
+              <p class="text-muted mb-0 small">Selecciona un cupón existente para la campaña</p>
             </div>
             <div class="card-body">
+              <!-- Selector de cupón -->
               <div class="form-group">
-                <label>Descuento del Cupón <span class="text-danger">*</span></label>
-                <input 
-                  type="text" 
+                <label>Cupón Disponible <span class="text-danger">*</span></label>
+                <select 
                   class="form-control" 
-                  formControlName="coupon_discount"
-                  placeholder="Ej: 15%, 20%, €10"
-                />
-                <small class="form-text text-muted">Puede ser porcentaje (15%) o monto fijo (€10)</small>
+                  formControlName="selected_coupon_id"
+                  (change)="onCouponSelect($event.target.value)"
+                >
+                  <option value="">-- Selecciona un cupón --</option>
+                  <option 
+                    *ngFor="let coupon of availableCoupons" 
+                    [value]="coupon.id"
+                  >
+                    {{ coupon.code }} - {{ coupon.type_discount === 'MONEDA' ? '€' + coupon.discount : coupon.discount + '%' }} 
+                    ({{ coupon.type_coupon === 'DISCOUNT_PRODUCT' ? 'Por producto' : 'Total orden' }})
+                  </option>
+                </select>
+                
+                <!-- Loading state -->
+                <div *ngIf="loadingCoupons" class="text-center mt-2">
+                  <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="sr-only">Cargando cupones...</span>
+                  </div>
+                  <small class="text-muted ml-2">Cargando cupones disponibles...</small>
+                </div>
+                
+                <!-- Empty state -->
+                <div *ngIf="!loadingCoupons && availableCoupons.length === 0" class="alert alert-danger mt-2">
+                  <i class="fas fa-info-circle mr-2"></i>
+                  <strong>No hay cupones disponibles. </strong> 
+                  <a routerLink="/cupones/register-cupon"  class="alert-link text-white text-decoration-underline">Crear un cupón primero</a>
+                </div>
+                
+                <small class="form-text text-muted">Solo se muestran cupones activos</small>
               </div>
 
-              <div class="form-group">
-                <label>Válido por (días) <span class="text-danger">*</span></label>
-                <input 
-                  type="number" 
-                  class="form-control" 
-                  formControlName="coupon_expiry_days"
-                  min="1"
-                  max="30"
-                />
-                <small class="form-text text-muted">Entre 1 y 30 días</small>
+              <!-- Información del cupón seleccionado -->
+              <div *ngIf="selectedCoupon" class="card border-primary mt-3">
+                <div class="card-header bg-light-primary py-2">
+                  <h6 class="mb-0 text-primary">
+                    <i class="fas fa-ticket-alt mr-2"></i>Detalles del Cupón
+                  </h6>
+                </div>
+                <div class="card-body py-3">
+                  <div class="row">
+                    <div class="col-6">
+                      <strong>Código:</strong>
+                      <div class="form-group mt-1">
+                        <input 
+                          type="text" 
+                          class="form-control form-control-sm" 
+                          formControlName="coupon_code"
+                          readonly
+                        />
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <strong>Descuento:</strong>
+                      <div class="form-group mt-1">
+                        <input 
+                          type="text" 
+                          class="form-control form-control-sm" 
+                          formControlName="coupon_discount"
+                          readonly
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row">
+                    <div class="col-6">
+                      <strong>Válido por:</strong>
+                      <div class="input-group input-group-sm mt-1">
+                        <input 
+                          type="number" 
+                          class="form-control" 
+                          formControlName="coupon_expiry_days"
+                          readonly
+                        />
+                        <div class="input-group-append">
+                          <span class="input-group-text">días</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <strong>Tipo:</strong>
+                      <div class="mt-1">
+                        <span class="badge badge-info">
+                          {{ selectedCoupon.type_coupon === 'DISCOUNT_PRODUCT' ? 'Por producto' : 'Total orden' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Información adicional -->
+                  <div class="mt-2 p-2 bg-light-success rounded">
+                    <small class="text-success">
+                      <i class="fas fa-check-circle mr-1"></i>
+                      Este cupón será enviado a todos los suscriptores de la campaña
+                    </small>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

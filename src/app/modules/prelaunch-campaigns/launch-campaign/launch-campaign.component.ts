@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { PrelaunchCampaignsService, LaunchCampaignConfig, LaunchCampaignResult } from '../services/prelaunch-campaigns.service';
+import { CuponeService } from '../../cupone/_services/cupone.service';
 import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 
@@ -20,10 +21,16 @@ export class LaunchCampaignComponent implements OnInit {
   sending = false;
   sendingProgress = 0;
   result: LaunchCampaignResult | null = null;
+  
+  // Cupones disponibles
+  availableCoupons: any[] = [];
+  loadingCoupons = false;
+  selectedCoupon: any = null;
 
   constructor(
     private fb: FormBuilder,
     private prelaunchService: PrelaunchCampaignsService,
+    private cuponeService: CuponeService,
     private cd: ChangeDetectorRef
   ) {
     this.campaignForm = this.createForm();
@@ -36,12 +43,17 @@ export class LaunchCampaignComponent implements OnInit {
         this.sendingProgress = progress.percentage || 0;
       }
     });
+    
+    // Cargar cupones disponibles
+    this.loadAvailableCoupons();
   }
 
   createForm(): FormGroup {
     return this.fb.group({
-      coupon_discount: ['15%', [Validators.required]],
-      coupon_expiry_days: ['7', [Validators.required, Validators.min(1), Validators.max(30)]],
+      selected_coupon_id: ['', [Validators.required]],
+      coupon_code: [{ value: '', disabled: true }],
+      coupon_discount: [{ value: '', disabled: true }],
+      coupon_expiry_days: [{ value: '7', disabled: true }],
       featured_products: this.fb.array([
         this.createProductGroup('Camiseta Premium', '€24.95', 'camiseta-preview.jpg'),
         this.createProductGroup('Taza Personalizada', '€12.95', 'taza-preview.jpg'),
@@ -71,6 +83,79 @@ export class LaunchCampaignComponent implements OnInit {
     if (this.featuredProducts.length > 1) {
       this.featuredProducts.removeAt(index);
     }
+  }
+
+  /**
+   * Cargar cupones disponibles desde la base de datos
+   */
+  loadAvailableCoupons(): void {
+    this.loadingCoupons = true;
+    this.cuponeService.allCupones().subscribe({
+      next: (response: any) => {
+        if (response && response.cupones) {
+          // Filtrar solo cupones activos
+          this.availableCoupons = response.cupones.filter((coupon: any) => 
+            coupon.state === 1 || coupon.state === '1'
+          );
+          console.log('📋 Cupones disponibles cargados:', this.availableCoupons.length);
+        }
+        this.loadingCoupons = false;
+        this.cd.detectChanges();
+      },
+      error: (error) => {
+        console.error('❌ Error cargando cupones:', error);
+        this.loadingCoupons = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron cargar los cupones disponibles'
+        });
+      }
+    });
+  }
+
+  /**
+   * Manejar selección de cupón
+   */
+  onCouponSelect(couponId: string): void {
+    const selectedCoupon = this.availableCoupons.find(c => c.id == couponId);
+    
+    if (selectedCoupon) {
+      this.selectedCoupon = selectedCoupon;
+      
+      // Actualizar campos del formulario con datos del cupón seleccionado
+      this.campaignForm.patchValue({
+        coupon_code: selectedCoupon.code,
+        coupon_discount: selectedCoupon.type_discount === 'MONEDA' 
+          ? `€${selectedCoupon.discount}` 
+          : `${selectedCoupon.discount}%`,
+        coupon_expiry_days: this.calculateDaysUntilExpiry(selectedCoupon.date_expire)
+      });
+      
+      console.log('🎫 Cupón seleccionado:', selectedCoupon);
+    } else {
+      // Limpiar si no hay selección
+      this.selectedCoupon = null;
+      this.campaignForm.patchValue({
+        coupon_code: '',
+        coupon_discount: '',
+        coupon_expiry_days: '7'
+      });
+    }
+  }
+
+  /**
+   * Calcular días hasta que expire el cupón
+   */
+  private calculateDaysUntilExpiry(expireDate: string): number {
+    if (!expireDate) return 7; // Default 7 días
+    
+    const expire = new Date(expireDate);
+    const now = new Date();
+    const diffTime = expire.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays > 0 ? diffDays : 7; // Mínimo 7 días si ya expiró
   }
 
   async previewEmail(): Promise<void> {
