@@ -186,17 +186,31 @@
             </div>
           </div>
           <div class="card-body">
+            <!-- BLOQUEO EN PRODUCCIÓN -->
+            <div *ngIf="!status?.permissions?.canReset" class="alert alert-warning">
+              <h6><i class="fas fa-shield-alt mr-2"></i>OPERACIÓN BLOQUEADA</h6>
+              <p class="mb-0">
+                Las operaciones de reset están <strong>deshabilitadas</strong> en este entorno por seguridad.
+              </p>
+              <small class="text-muted">
+                Para habilitar, configure ALLOW_DB_MANAGEMENT=true en las variables de entorno (solo en emergencias).
+              </small>
+            </div>
+
             <div class="alert alert-danger">
               <h6><i class="fas fa-skull-crossbones mr-2"></i>OPERACIÓN DESTRUCTIVA</h6>
               <p class="mb-0">Esta operación <strong>BORRARÁ TODOS LOS DATOS</strong> y recreará todas las tablas desde cero.</p>
             </div>
 
-            <form>
+            <form [class.disabled-form]="!status?.permissions?.canReset">
               <!-- Confirmación principal -->
               <div class="form-group">
                 <div class="checkbox-list">
                   <label class="checkbox">
-                    <input type="checkbox" [(ngModel)]="resetForm.confirmReset" name="confirmReset">
+                    <input type="checkbox" 
+                           [(ngModel)]="resetForm.confirmReset" 
+                           name="confirmReset"
+                           [disabled]="!status?.permissions?.canReset">
                     <span></span>
                     <strong class="text-danger">Confirmo que quiero BORRAR TODOS LOS DATOS</strong>
                   </label>
@@ -213,6 +227,7 @@
                        [(ngModel)]="resetForm.confirmText"
                        name="confirmText"
                        placeholder="Escriba el texto exacto..."
+                       [disabled]="!status?.permissions?.canReset"
                        [class.is-invalid]="resetForm.confirmText && resetForm.confirmText !== securityConfig.requiredConfirmationText">
                 <div class="invalid-feedback">
                   El texto debe ser exactamente: "{{ securityConfig.requiredConfirmationText }}"
@@ -223,7 +238,10 @@
               <div class="form-group" *ngIf="resetForm.confirmReset">
                 <div class="checkbox-list">
                   <label class="checkbox">
-                    <input type="checkbox" [(ngModel)]="resetForm.createBackupFirst" name="createBackupFirst">
+                    <input type="checkbox" 
+                           [(ngModel)]="resetForm.createBackupFirst" 
+                           name="createBackupFirst"
+                           [disabled]="!status?.permissions?.canReset">
                     <span></span>
                     <strong class="text-success">Crear backup automático antes del reset (RECOMENDADO)</strong>
                   </label>
@@ -238,13 +256,15 @@
                           [(ngModel)]="resetForm.reason"
                           name="reason"
                           placeholder="Explique por qué necesita resetear la base de datos..."
+                          [disabled]="!status?.permissions?.canReset"
                           required></textarea>
               </div>
 
               <!-- Botón de reset -->
               <button type="button" 
                       class="btn btn-danger btn-lg btn-block font-weight-bold"
-                      [disabled]="!resetForm.confirmReset || 
+                      [disabled]="!status?.permissions?.canReset ||
+                                 !resetForm.confirmReset || 
                                  resetForm.confirmText !== securityConfig.requiredConfirmationText || 
                                  !resetForm.reason.trim() || 
                                  isResetting"

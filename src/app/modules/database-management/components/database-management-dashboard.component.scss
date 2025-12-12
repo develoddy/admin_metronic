@@ -30,6 +30,26 @@
   color: #1E40AF;
 }
 
+/* ================================ */
+/*         FORMULARIO BLOQUEADO     */
+/* ================================ */
+
+.disabled-form {
+  opacity: 0.6;
+  pointer-events: none;
+  
+  .form-control,
+  .checkbox input,
+  .btn {
+    cursor: not-allowed !important;
+    background-color: #f8f9fa !important;
+  }
+  
+  .checkbox span {
+    background-color: #f8f9fa !important;
+  }
+}
+
 .bg-light-danger {
   background-color: #FFE2E5 !important;
 }
