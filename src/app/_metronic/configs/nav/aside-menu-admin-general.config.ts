@@ -405,5 +405,20 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
+      {
+        title: 'Gestión de DB',
+        root: true,
+        name: "database-management",
+        bullet: 'dot',
+        icon: 'flaticon2-warning',
+        svg: './assets/media/svg/icons/Code/Warning-2.svg',
+        page: '/database-management',
+        submenu: [
+          {
+            title: 'Dashboard',
+            page: '/database-management'
+          }
+        ]
+      },
     ]
 }

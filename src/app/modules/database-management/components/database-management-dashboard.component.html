@@ -1,0 +1,422 @@
+<div class="card card-custom gutter-b">
+  <div class="card-header">
+    <div class="card-title">
+      <h3 class="card-label">
+        <i class="fas fa-database text-danger mr-2"></i>
+        Gestión de Base de Datos
+        <small class="text-muted d-block">Operaciones críticas - Solo Super Administradores</small>
+      </h3>
+    </div>
+    <div class="card-toolbar">
+      <button type="button" 
+              class="btn btn-sm btn-light-primary" 
+              (click)="refreshDatabaseStatus()" 
+              [disabled]="isLoadingStatus">
+        <i class="fas fa-sync-alt" [class.fa-spin]="isLoadingStatus"></i>
+        Actualizar Estado
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- ============================================================================ -->
+    <!--                              VERIFICACIÓN DE ACCESO                         -->
+    <!-- ============================================================================ -->
+    <div *ngIf="!isSuperAdmin" class="alert alert-danger d-flex align-items-center">
+      <i class="fas fa-shield-alt mr-3 fa-2x"></i>
+      <div>
+        <h5 class="mb-2">🚫 Acceso Restringido</h5>
+        <p class="mb-0">Solo los <strong>Super Administradores</strong> pueden acceder a la gestión de base de datos.</p>
+        <p class="mb-0 text-muted small">Estas operaciones pueden ser destructivas y requieren permisos especiales.</p>
+      </div>
+    </div>
+
+    <!-- ============================================================================ -->
+    <!--                                ESTADO DEL SISTEMA                           -->
+    <!-- ============================================================================ -->
+    <div *ngIf="isSuperAdmin" class="card card-custom mb-8">
+      <div class="card-header">
+        <div class="card-title">
+          <h3 class="card-label">
+            <i class="fas fa-info-circle text-info mr-2"></i>
+            Estado del Sistema
+          </h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <div *ngIf="isLoadingStatus" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-3 text-muted">Cargando estado de la base de datos...</p>
+        </div>
+
+        <div *ngIf="status && !isLoadingStatus" class="row">
+          <!-- Información de la Base de Datos -->
+          <div class="col-md-6">
+            <h6 class="mb-3">
+              <i class="fas fa-server text-primary mr-2"></i>
+              Base de Datos
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-borderless table-sm">
+                <tr>
+                  <td class="font-weight-bold">Estado:</td>
+                  <td>
+                    <span class="badge badge-lg text-white" [class]="getStatusBadgeClass()">
+                      <i class="fas fa-circle mr-1"></i>
+                      {{ getStatusText() }}
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="font-weight-bold">Nombre:</td>
+                  <td><code>{{ status.database.name }}</code></td>
+                </tr>
+                <tr>
+                  <td class="font-weight-bold">Host:</td>
+                  <td><code>{{ status.database.host }}</code></td>
+                </tr>
+                <tr>
+                  <td class="font-weight-bold">Motor:</td>
+                  <td><span class="badge badge-light">{{ status.database.dialect?.toUpperCase() }}</span></td>
+                </tr>
+                <tr>
+                  <td class="font-weight-bold">Entorno:</td>
+                  <td>
+                    <span class="badge text-white" 
+                          [class.badge-danger]="status.database.environment === 'production'"
+                          [class.badge-warning]="status.database.environment !== 'production'">
+                      {{ status.database.environment?.toUpperCase() }}
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Información de Tablas y Migraciones -->
+          <div class="col-md-6">
+            <h6 class="mb-3">
+              <i class="fas fa-table text-success mr-2"></i>
+              Estructura y Migraciones
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-borderless table-sm">
+                <tr>
+                  <td class="font-weight-bold">Tablas:</td>
+                  <td>
+                    <span class="badge badge-info">{{ status.tables.count }} tablas</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="font-weight-bold">Migraciones:</td>
+                  <td>
+                    <span *ngIf="status.migrations.available" class="badge badge-success">
+                      <i class="fas fa-check mr-1"></i>
+                      Disponibles
+                    </span>
+                    <span *ngIf="!status.migrations.available" class="badge badge-warning">
+                      <i class="fas fa-exclamation-triangle mr-1"></i>
+                      No disponibles
+                    </span>
+                  </td>
+                </tr>
+                <tr *ngIf="status.migrations.available && status.migrations.lastMigrations?.length">
+                  <td class="font-weight-bold">Últimas:</td>
+                  <td>
+                    <small class="text-muted">
+                      {{ status.migrations.lastMigrations[0] }}
+                      <span *ngIf="status.migrations.lastMigrations.length > 1">
+                        (+{{ status.migrations.lastMigrations.length - 1 }} más)
+                      </span>
+                    </small>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="font-weight-bold">Permisos:</td>
+                  <td>
+                    <span *ngIf="status.permissions.canReset" class="badge badge-warning">
+                      <i class="fas fa-unlock mr-1"></i>
+                      Reset permitido
+                    </span>
+                    <span *ngIf="!status.permissions.canReset" class="badge badge-secondary">
+                      <i class="fas fa-lock mr-1"></i>
+                      Reset bloqueado
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="status && status.tables.list.length > 0" class="mt-4">
+          <h6 class="mb-3">Tablas en la Base de Datos ({{ status.tables.count }})</h6>
+          <div class="row">
+            <div class="col-12">
+              <div class="bg-light p-3 rounded">
+                <div class="row">
+                  <div *ngFor="let table of status.tables.list; let i = index" class="col-md-3 col-sm-6 mb-2">
+                    <small class="badge badge-light-primary">
+                      <i class="fas fa-table mr-1"></i>
+                      {{ table }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================================ -->
+    <!--                               OPERACIONES PELIGROSAS                        -->
+    <!-- ============================================================================ -->
+    <div *ngIf="isSuperAdmin && status" class="row">
+      
+      <!-- RESET DE BASE DE DATOS -->
+      <div class="col-lg-6 mb-8">
+        <div class="card card-custom border-danger">
+          <div class="card-header bg-light-danger">
+            <div class="card-title">
+              <h3 class="card-label text-danger">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Reset Completo de Base de Datos
+              </h3>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-danger">
+              <h6><i class="fas fa-skull-crossbones mr-2"></i>OPERACIÓN DESTRUCTIVA</h6>
+              <p class="mb-0">Esta operación <strong>BORRARÁ TODOS LOS DATOS</strong> y recreará todas las tablas desde cero.</p>
+            </div>
+
+            <form>
+              <!-- Confirmación principal -->
+              <div class="form-group">
+                <div class="checkbox-list">
+                  <label class="checkbox">
+                    <input type="checkbox" [(ngModel)]="resetForm.confirmReset" name="confirmReset">
+                    <span></span>
+                    <strong class="text-danger">Confirmo que quiero BORRAR TODOS LOS DATOS</strong>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Texto de confirmación -->
+              <div class="form-group" *ngIf="resetForm.confirmReset">
+                <label class="form-label font-weight-bold text-danger">
+                  Escriba exactamente: "{{ securityConfig.requiredConfirmationText }}"
+                </label>
+                <input type="text" 
+                       class="form-control" 
+                       [(ngModel)]="resetForm.confirmText"
+                       name="confirmText"
+                       placeholder="Escriba el texto exacto..."
+                       [class.is-invalid]="resetForm.confirmText && resetForm.confirmText !== securityConfig.requiredConfirmationText">
+                <div class="invalid-feedback">
+                  El texto debe ser exactamente: "{{ securityConfig.requiredConfirmationText }}"
+                </div>
+              </div>
+
+              <!-- Crear backup antes -->
+              <div class="form-group" *ngIf="resetForm.confirmReset">
+                <div class="checkbox-list">
+                  <label class="checkbox">
+                    <input type="checkbox" [(ngModel)]="resetForm.createBackupFirst" name="createBackupFirst">
+                    <span></span>
+                    <strong class="text-success">Crear backup automático antes del reset (RECOMENDADO)</strong>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Motivo -->
+              <div class="form-group" *ngIf="resetForm.confirmReset">
+                <label class="form-label font-weight-bold">Motivo del reset</label>
+                <textarea class="form-control" 
+                          rows="3" 
+                          [(ngModel)]="resetForm.reason"
+                          name="reason"
+                          placeholder="Explique por qué necesita resetear la base de datos..."
+                          required></textarea>
+              </div>
+
+              <!-- Botón de reset -->
+              <button type="button" 
+                      class="btn btn-danger btn-lg btn-block font-weight-bold"
+                      [disabled]="!resetForm.confirmReset || 
+                                 resetForm.confirmText !== securityConfig.requiredConfirmationText || 
+                                 !resetForm.reason.trim() || 
+                                 isResetting"
+                      (click)="resetDatabase()">
+                <i class="fas mr-2" 
+                   [class.fa-bomb]="!isResetting"
+                   [class.fa-spinner]="isResetting"
+                   [class.fa-spin]="isResetting"></i>
+                {{ isResetting ? 'Reseteando Base de Datos...' : 'RESETEAR BASE DE DATOS' }}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- MIGRACIONES -->
+      <div class="col-lg-6 mb-8">
+        <div class="card card-custom border-primary">
+          <div class="card-header bg-light-primary">
+            <div class="card-title">
+              <h3 class="card-label text-primary">
+                <i class="fas fa-cogs mr-2"></i>
+                Gestión de Migraciones
+              </h3>
+            </div>
+          </div>
+          <div class="card-body">
+            
+            <!-- Ejecutar Migraciones -->
+            <div class="mb-6">
+              <h6 class="mb-3">
+                <i class="fas fa-play-circle text-success mr-2"></i>
+                Ejecutar Migraciones Pendientes
+              </h6>
+              <p class="text-muted mb-3">Aplica todos los cambios de estructura pendientes a la base de datos.</p>
+              
+              <div class="form-group">
+                <div class="checkbox-list">
+                  <label class="checkbox">
+                    <input type="checkbox" [(ngModel)]="migrationForm.confirmMigrations" name="confirmMigrations">
+                    <span></span>
+                    <strong>Confirmo que quiero ejecutar las migraciones pendientes</strong>
+                  </label>
+                </div>
+              </div>
+
+              <button type="button" 
+                      class="btn btn-success btn-block font-weight-bold"
+                      [disabled]="!migrationForm.confirmMigrations || isMigrating"
+                      (click)="runMigrations()">
+                <i class="fas mr-2" 
+                   [class.fa-play]="!isMigrating"
+                   [class.fa-spinner]="isMigrating"
+                   [class.fa-spin]="isMigrating"></i>
+                {{ isMigrating ? 'Ejecutando Migraciones...' : 'Ejecutar Migraciones' }}
+              </button>
+            </div>
+
+            <hr>
+
+            <!-- Rollback de Migración -->
+            <div>
+              <h6 class="mb-3">
+                <i class="fas fa-undo text-warning mr-2"></i>
+                Rollback de Última Migración
+              </h6>
+              <p class="text-muted mb-3">Revierte la última migración ejecutada. <strong class="text-warning">¡Usar con precaución!</strong></p>
+              
+              <div class="form-group">
+                <div class="checkbox-list">
+                  <label class="checkbox">
+                    <input type="checkbox" [(ngModel)]="rollbackForm.confirmRollback" name="confirmRollback">
+                    <span></span>
+                    <strong>Confirmo que quiero hacer rollback de la última migración</strong>
+                  </label>
+                </div>
+              </div>
+
+              <button type="button" 
+                      class="btn btn-warning btn-block font-weight-bold"
+                      [disabled]="!rollbackForm.confirmRollback || isMigrating"
+                      (click)="rollbackMigration()">
+                <i class="fas mr-2" 
+                   [class.fa-undo]="!isMigrating"
+                   [class.fa-spinner]="isMigrating"
+                   [class.fa-spin]="isMigrating"></i>
+                {{ isMigrating ? 'Ejecutando Rollback...' : 'Hacer Rollback' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================================ -->
+    <!--                              INTEGRACIÓN CON BACKUPS                        -->
+    <!-- ============================================================================ -->
+    <div *ngIf="isSuperAdmin && recentBackups?.length > 0" class="card card-custom">
+      <div class="card-header">
+        <div class="card-title">
+          <h3 class="card-label">
+            <i class="fas fa-archive text-info mr-2"></i>
+            Backups Recientes
+          </h3>
+        </div>
+        <div class="card-toolbar">
+          <button type="button" 
+                  class="btn btn-sm btn-success" 
+                  (click)="createBackup()">
+            <i class="fas fa-plus mr-1"></i>
+            Crear Backup Manual
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <i class="fas fa-lightbulb mr-2"></i>
+          <strong>Integración con Backups:</strong> 
+          Este módulo se integra con su sistema de backups existente para mayor seguridad en las operaciones.
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-head-custom table-vertical-center">
+            <thead>
+              <tr>
+                <th>Archivo</th>
+                <th>Tamaño</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let backup of recentBackups">
+                <td>
+                  <span class="text-dark font-weight-bolder">{{ backup.filename }}</span>
+                </td>
+                <td>
+                  <span class="badge badge-light">{{ backup.sizeFormatted }}</span>
+                </td>
+                <td>
+                  <span class="text-muted">{{ backup.createdAt | date:'short' }}</span>
+                </td>
+                <td>
+                  <a [routerLink]="['/backups']" class="btn btn-sm btn-clean btn-icon" title="Ver en módulo de backups">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="text-center">
+          <a [routerLink]="['/backups']" class="btn btn-light-primary">
+            <i class="fas fa-archive mr-2"></i>
+            Ver Todos los Backups
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado cuando no hay backups -->
+    <div *ngIf="isSuperAdmin && recentBackups?.length === 0" class="card card-custom">
+      <div class="card-body text-center">
+        <i class="fas fa-archive fa-3x text-muted mb-3"></i>
+        <h5>No hay backups recientes</h5>
+        <p class="text-muted">Se recomienda crear un backup antes de realizar operaciones críticas.</p>
+        <button type="button" class="btn btn-success" (click)="createBackup()">
+          <i class="fas fa-plus mr-2"></i>
+          Crear Primer Backup
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

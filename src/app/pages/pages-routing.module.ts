@@ -196,6 +196,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'database-management',
+        loadChildren: () =>
+          import('../modules/database-management/database-management.module').then(
+            (m) => m.DatabaseManagementModule
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',
