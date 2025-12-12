@@ -72,6 +72,106 @@
       </div>
     </div>
 
+    <!-- ============================================================================ -->
+    <!--                       CONFIGURACIÓN DE FECHA DE LANZAMIENTO                 -->
+    <!-- ============================================================================ -->
+    <div class="card card-custom mb-8">
+      <div class="card-header">
+        <div class="card-title">
+          <h3 class="card-label">
+            <i class="fas fa-calendar-alt text-warning mr-2"></i>
+            Fecha de Lanzamiento
+          </h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Fecha Actual -->
+          <div class="col-md-6">
+            <div *ngIf="config">
+              <h6 class="mb-3">
+                <i class="fas fa-info-circle text-info mr-2"></i>
+                Configuración Actual
+              </h6>
+              <div *ngIf="config.launch_date" class="alert alert-light border-left-primary">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-rocket text-primary mr-2"></i>
+                  <div>
+                    <strong>Fecha configurada:</strong><br>
+                    <span class="text-primary font-weight-bold">
+                      {{ config.launch_date | date:'EEEE, d MMMM y \'a las\' HH:mm':'es-ES' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="!config.launch_date" class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <strong>Sin fecha configurada</strong><br>
+                <span class="text-muted">El frontend usará una fecha por defecto.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Configurar Nueva Fecha -->
+          <div class="col-md-6">
+            <h6 class="mb-3">
+              <i class="fas fa-cog text-success mr-2"></i>
+              Configurar Nueva Fecha
+            </h6>
+            <form class="form">
+              <div class="form-group mb-3">
+                <label for="launchDate" class="form-label font-weight-bold">
+                  <i class="fas fa-calendar mr-1"></i>
+                  Fecha de Lanzamiento
+                </label>
+                <input type="date" 
+                       class="form-control form-control-lg" 
+                       id="launchDate"
+                       [(ngModel)]="launchDate"
+                       name="launchDate"
+                       [disabled]="dateConfigLoading">
+              </div>
+              
+              <div class="form-group mb-4">
+                <label for="launchTime" class="form-label font-weight-bold">
+                  <i class="fas fa-clock mr-1"></i>
+                  Hora de Lanzamiento
+                </label>
+                <input type="time" 
+                       class="form-control form-control-lg" 
+                       id="launchTime"
+                       [(ngModel)]="launchTime"
+                       name="launchTime"
+                       [disabled]="dateConfigLoading">
+              </div>
+              
+              <button type="button" 
+                      class="btn btn-warning btn-lg btn-block font-weight-bold"
+                      [disabled]="dateConfigLoading || !launchDate || !launchTime"
+                      (click)="updateLaunchDate()">
+                <i class="fas text-white mr-2" 
+                   [class.fa-save]="!dateConfigLoading"
+                   [class.fa-spinner]="dateConfigLoading"
+                   [class.fa-spin]="dateConfigLoading"></i>
+                {{ dateConfigLoading ? 'Guardando...' : 'Guardar Fecha de Lanzamiento' }}
+              </button>
+            </form>
+          </div>
+        </div>
+        
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle mr-2"></i>
+              <strong>Información:</strong>
+              Esta fecha será utilizada para el countdown en el landing de pre-lanzamiento del frontend. 
+              Los visitantes verán una cuenta regresiva hasta esta fecha y hora.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Loading State -->
     <div *ngIf="loading" class="text-center py-10">
       <div class="spinner-border text-primary" role="status">

@@ -429,15 +429,15 @@
                                                         </td>
                                                         <td class="text-end">{{ item.product.sku }}</td>
                                                         <td class="text-end">{{ item.cantidad }}</td>
-                                                        <td class="text-end">{{ item.price_unitario | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.curreny_total + ' ' }}</td>
-                                                        <td class="text-end">{{ item.total | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.curreny_total + ' ' }}</td>
+                                                        <td class="text-end">{{ item.price_unitario | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.currency_total + ' ' }}</td>
+                                                        <td class="text-end">{{ item.total | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.currency_total + ' ' }}</td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="4" class="text-end">
                                                             Subtotal
                                                         </td>
                                                         <td class="text-end">
-                                                            {{ getSubtotal() | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.curreny_total + ' ' }}
+                                                            {{ getSubtotal() | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.currency_total + ' ' }}
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -445,7 +445,7 @@
                                                             VAT (0%)
                                                         </td>
                                                         <td class="text-end">
-                                                            {{ getVAT() | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.curreny_total + ' ' }}
+                                                            {{ getVAT() | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.currency_total + ' ' }}
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -453,7 +453,7 @@
                                                             Shipping Rate
                                                         </td>
                                                         <td class="text-end">
-                                                            {{ getShippingRate() | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.curreny_total + ' ' }}
+                                                            {{ getShippingRate() | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.currency_total + ' ' }}
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -461,7 +461,7 @@
                                                             Grand Total
                                                         </td>
                                                         <td class="text-gray-900 fs-3 fw-bolder text-end">
-                                                            {{ sale?.total | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.curreny_total + ' ' }}
+                                                            {{ sale?.total | currency:sale?.currency_payment == 'eur' ? '€ ' : sale?.currency_total + ' ' }}
                                                         </td>
                                                     </tr>
                                                 </tbody>

@@ -59,6 +59,7 @@ export interface LaunchCampaignResult {
 
 export interface PrelaunchConfig {
   enabled: boolean;
+  launch_date?: Date | string | null;
   updated_at: Date;
   updated_by?: number;
 }
@@ -204,9 +205,16 @@ export class PrelaunchCampaignsService {
   /**
    * Actualizar configuración del pre-launch mode
    */
-  updatePrelaunchConfig(enabled: boolean): Observable<PrelaunchConfig> {
+  updatePrelaunchConfig(enabled: boolean, launchDate?: Date | string | null): Observable<PrelaunchConfig> {
     const headers = new HttpHeaders({ 'token': this._authService.token || '' });
-    return this.http.put<any>(`${this.API_URL}/prelaunch/config`, { enabled }, { headers }).pipe(
+    const payload: any = { enabled };
+    
+    // Solo incluir launch_date en el payload si se proporciona
+    if (launchDate !== undefined) {
+      payload.launch_date = launchDate;
+    }
+    
+    return this.http.put<any>(`${this.API_URL}/prelaunch/config`, payload, { headers }).pipe(
       map(response => response.data || response)
     );
   }
