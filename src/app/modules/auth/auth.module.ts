@@ -6,6 +6,7 @@ import { AuthRoutingModule } from './auth-routing.module';
 import { LoginComponent } from './login/login.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { LogoutComponent } from './logout/logout.component';
 import { AuthComponent } from './auth.component';
 import {TranslationModule} from '../i18n/translation.module';
@@ -15,6 +16,7 @@ import {TranslationModule} from '../i18n/translation.module';
     LoginComponent,
     RegistrationComponent,
     ForgotPasswordComponent,
+    ResetPasswordComponent,
     LogoutComponent,
     AuthComponent,
   ],

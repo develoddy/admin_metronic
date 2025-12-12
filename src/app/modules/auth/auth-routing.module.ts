@@ -4,6 +4,7 @@ import {AuthComponent} from './auth.component';
 import {LoginComponent} from './login/login.component';
 import {RegistrationComponent} from './registration/registration.component';
 import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
+import {ResetPasswordComponent} from './reset-password/reset-password.component';
 import {LogoutComponent} from './logout/logout.component';
 
 
@@ -29,6 +30,14 @@ const routes: Routes = [
       {
         path: 'forgot-password',
         component: ForgotPasswordComponent
+      },
+      {
+        path: 'reset-password',
+        component: ResetPasswordComponent
+      },
+      {
+        path: 'reset-password/:token/:email',
+        component: ResetPasswordComponent
       },
       {
         path: 'logout',

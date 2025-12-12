@@ -17,6 +17,12 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   registrationForm: FormGroup;
   hasError: boolean;
   isLoading$: Observable<boolean>;
+  
+  // Estados de registro
+  isRegistrationComplete: boolean = false;
+  isAutoLoggingIn: boolean = false;
+  successMessage: string = '';
+  countdownTimer: number = 5;
 
   // private fields
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
@@ -105,15 +111,64 @@ export class RegistrationComponent implements OnInit, OnDestroy {
       const registrationSubscr = this.authService
         .registration(newUser)
         .pipe(first())
-        .subscribe((user: UserModel) => {
-          if (user) {
-            this.router.navigate(['/']);
-          } else {
+        .subscribe({
+          next: (user: UserModel) => {
+            console.log('Registration response:', user);
+            if (user) {
+              // Mostrar éxito inmediatamente
+              this.showSuccessAndRedirect();
+            } else {
+              this.hasError = true;
+            }
+          },
+          error: (error) => {
+            console.error('Registration error:', error);
             this.hasError = true;
           }
         });
       this.unsubscribe.push(registrationSubscr);
     });
+  }
+
+  showSuccessAndRedirect() {
+    this.isRegistrationComplete = true;
+    this.isAutoLoggingIn = true;
+    this.successMessage = '¡Cuenta creada exitosamente! Iniciando sesión automáticamente...';
+    
+    console.log('Mostrando mensaje de éxito del registro');
+    
+    // Countdown timer con UX mejorada
+    const countdown = setInterval(() => {
+      this.countdownTimer--;
+      
+      // Actualizar mensaje según el tiempo restante
+      if (this.countdownTimer === 4) {
+        this.successMessage = '✅ Cuenta verificada. Configurando acceso...';
+      } else if (this.countdownTimer === 3) {
+        this.successMessage = '🔐 Sesión iniciada correctamente';
+      } else if (this.countdownTimer === 2) {
+        this.successMessage = '🚀 Preparando panel de administración...';
+      } else if (this.countdownTimer === 1) {
+        this.successMessage = '📊 ¡Redirigiendo al dashboard!';
+      }
+      
+      if (this.countdownTimer <= 0) {
+        clearInterval(countdown);
+        
+        // Verificación con fallback más suave
+        const isAuthenticated = this.authService.isLogued();
+        console.log('¿Usuario autenticado?', isAuthenticated);
+        
+        if (isAuthenticated) {
+          console.log('✅ Usuario autenticado, redirigiendo al dashboard');
+          this.router.navigate(['/']);
+        } else {
+          console.warn('⚠️ Token no detectado, intentando redirigir igual...');
+          // Intentar redirigir de todas formas por si el token se guarda asincrónamente
+          this.router.navigate(['/']);
+        }
+      }
+    }, 1000);
   }
 
   ngOnDestroy() {

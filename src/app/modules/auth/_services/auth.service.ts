@@ -119,24 +119,53 @@ export class AuthService implements OnDestroy {
   registration(user: UserModel): Observable<any> {
      this.isLoadingSubject.next(true);
      return this.authHttpService.createUser(user).pipe(
-       map(() => {
-         this.isLoadingSubject.next(false);
+       map((response) => {
+         console.log('User created successfully:', response);
+         return response;
        }),
-       switchMap(() => this.login(user.email, user.password)),
+       switchMap(() => {
+         console.log('Attempting auto-login...');
+         return this.login(user.email, user.password);
+       }),
        catchError((err) => {
-         console.error('err', err);
+         console.error('Registration error:', err);
+         this.isLoadingSubject.next(false);
          return of(undefined);
        }),
        finalize(() => this.isLoadingSubject.next(false))
      );
    }
 
-  // forgotPassword(email: string): Observable<boolean> {
-  //   this.isLoadingSubject.next(true);
-  //   return this.authHttpService
-  //     .forgotPassword(email)
-  //     .pipe(finalize(() => this.isLoadingSubject.next(false)));
-  // }
+  // Forgot Password functionality
+  requestPasswordReset(email: string): Observable<any> {
+    this.isLoadingSubject.next(true);
+    let url = URL_SERVICIOS + "/users/request-reset-password-admin";
+    return this.http.post(url, { email }).pipe(
+      map((response: any) => {
+        return response;
+      }),
+      catchError((error: any) => {
+        console.error('Error requesting password reset:', error);
+        return of(error);
+      }),
+      finalize(() => this.isLoadingSubject.next(false))
+    );
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    this.isLoadingSubject.next(true);
+    let url = URL_SERVICIOS + "/users/reset-password";
+    return this.http.post(url, { token, newPassword }).pipe(
+      map((response: any) => {
+        return response;
+      }),
+      catchError((error: any) => {
+        console.error('Error resetting password:', error);
+        return of(error);
+      }),
+      finalize(() => this.isLoadingSubject.next(false))
+    );
+  }
 
   // private methods
   private setAuthFromLocalStorage(auth: any): boolean {
@@ -144,8 +173,9 @@ export class AuthService implements OnDestroy {
     // if (auth.access_token && auth.user) {
       localStorage.setItem('token', auth.USER_FRONTED.accessToken );
       localStorage.setItem('user', JSON.stringify(auth.USER_FRONTED.user));
-      this.user = auth.USER_FRONTED.access_token;
-      this.token = auth.USER_FRONTED.user;
+      this.token = auth.USER_FRONTED.accessToken;  // ✅ Corregido
+      this.user = auth.USER_FRONTED.user;          // ✅ Corregido
+      console.log('Token guardado correctamente:', this.token ? 'Sí' : 'No');
       return true;
     // }
     // return false;

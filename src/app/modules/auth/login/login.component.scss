@@ -1,5 +1,6 @@
 :host {
   width: 100%;
+  
   @media (min-width: 992px) {
     .login-form {
       width: 100%;
@@ -9,5 +10,127 @@
         width: 100%;
       }
     }
+  }
+}
+
+// Enhanced Login Styles
+.login-signin {
+  .alert {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    
+    &.animate__shakeX {
+      animation: shakeX 0.6s ease-in-out;
+    }
+  }
+
+  .form-control {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+      border-color: var(--bs-primary);
+    }
+    
+    &.is-invalid {
+      border-color: var(--bs-danger);
+      box-shadow: 0 0 0 0.2rem rgba(var(--bs-danger-rgb), 0.25);
+    }
+  }
+
+  .btn {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+    border-radius: 6px;
+    
+    i {
+      font-size: 0.8em;
+    }
+  }
+
+  // Security badges section
+  .security-badges {
+    .badge {
+      margin: 0.25rem;
+      transition: transform 0.2s ease;
+      
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+// Separator enhancement
+.separator {
+  &.separator-content {
+    margin: 2rem 0;
+    
+    &:before {
+      background-color: var(--bs-gray-300);
+    }
+    
+    span {
+      background-color: var(--bs-body-bg);
+      color: var(--bs-muted);
+      padding: 0 1rem;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Loading animations
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+// Password visibility toggle
+.password-toggle {
+  cursor: pointer;
+  color: var(--bs-muted);
+  
+  &:hover {
+    color: var(--bs-primary);
+  }
+}
+
+// Animation keyframes
+@keyframes shakeX {
+  from,
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translate3d(-10px, 0, 0);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translate3d(10px, 0, 0);
   }
 }

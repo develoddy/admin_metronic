@@ -4,27 +4,35 @@
   <form class="form" [formGroup]="loginForm" novalidate="novalidate" id="kt_login_signin_form" (ngSubmit)="submit()">
     <!--begin::Title-->
     <div class="pb-13 pt-lg-0 pt-5">
-      <h3 class="font-weight-bolder text-dark font-size-h4 font-size-h1-lg">
-        Bienvenido/a Colaborador a<br /> Ecommerce
-      </h3>
-      <!-- <span class="text-muted font-weight-bold font-size-h4"
-        >New Here?
-        <a
-          routerLink="/auth/registration"
-          id="kt_login_signup"
-          class="text-primary font-weight-bolder"
-          >{{ "AUTH.GENERAL.SIGNUP_BUTTON" | translate }}</a
-        >
-      </span> -->
+      <div class="d-flex align-items-center mb-5">
+        <i class="fas fa-shield-alt text-primary fs-2x me-3"></i>
+        <div>
+          <h3 class="font-weight-bolder text-dark font-size-h4 font-size-h1-lg mb-0">
+            Panel de Administración
+          </h3>
+          <span class="badge badge-light-primary fs-7 mt-1">
+            <i class="fas fa-lock me-1"></i>Acceso Seguro
+          </span>
+        </div>
+      </div>
+      <p class="text-muted font-weight-bold font-size-h6">
+        Ingresa tus credenciales para acceder al sistema de gestión
+      </p>
     </div>
     <!--end::Title-->
 
     <!-- begin::Alert info-->
-    <ng-container *ngIf="!hasError">
-      <div class="mb-10 alert alert-custom alert-light-info alert-dismissible">
-        <div class="alert-text">
-          Ingresa tus credenciales por ejemplo: <strong>{{ defaultAuth.email }}</strong> y contraseña
-          <strong>{{ defaultAuth.password }}</strong> a continuación.
+    <ng-container *ngIf="!hasError && !(isLoading$ | async)">
+      <div class="mb-8 alert alert-custom alert-light-info alert-dismissible border-0 rounded-lg">
+        <div class="alert-text d-flex align-items-center">
+          <i class="fas fa-info-circle fs-4 text-info me-3"></i>
+          <div>
+            <strong>Credenciales de prueba:</strong><br>
+            <small class="text-muted">
+              Email: <code class="bg-light-info px-2 py-1 rounded">{{ defaultAuth.email }}</code> 
+              Password: <code class="bg-light-info px-2 py-1 rounded">{{ defaultAuth.password }}</code>
+            </small>
+          </div>
         </div>
       </div>
     </ng-container>
@@ -32,11 +40,31 @@
 
     <!-- begin::Alert error-->
     <ng-container *ngIf="hasError">
-      <div class="mb-10 alert alert-custom alert-light-danger alert-dismissible">
-        <div class="alert-text">Los datos de inicio de sesión son incorrectos</div>
+      <div class="mb-8 alert alert-custom alert-light-danger alert-dismissible border-0 rounded-lg animate__animated animate__shakeX">
+        <div class="alert-text d-flex align-items-center">
+          <i class="fas fa-exclamation-triangle fs-4 text-danger me-3"></i>
+          <div>
+            <strong>Error de autenticación</strong><br>
+            <small>Por favor verifica tus credenciales e intenta de nuevo</small>
+          </div>
+        </div>
       </div>
     </ng-container>
     <!-- end::Alert error-->
+
+    <!-- begin::Alert loading-->
+    <ng-container *ngIf="isLoading$ | async">
+      <div class="mb-8 alert alert-custom alert-light-primary alert-dismissible border-0 rounded-lg">
+        <div class="alert-text d-flex align-items-center">
+          <div class="spinner-border spinner-border-sm text-primary me-3" role="status"></div>
+          <div>
+            <strong>Verificando credenciales...</strong><br>
+            <small class="text-muted">Por favor espera un momento</small>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <!-- end::Alert loading-->
 
     <!--begin::Form group-->
     <div class="form-group">
@@ -53,14 +81,16 @@
     <!--begin::Form group-->
     <div class="form-group">
       <div class="d-flex justify-content-between mt-n5">
-        <label class="font-size-h6 font-weight-bolder text-dark pt-5">Contraseña</label>
-        <!-- <a
+        <label class="font-size-h6 font-weight-bolder text-dark pt-5">
+          <i class="fas fa-key text-muted me-2"></i>Contraseña
+        </label>
+        <a
           routerLink="/auth/forgot-password"
-          class="text-primary font-size-h6 font-weight-bolder text-hover-primary pt-5"
+          class="text-primary font-size-h6 font-weight-bolder text-hover-primary pt-5 text-decoration-none"
           id="kt_login_forgot"
         >
-          Forgot Password ?
-        </a> -->
+          <i class="fas fa-question-circle me-1"></i>¿Olvidaste tu contraseña?
+        </a>
       </div>
 
       <input class="form-control form-control-solid h-auto py-7 px-6 rounded-lg" type="password" name="password" autocomplete="off" formControlName="password"[ngClass]="{ 'is-invalid': loginForm.controls['password'].invalid }"/>
@@ -72,28 +102,45 @@
 
     <!--begin::Action-->
     <div class="pb-lg-0 pb-5 d-flex flex-column">
-      <button type="submit" id="kt_login_signin_submit" class="btn btn-primary w-100 font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-3" [disabled]="loginForm.invalid">
-        Iniciar sesión
+      <button 
+        type="submit" 
+        id="kt_login_signin_submit" 
+        class="btn btn-primary w-100 font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-3 position-relative"
+        [disabled]="loginForm.invalid || (isLoading$ | async)"
+      >
+        <ng-container *ngIf="!(isLoading$ | async)">
+          <i class="fas fa-sign-in-alt me-2"></i>Iniciar sesión
+        </ng-container>
+        <ng-container *ngIf="isLoading$ | async">
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          Verificando...
+        </ng-container>
       </button>
 
-      <a href="#" onclick="return false;" [routerLink]="['/auth/registration']">
-        <button type="submit" id="kt_login_signup_submit" class="btn btn-success w-100 font-weight-bolder font-size-h6 px-8 py-4 my-3 mr-3">
-          Crear cuenta
+      <div class="separator separator-content my-6">
+        <span class="w-125px text-muted font-weight-bolder fs-7">¿No tienes cuenta?</span>
+      </div>
+
+      <a href="#" onclick="return false;" [routerLink]="['/auth/registration']" class="text-decoration-none">
+        <button type="button" id="kt_login_signup_submit" class="btn btn-light-success w-100 font-weight-bolder font-size-h6 px-8 py-4">
+          <i class="fas fa-user-plus me-2"></i>Crear cuenta nueva
         </button>
       </a>
 
-      <!-- <button
-        type="button"
-        class="btn btn-light-primary font-weight-bolder px-8 py-4 my-3 font-size-lg"
-      >
-        <span class="svg-icon svg-icon-md">
-          <img src="./assets/media/svg/social-icons/google.svg" />
-        </span>
-        Sign in with Google
-      </button> -->
-      <ng-container *ngIf="isLoading$ | async">
-        <span class="spinner spinner-primary ml-5"></span>
-      </ng-container>
+      <!-- Security Badge -->
+      <div class="mt-6 text-center">
+        <div class="d-flex align-items-center justify-content-center">
+          <span class="badge badge-light-primary fs-8 me-2">
+            <i class="fas fa-shield-check me-1"></i>Seguro
+          </span>
+          <span class="badge badge-light-success fs-8 me-2">
+            <i class="fas fa-lock me-1"></i>Encriptado
+          </span>
+          <span class="badge badge-light-info fs-8">
+            <i class="fas fa-certificate me-1"></i>SSL
+          </span>
+        </div>
+      </div>
     </div>
 
     <!--end::Action-->
