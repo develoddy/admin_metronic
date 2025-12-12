@@ -1,1 +1,487 @@
-<app-dashboard-wrapper></app-dashboard-wrapper>
+<!--begin::Dashboard Unificado-->
+<div class="dashboard-unified">
+  <!--begin::Header-->
+  <div class="row mb-6">
+    <div class="col-12">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <h1 class="text-dark fw-bolder fs-2x mb-2">
+            <i class="fas fa-tachometer-alt text-primary me-2"></i>
+            Dashboard Central
+          </h1>
+          <p class="text-muted fs-6 mb-0">
+            Centro de comando de tu plataforma e-commerce
+          </p>
+        </div>
+        <div class="d-flex align-items-center">
+          <!-- Status Printful -->
+          <div class="badge badge-light-success fs-7 me-3">
+            <i class="fas fa-plug text-success me-1"></i>
+            Printful Conectado
+          </div>
+          <!-- Última sincronización -->
+          <small class="text-muted">
+            <i class="fas fa-sync-alt text-muted me-1"></i>
+            Último sync: {{ formatDate(printfulStatus.lastSync) }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Header-->
+
+  <!--begin::Métricas Principales-->
+  <div class="row g-6 mb-6">
+    <!-- Total Órdenes -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex align-items-center">
+          <div class="symbol symbol-60px me-5">
+            <div class="symbol-circle bg-light-primary">
+              <i class="fas fa-shopping-cart fs-2x text-primary"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="text-muted fw-bold fs-7">Total Órdenes</span>
+              <div class="spinner-border spinner-border-sm text-primary" *ngIf="isLoadingStats"></div>
+            </div>
+            <span class="text-dark fw-bolder fs-2x">{{ stats.totalOrders | number }}</span>
+            <div class="d-flex align-items-center mt-2">
+              <span class="badge badge-light-success fs-8">
+                <i class="fas fa-chart-line me-1 text-success"></i>Activas: {{ stats.activeOrders }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Ingresos -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex align-items-center">
+          <div class="symbol symbol-60px me-5">
+            <div class="symbol-circle bg-light-success">
+              <i class="fas fa-euro-sign fs-2x text-success"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="text-muted fw-bold fs-7">Ingresos Totales</span>
+              <div class="spinner-border spinner-border-sm text-success" *ngIf="isLoadingStats"></div>
+            </div>
+            <span class="text-dark fw-bolder fs-2x">{{ formatCurrency(stats.totalRevenue) }}</span>
+            <div class="d-flex align-items-center mt-2">
+              <span class="badge badge-light-info fs-8">
+                <i class="fas fa-calendar-day me-1 text-info"></i>Este mes
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beneficios -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex align-items-center">
+          <div class="symbol symbol-60px me-5">
+            <div class="symbol-circle bg-light-warning">
+              <i class="fas fa-chart-pie fs-2x text-warning"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="text-muted fw-bold fs-7">Beneficios</span>
+              <div class="spinner-border spinner-border-sm text-warning" *ngIf="isLoadingStats"></div>
+            </div>
+            <span class="text-dark fw-bolder fs-2x">{{ formatCurrency(stats.totalProfit) }}</span>
+            <div class="d-flex align-items-center mt-2">
+              <span class="badge badge-light-warning fs-8">
+                <i class="fas fa-percentage me-1 text-warning"></i>Margen neto
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Productos Sincronizados -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex align-items-center">
+          <div class="symbol symbol-60px me-5">
+            <div class="symbol-circle bg-light-info">
+              <i class="fas fa-boxes fs-2x text-info"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="text-muted fw-bold fs-7">Productos Sync</span>
+              <div class="spinner-border spinner-border-sm text-info" *ngIf="isLoadingProducts"></div>
+            </div>
+            <span class="text-dark fw-bolder fs-2x">{{ stats.totalProducts | number }}</span>
+            <div class="d-flex align-items-center mt-2">
+              <span class="badge badge-light-success fs-8">
+                <i class="fas fa-sync-alt me-1 text-success"></i>Printful
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Métricas Principales-->
+
+  <!--begin::Panel de Proveedores-->
+  <div class="row g-6 mb-6">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header border-0 pt-6">
+          <div class="card-title">
+            <h3 class="fw-bolder text-dark">
+              <i class="fas fa-network-wired text-primary me-2"></i>
+              Centro de Proveedores
+            </h3>
+          </div>
+          <div class="card-toolbar">
+            <button 
+              class="btn btn-sm btn-primary"
+              (click)="syncPrintfulProducts()"
+              [disabled]="isSyncingPrintful">
+              <i class="fas fa-sync-alt me-2" *ngIf="!isSyncingPrintful"></i>
+              <div class="spinner-border spinner-border-sm me-2" *ngIf="isSyncingPrintful"></div>
+              {{ isSyncingPrintful ? 'Sincronizando...' : 'Sincronizar Printful' }}
+            </button>
+          </div>
+        </div>
+        <div class="card-body pt-0">
+          <div class="row g-4">
+            <!-- Printful Card -->
+            <div class="col-md-6">
+              <div class="border border-gray-300 border-dashed rounded px-7 py-6 h-100">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                  <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px me-3">
+                      <div class="symbol-circle bg-light-primary">
+                        <i class="fas fa-print fs-2x text-primary"></i>
+                      </div>
+                    </div>
+                    <div>
+                      <h4 class="fw-bolder text-dark mb-1">PRINTFUL</h4>
+                      <span class="badge badge-success fs-8">
+                        <i class="fas fa-check-circle me-1 text-white"></i>Activo
+                      </span>
+                    </div>
+                  </div>
+                  <button 
+                    class="btn btn-sm btn-light-primary"
+                    (click)="navigateToPrintful()"
+                    [disabled]="isSyncingPrintful">
+                    <i class="fas fa-external-link-alt me-1" *ngIf="!isSyncingPrintful"></i>
+                    <div class="spinner-border spinner-border-sm me-1" *ngIf="isSyncingPrintful"></div>
+                    Ver Detalles
+                  </button>
+                </div>
+                
+                <div class="row g-3">
+                  <div class="col-6">
+                    <div class="d-flex align-items-center">
+                      <i class="fas fa-shopping-cart text-muted me-2"></i>
+                      <span class="text-muted fs-7">Órdenes Pendientes:</span>
+                    </div>
+                    <span class="fw-bolder text-dark fs-6">{{ stats.ordersByStatus?.pending || 0 }}</span>
+                  </div>
+                  <div class="col-6">
+                    <div class="d-flex align-items-center">
+                      <i class="fas fa-boxes text-muted me-2"></i>
+                      <span class="text-muted fs-7">Productos:</span>
+                    </div>
+                    <span class="fw-bolder text-dark fs-6">{{ stats.totalProducts }}</span>
+                  </div>
+                  <div class="col-6">
+                    <div class="d-flex align-items-center">
+                      <i class="fas fa-webhook text-muted me-2"></i>
+                      <span class="text-muted fs-7">Webhook:</span>
+                    </div>
+                    <span class="badge badge-light-success fs-8">
+                      <i class="fas fa-check me-1 text-success"></i>Activo
+                    </span>
+                  </div>
+                  <div class="col-6">
+                    <div class="d-flex align-items-center">
+                      <i class="fas fa-clock text-muted me-2"></i>
+                      <span class="text-muted fs-7">Última Sync:</span>
+                    </div>
+                    <span class="text-success fw-bold fs-8">hace 2 min</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Próximo Proveedor -->
+            <div class="col-md-6">
+              <div class="border border-gray-300 border-dashed rounded px-7 py-6 h-100 d-flex align-items-center justify-content-center">
+                <div class="text-center">
+                  <div class="symbol symbol-100px mx-auto mb-4">
+                    <div class="symbol-circle bg-light-muted">
+                      <i class="fas fa-plus fs-2x text-muted"></i>
+                    </div>
+                  </div>
+                  <h5 class="fw-bolder text-muted mb-2">Próximo Proveedor</h5>
+                  <p class="text-muted fs-7 mb-4">
+                    Expandimos tu catálogo con más proveedores
+                  </p>
+                  <button class="btn btn-sm btn-light-primary">
+                    <i class="fas fa-cog me-1"></i>Configurar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Panel de Proveedores-->
+
+  <!--begin::Actividad Reciente-->
+  <div class="row g-6">
+    <!-- Órdenes Recientes -->
+    <div class="col-xl-8">
+      <div class="card h-100">
+        <div class="card-header border-0 pt-6">
+          <div class="card-title">
+            <h3 class="fw-bolder text-dark">
+              <i class="fas fa-history text-info me-2"></i>
+              Actividad Reciente
+            </h3>
+          </div>
+          <div class="card-toolbar">
+            <div class="d-flex align-items-center">
+              <span class="badge badge-light-info fs-8 me-3">
+                <i class="fas fa-clock me-1 text-info"></i>Tiempo real
+              </span>
+              <button class="btn btn-sm btn-light-primary me-2" (click)="viewAllOrders()">
+                <i class="fas fa-list me-1"></i>Ver Todas
+              </button>
+              <button class="btn btn-sm btn-light-warning" (click)="loadMockData()" title="Cargar datos de prueba">
+                <i class="fas fa-database me-1"></i>Mock Data
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body pt-0">
+          <div *ngIf="isLoadingOrders" class="text-center py-10">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted mt-3">Cargando órdenes recientes...</p>
+            <small class="text-muted">Conectando con Printful...</small>
+          </div>
+
+          <div *ngIf="!isLoadingOrders && hasOrdersError" 
+               class="text-center py-10">
+            <i class="fas fa-exclamation-triangle fs-3x text-warning mb-4"></i>
+            <h4 class="fw-bolder text-warning">Error cargando órdenes</h4>
+            <p class="text-muted mb-4">{{ ordersErrorMessage }}</p>
+            <button class="btn btn-sm btn-light-primary" (click)="loadRecentOrders()">
+              <i class="fas fa-redo me-2"></i>Reintentar
+            </button>
+          </div>
+
+          <div *ngIf="!isLoadingOrders && !hasOrdersError && stats.recentOrders.length === 0" 
+               class="text-center py-10">
+            <i class="fas fa-inbox fs-3x text-muted mb-4"></i>
+            <h4 class="fw-bolder text-muted">No hay órdenes recientes</h4>
+            <p class="text-muted">Las órdenes aparecerán aquí cuando se procesen</p>
+            <button class="btn btn-sm btn-light-info" (click)="loadRecentOrders()">
+              <i class="fas fa-sync-alt me-2"></i>Actualizar
+            </button>
+          </div>
+
+          <div *ngIf="!isLoadingOrders && stats.recentOrders.length > 0">
+            <div class="table-responsive">
+              <table class="table table-row-dashed align-middle gs-0 gy-4">
+                <thead>
+                  <tr class="fw-bolder text-muted bg-light">
+                    <th class="min-w-100px">Orden</th>
+                    <th class="min-w-150px">Cliente</th>
+                    <th class="min-w-100px">Estado</th>
+                    <th class="min-w-120px">
+                      <div class="d-flex flex-column">
+                        <span>Total Cliente</span>
+                        <small class="text-muted fs-8">Precio de venta</small>
+                      </div>
+                    </th>
+                    <th class="min-w-100px">
+                      <div class="d-flex flex-column">
+                        <span>Costo Printful</span>
+                        <small class="text-muted fs-8">Interno</small>
+                      </div>
+                    </th>
+                    <th class="min-w-120px">Fecha</th>
+                    <th class="min-w-100px text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let order of stats.recentOrders; trackBy: trackByOrderId">
+                    <td>
+                      <div class="d-flex flex-column">
+                        <span class="text-dark fw-bolder fs-7">#{{ order.id }}</span>
+                        <small class="text-muted fs-8">{{ order.external_id || 'N/A' }}</small>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="symbol symbol-30px me-3">
+                          <div class="symbol-circle bg-light-primary">
+                            <i class="fas fa-user fs-6 text-primary"></i>
+                          </div>
+                        </div>
+                        <div class="d-flex flex-column">
+                          <span class="text-gray-800 fw-bold fs-7">{{ order.recipient?.name || 'N/A' }}</span>
+                          <small class="text-muted fs-8">{{ order.recipient?.email || '' }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge" 
+                            [ngClass]="'badge-light-' + getStatusColor(order.status)">
+                        {{ order.status }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="d-flex flex-column">
+                        <span class="text-dark fw-bolder fs-7">{{ formatCurrency(getCustomerPrice(order)) }}</span>
+                        <small *ngIf="hasRealCustomerPrice(order)" class="text-success fs-8">
+                          <i class="fas fa-check-circle me-1"></i>Precio real
+                        </small>
+                        <small *ngIf="!hasRealCustomerPrice(order)" class="text-warning fs-8">
+                          <i class="fas fa-exclamation-triangle me-1"></i>Solo costo Printful
+                        </small>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="d-flex flex-column">
+                        <span class="text-muted fw-bold fs-7">{{ formatCurrency(getPrintfulCost(order)) }}</span>
+                        <small class="text-warning fs-8">
+                          <i class="fas fa-industry me-1"></i>Costo base
+                        </small>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="d-flex flex-column">
+                        <span class="text-muted fs-7">{{ formatDate(order.created) }}</span>
+                        <small class="text-muted fs-8">
+                          {{ getTimeAgo(order.created) }}
+                        </small>
+                      </div>
+                    </td>
+                    <td class="text-center">
+                      <div class="d-flex justify-content-center">
+                        <button class="btn btn-sm btn-light-primary me-1" 
+                                (click)="viewOrderDetails(order)"
+                                title="Ver detalles de la orden">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light-info" 
+                                (click)="copyOrderId(order)"
+                                title="Copiar ID de orden">
+                          <i class="fas fa-copy"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="col-xl-4">
+      <div class="card h-100">
+        <div class="card-header border-0 pt-6">
+          <div class="card-title">
+            <h3 class="fw-bolder text-dark">
+              <i class="fas fa-bolt text-warning me-2"></i>
+              Acciones Rápidas
+            </h3>
+          </div>
+        </div>
+        <div class="card-body pt-0">
+          <div class="row g-3">
+            <div class="col-12">
+              <button class="btn btn-light-primary w-100 text-start" 
+                      (click)="createNewOrder()"
+                      [disabled]="isCreatingOrder">
+                <i class="fas fa-plus-circle me-3" *ngIf="!isCreatingOrder"></i>
+                <div class="spinner-border spinner-border-sm me-3" *ngIf="isCreatingOrder"></div>
+                <div>
+                  <span class="fw-bolder d-block">{{ isCreatingOrder ? 'Preparando...' : 'Nueva Orden' }}</span>
+                  <small class="text-muted">{{ isCreatingOrder ? 'Cargando formulario' : 'Crear orden manual' }}</small>
+                </div>
+              </button>
+            </div>
+            <div class="col-12">
+              <button class="btn btn-light-success w-100 text-start" 
+                      (click)="syncPrintfulProducts()"
+                      [disabled]="isSyncingPrintful">
+                <i class="fas fa-sync-alt me-3" *ngIf="!isSyncingPrintful"></i>
+                <div class="spinner-border spinner-border-sm me-3" *ngIf="isSyncingPrintful"></div>
+                <div>
+                  <span class="fw-bolder d-block">{{ isSyncingPrintful ? 'Sincronizando...' : 'Sincronizar Printful' }}</span>
+                  <small class="text-muted">{{ isSyncingPrintful ? 'Actualizando datos' : 'Actualizar productos' }}</small>
+                </div>
+              </button>
+            </div>
+            <div class="col-12">
+              <button class="btn btn-light-info w-100 text-start" 
+                      (click)="viewAnalytics()"
+                      [disabled]="isLoadingAnalytics">
+                <i class="fas fa-chart-line me-3" *ngIf="!isLoadingAnalytics"></i>
+                <div class="spinner-border spinner-border-sm me-3" *ngIf="isLoadingAnalytics"></div>
+                <div>
+                  <span class="fw-bolder d-block">{{ isLoadingAnalytics ? 'Cargando...' : 'Ver Analytics' }}</span>
+                  <small class="text-muted">{{ isLoadingAnalytics ? 'Preparando gráficos' : 'Métricas detalladas' }}</small>
+                </div>
+              </button>
+            </div>
+            <div class="col-12">
+              <button class="btn btn-light-warning w-100 text-start" 
+                      (click)="openConfiguration()"
+                      [disabled]="isLoadingConfig">
+                <i class="fas fa-cog me-3" *ngIf="!isLoadingConfig"></i>
+                <div class="spinner-border spinner-border-sm me-3" *ngIf="isLoadingConfig"></div>
+                <div>
+                  <span class="fw-bolder d-block">{{ isLoadingConfig ? 'Accediendo...' : 'Configuración' }}</span>
+                  <small class="text-muted">{{ isLoadingConfig ? 'Verificando permisos' : 'Ajustes del sistema' }}</small>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Status de Estados -->
+          <div class="mt-6" *ngIf="stats.ordersByStatus">
+            <h6 class="fw-bolder text-dark mb-4">Estados de Órdenes</h6>
+            <div class="row g-2">
+              <div class="col-6" *ngFor="let status of getStatusList()">
+                <div class="border border-gray-300 border-dashed rounded p-3 text-center">
+                  <span class="badge" 
+                        [ngClass]="'badge-light-' + getStatusColor(status.key)">
+                    {{ status.key }}
+                  </span>
+                  <div class="fw-bolder text-dark fs-6 mt-2">{{ status.value }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Actividad Reciente-->
+</div>
+<!--end::Dashboard Unificado-->
