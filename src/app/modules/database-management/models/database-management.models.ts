@@ -64,11 +64,49 @@ export interface RollbackRequest {
 }
 
 export interface DatabaseOperation {
-  type: 'reset' | 'migrate' | 'rollback' | 'status';
+  type: 'reset' | 'migrate' | 'rollback' | 'status' | 'seed';
   isLoading: boolean;
   error: string | null;
   success: boolean;
   lastResult: any;
+}
+
+export interface MigrationsStatusResponse {
+  success: boolean;
+  pendingMigrations: Migration[];
+  executedMigrations: Migration[];
+  totalPending: number;
+  totalExecuted: number;
+  environment: string;
+  checkedAt: string;
+}
+
+export interface Migration {
+  name: string;
+  status: 'pending' | 'executed';
+}
+
+export interface SeedersStatusResponse {
+  success: boolean;
+  availableSeeders: Seeder[];
+  executedSeeders: Seeder[];
+  totalSeeders: number;
+  seedersDirectory: string;
+  environment: string;
+  checkedAt: string;
+}
+
+export interface Seeder {
+  name: string;
+  path: string;
+  status: 'available' | 'executed';
+  executedAt?: string;
+  size: number;
+  modified: Date;
+}
+
+export interface SeederRequest {
+  confirmSeeders: boolean;
 }
 
 export interface DatabaseManagementState {

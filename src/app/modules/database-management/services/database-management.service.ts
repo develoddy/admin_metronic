@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, finalize, catchError } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { AuthService } from '../../auth/_services/auth.service';
 import { BackupsService } from '../../backups/services/backups.service';
 import { environment } from '../../../../environments/environment';
@@ -13,7 +14,10 @@ import {
   MigrationResponse,
   RollbackRequest,
   DatabaseOperation,
-  DatabaseManagementState
+  DatabaseManagementState,
+  MigrationsStatusResponse,
+  SeedersStatusResponse,
+  SeederRequest
 } from '../models/database-management.models';
 
 @Injectable({
@@ -80,7 +84,84 @@ export class DatabaseManagementService {
   }
 
   /**
-   * 📊 Obtener estado de la base de datos
+   * � Obtener estado de migraciones
+   */
+  getMigrationsStatus(): Observable<MigrationsStatusResponse> {
+    console.log('🔍 Llamando a:', `${this.API_URL}/migrations/status`);
+    console.log('🔐 Headers:', this.getHeaders());
+    
+    return this.http.get<MigrationsStatusResponse>(`${this.API_URL}/migrations/status`, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      catchError(error => {
+        console.error('❌ Error obteniendo estado de migraciones:', error);
+        console.error('❌ Status:', error.status);
+        console.error('❌ Message:', error.error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * 📋 Obtener seeders disponibles
+   */
+  getSeedersStatus(): Observable<SeedersStatusResponse> {
+    console.log('🔍 Llamando a:', `${this.API_URL}/seeders/status`);
+    console.log('🔐 Headers:', this.getHeaders());
+    
+    return this.http.get<SeedersStatusResponse>(`${this.API_URL}/seeders/status`, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      catchError(error => {
+        console.error('❌ Error obteniendo seeders:', error);
+        console.error('❌ Status:', error.status);
+        console.error('❌ Message:', error.error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * 🌱 Ejecutar seeder específico
+   */
+  runSingleSeeder(seederName: string): Observable<MigrationResponse> {
+    this.updateOperationState('seed', true);
+
+    const request = {
+      seederName,
+      confirmSeeder: true
+    };
+
+    return this.http.post<MigrationResponse>(`${this.API_URL}/seeders/single`, request, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      finalize(() => this.updateOperationState('seed', false, null, true)),
+      catchError(error => {
+        this.updateOperationState('seed', false, error.message);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * 🌱 Ejecutar seeders
+   */
+  runSeeders(request: SeederRequest): Observable<MigrationResponse> {
+    this.updateOperationState('seed', true);
+
+    return this.http.post<any>(`${this.API_URL}/seeders/run`, request, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      finalize(() => this.updateOperationState('seed', false, null, true)),
+      catchError(error => {
+        this.updateOperationState('seed', false, error.message);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * �📊 Obtener estado de la base de datos
    */
   getDatabaseStatus(): Observable<DatabaseStatus> {
     this.updateOperationState('status', true);
@@ -124,6 +205,36 @@ export class DatabaseManagementService {
       }),
       catchError(error => {
         this.updateOperationState('reset', false, error.error?.message || error.message);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * 🏃‍♂️ Ejecutar migración específica
+   */
+  runSingleMigration(migrationName: string): Observable<MigrationResponse> {
+    console.log('🔧 [DEBUG] Iniciando ejecución de migración individual:', migrationName);
+    this.updateOperationState('migrate', true);
+
+    const request = {
+      migrationName,
+      confirmMigration: true
+    };
+
+    console.log('🔧 [DEBUG] Request data:', request);
+    console.log('🔧 [DEBUG] API URL:', `${this.API_URL}/migrate/single`);
+
+    return this.http.post<MigrationResponse>(`${this.API_URL}/migrate/single`, request, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      tap(response => {
+        console.log('🔧 [DEBUG] Response exitosa:', response);
+      }),
+      finalize(() => this.updateOperationState('migrate', false, null, true)),
+      catchError(error => {
+        console.error('🔧 [DEBUG] Error en runSingleMigration:', error);
+        this.updateOperationState('migrate', false, error.message);
         throw error;
       })
     );
@@ -174,6 +285,36 @@ export class DatabaseManagementService {
       }),
       catchError(error => {
         this.updateOperationState('rollback', false, error.error?.message || error.message);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * ↩️ Rollback de migración específica
+   */
+  rollbackSingleMigration(migrationName: string): Observable<MigrationResponse> {
+    console.log('🔧 [DEBUG] Iniciando rollback de migración individual:', migrationName);
+    this.updateOperationState('rollback', true);
+
+    const request = {
+      migrationName,
+      confirmRollback: true
+    };
+
+    console.log('🔧 [DEBUG] Rollback request data:', request);
+    console.log('🔧 [DEBUG] API URL:', `${this.API_URL}/rollback/single`);
+
+    return this.http.post<MigrationResponse>(`${this.API_URL}/rollback/single`, request, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      tap(response => {
+        console.log('🔧 [DEBUG] Rollback response exitosa:', response);
+      }),
+      finalize(() => this.updateOperationState('rollback', false, null, true)),
+      catchError(error => {
+        console.error('🔧 [DEBUG] Error en rollbackSingleMigration:', error);
+        this.updateOperationState('rollback', false, error.message);
         throw error;
       })
     );

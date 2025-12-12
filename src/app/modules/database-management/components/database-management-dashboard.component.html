@@ -280,8 +280,16 @@
         </div>
       </div>
 
+
+    </div>
+
+    <!-- ============================================================================ -->
+    <!--                              GESTIÓN DE MIGRACIONES                         -->
+    <!-- ============================================================================ -->
+    <div *ngIf="isSuperAdmin && status" class="row">
+      
       <!-- MIGRACIONES -->
-      <div class="col-lg-6 mb-8">
+      <div class="col-lg-12 mb-8">
         <div class="card card-custom border-primary">
           <div class="card-header bg-light-primary">
             <div class="card-title">
@@ -290,37 +298,149 @@
                 Gestión de Migraciones
               </h3>
             </div>
+            <div class="card-toolbar">
+              <button type="button" 
+                      class="btn btn-sm btn-success mr-2"
+                      [disabled]="!migrationsStatus?.pendingMigrations?.length || !isManagementAllowed || isLoadingMigrations"
+                      (click)="runAllMigrations()">
+                <i class="fas mr-1" 
+                   [class.fa-play]="!isLoadingMigrations"
+                   [class.fa-spinner]="isLoadingMigrations"
+                   [class.fa-spin]="isLoadingMigrations"></i>
+                <span *ngIf="!isLoadingMigrations">Ejecutar Todas</span>
+                <span *ngIf="isLoadingMigrations">Ejecutando...</span>
+              </button>
+              <button type="button" 
+                      class="btn btn-sm btn-light-primary" 
+                      (click)="loadMigrationsStatus()" 
+                      [disabled]="isLoadingMigrations">
+                <i class="fas fa-sync-alt" [class.fa-spin]="isLoadingMigrations"></i>
+              </button>
+            </div>
           </div>
           <div class="card-body">
             
-            <!-- Ejecutar Migraciones -->
-            <div class="mb-6">
-              <h6 class="mb-3">
-                <i class="fas fa-play-circle text-success mr-2"></i>
-                Ejecutar Migraciones Pendientes
-              </h6>
-              <p class="text-muted mb-3">Aplica todos los cambios de estructura pendientes a la base de datos.</p>
+            <!-- Loading Estado -->
+            <div *ngIf="isLoadingMigrations" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="mt-2 text-muted">Cargando migraciones...</p>
+            </div>
+
+            <!-- Tabla de Migraciones -->
+            <div *ngIf="!isLoadingMigrations && migrationsStatus">
               
-              <div class="form-group">
-                <div class="checkbox-list">
-                  <label class="checkbox">
-                    <input type="checkbox" [(ngModel)]="migrationForm.confirmMigrations" name="confirmMigrations">
-                    <span></span>
-                    <strong>Confirmo que quiero ejecutar las migraciones pendientes</strong>
-                  </label>
+              <!-- Migraciones Pendientes -->
+              <div *ngIf="migrationsStatus.pendingMigrations?.length > 0" class="mb-4">
+                <h6 class="text-warning mb-3">
+                  <i class="fas fa-clock mr-2"></i>
+                  Migraciones Pendientes ({{ migrationsStatus.pendingMigrations.length }})
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-hover table-sm">
+                    <thead class="thead-light">
+                      <tr>
+                        <th>Migración Pendiente</th>
+                        <th>Descripción</th>
+                        <th width="120">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let migration of migrationsStatus.pendingMigrations">
+                        <td>
+                          <code class="text-warning">{{ migration.name || migration }}</code>
+                        </td>
+                        <td>
+                          <small class="text-muted">{{ migration.description || 'Sin descripción' }}</small>
+                        </td>
+                        <td>
+                          <button type="button" 
+                                  class="btn btn-xs btn-success"
+                                  [disabled]="!isManagementAllowed || executingMigration === (migration.name || migration)"
+                                  (click)="runSingleMigration(migration.name || migration)">
+                            <i class="fas" 
+                               [class.fa-play]="executingMigration !== (migration.name || migration)"
+                               [class.fa-spinner]="executingMigration === (migration.name || migration)"
+                               [class.fa-spin]="executingMigration === (migration.name || migration)"></i>
+                            <span class="ml-1" *ngIf="executingMigration !== (migration.name || migration)">Execute</span>
+                            <span class="ml-1" *ngIf="executingMigration === (migration.name || migration)">...</span>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
-              <button type="button" 
-                      class="btn btn-success btn-block font-weight-bold"
-                      [disabled]="!migrationForm.confirmMigrations || isMigrating"
-                      (click)="runMigrations()">
-                <i class="fas mr-2" 
-                   [class.fa-play]="!isMigrating"
-                   [class.fa-spinner]="isMigrating"
-                   [class.fa-spin]="isMigrating"></i>
-                {{ isMigrating ? 'Ejecutando Migraciones...' : 'Ejecutar Migraciones' }}
-              </button>
+              <!-- Sin Migraciones Pendientes -->
+              <div *ngIf="!migrationsStatus.pendingMigrations?.length" class="alert alert-success d-flex align-items-center mb-4">
+                <i class="fas fa-check-circle mr-3"></i>
+                <div>
+                  <strong>✅ Base de datos actualizada</strong>
+                  <p class="mb-0 text-muted">No hay migraciones pendientes por ejecutar</p>
+                </div>
+              </div>
+
+              <!-- Migraciones Ejecutadas -->
+              <div *ngIf="migrationsStatus.executedMigrations?.length > 0" class="mb-4">
+                <h6 class="text-success mb-3">
+                  <i class="fas fa-check-circle mr-2"></i>
+                  Migraciones Ejecutadas ({{ migrationsStatus.executedMigrations.length }})
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-hover table-sm">
+                    <thead class="thead-light">
+                      <tr>
+                        <th>Migración Ejecutada</th>
+                        <th>Estado</th>
+                        <th width="120">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let migration of migrationsStatus.executedMigrations; let i = index">
+                        <td>
+                          <code class="text-success">{{ migration.name || migration }}</code>
+                        </td>
+                        <td>
+                          <span class="badge badge-success">
+                            <i class="fas fa-check mr-1"></i>
+                            Executed
+                          </span>
+                        </td>
+                        <td>
+                          <button type="button" 
+                                  class="btn btn-xs btn-warning"
+                                  [disabled]="!isManagementAllowed || executingRollback === (migration.name || migration)"
+                                  (click)="rollbackSingleMigration(migration.name || migration)"
+                                  title="Hacer rollback de esta migración">
+                            <i class="fas" 
+                               [class.fa-undo]="executingRollback !== (migration.name || migration)"
+                               [class.fa-spinner]="executingRollback === (migration.name || migration)"
+                               [class.fa-spin]="executingRollback === (migration.name || migration)"></i>
+                            <span class="ml-1" *ngIf="executingRollback !== (migration.name || migration)">Rollback</span>
+                            <span class="ml-1" *ngIf="executingRollback === (migration.name || migration)">...</span>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Sin Migraciones -->
+              <div *ngIf="!migrationsStatus.executedMigrations?.length && !migrationsStatus.pendingMigrations?.length" class="alert alert-info d-flex align-items-center">
+                <i class="fas fa-info-circle mr-3"></i>
+                <div>
+                  <strong>ℹ️ No hay migraciones disponibles</strong>
+                  <p class="mb-0 text-muted">No se encontraron archivos de migración en el proyecto</p>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Error al cargar -->
+            <div *ngIf="!isLoadingMigrations && !migrationsStatus" class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle mr-2"></i>
+              Error al cargar el estado de migraciones
             </div>
 
             <hr>
@@ -354,6 +474,174 @@
                 {{ isMigrating ? 'Ejecutando Rollback...' : 'Hacer Rollback' }}
               </button>
             </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================================ -->
+    <!--                              GESTIÓN DE SEEDERS                             -->
+    <!-- ============================================================================ -->
+    <div *ngIf="isSuperAdmin && status" class="row">
+      
+      <!-- SEEDERS -->
+      <div class="col-lg-12 mb-8">
+        <div class="card card-custom border-info">
+          <div class="card-header bg-light-info">
+            <div class="card-title">
+              <h3 class="card-label text-info">
+                <i class="fas fa-database mr-2"></i>
+                Gestión de Seeders
+              </h3>
+            </div>
+            <div class="card-toolbar">
+              <button type="button" 
+                      class="btn btn-sm btn-success mr-2"
+                      [disabled]="!seedersStatus?.availableSeeders?.length || !isManagementAllowed || isLoadingSeeders"
+                      (click)="runAllSeeders()">
+                <i class="fas mr-1" 
+                   [class.fa-play]="!isLoadingSeeders"
+                   [class.fa-spinner]="isLoadingSeeders"
+                   [class.fa-spin]="isLoadingSeeders"></i>
+                <span *ngIf="!isLoadingSeeders">Ejecutar Todos</span>
+                <span *ngIf="isLoadingSeeders">Ejecutando...</span>
+              </button>
+              <button type="button" 
+                      class="btn btn-sm btn-light-primary" 
+                      (click)="loadSeedersStatus()" 
+                      [disabled]="isLoadingSeeders">
+                <i class="fas fa-sync-alt" [class.fa-spin]="isLoadingSeeders"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            
+            <!-- Loading Estado -->
+            <div *ngIf="isLoadingSeeders" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="mt-2 text-muted">Cargando seeders...</p>
+            </div>
+
+            <!-- Tabla de Seeders -->
+            <div *ngIf="!isLoadingSeeders && seedersStatus">
+              
+              <!-- Seeders Disponibles -->
+              <div *ngIf="seedersStatus.availableSeeders?.length > 0" class="mb-4">
+                <h6 class="text-warning mb-3">
+                  <i class="fas fa-clock mr-2"></i>
+                  Seeders Disponibles ({{ seedersStatus.availableSeeders.length }})
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-hover table-sm">
+                    <thead class="thead-light">
+                      <tr>
+                        <th>Seeder Disponible</th>
+                        <th>Estado</th>
+                        <th width="120">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let seeder of seedersStatus.availableSeeders">
+                        <td>
+                          <code class="text-warning">{{ seeder.name }}</code>
+                        </td>
+                        <td>
+                          <span class="badge badge-warning">
+                            <i class="fas fa-hourglass-half mr-1"></i>
+                            Pendiente
+                          </span>
+                        </td>
+                        <td>
+                          <button type="button" 
+                                  class="btn btn-xs btn-success"
+                                  [disabled]="!isManagementAllowed || executingSeeder === seeder.name"
+                                  (click)="runSingleSeeder(seeder.name)">
+                            <i class="fas" 
+                               [class.fa-play]="executingSeeder !== seeder.name"
+                               [class.fa-spinner]="executingSeeder === seeder.name"
+                               [class.fa-spin]="executingSeeder === seeder.name"></i>
+                            <span class="ml-1" *ngIf="executingSeeder !== seeder.name">Execute</span>
+                            <span class="ml-1" *ngIf="executingSeeder === seeder.name">...</span>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Seeders Ejecutados -->
+              <div *ngIf="seedersStatus.executedSeeders?.length > 0" class="mb-4">
+                <h6 class="text-success mb-3">
+                  <i class="fas fa-check-circle mr-2"></i>
+                  Seeders Ejecutados ({{ seedersStatus.executedSeeders.length }})
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-hover table-sm">
+                    <thead class="thead-light">
+                      <tr>
+                        <th>Seeder Ejecutado</th>
+                        <th>Estado</th>
+                        <th width="120">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let seeder of seedersStatus.executedSeeders">
+                        <td>
+                          <code class="text-success">{{ seeder.name }}</code>
+                        </td>
+                        <td>
+                          <span class="badge badge-success">
+                            <i class="fas fa-check mr-1"></i>
+                            Executed
+                          </span>
+                        </td>
+                        <td>
+                          <button type="button" 
+                                  class="btn btn-xs btn-warning"
+                                  [disabled]="!isManagementAllowed || executingSeeder === seeder.name"
+                                  (click)="runSingleSeeder(seeder.name)"
+                                  title="Re-ejecutar seeder (sobrescribirá datos existentes)">
+                            <i class="fas" 
+                               [class.fa-redo]="executingSeeder !== seeder.name"
+                               [class.fa-spinner]="executingSeeder === seeder.name"
+                               [class.fa-spin]="executingSeeder === seeder.name"></i>
+                            <span class="ml-1" *ngIf="executingSeeder !== seeder.name">Re-run</span>
+                            <span class="ml-1" *ngIf="executingSeeder === seeder.name">...</span>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Sin Seeders -->
+              <div *ngIf="!seedersStatus.availableSeeders?.length && !seedersStatus.executedSeeders?.length" class="alert alert-info d-flex align-items-center">
+                <i class="fas fa-info-circle mr-3"></i>
+                <div>
+                  <strong>ℹ️ No hay seeders disponibles</strong>
+                  <p class="mb-0 text-muted">No se encontraron archivos de seeder en el proyecto</p>
+                </div>
+              </div>
+
+              <!-- Mensaje informativo sobre seeders -->
+              <div *ngIf="seedersStatus.executedSeeders?.length > 0" class="alert alert-info">
+                <i class="fas fa-info-circle mr-2"></i>
+                <strong>ℹ️ Información sobre seeders:</strong>
+                Los seeders se pueden ejecutar múltiples veces. Los marcados como "Executed" ya contienen datos, 
+                ejecutarlos nuevamente puede sobrescribir o duplicar información.
+              </div>
+
+            </div>
+
+            <!-- Error al cargar -->
+            <div *ngIf="!isLoadingSeeders && !seedersStatus" class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle mr-2"></i>
+              Error al cargar el estado de seeders
+            </div>
+            
           </div>
         </div>
       </div>

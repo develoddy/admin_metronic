@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 import { DatabaseManagementService } from '../services/database-management.service';
 import { BackupsService } from '../../backups/services/backups.service';
@@ -53,6 +53,18 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
   // Para integración con backups
   recentBackups: any[] = [];
 
+  // Estados para migraciones y seeders
+  migrationsStatus: any = null;
+  seedersStatus: any = null;
+  isLoadingMigrations = false;
+  isLoadingSeeders = false;
+  executingMigration: string | null = null;
+  executingSeeder: string | null = null;
+  executingRollback: string | null = null;
+
+  // Propiedad para verificar si las operaciones están permitidas
+  isManagementAllowed = false;
+
   constructor(
     private dbService: DatabaseManagementService,
     private backupsService: BackupsService,
@@ -60,9 +72,16 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    console.log('🚀 Iniciando DatabaseManagementDashboardComponent');
     this.initializeComponent();
     this.setupSubscriptions();
     this.loadInitialData();
+    
+    // Cargar migraciones y seeders después de un pequeño delay para asegurar que todo esté inicializado
+    setTimeout(() => {
+      this.loadMigrationsStatus();
+      this.loadSeedersStatus();
+    }, 1000);
   }
 
   ngOnDestroy(): void {
@@ -73,6 +92,9 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
   private initializeComponent(): void {
     // Verificar permisos de super admin
     this.isSuperAdmin = this.dbService.checkSuperAdminPermissions();
+    
+    // Inicializar permisos de gestión
+    this.isManagementAllowed = this.isSuperAdmin;
     
     if (!this.isSuperAdmin) {
       this.showAccessDeniedAlert();
@@ -86,6 +108,9 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
       .subscribe(state => {
         this.state = state;
         this.status = state.status;
+        
+        // Actualizar permisos de gestión
+        this.isManagementAllowed = this.isSuperAdmin && this.status?.permissions?.canReset !== false;
         
         // Actualizar estados de carga
         this.isResetting = state.operation.type === 'reset' && state.operation.isLoading;
@@ -282,6 +307,9 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
       confirmMigrations: this.migrationForm.confirmMigrations
     };
 
+    // Set loading state
+    this.isLoadingMigrations = true;
+    
     this.dbService.runMigrations(request).subscribe({
       next: (response) => {
         console.log('Migraciones ejecutadas:', response);
@@ -298,11 +326,17 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
         });
 
         this.migrationForm.confirmMigrations = false;
+        // Reload both database status AND migrations status
         this.refreshDatabaseStatus();
+        this.loadMigrationsStatus();
       },
       error: (error) => {
         console.error('Error ejecutando migraciones:', error);
         this.showError('Error ejecutando migraciones', error.message);
+      },
+      complete: () => {
+        // Reset loading state regardless of success or error
+        this.isLoadingMigrations = false;
       }
     });
   }
@@ -335,6 +369,9 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Set loading state
+    this.isLoadingMigrations = true;
+    
     this.dbService.rollbackMigration(this.rollbackForm).subscribe({
       next: (response) => {
         console.log('Rollback ejecutado:', response);
@@ -346,12 +383,16 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
         });
 
         this.rollbackForm.confirmRollback = false;
+        // Reload both database status AND migrations status
         this.refreshDatabaseStatus();
+        this.loadMigrationsStatus();
       },
       error: (error) => {
         console.error('Error en rollback:', error);
-        this.showError('Error ejecutando rollback', error.message);
-      }
+        this.showError('Error ejecutando rollback', error.message);      },
+      complete: () => {
+        // Reset loading state regardless of success or error
+        this.isLoadingMigrations = false;      }
     });
   }
 
@@ -453,5 +494,223 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
       return `Conectado (${this.status.database.environment.toUpperCase()})`;
     }
     return 'Desconectado';
+  }
+  /**
+   * 📋 Cargar estado de migraciones
+   */
+  loadMigrationsStatus(): void {
+    console.log('🔄 [DEBUG] loadMigrationsStatus iniciando...');
+    console.log('🔄 [DEBUG] Estado actual isLoadingMigrations:', this.isLoadingMigrations);
+    
+    this.isLoadingMigrations = true;
+    console.log('🔄 [DEBUG] Cambiado isLoadingMigrations a:', this.isLoadingMigrations);
+    
+    this.dbService.getMigrationsStatus().pipe(
+      finalize(() => {
+        console.log('🔄 [DEBUG] finalize ejecutado - reseteando loading migrations');
+        this.isLoadingMigrations = false;
+        console.log('🔄 [DEBUG] isLoadingMigrations después de finalize:', this.isLoadingMigrations);
+        this.cdr.detectChanges(); // Forzar detección de cambios
+      })
+    ).subscribe({
+      next: (response) => {
+        console.log('✅ [DEBUG] Estado de migraciones cargado exitosamente:', response);
+        this.migrationsStatus = response;
+      },
+      error: (error) => {
+        console.error('❌ [DEBUG] Error al cargar migraciones:', error);
+        console.error('❌ [DEBUG] Error status:', error.status);
+        this.migrationsStatus = null;
+      },
+      complete: () => {
+        console.log('🔄 [DEBUG] Observable migrations completo');
+      }
+    });
+  }
+
+  /**
+   * 📋 Cargar estado de seeders
+   */
+  loadSeedersStatus(): void {
+    console.log('🔄 [DEBUG] loadSeedersStatus iniciando...');
+    console.log('🔄 [DEBUG] isLoadingSeeders antes:', this.isLoadingSeeders);
+    
+    this.isLoadingSeeders = true;
+    console.log('🔄 [DEBUG] isLoadingSeeders después de true:', this.isLoadingSeeders);
+    
+    this.dbService.getSeedersStatus().pipe(
+      finalize(() => {
+        console.log('🔄 [DEBUG] finalize ejecutado - reseteando loading');
+        this.isLoadingSeeders = false;
+        console.log('🔄 [DEBUG] isLoadingSeeders después de finalize:', this.isLoadingSeeders);
+        this.cdr.detectChanges(); // Forzar detección de cambios
+      })
+    ).subscribe({
+      next: (response) => {
+        console.log('✅ [DEBUG] Estado de seeders cargado exitosamente:', response);
+        this.seedersStatus = response;
+      },
+      error: (error) => {
+        console.error('❌ [DEBUG] Error al cargar seeders:', error);
+        console.error('❌ [DEBUG] Error status:', error.status);
+        console.error('❌ [DEBUG] Error details:', error.error);
+        this.seedersStatus = null;
+      },
+      complete: () => {
+        console.log('🔄 [DEBUG] Observable completo');
+      }
+    });
+  }
+
+  /**
+   * 🔄 Ejecutar migración individual
+   */
+  runSingleMigration(migrationName: string): void {
+    Swal.fire({
+      title: '🔄 Ejecutar Migración',
+      text: `¿Está seguro de ejecutar la migración: ${migrationName}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#007bff',
+      cancelButtonColor: '#dc3545',
+      confirmButtonText: 'Sí, ejecutar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.executingMigration = migrationName;
+        this.dbService.runSingleMigration(migrationName).subscribe({
+          next: (response) => {
+            this.executingMigration = null;
+            Swal.fire('✅ Éxito', response.message, 'success');
+            this.loadMigrationsStatus(); // Recargar estado
+          },
+          error: (error) => {
+            this.executingMigration = null;
+            Swal.fire('❌ Error', error.error?.message || 'Error al ejecutar migración', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * 🔄 Ejecutar seeder individual
+   */
+  runSingleSeeder(seederName: string): void {
+    Swal.fire({
+      title: '🔄 Ejecutar Seeder',
+      text: `¿Está seguro de ejecutar el seeder: ${seederName}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#007bff',
+      cancelButtonColor: '#dc3545',
+      confirmButtonText: 'Sí, ejecutar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.executingSeeder = seederName;
+        this.dbService.runSingleSeeder(seederName).subscribe({
+          next: (response) => {
+            this.executingSeeder = null;
+            Swal.fire('✅ Éxito', response.message, 'success');
+            this.loadSeedersStatus(); // Recargar estado
+          },
+          error: (error) => {
+            this.executingSeeder = null;
+            Swal.fire('❌ Error', error.error?.message || 'Error al ejecutar seeder', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * 🔄 Ejecutar todas las migraciones
+   */
+  runAllMigrations(): void {
+    Swal.fire({
+      title: '🔄 Ejecutar Todas las Migraciones',
+      text: '¿Está seguro de ejecutar todas las migraciones pendientes?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#007bff',
+      cancelButtonColor: '#dc3545',
+      confirmButtonText: 'Sí, ejecutar todas',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Set the confirmation flag before running migrations
+        this.migrationForm.confirmMigrations = true;
+        this.runMigrations(); // Usar el método existente
+      }
+    });
+  }
+
+  /**
+   * 🔄 Ejecutar todos los seeders
+   */
+  runAllSeeders(): void {
+    Swal.fire({
+      title: '🔄 Ejecutar Todos los Seeders',
+      text: '¿Está seguro de ejecutar todos los seeders disponibles?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#007bff',
+      cancelButtonColor: '#dc3545',
+      confirmButtonText: 'Sí, ejecutar todos',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Set loading state
+        this.isLoadingSeeders = true;
+        
+        // Usar el método de seeders del servicio cuando esté disponible
+        this.dbService.runSeeders({ confirmSeeders: true }).subscribe({
+          next: (response) => {
+            Swal.fire('✅ Éxito', 'Seeders ejecutados correctamente', 'success');
+            this.loadSeedersStatus(); // Recargar estado
+          },
+          error: (error) => {
+            Swal.fire('❌ Error', error.error?.message || 'Error al ejecutar seeders', 'error');
+          },
+          complete: () => {
+            // Reset loading state regardless of success or error
+            this.isLoadingSeeders = false;
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * ⏪ Rollback de migración individual
+   */
+  rollbackSingleMigration(migrationName: string): void {
+    Swal.fire({
+      title: '⏪ Rollback de Migración',
+      text: `¿Está seguro de hacer rollback de la migración: ${migrationName}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ffc107',
+      cancelButtonColor: '#dc3545',
+      confirmButtonText: 'Sí, hacer rollback',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Use a specific rollback state instead of executingMigration
+        this.executingRollback = migrationName;
+        this.dbService.rollbackSingleMigration(migrationName).subscribe({
+          next: (response) => {
+            this.executingRollback = null;
+            Swal.fire('✅ Éxito', response.message, 'success');
+            this.loadMigrationsStatus(); // Recargar estado
+          },
+          error: (error) => {
+            this.executingRollback = null;
+            Swal.fire('❌ Error', error.error?.message || 'Error al hacer rollback de migración', 'error');
+          }
+        });
+      }
+    });
   }
 }
