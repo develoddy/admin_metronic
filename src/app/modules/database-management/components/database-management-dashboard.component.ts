@@ -109,8 +109,8 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
         this.state = state;
         this.status = state.status;
         
-        // Actualizar permisos de gestión
-        this.isManagementAllowed = this.isSuperAdmin && this.status?.permissions?.canReset !== false;
+        // Actualizar permisos de gestión - usar canManage para migraciones/seeders
+        this.isManagementAllowed = this.isSuperAdmin && this.status?.permissions?.canManage !== false;
         
         // Actualizar estados de carga
         this.isResetting = state.operation.type === 'reset' && state.operation.isLoading;

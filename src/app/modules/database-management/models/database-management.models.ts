@@ -18,6 +18,7 @@ export interface DatabaseStatus {
   };
   permissions: {
     canReset: boolean;
+    canManage: boolean;
     environment: string;
     prodResetAllowed: boolean;
   };
