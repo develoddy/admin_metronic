@@ -713,4 +713,238 @@ export class DatabaseManagementDashboardComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  // =====================================================
+  // 🛡️ MÉTODOS PARA MANEJO DE RESTRICCIONES DE PRODUCCIÓN
+  // =====================================================
+
+  /**
+   * Muestra instrucciones detalladas para habilitar reset en producción
+   */
+  showProductionResetInstructions(): void {
+    Swal.fire({
+      title: '🔧 Instrucciones para Reset en Producción',
+      html: `
+        <div class="text-start">
+          <div class="alert alert-warning mb-3">
+            <h6 class="text-warning mb-2">⚠️ PROCEDIMIENTO DE EMERGENCIA</h6>
+            <p class="mb-0 small">Solo usar en situaciones críticas con autorización del administrador del sistema.</p>
+          </div>
+
+          <h6 class="text-primary mb-3">🔐 Pasos para habilitar:</h6>
+          <ol class="text-start mb-4">
+            <li class="mb-2">
+              <strong>Conectar al servidor:</strong>
+              <br><code class="small bg-light p-1">ssh admin@lujandev.com</code>
+            </li>
+            <li class="mb-2">
+              <strong>Navegar al directorio del proyecto:</strong>
+              <br><code class="small bg-light p-1">cd /path/to/ecommerce-api</code>
+            </li>
+            <li class="mb-2">
+              <strong>Agregar variable temporal:</strong>
+              <br><code class="small bg-light p-1">export ALLOW_PROD_DB_RESET=true</code>
+            </li>
+            <li class="mb-2">
+              <strong>Reiniciar API:</strong>
+              <br><code class="small bg-light p-1">pm2 restart api</code>
+            </li>
+            <li class="mb-2">
+              <strong>Ejecutar reset desde esta interfaz</strong>
+            </li>
+            <li class="mb-2">
+              <strong>IMPORTANTE - Deshabilitar después:</strong>
+              <br><code class="small bg-light p-1">unset ALLOW_PROD_DB_RESET && pm2 restart api</code>
+            </li>
+          </ol>
+
+          <div class="alert alert-info">
+            <h6 class="text-info mb-2">💡 Alternativa con archivo .env:</h6>
+            <p class="mb-0 small">
+              Agregar <code>ALLOW_PROD_DB_RESET=true</code> al archivo <code>.env</code> del servidor,
+              reiniciar la API y remover la línea después del reset.
+            </p>
+          </div>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Entendido',
+      width: '700px',
+      customClass: {
+        htmlContainer: 'text-start'
+      }
+    });
+  }
+
+  /**
+   * Inicia la descarga de un backup manual antes del reset
+   */
+  downloadBackupFirst(): void {
+    Swal.fire({
+      title: '💾 Crear Backup Manual',
+      text: '¿Desea crear un backup de la base de datos antes de proceder?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, Crear Backup',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#28a745'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Usar el servicio de backups existente
+        this.backupsService.createManualBackup().subscribe({
+          next: (response) => {
+            Swal.fire({
+              title: '✅ Backup Creado',
+              html: `
+                <div class="text-start">
+                  <p><strong>Backup creado exitosamente:</strong></p>
+                  <ul>
+                    <li><strong>Archivo:</strong> ${response.filename || 'backup_' + new Date().toISOString()}</li>
+                    <li><strong>Tamaño:</strong> ${(response as any).size || 'N/A'}</li>
+                    <li><strong>Fecha:</strong> ${new Date().toLocaleString()}</li>
+                  </ul>
+                  <hr>
+                  <p class="text-muted small">
+                    El backup está disponible en el módulo de Backups para su descarga.
+                    Ahora puede proceder con las instrucciones de reset en producción.
+                  </p>
+                </div>
+              `,
+              icon: 'success',
+              confirmButtonText: 'Ver Instrucciones de Reset',
+              showCancelButton: true,
+              cancelButtonText: 'Cerrar'
+            }).then((nextResult) => {
+              if (nextResult.isConfirmed) {
+                this.showProductionResetInstructions();
+              }
+            });
+          },
+          error: (error) => {
+            Swal.fire({
+              title: '❌ Error al Crear Backup',
+              text: error.error?.message || 'No se pudo crear el backup',
+              icon: 'error',
+              confirmButtonText: 'Entendido'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Muestra información del estado del sistema y entorno
+   */
+  checkEnvironmentStatus(): void {
+    Swal.fire({
+      title: '🔍 Estado del Sistema',
+      html: `
+        <div class="text-start">
+          <h6 class="text-primary mb-3">📊 Información del Entorno:</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2">
+              <strong>🌍 Entorno:</strong> 
+              <span class="badge badge-${this.status?.database?.environment === 'production' ? 'danger' : 'warning'} ml-2">
+                ${this.status?.database?.environment?.toUpperCase() || 'UNKNOWN'}
+              </span>
+            </li>
+            <li class="mb-2">
+              <strong>🗄️ Base de datos:</strong> ${this.status?.database?.name || 'N/A'}
+            </li>
+            <li class="mb-2">
+              <strong>📋 Tablas:</strong> ${(this.status?.database as any)?.tableCount || 0} tablas
+            </li>
+            <li class="mb-2">
+              <strong>🔄 Migraciones:</strong> 
+              ${this.migrationsStatus?.pending?.length || 0} pendientes, 
+              ${this.migrationsStatus?.executed?.length || 0} ejecutadas
+            </li>
+            <li class="mb-2">
+              <strong>🌱 Seeders:</strong> 
+              ${this.seedersStatus?.pending?.length || 0} pendientes,
+              ${this.seedersStatus?.executed?.length || 0} ejecutados
+            </li>
+            <li class="mb-2">
+              <strong>🛡️ Reset habilitado:</strong> 
+              <span class="badge badge-${this.status?.permissions?.canReset ? 'success' : 'danger'} ml-2">
+                ${this.status?.permissions?.canReset ? 'SÍ' : 'NO'}
+              </span>
+            </li>
+          </ul>
+
+          <div class="alert alert-info mt-3">
+            <h6 class="text-info mb-2">🔧 Variables de Sistema:</h6>
+            <ul class="mb-0 small">
+              <li><code>NODE_ENV</code>: ${this.status?.database?.environment || 'N/A'}</li>
+              <li><code>ALLOW_PROD_DB_RESET</code>: ${this.status?.permissions?.prodResetAllowed ? 'true' : 'false/undefined'}</li>
+              <li><code>ALLOW_DB_MANAGEMENT</code>: ${this.status?.permissions?.canReset ? 'true' : 'false/undefined'}</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Cerrar',
+      width: '600px'
+    });
+  }
+
+  /**
+   * Muestra información de contacto del administrador del sistema
+   */
+  contactSystemAdmin(): void {
+    Swal.fire({
+      title: '📞 Contactar Administrador del Sistema',
+      html: `
+        <div class="text-start">
+          <div class="alert alert-primary mb-3">
+            <h6 class="text-primary mb-2">👤 Información de Contacto:</h6>
+            <p class="mb-0">Para operaciones críticas en producción, contacte al administrador del sistema.</p>
+          </div>
+
+          <h6 class="text-dark mb-3">📧 Opciones de Contacto:</h6>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="card border-primary">
+                <div class="card-body text-center p-3">
+                  <i class="fas fa-envelope text-primary mb-2"></i>
+                  <h6 class="mb-1">Email</h6>
+                  <small>admin@lujandev.com</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card border-success">
+                <div class="card-body text-center p-3">
+                  <i class="fas fa-comments text-success mb-2"></i>
+                  <h6 class="mb-1">Slack</h6>
+                  <small>#admin-emergencias</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warning">
+            <h6 class="text-warning mb-2">⚠️ Para solicitud de reset incluir:</h6>
+            <ul class="mb-0 small">
+              <li>Motivo detallado del reset</li>
+              <li>Confirmación de backup creado</li>
+              <li>Urgencia y horario preferido</li>
+              <li>Usuario que solicita: <strong>${(this.status as any)?.user?.email || 'Usuario actual'}</strong></li>
+            </ul>
+          </div>
+
+          <div class="text-center mt-3">
+            <button class="btn btn-primary mr-2" onclick="window.open('mailto:admin@lujandev.com?subject=Solicitud%20Reset%20DB%20Producción&body=Solicito%20reset%20de%20base%20de%20datos%20en%20producción%0A%0AMotivo:%0ABackup%20creado:%20Sí/No%0AUrgencia:%20Alta/Media/Baja%0A%0ASaludos')">
+              <i class="fas fa-envelope mr-1"></i>Enviar Email
+            </button>
+          </div>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Cerrar',
+      width: '650px',
+      showConfirmButton: true
+    });
+  }
 }

@@ -187,13 +187,68 @@
           </div>
           <div class="card-body">
             <!-- BLOQUEO EN PRODUCCIÓN -->
-            <div *ngIf="!status?.permissions?.canReset" class="alert alert-warning">
+            <div *ngIf="!status?.permissions?.canReset && status?.database?.environment === 'production'" 
+                 class="alert alert-danger">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-shield-alt text-danger mr-3 mt-1"></i>
+                <div class="flex-grow-1">
+                  <h6 class="text-danger mb-2">🚨 OPERACIÓN BLOQUEADA EN PRODUCCIÓN</h6>
+                  <p class="mb-2">
+                    El reset de base de datos está <strong>deshabilitado por seguridad</strong> en el entorno de producción.
+                  </p>
+                  <div class="mb-3">
+                    <small class="text-muted d-block mb-1">
+                      <strong>Error específico:</strong> Operación no permitida en producción sin flag especial
+                    </small>
+                    <small class="text-muted d-block">
+                      <strong>Variable requerida:</strong> <code>ALLOW_PROD_DB_RESET=true</code>
+                    </small>
+                  </div>
+                  
+                  <div class="border-top pt-3">
+                    <h6 class="text-primary mb-2">💡 Opciones disponibles:</h6>
+                    <div class="row">
+                      <div class="col-md-6 mb-2">
+                        <button class="btn btn-sm btn-light-primary btn-block" (click)="showProductionResetInstructions()">
+                          <i class="fas fa-info-circle mr-1"></i>
+                          Ver Instrucciones
+                        </button>
+                      </div>
+                      <div class="col-md-6 mb-2">
+                        <button class="btn btn-sm btn-light-warning btn-block" (click)="downloadBackupFirst()">
+                          <i class="fas fa-download mr-1"></i>
+                          Crear Backup Manual
+                        </button>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6 mb-2">
+                        <button class="btn btn-sm btn-light-info btn-block" (click)="checkEnvironmentStatus()">
+                          <i class="fas fa-server mr-1"></i>
+                          Ver Estado Sistema
+                        </button>
+                      </div>
+                      <div class="col-md-6 mb-2">
+                        <button class="btn btn-sm btn-light-success btn-block" (click)="contactSystemAdmin()">
+                          <i class="fas fa-phone mr-1"></i>
+                          Contactar Admin
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- BLOQUEO EN OTROS ENTORNOS -->
+            <div *ngIf="!status?.permissions?.canReset && status?.database?.environment !== 'production'" 
+                 class="alert alert-warning">
               <h6><i class="fas fa-shield-alt mr-2"></i>OPERACIÓN BLOQUEADA</h6>
               <p class="mb-0">
                 Las operaciones de reset están <strong>deshabilitadas</strong> en este entorno por seguridad.
               </p>
               <small class="text-muted">
-                Para habilitar, configure ALLOW_DB_MANAGEMENT=true en las variables de entorno (solo en emergencias).
+                Para habilitar, configure <code>ALLOW_DB_MANAGEMENT=true</code> en las variables de entorno.
               </small>
             </div>
 
