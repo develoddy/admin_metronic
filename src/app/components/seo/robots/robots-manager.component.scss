@@ -1,0 +1,17 @@
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.font-monospace {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.border {
+  border-color: #e9ecef !important;
+}

@@ -1,0 +1,257 @@
+<div class="container-fluid">
+  <!-- Breadcrumb -->
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0">Gestión de Robots.txt</h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Panel</a></li>
+            <li class="breadcrumb-item"><a routerLink="/seo/config">SEO</a></li>
+            <li class="breadcrumb-item active">Robots.txt</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mode Switcher -->
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="card-title mb-1">Modo de Edición</h5>
+              <p class="text-muted mb-0">
+                <small>
+                  <strong>Simple:</strong> Interfaz con reglas estructuradas | 
+                  <strong>Avanzado:</strong> Editor de texto directo
+                </small>
+              </p>
+            </div>
+            <div class="btn-group" role="group">
+              <button type="button" class="btn" 
+                      [class.btn-primary]="mode === 'simple'"
+                      [class.btn-outline-primary]="mode !== 'simple'"
+                      (click)="switchMode('simple')">
+                <i class="ri-layout-grid-line me-1"></i> Simple
+              </button>
+              <button type="button" class="btn" 
+                      [class.btn-primary]="mode === 'advanced'"
+                      [class.btn-outline-primary]="mode !== 'advanced'"
+                      (click)="switchMode('advanced')">
+                <i class="ri-code-line me-1"></i> Avanzado
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form [formGroup]="robotsForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <!-- Editor Column -->
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title mb-4">
+              <i class="ri-robot-line me-2"></i>
+              {{ mode === 'simple' ? 'Configurar Reglas' : 'Editor de Texto' }}
+            </h4>
+
+            <!-- Simple Mode -->
+            <div *ngIf="mode === 'simple'">
+              <!-- User Agents -->
+              <div formArrayName="userAgents">
+                <div *ngFor="let ua of userAgents.controls; let i = index" [formGroupName]="i" 
+                     class="border rounded p-3 mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">User-Agent #{{ i + 1 }}</h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                            (click)="removeUserAgent(i)" *ngIf="userAgents.length > 1">
+                      <i class="ri-delete-bin-line"></i>
+                    </button>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">User-Agent</label>
+                    <input type="text" class="form-control" formControlName="agent" 
+                           placeholder="*">
+                    <small class="text-muted">* = todos los bots, o especifica uno: Googlebot, Bingbot, etc.</small>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label class="form-label">Allow (una ruta por línea)</label>
+                        <textarea class="form-control" formControlName="allow" rows="4" 
+                                  placeholder="/&#10;/products&#10;/categories"></textarea>
+                        <small class="text-muted">Rutas permitidas para este bot</small>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label class="form-label">Disallow (una ruta por línea)</label>
+                        <textarea class="form-control" formControlName="disallow" rows="4" 
+                                  placeholder="/admin&#10;/api&#10;/private"></textarea>
+                        <small class="text-muted">Rutas bloqueadas para este bot</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-outline-primary mb-3" (click)="addUserAgent()">
+                <i class="ri-add-line me-1"></i> Añadir User-Agent
+              </button>
+
+              <!-- Sitemap -->
+              <div class="mb-3">
+                <label class="form-label">URL del Sitemap</label>
+                <input type="url" class="form-control" formControlName="sitemap" 
+                       placeholder="https://tienda.lujandev.com/sitemap.xml">
+              </div>
+            </div>
+
+            <!-- Advanced Mode -->
+            <div *ngIf="mode === 'advanced'">
+              <div class="mb-3">
+                <label class="form-label">Contenido de robots.txt</label>
+                <textarea class="form-control font-monospace" formControlName="robotsTxtContent" 
+                          rows="15" (input)="generatePreview()"
+                          placeholder="User-agent: *&#10;Allow: /&#10;Disallow: /admin&#10;&#10;Sitemap: https://tienda.lujandev.com/sitemap.xml"></textarea>
+                <small class="text-muted">Edita el contenido directamente como aparecerá en robots.txt</small>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="saving || loading">
+                <i class="ri-save-line me-1"></i>
+                {{ saving ? 'Guardando...' : 'Guardar Robots.txt' }}
+              </button>
+
+              <button type="button" class="btn btn-outline-secondary" (click)="generatePreview()">
+                <i class="ri-eye-line me-1"></i> Actualizar Vista Previa
+              </button>
+
+              <button type="button" class="btn btn-outline-info" (click)="viewRobots()">
+                <i class="ri-external-link-line me-1"></i> Ver Robots.txt Actual
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview Column -->
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title mb-0">Vista Previa</h5>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="copyToClipboard()">
+                <i class="ri-file-copy-line me-1"></i> Copiar
+              </button>
+            </div>
+
+            <div class="bg-light rounded p-3">
+              <pre class="mb-0 font-size-12 font-monospace" style="max-height: 500px; overflow-y: auto;">{{ previewContent || 'La vista previa aparecerá aquí...' }}</pre>
+            </div>
+
+            <hr class="my-3">
+
+            <h6 class="font-size-14 mb-2">Información</h6>
+            <ul class="text-muted font-size-12 mb-0">
+              <li class="mb-2">
+                <strong>User-agent: *</strong> aplica a todos los bots
+              </li>
+              <li class="mb-2">
+                <strong>Allow: /</strong> permite acceso a la ruta
+              </li>
+              <li class="mb-2">
+                <strong>Disallow: /admin</strong> bloquea acceso a la ruta
+              </li>
+              <li class="mb-2">
+                <strong>Sitemap:</strong> indica dónde está el sitemap
+              </li>
+            </ul>
+
+            <div class="alert alert-warning mt-3 mb-0" role="alert">
+              <strong>Importante:</strong> Los cambios se aplicarán inmediatamente en 
+              <a href="{{ robotsForm.value.sitemap?.replace('/sitemap.xml', '') }}/robots.txt" 
+                 target="_blank" class="alert-link">robots.txt</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Common Configurations -->
+        <div class="card">
+          <div class="card-body">
+            <h6 class="card-title mb-3">Configuraciones Comunes</h6>
+            
+            <div class="accordion" id="commonConfigs">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                  <button class="accordion-button collapsed" type="button" 
+                          data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                    Permitir Todo
+                  </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#commonConfigs">
+                  <div class="accordion-body">
+                    <pre class="font-size-12 mb-0">User-agent: *
+Allow: /
+
+Sitemap: https://example.com/sitemap.xml</pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                  <button class="accordion-button collapsed" type="button" 
+                          data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                    Bloquear Admin
+                  </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#commonConfigs">
+                  <div class="accordion-body">
+                    <pre class="font-size-12 mb-0">User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+
+Sitemap: https://example.com/sitemap.xml</pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                  <button class="accordion-button collapsed" type="button" 
+                          data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                    Solo Google
+                  </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#commonConfigs">
+                  <div class="accordion-body">
+                    <pre class="font-size-12 mb-0">User-agent: Googlebot
+Allow: /
+
+User-agent: *
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

@@ -420,5 +420,28 @@ export const AsideMenuAdminGeneral = {
           }
         ]
       },
+      {
+        title: 'SEO',
+        root: true,
+        name: "seo",
+        bullet: 'dot',
+        icon: 'flaticon2-search',
+        svg: './assets/media/svg/icons/General/Search.svg',
+        page: '/seo',
+        submenu: [
+          {
+            title: 'Configuración',
+            page: '/seo/config'
+          },
+          {
+            title: 'Sitemap',
+            page: '/seo/sitemap'
+          },
+          {
+            title: 'Robots.txt',
+            page: '/seo/robots'
+          }
+        ]
+      },
     ]
 }

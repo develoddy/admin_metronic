@@ -203,6 +203,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'seo',
+        loadChildren: () =>
+          import('../components/seo/seo.module').then(
+            (m) => m.SeoModule
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',

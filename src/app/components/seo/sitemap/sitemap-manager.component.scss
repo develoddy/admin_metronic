@@ -1,0 +1,22 @@
+.modal.show {
+  display: block !important;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5;
+}
+
+.btn-soft-secondary {
+  color: #74788d;
+  background-color: rgba(116, 120, 141, 0.1);
+  border-color: transparent;
+}
+
+.btn-soft-secondary:hover {
+  color: #fff;
+  background-color: #74788d;
+}
+
+.table-centered td {
+  vertical-align: middle;
+}
