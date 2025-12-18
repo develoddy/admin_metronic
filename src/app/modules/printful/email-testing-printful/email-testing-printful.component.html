@@ -1,0 +1,244 @@
+<!-- 🧪 Email Testing Panel -->
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h4 class="card-title mb-0">🧪 Testing de Email Templates</h4>
+        <p class="text-muted mb-0">Probar templates de email sin afectar el módulo de Printful</p>
+      </div>
+      <button 
+        type="button" 
+        class="btn btn-outline-primary btn-sm"
+        (click)="refreshSales()"
+        [disabled]="isLoadingSales">
+        <i class="fa fa-refresh" [class.fa-spin]="isLoadingSales"></i>
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="row">
+      <!-- Panel izquierdo: Selección de venta -->
+      <div class="col-md-6">
+        <div class="mb-4">
+          <h5>1. Seleccionar Venta para Testing</h5>
+          
+          <!-- Loading spinner -->
+          <div *ngIf="isLoadingSales" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando ventas...</span>
+            </div>
+          </div>
+
+          <!-- Lista de ventas -->
+          <div *ngIf="!isLoadingSales && availableSales.length > 0" class="sales-list" style="max-height: 400px; overflow-y: auto;">
+            <div 
+              *ngFor="let sale of availableSales" 
+              class="sale-item border rounded p-3 mb-2 cursor-pointer"
+              [class.selected]="selectedSale?.saleId === sale.saleId"
+              [class.border-primary]="selectedSale?.saleId === sale.saleId"
+              (click)="selectSale(sale)">
+              
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center mb-1">
+                    <span class="me-2">{{getCountryFlag(sale.country)}}</span>
+                    <strong>#{{sale.transaction}}</strong>
+                    <span class="badge bg-light text-dark ms-2">{{sale.country}}/{{sale.locale}}</span>
+                  </div>
+                  
+                  <div class="text-muted small">
+                    <div><i class="fa fa-user me-1"></i>{{sale.customer}}</div>
+                    <div><i class="fa fa-envelope me-1"></i>{{sale.email}}</div>
+                    <div><i class="fa fa-euro me-1"></i>{{sale.total}} EUR</div>
+                    <div><i class="fa fa-calendar me-1"></i>{{formatDate(sale.createdAt)}}</div>
+                  </div>
+                </div>
+                
+                <div class="text-end">
+                  <div class="fw-bold text-primary">€{{sale.total}}</div>
+                  <div class="small text-muted" *ngIf="sale.printfulId">
+                    PF#{{sale.printfulId}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No hay ventas -->
+          <div *ngIf="!isLoadingSales && availableSales.length === 0" class="text-center py-4 text-muted">
+            <i class="fa fa-inbox fa-2x mb-2"></i>
+            <p>No hay ventas disponibles para testing</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel derecho: Testing de emails -->
+      <div class="col-md-6">
+        <div class="mb-4">
+          <h5>2. Configurar Email de Prueba</h5>
+          
+          <!-- Información de venta seleccionada -->
+          <div *ngIf="selectedSale" class="alert alert-info">
+            <div class="d-flex align-items-center">
+              <span class="me-2">{{getCountryFlag(selectedSale.country)}}</span>
+              <div>
+                <strong>Venta #{{selectedSale.transaction}}</strong><br>
+                <small>
+                  {{selectedSale.country}}/{{selectedSale.locale}} - 
+                  {{selectedSale.customer}} ({{selectedSale.email}})
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email de destino -->
+          <div class="mb-3">
+            <label class="form-label">Email de destino para testing:</label>
+            <input 
+              type="email" 
+              class="form-control" 
+              [(ngModel)]="testEmail"
+              placeholder="tu-email@gmail.com"
+              [disabled]="!selectedSale">
+          </div>
+
+          <!-- Botones de testing -->
+          <div class="mb-3">
+            <h6>Tipos de Email:</h6>
+            <div class="d-grid gap-2">
+              <button 
+                *ngFor="let emailType of emailTypes"
+                type="button"
+                class="btn btn-outline-primary text-start"
+                [disabled]="!selectedSale || !testEmail || isLoading"
+                (click)="sendTestEmail(emailType.key)">
+                
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">{{emailType.name}}</div>
+                    <small class="text-muted">{{emailType.description}}</small>
+                  </div>
+                  <i class="fa fa-paper-plane"></i>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Loading indicator -->
+          <div *ngIf="isLoading" class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Enviando email...</span>
+            </div>
+            <p class="mt-2 mb-0">Enviando email de prueba...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultados de testing -->
+    <div *ngIf="lastTestResults.length > 0" class="mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>📋 Historial de Testing</h5>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary btn-sm"
+          (click)="clearResults()">
+          <i class="fa fa-trash me-1"></i>Limpiar
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead class="table-light">
+            <tr>
+              <th>Hora</th>
+              <th>Tipo</th>
+              <th>Venta</th>
+              <th>País/Locale</th>
+              <th>Destinatario</th>
+              <th>Estado</th>
+              <th>Detalles</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let result of lastTestResults">
+              <td>
+                <small>{{formatDate(currentTime.toISOString())}}</small>
+              </td>
+              <td>
+                <span class="badge bg-secondary">
+                  {{result.message.includes('impresión') ? '🎨' : 
+                    result.message.includes('envío') ? '📦' : 
+                    result.message.includes('entrega') ? '✅' : '📧'}}
+                </span>
+              </td>
+              <td>
+                <code>#{{result.saleId}}</code>
+              </td>
+              <td>
+                {{getCountryFlag(result.country)}} {{result.country}}/{{result.locale}}
+              </td>
+              <td>
+                <small>{{result.recipient}}</small>
+              </td>
+              <td>
+                <span 
+                  class="badge"
+                  [class.bg-success]="result.success"
+                  [class.bg-danger]="!result.success">
+                  {{result.success ? 'Enviado' : 'Error'}}
+                </span>
+              </td>
+              <td>
+                <small class="text-muted">
+                  {{result.trackingNumber ? 'Tracking: ' + result.trackingNumber : result.message}}
+                </small>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Información de ayuda -->
+    <div class="alert alert-light mt-4">
+      <h6 class="alert-heading">ℹ️ Información Importante</h6>
+      <ul class="mb-0 small">
+        <li><strong>🔒 Seguro:</strong> Este sistema NO afecta tu módulo de Printful real</li>
+        <li><strong>📧 Testing:</strong> Los emails se envían con datos simulados para pruebas</li>
+        <li><strong>🌍 Localización:</strong> URLs generadas según el país/locale de la venta</li>
+        <li><strong>📊 Datos:</strong> Usa información real de ventas pero simula datos de Printful</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+.sale-item {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sale-item:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-1px);
+}
+
+.sale-item.selected {
+  background-color: #e3f2fd;
+  border-color: #2196f3 !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.sales-list {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+}
+</style>

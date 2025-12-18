@@ -14,6 +14,7 @@ import { OrderDetailPrintfulComponent } from './order-detail-printful/order-deta
 import { ShippingCalculatorPrintfulComponent } from './shipping-calculator-printful/shipping-calculator-printful.component';
 import { StockAlertsPrintfulComponent } from './stock-alerts-printful/stock-alerts-printful.component';
 import { WebhookLogsPrintfulComponent } from './webhook-logs-printful/webhook-logs-printful.component';
+import { EmailTestingPrintfulComponent } from './email-testing-printful/email-testing-printful.component';
 
 // Importar servicios
 import { ProductService } from '../product/_services/product.service';
@@ -23,6 +24,7 @@ import { AnalyticsPrintfulService } from './_services/analytics-printful.service
 import { ShippingPrintfulService } from './_services/shipping-printful.service';
 import { StockSyncPrintfulService } from './_services/stock-sync-printful.service';
 import { WebhookPrintfulService } from './webhook-printful.service';
+import { EmailTestingService } from './_services/email-testing.service';
 
 
 @NgModule({
@@ -35,7 +37,8 @@ import { WebhookPrintfulService } from './webhook-printful.service';
     OrderDetailPrintfulComponent,
     ShippingCalculatorPrintfulComponent,
     StockAlertsPrintfulComponent,
-    WebhookLogsPrintfulComponent
+    WebhookLogsPrintfulComponent,
+    EmailTestingPrintfulComponent
   ],
   imports: [
     CommonModule,
@@ -51,7 +54,8 @@ import { WebhookPrintfulService } from './webhook-printful.service';
     AnalyticsPrintfulService,
     ShippingPrintfulService,
     StockSyncPrintfulService,
-    WebhookPrintfulService
+    WebhookPrintfulService,
+    EmailTestingService
   ]
 })
 export class PrintfulModule { }

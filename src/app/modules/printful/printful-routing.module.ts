@@ -8,6 +8,7 @@ import { OrdersPrintfulComponent } from './orders-printful/orders-printful.compo
 import { OrderDetailPrintfulComponent } from './order-detail-printful/order-detail-printful.component';
 import { ShippingCalculatorPrintfulComponent } from './shipping-calculator-printful/shipping-calculator-printful.component';
 import { WebhookLogsPrintfulComponent } from './webhook-logs-printful/webhook-logs-printful.component';
+import { EmailTestingPrintfulComponent } from './email-testing-printful/email-testing-printful.component';
 
 const routes: Routes = [
   {
@@ -41,6 +42,10 @@ const routes: Routes = [
       {
         path: 'webhook-logs',
         component: WebhookLogsPrintfulComponent,
+      },
+      {
+        path: 'email-testing',
+        component: EmailTestingPrintfulComponent,
       }
     ]
   }
