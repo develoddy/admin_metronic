@@ -210,6 +210,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'modules-management',
+        loadChildren: () =>
+          import('../modules/modules-management/modules-management.module').then(
+            (m) => m.ModulesManagementModule
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',

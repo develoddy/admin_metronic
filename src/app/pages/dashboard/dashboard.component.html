@@ -332,23 +332,55 @@
                       <i [class]="module.is_active ? 'fas fa-pause' : 'fas fa-play'" class="me-1"></i>
                       {{ module.is_active ? 'Pausar' : 'Activar' }}
                     </button>
-                    <button class="btn btn-sm btn-light-primary">
-                      <i class="fas fa-cog"></i>
+                    <button 
+                      class="btn btn-sm btn-light-primary"
+                      (click)="editModule(module)"
+                      title="Editar módulo">
+                      <i class="fas fa-edit"></i>
                     </button>
                   </div>
 
                   <!-- Validation Info (solo si está en testing) -->
                   <div *ngIf="module.status === 'testing' && module.launched_at" class="mt-3 pt-3 border-top">
-                    <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
                       <span class="text-muted fs-8">
                         <i class="fas fa-hourglass-half text-warning me-1"></i>
                         Días restantes:
                       </span>
-                      <span class="badge badge-light-warning fs-8">
-                        <!-- Aquí podrías calcular días restantes en el TS -->
-                        Calculando...
+                      <span class="badge fs-8" 
+                            [ngClass]="isModuleAtRisk(module) ? 'badge-light-danger' : 'badge-light-warning'">
+                        {{ calculateDaysRemaining(module) }} días
                       </span>
                     </div>
+                    <div class="progress h-6px">
+                      <div class="progress-bar" 
+                           [ngClass]="isModuleAtRisk(module) ? 'bg-danger' : 'bg-warning'"
+                           [style.width.%]="modulesService.calculateProgress(module.total_sales, module.validation_target_sales)">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Crear Módulo -->
+            <div class="col-xl-3 col-md-6">
+              <div class="card card-flush border border-primary border-dashed h-100 hover-elevate-up cursor-pointer" 
+                   (click)="navigateToCreateModule()">
+                <div class="card-body d-flex align-items-center justify-content-center">
+                  <div class="text-center">
+                    <div class="symbol symbol-80px mx-auto mb-4">
+                      <div class="symbol-circle bg-light-primary">
+                        <i class="fas fa-plus fs-2x text-primary"></i>
+                      </div>
+                    </div>
+                    <h4 class="fw-bolder text-primary mb-2">Crear Módulo</h4>
+                    <p class="text-muted fs-7 mb-4">
+                      Valida una nueva idea rápidamente
+                    </p>
+                    <span class="badge badge-light-primary fs-8">
+                      <i class="fas fa-rocket me-1"></i>Levels-style
+                    </span>
                   </div>
                 </div>
               </div>

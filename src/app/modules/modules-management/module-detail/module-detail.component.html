@@ -1,0 +1,355 @@
+<!--begin::Module Detail-->
+<div class="module-detail" *ngIf="!isLoading && module">
+  <!--begin::Header-->
+  <div class="card mb-6">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <button 
+            class="btn btn-sm btn-light-primary me-4"
+            (click)="goBack()">
+            <i class="fas fa-arrow-left me-2"></i>
+            Volver
+          </button>
+          
+          <div class="symbol symbol-60px me-4">
+            <div class="symbol-circle" [ngClass]="'bg-light-' + module.color">
+              <i [class]="'fas ' + module.icon + ' fs-2x text-' + module.color"></i>
+            </div>
+          </div>
+          
+          <div>
+            <h1 class="text-dark fw-bolder fs-2x mb-2">
+              {{ module.name }}
+            </h1>
+            <p class="text-muted fs-6 mb-0">{{ module.description }}</p>
+          </div>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+          <span class="badge fs-7" [ngClass]="getStatusBadgeClass()">
+            {{ module.status === 'live' ? '🟢 Live' : 
+               module.status === 'testing' ? '🟡 Testing' : 
+               module.status === 'draft' ? '⚪ Draft' : '⚫ Archived' }}
+          </span>
+          
+          <div class="form-check form-switch form-check-custom form-check-solid">
+            <input 
+              class="form-check-input"
+              type="checkbox" 
+              [checked]="module.is_active"
+              (change)="toggleModule()">
+            <label class="form-check-label text-muted ms-2">
+              {{ module.is_active ? 'Activo' : 'Inactivo' }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Header-->
+
+  <!--begin::Stats Cards-->
+  <div class="row g-6 mb-6">
+    <!-- Total Ventas -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex align-items-center">
+          <div class="symbol symbol-50px me-4">
+            <div class="symbol-circle bg-light-success">
+              <i class="fas fa-chart-line fs-2x text-success"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <span class="text-muted fw-bold fs-7 d-block mb-1">Total Ventas</span>
+            <span class="text-dark fw-bolder fs-2">{{ module.total_sales }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue Total -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex align-items-center">
+          <div class="symbol symbol-50px me-4">
+            <div class="symbol-circle bg-light-primary">
+              <i class="fas fa-euro-sign fs-2x text-primary"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <span class="text-muted fw-bold fs-7 d-block mb-1">Revenue Total</span>
+            <span class="text-dark fw-bolder fs-2">{{ modulesService.formatCurrency(module.total_revenue) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Target Validación -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex align-items-center">
+          <div class="symbol symbol-50px me-4">
+            <div class="symbol-circle bg-light-warning">
+              <i class="fas fa-bullseye fs-2x text-warning"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <span class="text-muted fw-bold fs-7 d-block mb-1">Target</span>
+            <span class="text-dark fw-bolder fs-3">{{ module.validation_target_sales }} ventas</span>
+            <span class="text-muted fs-8 d-block">en {{ module.validation_days }} días</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progreso -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-flush h-100">
+        <div class="card-body d-flex align-items-center">
+          <div class="symbol symbol-50px me-4">
+            <div class="symbol-circle" [ngClass]="isModuleAtRisk() ? 'bg-light-danger' : 'bg-light-info'">
+              <i class="fas fa-percentage fs-2x" [ngClass]="isModuleAtRisk() ? 'text-danger' : 'text-info'"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <span class="text-muted fw-bold fs-7 d-block mb-1">Progreso</span>
+            <span class="text-dark fw-bolder fs-2">
+              {{ modulesService.calculateProgress(module.total_sales, module.validation_target_sales) }}%
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Stats Cards-->
+
+  <!--begin::Validation Status (si está en testing)-->
+  <div class="row g-6 mb-6" *ngIf="module.status === 'testing' && module.launched_at">
+    <div class="col-12">
+      <div class="card" [ngClass]="isModuleAtRisk() ? 'border border-danger' : ''">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+              <h3 class="fw-bolder text-dark mb-2">
+                <i class="fas fa-hourglass-half text-warning me-2"></i>
+                Estado de Validación
+              </h3>
+              <p class="text-muted mb-0">
+                Módulo en periodo de prueba
+              </p>
+            </div>
+            
+            <div class="text-end">
+              <span class="badge fs-5" [ngClass]="isModuleAtRisk() ? 'badge-danger' : 'badge-warning'">
+                {{ calculateDaysRemaining() }} días restantes
+              </span>
+            </div>
+          </div>
+
+          <div class="progress h-15px mb-3">
+            <div 
+              class="progress-bar"
+              [ngClass]="isModuleAtRisk() ? 'bg-danger' : 'bg-success'"
+              [style.width.%]="modulesService.calculateProgress(module.total_sales, module.validation_target_sales)">
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <div class="col-md-4">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-play text-success fs-3 me-3"></i>
+                <div>
+                  <span class="text-muted fs-7 d-block">Fecha de lanzamiento</span>
+                  <span class="fw-bold text-dark">{{ module.launched_at | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-chart-bar text-primary fs-3 me-3"></i>
+                <div>
+                  <span class="text-muted fs-7 d-block">Ventas necesarias</span>
+                  <span class="fw-bold text-dark">{{ module.validation_target_sales - module.total_sales }} más</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-flag-checkered text-warning fs-3 me-3"></i>
+                <div>
+                  <span class="text-muted fs-7 d-block">Fecha límite</span>
+                  <span class="fw-bold text-dark">{{ module.launched_at | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="isModuleAtRisk()" class="alert alert-danger d-flex align-items-center mt-4">
+            <i class="fas fa-exclamation-triangle fs-2x me-3"></i>
+            <div>
+              <strong>Módulo en riesgo!</strong>
+              <p class="mb-0">Quedan menos de 2 días y el progreso es menor al 50%. Considera intensificar esfuerzos o archivar.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Validation Status-->
+
+  <!--begin::Actions & Recent Sales-->
+  <div class="row g-6">
+    <!-- Actions -->
+    <div class="col-xl-4">
+      <div class="card h-100">
+        <div class="card-header border-0 pt-6">
+          <div class="card-title">
+            <h3 class="fw-bolder text-dark">
+              <i class="fas fa-bolt text-warning me-2"></i>
+              Acciones
+            </h3>
+          </div>
+        </div>
+        <div class="card-body pt-0">
+          <div class="row g-3">
+            <div class="col-12">
+              <button 
+                class="btn btn-primary w-100"
+                (click)="editModule()">
+                <i class="fas fa-edit me-2"></i>
+                Editar Módulo
+              </button>
+            </div>
+            
+            <div class="col-12">
+              <button 
+                class="btn w-100"
+                [ngClass]="module.is_active ? 'btn-light-danger' : 'btn-light-success'"
+                (click)="toggleModule()">
+                <i [class]="module.is_active ? 'fas fa-pause me-2' : 'fas fa-play me-2'"></i>
+                {{ module.is_active ? 'Pausar Módulo' : 'Activar Módulo' }}
+              </button>
+            </div>
+            
+            <div class="col-12" *ngIf="module.status !== 'archived'">
+              <button 
+                class="btn btn-light-warning w-100"
+                (click)="archiveModule()">
+                <i class="fas fa-archive me-2"></i>
+                Archivar Módulo
+              </button>
+            </div>
+          </div>
+
+          <!-- Info del módulo -->
+          <div class="mt-6">
+            <h6 class="fw-bolder text-dark mb-4">Información</h6>
+            <div class="border border-gray-300 border-dashed rounded p-4">
+              <div class="mb-3">
+                <span class="text-muted fs-7 d-block mb-1">Key</span>
+                <code class="bg-light px-2 py-1 rounded">{{ module.key }}</code>
+              </div>
+              
+              <div class="mb-3">
+                <span class="text-muted fs-7 d-block mb-1">Tipo</span>
+                <span class="badge badge-light-info">{{ module.type }}</span>
+              </div>
+              
+              <div class="mb-3">
+                <span class="text-muted fs-7 d-block mb-1">Precio base</span>
+                <span class="fw-bold text-dark">
+                  {{ module.base_price ? modulesService.formatCurrency(module.base_price) : 'No definido' }}
+                </span>
+              </div>
+              
+              <div>
+                <span class="text-muted fs-7 d-block mb-1">Creado</span>
+                <span class="text-muted fs-8">{{ module.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Sales -->
+    <div class="col-xl-8">
+      <div class="card h-100">
+        <div class="card-header border-0 pt-6">
+          <div class="card-title">
+            <h3 class="fw-bolder text-dark">
+              <i class="fas fa-shopping-cart text-primary me-2"></i>
+              Ventas Recientes
+            </h3>
+          </div>
+          <div class="card-toolbar">
+            <span class="badge badge-light-primary">{{ recentSales.length }} registros</span>
+          </div>
+        </div>
+        <div class="card-body pt-0">
+          <div *ngIf="recentSales.length === 0" class="text-center py-10">
+            <i class="fas fa-inbox fs-3x text-muted mb-4"></i>
+            <h5 class="fw-bolder text-muted mb-2">No hay ventas aún</h5>
+            <p class="text-muted">Las ventas asociadas a este módulo aparecerán aquí</p>
+          </div>
+
+          <div *ngIf="recentSales.length > 0" class="table-responsive">
+            <table class="table table-row-dashed align-middle gs-0 gy-4">
+              <thead>
+                <tr class="fw-bolder text-muted bg-light">
+                  <th class="min-w-100px">ID</th>
+                  <th class="min-w-120px">Transacción</th>
+                  <th class="min-w-100px">Total</th>
+                  <th class="min-w-100px">Estado Sync</th>
+                  <th class="min-w-120px">Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sale of recentSales">
+                  <td>
+                    <span class="text-dark fw-bold">#{{ sale.id }}</span>
+                  </td>
+                  <td>
+                    <code class="bg-light px-2 py-1 rounded fs-8">{{ sale.n_transaction }}</code>
+                  </td>
+                  <td>
+                    <span class="text-dark fw-bold">{{ modulesService.formatCurrency(sale.total) }}</span>
+                  </td>
+                  <td>
+                    <span class="badge" 
+                          [ngClass]="{
+                            'badge-light-success': sale.syncStatus === 'shipped' || sale.syncStatus === 'fulfilled',
+                            'badge-light-warning': sale.syncStatus === 'pending',
+                            'badge-light-danger': sale.syncStatus === 'failed' || sale.syncStatus === 'canceled'
+                          }">
+                      {{ sale.syncStatus || 'pending' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="text-muted fs-7">{{ sale.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Actions & Recent Sales-->
+</div>
+
+<!--begin::Loading-->
+<div *ngIf="isLoading" class="card">
+  <div class="card-body text-center py-20">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted">Cargando detalles del módulo...</p>
+  </div>
+</div>
+<!--end::Loading-->
+<!--end::Module Detail-->

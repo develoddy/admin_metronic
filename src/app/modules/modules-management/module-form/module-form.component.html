@@ -1,0 +1,311 @@
+<!--begin::Formulario de Módulo-->
+<div class="module-form">
+  <!--begin::Header-->
+  <div class="card mb-6">
+    <div class="card-body">
+      <div class="d-flex align-items-center">
+        <button class="btn btn-sm btn-light me-3" (click)="cancel()">
+          <i class="fas fa-arrow-left me-1"></i>
+          Volver
+        </button>
+        <div>
+          <h1 class="text-dark fw-bolder fs-2x mb-1">
+            <i class="fas" [ngClass]="isEditMode ? 'fa-edit' : 'fa-plus'" class="text-primary me-2"></i>
+            {{ isEditMode ? 'Editar Módulo' : 'Crear Nuevo Módulo' }}
+          </h1>
+          <p class="text-muted fs-6 mb-0">
+            {{ isEditMode ? 'Actualiza la configuración del módulo' : 'Define tu próximo experimento Levels-style' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Header-->
+
+  <!--begin::Loading-->
+  <div *ngIf="isLoading" class="card">
+    <div class="card-body text-center py-20">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="text-muted mt-3">Cargando módulo...</p>
+    </div>
+  </div>
+  <!--end::Loading-->
+
+  <!--begin::Form-->
+  <form *ngIf="!isLoading" [formGroup]="moduleForm" (ngSubmit)="save()">
+    <div class="row g-6">
+      <!--begin::Información Básica-->
+      <div class="col-lg-8">
+        <div class="card mb-6">
+          <div class="card-header">
+            <h3 class="card-title">Información Básica</h3>
+          </div>
+          <div class="card-body">
+            <!--begin::Key-->
+            <div class="row mb-6">
+              <label class="col-lg-3 col-form-label required fw-bold fs-6">Key (ID único)</label>
+              <div class="col-lg-9">
+                <div class="input-group">
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    formControlName="key"
+                    placeholder="notion-templates"
+                    [class.is-invalid]="hasError('key', 'required') || hasError('key', 'pattern')">
+                  <button 
+                    *ngIf="!isEditMode"
+                    class="btn btn-light-primary" 
+                    type="button"
+                    (click)="generateKey()">
+                    <i class="fas fa-magic"></i> Auto
+                  </button>
+                </div>
+                <div class="form-text">Solo letras minúsculas, números y guiones (a-z, 0-9, -)</div>
+                <div *ngIf="hasError('key', 'required')" class="invalid-feedback d-block">
+                  El key es requerido
+                </div>
+                <div *ngIf="hasError('key', 'pattern')" class="invalid-feedback d-block">
+                  Solo se permiten letras minúsculas, números y guiones
+                </div>
+              </div>
+            </div>
+            <!--end::Key-->
+
+            <!--begin::Name-->
+            <div class="row mb-6">
+              <label class="col-lg-3 col-form-label required fw-bold fs-6">Nombre</label>
+              <div class="col-lg-9">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="name"
+                  placeholder="Plantillas Notion Premium"
+                  [class.is-invalid]="hasError('name', 'required') || hasError('name', 'minlength')">
+                <div class="form-text">Nombre descriptivo del módulo</div>
+                <div *ngIf="hasError('name', 'required')" class="invalid-feedback d-block">
+                  El nombre es requerido
+                </div>
+                <div *ngIf="hasError('name', 'minlength')" class="invalid-feedback d-block">
+                  El nombre debe tener al menos 3 caracteres
+                </div>
+              </div>
+            </div>
+            <!--end::Name-->
+
+            <!--begin::Description-->
+            <div class="row mb-6">
+              <label class="col-lg-3 col-form-label required fw-bold fs-6">Descripción</label>
+              <div class="col-lg-9">
+                <textarea 
+                  class="form-control" 
+                  formControlName="description"
+                  rows="3"
+                  placeholder="Pack de 10 plantillas premium para Notion: productividad, finanzas, proyectos..."
+                  [class.is-invalid]="hasError('description', 'required')"></textarea>
+                <div class="form-text">Descripción breve del módulo</div>
+                <div *ngIf="hasError('description', 'required')" class="invalid-feedback d-block">
+                  La descripción es requerida
+                </div>
+              </div>
+            </div>
+            <!--end::Description-->
+
+            <!--begin::Type-->
+            <div class="row mb-6">
+              <label class="col-lg-3 col-form-label required fw-bold fs-6">Tipo</label>
+              <div class="col-lg-9">
+                <select 
+                  class="form-select" 
+                  formControlName="type"
+                  [class.is-invalid]="hasError('type', 'required')">
+                  <option *ngFor="let opt of typeOptions" [value]="opt.value">
+                    {{ opt.label }}
+                  </option>
+                </select>
+                <div class="form-text">Tipo de producto/servicio</div>
+              </div>
+            </div>
+            <!--end::Type-->
+
+            <!--begin::Base Price-->
+            <div class="row mb-6">
+              <label class="col-lg-3 col-form-label fw-bold fs-6">Precio Base</label>
+              <div class="col-lg-9">
+                <div class="input-group">
+                  <input 
+                    type="number" 
+                    class="form-control" 
+                    formControlName="base_price"
+                    placeholder="19.99"
+                    step="0.01"
+                    min="0">
+                  <span class="input-group-text">€</span>
+                </div>
+                <div class="form-text">Precio base del producto (opcional)</div>
+              </div>
+            </div>
+            <!--end::Base Price-->
+          </div>
+        </div>
+
+        <!--begin::Validación Levels-style-->
+        <div class="card mb-6">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-rocket text-warning me-2"></i>
+              Validación Levels-style
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-warning d-flex align-items-center mb-6">
+              <i class="fas fa-lightbulb fs-2x me-3"></i>
+              <div>
+                <strong>Filosofía Levels:</strong> Cada idea debe validarse rápidamente.
+                Define X ventas en Y días. Si no alcanza el target → KILL y siguiente experimento.
+              </div>
+            </div>
+
+            <!--begin::Validation Days-->
+            <div class="row mb-6">
+              <label class="col-lg-4 col-form-label required fw-bold fs-6">Días para validar</label>
+              <div class="col-lg-8">
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  formControlName="validation_days"
+                  min="1"
+                  max="90"
+                  [class.is-invalid]="hasError('validation_days', 'required') || hasError('validation_days', 'min')">
+                <div class="form-text">Tiempo límite para alcanzar el target</div>
+                <div *ngIf="hasError('validation_days', 'required')" class="invalid-feedback d-block">
+                  Los días de validación son requeridos
+                </div>
+              </div>
+            </div>
+            <!--end::Validation Days-->
+
+            <!--begin::Target Sales-->
+            <div class="row mb-6">
+              <label class="col-lg-4 col-form-label required fw-bold fs-6">Ventas objetivo</label>
+              <div class="col-lg-8">
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  formControlName="validation_target_sales"
+                  min="1"
+                  [class.is-invalid]="hasError('validation_target_sales', 'required') || hasError('validation_target_sales', 'min')">
+                <div class="form-text">Número mínimo de ventas para validar</div>
+                <div *ngIf="hasError('validation_target_sales', 'required')" class="invalid-feedback d-block">
+                  El target de ventas es requerido
+                </div>
+              </div>
+            </div>
+            <!--end::Target Sales-->
+
+            <!--begin::Preview-->
+            <div class="bg-light-warning rounded p-4">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-bullseye fs-2x text-warning me-3"></i>
+                <div>
+                  <strong class="d-block text-dark">Target del módulo:</strong>
+                  <span class="text-muted">
+                    {{ moduleForm.get('validation_target_sales')?.value || 0 }} ventas
+                    en {{ moduleForm.get('validation_days')?.value || 0 }} días
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!--end::Preview-->
+          </div>
+        </div>
+      </div>
+      <!--end::Información Básica-->
+
+      <!--begin::Personalización-->
+      <div class="col-lg-4">
+        <div class="card mb-6">
+          <div class="card-header">
+            <h3 class="card-title">Personalización</h3>
+          </div>
+          <div class="card-body">
+            <!--begin::Icon-->
+            <div class="mb-6">
+              <label class="form-label required fw-bold fs-6">Icono</label>
+              <select 
+                class="form-select" 
+                formControlName="icon">
+                <option *ngFor="let icon of iconOptions" [value]="icon">
+                  {{ icon }}
+                </option>
+              </select>
+              <div class="form-text">Icono FontAwesome</div>
+              
+              <!--Preview-->
+              <div class="mt-3 text-center">
+                <div class="symbol symbol-60px mx-auto">
+                  <div class="symbol-circle" [ngClass]="'bg-light-' + moduleForm.get('color')?.value">
+                    <i [class]="'fas ' + moduleForm.get('icon')?.value + ' fs-2x text-' + moduleForm.get('color')?.value"></i>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-2">Vista previa</small>
+              </div>
+            </div>
+            <!--end::Icon-->
+
+            <!--begin::Color-->
+            <div class="mb-6">
+              <label class="form-label required fw-bold fs-6">Color</label>
+              <div class="row g-2">
+                <div *ngFor="let color of colorOptions" class="col-4">
+                  <label class="form-check-label w-100">
+                    <input 
+                      type="radio" 
+                      class="form-check-input d-none"
+                      [value]="color.value"
+                      formControlName="color">
+                    <div 
+                      class="p-3 rounded text-center cursor-pointer border"
+                      [ngClass]="{
+                        'border-primary border-3': moduleForm.get('color')?.value === color.value,
+                        'border-gray-300': moduleForm.get('color')?.value !== color.value
+                      }">
+                      <div class="w-100 h-30px rounded mb-1" [ngClass]="color.class"></div>
+                      <small class="text-muted">{{ color.label }}</small>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <!--end::Color-->
+          </div>
+        </div>
+
+        <!--begin::Actions-->
+        <div class="card">
+          <div class="card-body">
+            <button 
+              type="submit" 
+              class="btn btn-primary w-100 mb-3"
+              [disabled]="isSaving || moduleForm.invalid">
+              <i class="fas fa-save me-2" *ngIf="!isSaving"></i>
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="isSaving"></span>
+              {{ isSaving ? 'Guardando...' : (isEditMode ? 'Actualizar Módulo' : 'Crear Módulo') }}
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-light w-100"
+              (click)="cancel()"
+              [disabled]="isSaving">
+              <i class="fas fa-times me-2"></i>
+              Cancelar
+            </button>
+          </div>
+        </div>
+        <!--end::Actions-->
+      </div>
+      <!--end::Personalización-->
+    </div>
+  </form>
+  <!--end::Form-->
+</div>
+<!--end::Formulario de Módulo-->

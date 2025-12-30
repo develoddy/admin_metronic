@@ -15,6 +15,15 @@ export const AsideMenuAdminGeneral = {
       /** --------- SECCION PROVEEDORES ---------*/
       { section : 'Proveedores'},
       {
+        title: 'Gestión de Módulos',
+        root: true,
+        name: "modules-management",
+        bullet: 'dot',
+        icon: 'flaticon2-layers',
+        svg: './assets/media/svg/icons/Layout/Layout-4-blocks.svg',
+        page: '/modules-management'
+      },
+      {
         title: 'Printful',
         root: true,
         name: "printful",

@@ -1,0 +1,221 @@
+<!--begin::Gestión de Módulos-->
+<div class="modules-management">
+  <!--begin::Header-->
+  <div class="card mb-6">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <h1 class="text-dark fw-bolder fs-2x mb-2">
+            <i class="fas fa-cubes text-primary me-2"></i>
+            Gestión de Módulos
+          </h1>
+          <p class="text-muted fs-6 mb-0">
+            Administra tus experimentos y valida ideas rápidamente (Levels-style)
+          </p>
+        </div>
+        <button 
+          class="btn btn-primary"
+          (click)="createModule()">
+          <i class="fas fa-plus me-2"></i>
+          Crear Módulo
+        </button>
+      </div>
+    </div>
+  </div>
+  <!--end::Header-->
+
+  <!--begin::Filtros-->
+  <div class="card mb-6">
+    <div class="card-body">
+      <div class="row g-4">
+        <!-- Búsqueda -->
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Buscar por nombre, key o descripción..."
+              [(ngModel)]="searchTerm">
+          </div>
+        </div>
+
+        <!-- Filtro por estado -->
+        <div class="col-md-3">
+          <select 
+            class="form-select"
+            [(ngModel)]="statusFilter">
+            <option value="all">Todos los estados</option>
+            <option value="draft">📄 Draft</option>
+            <option value="testing">🧪 Testing</option>
+            <option value="live">🟢 Live</option>
+            <option value="archived">📦 Archived</option>
+          </select>
+        </div>
+
+        <!-- Stats rápidas -->
+        <div class="col-md-3">
+          <div class="d-flex align-items-center justify-content-end gap-3">
+            <span class="badge badge-light-primary fs-7">
+              Total: {{ modules.length }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Filtros-->
+
+  <!--begin::Loading-->
+  <div *ngIf="isLoading" class="card">
+    <div class="card-body text-center py-20">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="text-muted mt-3">Cargando módulos...</p>
+    </div>
+  </div>
+  <!--end::Loading-->
+
+  <!--begin::Listado-->
+  <div *ngIf="!isLoading && filteredModules.length > 0" class="row g-6">
+    <div *ngFor="let module of filteredModules" class="col-xl-4 col-md-6">
+      <div class="card card-flush h-100 hover-elevate-up cursor-pointer" (click)="viewModule(module)">
+        <div class="card-body">
+          <!--begin::Header-->
+          <div class="d-flex align-items-start justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+              <div class="symbol symbol-50px me-3">
+                <div class="symbol-circle" [ngClass]="'bg-light-' + module.color">
+                  <i [class]="'fas ' + module.icon + ' fs-2x text-' + module.color"></i>
+                </div>
+              </div>
+              <div>
+                <h3 class="fw-bolder text-dark mb-1">{{ module.name }}</h3>
+                <span class="badge fs-8" [ngClass]="modulesService.getStatusBadgeClass(module.status)">
+                  {{ module.status === 'live' ? '🟢 Live' : 
+                     module.status === 'testing' ? '🧪 Testing' : 
+                     module.status === 'draft' ? '📄 Draft' : '📦 Archived' }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Toggle Active -->
+            <div class="form-check form-switch form-check-custom form-check-solid">
+              <input 
+                class="form-check-input"
+                type="checkbox" 
+                [checked]="module.is_active"
+                (click)="toggleModule(module, $event)">
+            </div>
+          </div>
+          <!--end::Header-->
+
+          <!--begin::Description-->
+          <p class="text-muted fs-7 mb-4">
+            {{ module.description }}
+          </p>
+          <!--end::Description-->
+
+          <!--begin::Stats-->
+          <div class="mb-4">
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="border border-gray-300 border-dashed rounded p-3">
+                  <span class="text-muted fs-8 d-block mb-1">
+                    <i class="fas fa-chart-line me-1"></i>Ventas
+                  </span>
+                  <span class="fw-bold text-dark fs-6">{{ module.total_sales }}</span>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="border border-gray-300 border-dashed rounded p-3">
+                  <span class="text-muted fs-8 d-block mb-1">
+                    <i class="fas fa-euro-sign me-1"></i>Revenue
+                  </span>
+                  <span class="fw-bold text-dark fs-6">{{ modulesService.formatCurrency(module.total_revenue) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--end::Stats-->
+
+          <!--begin::Validation-->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted fs-8">Target de validación:</span>
+              <span class="badge badge-light-warning fs-8">
+                {{ module.validation_target_sales }} en {{ module.validation_days }} días
+              </span>
+            </div>
+            <div class="progress h-6px">
+              <div 
+                class="progress-bar"
+                [ngClass]="isModuleAtRisk(module) ? 'bg-danger' : 'bg-success'"
+                [style.width.%]="modulesService.calculateProgress(module.total_sales, module.validation_target_sales)">
+              </div>
+            </div>
+          </div>
+          <!--end::Validation-->
+
+          <!--begin::Testing Alert-->
+          <div *ngIf="module.status === 'testing' && module.launched_at" class="alert alert-warning d-flex align-items-center py-3 mb-4">
+            <i class="fas fa-hourglass-half fs-3 me-3"></i>
+            <div class="flex-grow-1">
+              <span class="fw-bold d-block">Quedan {{ calculateDaysRemaining(module) }} días</span>
+              <span class="fs-8">{{ module.validation_target_sales - module.total_sales }} ventas más para validar</span>
+            </div>
+          </div>
+          <!--end::Testing Alert-->
+
+          <!--begin::Actions-->
+          <div class="d-flex gap-2">
+            <button 
+              class="btn btn-sm btn-light-primary flex-grow-1"
+              (click)="editModule(module); $event.stopPropagation()">
+              <i class="fas fa-edit me-1"></i>
+              Editar
+            </button>
+            <button 
+              *ngIf="module.status !== 'archived'"
+              class="btn btn-sm btn-light-danger"
+              (click)="archiveModule(module, $event)">
+              <i class="fas fa-archive me-1"></i>
+              Archivar
+            </button>
+          </div>
+          <!--end::Actions-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--end::Listado-->
+
+  <!--begin::Empty State-->
+  <div *ngIf="!isLoading && filteredModules.length === 0" class="card">
+    <div class="card-body text-center py-20">
+      <div class="symbol symbol-100px mx-auto mb-4">
+        <div class="symbol-circle bg-light-muted">
+          <i class="fas fa-inbox fs-2x text-muted"></i>
+        </div>
+      </div>
+      <h5 class="fw-bolder text-muted mb-2">
+        {{ searchTerm || statusFilter !== 'all' ? 'No se encontraron módulos' : 'No hay módulos registrados' }}
+      </h5>
+      <p class="text-muted fs-7 mb-4">
+        {{ searchTerm || statusFilter !== 'all' ? 'Prueba con otros filtros' : 'Crea tu primer módulo para empezar a validar ideas' }}
+      </p>
+      <button 
+        *ngIf="!searchTerm && statusFilter === 'all'"
+        class="btn btn-primary"
+        (click)="createModule()">
+        <i class="fas fa-plus me-2"></i>
+        Crear Primer Módulo
+      </button>
+    </div>
+  </div>
+  <!--end::Empty State-->
+</div>
+<!--end::Gestión de Módulos-->

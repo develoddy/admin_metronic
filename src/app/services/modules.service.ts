@@ -68,11 +68,12 @@ export interface ModulesSummary {
 
 export interface ModuleResponse {
   success: boolean;
-  module: Module;
+  module?: Module;
   stats?: ModuleStats;
   validationStatus?: ValidationStatus;
   recentSales?: any[];
   message?: string;
+  error?: string;
 }
 
 export interface ModulesListResponse {
@@ -111,6 +112,20 @@ export class ModulesService {
    */
   listModules(): Observable<ModulesListResponse> {
     return this.http.get<ModulesListResponse>(`${this.url}/modules`, { headers: this.getHeaders() });
+  }
+
+  /**
+   * Crear nuevo módulo
+   */
+  createModule(moduleData: Partial<Module>): Observable<ModuleResponse> {
+    return this.http.post<ModuleResponse>(`${this.url}/modules`, moduleData, { headers: this.getHeaders() });
+  }
+
+  /**
+   * Actualizar módulo existente
+   */
+  updateModule(key: string, moduleData: Partial<Module>): Observable<ModuleResponse> {
+    return this.http.put<ModuleResponse>(`${this.url}/modules/${key}`, moduleData, { headers: this.getHeaders() });
   }
 
   /**

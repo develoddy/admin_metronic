@@ -787,6 +787,47 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Calcular días restantes para validación
+   */
+  calculateDaysRemaining(module: Module): number | null {
+    if (!module.launched_at || module.status !== 'testing') {
+      return null;
+    }
+    
+    const launchedDate = new Date(module.launched_at);
+    const now = new Date();
+    const daysPassed = Math.floor((now.getTime() - launchedDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysRemaining = module.validation_days - daysPassed;
+    
+    return Math.max(0, daysRemaining);
+  }
+
+  /**
+   * Verificar si módulo está en riesgo de expirar
+   */
+  isModuleAtRisk(module: Module): boolean {
+    const daysRemaining = this.calculateDaysRemaining(module);
+    if (daysRemaining === null) return false;
+    
+    const progress = (module.total_sales / module.validation_target_sales) * 100;
+    return daysRemaining <= 2 && progress < 50;
+  }
+
+  /**
+   * Editar módulo
+   */
+  editModule(module: Module): void {
+    this.router.navigate(['/modules-management/edit', module.key]);
+  }
+
+  /**
+   * Navegar a crear módulo
+   */
+  navigateToCreateModule(): void {
+    this.router.navigate(['/modules-management/create']);
+  }
+
+  /**
    * Fallback para copiar al portapapeles en navegadores antiguos
    */
   private fallbackCopyToClipboard(text: string): void {
