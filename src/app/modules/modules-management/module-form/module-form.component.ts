@@ -35,6 +35,13 @@ export class ModuleFormComponent implements OnInit {
     { value: 'dark', label: 'Negro', class: 'bg-dark' }
   ];
 
+  statusOptions = [
+    { value: 'draft', label: 'Borrador', description: 'Módulo en desarrollo' },
+    { value: 'testing', label: 'Testing', description: 'En validación activa' },
+    { value: 'live', label: 'Live', description: 'Público y funcionando' },
+    { value: 'archived', label: 'Archivado', description: 'Módulo archivado' }
+  ];
+
   iconOptions = [
     'fa-cube', 'fa-box', 'fa-download', 'fa-handshake', 'fa-plug',
     'fa-graduation-cap', 'fa-shopping-bag', 'fa-gift', 'fa-rocket',
@@ -71,6 +78,7 @@ export class ModuleFormComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required]],
       type: ['physical', [Validators.required]],
+      status: ['draft'],
       validation_days: [14, [Validators.required, Validators.min(1)]],
       validation_target_sales: [1, [Validators.required, Validators.min(1)]],
       icon: ['fa-cube', [Validators.required]],

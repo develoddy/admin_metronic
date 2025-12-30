@@ -127,6 +127,27 @@
             </div>
             <!--end::Type-->
 
+            <!--begin::Status-->
+            <div class="row mb-6" *ngIf="isEditMode">
+              <label class="col-lg-3 col-form-label fw-bold fs-6">Estado</label>
+              <div class="col-lg-9">
+                <select 
+                  class="form-select" 
+                  formControlName="status">
+                  <option *ngFor="let opt of statusOptions" [value]="opt.value">
+                    {{ opt.label }} - {{ opt.description }}
+                  </option>
+                </select>
+                <div class="form-text">
+                  <strong>Draft:</strong> Borrador (invisible) | 
+                  <strong>Testing:</strong> Validación activa | 
+                  <strong>Live:</strong> Público en frontend | 
+                  <strong>Archived:</strong> Archivado
+                </div>
+              </div>
+            </div>
+            <!--end::Status-->
+
             <!--begin::Base Price-->
             <div class="row mb-6">
               <label class="col-lg-3 col-form-label fw-bold fs-6">Precio Base</label>
