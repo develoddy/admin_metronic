@@ -5,6 +5,7 @@ import { Toaster } from 'ngx-toast-notifications';
 import { AnalyticsPrintfulService } from 'src/app/modules/printful/_services/analytics-printful.service';
 import { OrderPrintfulService } from 'src/app/modules/printful/_services/order-printful.service';
 import { PrintfulService } from 'src/app/modules/printful/_services/printful.service';
+import { ModulesService, Module, ModulesSummary } from 'src/app/services/modules.service';
 
 interface DashboardStats {
   totalOrders: number;
@@ -68,10 +69,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     products: 0
   };
 
+  // Sistema de módulos (Levels-style)
+  modules: Module[] = [];
+  modulesSummary: ModulesSummary | null = null;
+  isLoadingModules = false;
+
   constructor( 
     private analyticsPrintful: AnalyticsPrintfulService,
     private orderPrintful: OrderPrintfulService,
     private printfulService: PrintfulService,
+    public modulesService: ModulesService,
     private cd: ChangeDetectorRef,
     private router: Router,
     private toaster: Toaster
@@ -93,6 +100,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadFinancialStats();
     this.loadRecentOrders();
     this.loadProductStats();
+    this.loadModules();
   }
 
   /**
@@ -705,6 +713,77 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       this.fallbackCopyToClipboard(orderId);
     }
+  }
+
+  /**
+   * SISTEMA DE MÓDULOS
+   */
+
+  /**
+   * Cargar módulos activos y en draft
+   */
+  loadModules(): void {
+    this.isLoadingModules = true;
+    
+    this.modulesService.listModules().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.modules = response.modules || [];
+          console.log('📦 Módulos cargados:', this.modules.length);
+        }
+        this.isLoadingModules = false;
+        this.cd.detectChanges();
+      },
+      error: (error) => {
+        console.error('❌ Error cargando módulos:', error);
+        this.isLoadingModules = false;
+        this.cd.detectChanges();
+      }
+    });
+  }
+
+  /**
+   * Toggle activar/desactivar módulo
+   */
+  toggleModule(module: Module): void {
+    const action = module.is_active ? 'desactivar' : 'activar';
+    
+    this.modulesService.toggleModule(module.key).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toaster.open({
+            text: `Módulo ${module.name} ${action === 'activar' ? 'activado' : 'desactivado'} correctamente`,
+            caption: '✅ Módulo actualizado',
+            type: 'success',
+            duration: 3000
+          });
+          this.loadModules(); // Recargar
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error toggle módulo:', error);
+        this.toaster.open({
+          text: 'Error al actualizar el módulo',
+          caption: '❌ Error',
+          type: 'danger',
+          duration: 3000
+        });
+      }
+    });
+  }
+
+  /**
+   * Obtener clase de badge según estado del módulo
+   */
+  getModuleStatusBadgeClass(status: string): string {
+    return this.modulesService.getStatusBadgeClass(status);
+  }
+
+  /**
+   * Obtener icono según tipo de módulo
+   */
+  getModuleTypeIcon(type: string): string {
+    return this.modulesService.getTypeIcon(type);
   }
 
   /**
