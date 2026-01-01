@@ -35,6 +35,15 @@ export interface Module {
   updated_at: string;
   stats?: ModuleStats;
   validationStatus?: ValidationStatus;
+  // Nuevos campos de marketing
+  tagline?: string;
+  screenshots?: string[];
+  download_url?: string;
+  post_purchase_email?: string;
+  detailed_description?: string;
+  features?: string[];
+  tech_stack?: string[];
+  requirements?: string[];
 }
 
 export interface ModuleStats {
@@ -218,5 +227,35 @@ export class ModulesService {
   calculateProgress(current: number, target: number): number {
     if (target === 0) return 0;
     return Math.min(100, (current / target) * 100);
+  }
+
+  /**
+   * 📸 Sube screenshots de un módulo
+   */
+  uploadModuleScreenshots(moduleKey: string, formData: FormData): Observable<any> {
+    const headers = new HttpHeaders({
+      'token': this.authService.token
+      // NO establecer Content-Type, Angular lo hace automáticamente para FormData
+    });
+    
+    return this.http.post(
+      `${URL_SERVICIOS}/modules/${moduleKey}/screenshots`,
+      formData,
+      { headers }
+    );
+  }
+
+  /**
+   * 🗑️ Elimina un screenshot específico
+   */
+  deleteModuleScreenshot(moduleKey: string, filename: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'token': this.authService.token
+    });
+    
+    return this.http.delete(
+      `${URL_SERVICIOS}/modules/${moduleKey}/screenshots/${filename}`,
+      { headers }
+    );
   }
 }

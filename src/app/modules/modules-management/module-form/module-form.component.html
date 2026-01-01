@@ -169,6 +169,283 @@
           </div>
         </div>
 
+        <!--begin::Contenido de Marketing-->
+        <div class="card mb-6">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-bullhorn text-info me-2"></i>
+              Contenido de Marketing
+            </h3>
+          </div>
+          <div class="card-body">
+            <!--begin::Tagline-->
+            <div class="row mb-6">
+              <label class="col-lg-3 col-form-label fw-bold fs-6">Tagline</label>
+              <div class="col-lg-9">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="tagline"
+                  placeholder="Automatiza sitemap.xml y robots.txt desde tu admin">
+                <div class="form-text">Frase corta y atractiva (máx. 255 caracteres)</div>
+              </div>
+            </div>
+            <!--end::Tagline-->
+
+            <!--begin::Detailed Description-->
+            <div class="row mb-6">
+              <label class="col-lg-3 col-form-label fw-bold fs-6">Descripción Detallada</label>
+              <div class="col-lg-9">
+                <textarea 
+                  class="form-control" 
+                  formControlName="detailed_description"
+                  rows="5"
+                  placeholder="Descripción completa del producto para la landing page. Puedes usar HTML básico."></textarea>
+                <div class="form-text">Descripción larga para la landing page (soporta HTML)</div>
+              </div>
+            </div>
+            <!--end::Detailed Description-->
+
+            <!--begin::Screenshots-->
+            <div class="row mb-6">
+              <label class="col-lg-3 col-form-label fw-bold fs-6">Screenshots</label>
+              <div class="col-lg-9">
+                <!-- 🆕 Drag & Drop Zone -->
+                <div 
+                  class="upload-dropzone mb-4 p-5 border-2 border-dashed rounded-3 text-center bg-light-primary position-relative"
+                  (dragover)="onDragOver($event)"
+                  (drop)="onDrop($event)"
+                  style="transition: all 0.3s ease; cursor: pointer;"
+                  (mouseenter)="$event.currentTarget.style.borderColor='var(--bs-primary)'; $event.currentTarget.style.backgroundColor='rgba(var(--bs-primary-rgb), 0.05)'"
+                  (mouseleave)="$event.currentTarget.style.borderColor='var(--bs-border-color)'; $event.currentTarget.style.backgroundColor='var(--bs-light-primary)'">
+                  
+                  <input 
+                    type="file" 
+                    id="screenshotFiles"
+                    class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
+                    style="cursor: pointer;"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    multiple
+                    (change)="onFileSelected($event)">
+                  
+                  <div class="pointer-events-none">
+                    <i class="fas fa-cloud-upload-alt fs-3x text-primary mb-3 d-block"></i>
+                    <h5 class="fw-bold text-gray-700 mb-2">
+                      Arrastra imágenes aquí o haz clic para seleccionar
+                    </h5>
+                    <p class="text-muted mb-0">
+                      <i class="fas fa-info-circle me-1"></i>
+                      Formatos: JPG, PNG, GIF, WebP • Máx. 5MB por imagen • Hasta 10 imágenes
+                    </p>
+                  </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div *ngIf="uploadingScreenshot" class="alert alert-info d-flex align-items-center mb-4">
+                  <div class="spinner-border spinner-border-sm me-3"></div>
+                  <div>
+                    <strong>Subiendo imágenes...</strong>
+                    <p class="mb-0 small text-muted">Por favor espera mientras se procesan los archivos</p>
+                  </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- URL Manual (alternativa) -->
+                <div class="mb-3">
+                  <label class="form-label text-muted small">O agregar URL manualmente:</label>
+                  <div class="input-group">
+                    <input 
+                      type="url" 
+                      class="form-control" 
+                      #screenshotUrl
+                      placeholder="https://ejemplo.com/imagen.png">
+                    <button 
+                      class="btn btn-secondary" 
+                      type="button"
+                      (click)="addScreenshot(screenshotUrl.value); screenshotUrl.value = ''">
+                      <i class="fas fa-plus me-1"></i> Agregar URL
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Preview de screenshots -->
+                <div *ngIf="screenshots.length > 0" class="mt-4">
+                  <h6 class="fw-bold mb-3">Screenshots ({{ screenshots.length }})</h6>
+                  <div class="row g-3">
+                    <div *ngFor="let screenshot of screenshots; let i = index" class="col-md-4">
+                      <div class="card border shadow-sm">
+                        <div class="position-relative" style="height: 150px; overflow: hidden; background: #f8f9fa;">
+                          <img 
+                            [src]="screenshot" 
+                            class="w-100 h-100"
+                            style="object-fit: cover;"
+                            (error)="onImageError($event)"
+                            (load)="onImageLoad($event)"
+                            alt="Screenshot"
+                            loading="lazy">
+                          <div *ngIf="!screenshot" class="position-absolute top-50 start-50 translate-middle text-muted">
+                            <i class="fas fa-image fa-3x"></i>
+                          </div>
+                        </div>
+                        <div class="card-body p-2">
+                          <small class="text-muted d-block mb-2" 
+                                 style="font-size: 10px; word-break: break-all; max-height: 40px; overflow: hidden;">
+                            {{ screenshot }}
+                          </small>
+                          <button 
+                            type="button" 
+                            class="btn btn-sm btn-danger w-100"
+                            (click)="removeScreenshot(i)">
+                            <i class="fas fa-trash me-1"></i> Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="alert alert-warning mt-3" *ngIf="screenshots.length < 4">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  Recomendación: Agrega al menos 4 screenshots para una mejor presentación
+                </div>
+              </div>
+            </div>
+            <!--end::Screenshots-->
+
+            <!--begin::Download URL-->
+            <div class="row mb-6" *ngIf="moduleForm.get('type')?.value === 'digital'">
+              <label class="col-lg-3 col-form-label fw-bold fs-6">URL de Descarga</label>
+              <div class="col-lg-9">
+                <input 
+                  type="url" 
+                  class="form-control" 
+                  formControlName="download_url"
+                  placeholder="https://ejemplo.com/archivo.zip">
+                <div class="form-text">URL del archivo ZIP con código/recursos</div>
+              </div>
+            </div>
+            <!--end::Download URL-->
+          </div>
+        </div>
+
+        <!--begin::Features-->
+        <div class="card mb-6">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-check-circle text-success me-2"></i>
+              Características
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="input-group mb-3">
+              <input 
+                type="text" 
+                class="form-control" 
+                [(ngModel)]="newFeature"
+                [ngModelOptions]="{standalone: true}"
+                (keyup.enter)="addFeature()"
+                placeholder="Ej: Sincronización automática con DB">
+              <button 
+                class="btn btn-success" 
+                type="button"
+                (click)="addFeature()">
+                <i class="fas fa-plus me-1"></i> Agregar
+              </button>
+            </div>
+            
+            <!-- Lista de features -->
+            <div *ngIf="features.length > 0" class="mt-3">
+              <div *ngFor="let feature of features; let i = index" 
+                   class="d-flex align-items-center border-bottom py-2">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <div class="flex-grow-1">{{ feature }}</div>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-light"
+                  (click)="removeFeature(i)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div class="form-text mt-3">
+              <i class="fas fa-info-circle me-1"></i>
+              Lista de beneficios o características clave
+            </div>
+          </div>
+        </div>
+
+        <!--begin::Tech Stack-->
+        <div class="card mb-6">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-code text-primary me-2"></i>
+              Stack Tecnológico
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="input-group mb-3">
+              <input 
+                type="text" 
+                class="form-control" 
+                [(ngModel)]="newTech"
+                [ngModelOptions]="{standalone: true}"
+                (keyup.enter)="addTech()"
+                placeholder="Ej: Node.js, Angular, MongoDB">
+              <button 
+                class="btn btn-primary" 
+                type="button"
+                (click)="addTech()">
+                <i class="fas fa-plus me-1"></i> Agregar
+              </button>
+            </div>
+            
+            <!-- Lista de tech stack -->
+            <div *ngIf="techStack.length > 0" class="mt-3">
+              <div class="d-flex flex-wrap gap-2">
+                <span *ngFor="let tech of techStack; let i = index" 
+                      class="badge bg-light-primary text-primary fs-7 px-3 py-2">
+                  {{ tech }}
+                  <button 
+                    type="button" 
+                    class="btn btn-sm btn-link p-0 ms-2"
+                    (click)="removeTech(i)">
+                    <i class="fas fa-times text-primary"></i>
+                  </button>
+                </span>
+              </div>
+            </div>
+            
+            <div class="form-text mt-3">
+              <i class="fas fa-info-circle me-1"></i>
+              Tecnologías usadas en el proyecto
+            </div>
+          </div>
+        </div>
+
+        <!--begin::Email Post-Compra-->
+        <div class="card mb-6" *ngIf="moduleForm.get('type')?.value === 'digital' || moduleForm.get('type')?.value === 'service'">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-envelope text-info me-2"></i>
+              Email Post-Compra
+            </h3>
+          </div>
+          <div class="card-body">
+            <textarea 
+              class="form-control font-monospace" 
+              formControlName="post_purchase_email"
+              rows="10"
+              placeholder="<h2>¡Gracias por tu compra!</h2>
+<p>Aquí está tu producto...</p>"></textarea>
+            <div class="form-text">
+              <i class="fas fa-info-circle me-1"></i>
+              Template HTML del email que se enviará automáticamente después de la compra
+            </div>
+          </div>
+        </div>
+
         <!--begin::Validación Levels-style-->
         <div class="card mb-6">
           <div class="card-header">

@@ -1,273 +1,315 @@
 <div class="container-fluid">
-  <!-- Breadcrumb -->
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="page-title-box d-flex align-items-center justify-content-between">
-        <h4 class="mb-0">Configuración SEO</h4>
-        <div class="page-title-right">
-          <ol class="breadcrumb m-0">
-            <li class="breadcrumb-item"><a href="javascript: void(0);">Panel</a></li>
-            <li class="breadcrumb-item"><a href="javascript: void(0);">SEO</a></li>
-            <li class="breadcrumb-item active">Configuración</li>
-          </ol>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Stats Cards -->
-  <div class="row" *ngIf="stats">
-    <div class="col-xl-3 col-md-6">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-truncate font-size-14 mb-2">URLs Totales</p>
-              <h4 class="mb-2">{{ stats.total }}</h4>
-              <p class="text-muted mb-0">
-                <span class="text-success fw-bold font-size-12 me-2">
-                  <i class="ri-arrow-right-up-line me-1 align-middle"></i>Activas
-                </span>
-              </p>
+    <!-- Breadcrumb -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <h4 class="mb-0">Configuración SEO</h4>
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">Panel</a></li>
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">SEO</a></li>
+                        <li class="breadcrumb-item active">Configuración</li>
+                    </ol>
+                </div>
             </div>
-            <div class="avatar-sm">
-              <span class="avatar-title bg-light text-primary rounded-3">
-                <i class="ri-file-list-3-line font-size-24"></i>
-              </span>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-truncate font-size-14 mb-2">Productos</p>
-              <h4 class="mb-2">{{ stats.byType.product }}</h4>
-              <p class="text-muted mb-0">
-                <span class="text-info fw-bold font-size-12 me-2">
-                  <i class="ri-shopping-bag-line me-1 align-middle"></i>Sincronizados
-                </span>
-              </p>
+    <!-- Stats Cards -->
+    <div class="row" *ngIf="stats">
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <p class="text-truncate font-size-14 mb-2">URLs Totales</p>
+                            <h4 class="mb-2">{{ stats.total }}</h4>
+                            <p class="text-muted mb-0">
+                                <span class="text-success fw-bold font-size-12 me-2">
+                                    <i class="fas fa-arrow-up me-1 align-middle"></i>Activas
+                                </span>
+                            </p>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-light text-primary rounded-3">
+                                <i class="fas fa-list font-size-24"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="avatar-sm">
-              <span class="avatar-title bg-light text-info rounded-3">
-                <i class="ri-shopping-cart-line font-size-24"></i>
-              </span>
-            </div>
-          </div>
         </div>
-      </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <p class="text-truncate font-size-14 mb-2">Productos</p>
+                            <h4 class="mb-2">{{ stats.byType.product }}</h4>
+                            <p class="text-muted mb-0">
+                                <span class="text-info fw-bold font-size-12 me-2">
+                                    <i class="fas fa-shopping-bag me-1 align-middle"></i>Sincronizados
+                                </span>
+                            </p>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-light text-info rounded-3">
+                                <i class="fas fa-shopping-cart font-size-24"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <p class="text-truncate font-size-14 mb-2">Categorías</p>
+                            <h4 class="mb-2">{{ stats.byType.category }}</h4>
+                            <p class="text-muted mb-0">
+                                <span class="text-warning fw-bold font-size-12 me-2">
+                                    <i class="fas fa-folder me-1 align-middle"></i>Incluidas
+                                </span>
+                            </p>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-light text-warning rounded-3">
+                                <i class="fas fa-folder-open font-size-24"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <p class="text-truncate font-size-14 mb-2">Última Generación</p>
+                            <h4 class="mb-2 font-size-14">{{ stats.lastGeneration ? (stats.lastGeneration | date:'short') : 'Nunca' }}</h4>
+                            <p class="text-muted mb-0">
+                                <span class="text-success fw-bold font-size-12 me-2">
+                                    <i class="fas fa-clock me-1 align-middle"></i>Timestamp
+                                </span>
+                            </p>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-light text-success rounded-3">
+                                <i class="fas fa-calendar-check font-size-24"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-truncate font-size-14 mb-2">Categorías</p>
-              <h4 class="mb-2">{{ stats.byType.category }}</h4>
-              <p class="text-muted mb-0">
-                <span class="text-warning fw-bold font-size-12 me-2">
-                  <i class="ri-folder-line me-1 align-middle"></i>Incluidas
-                </span>
-              </p>
+    <!-- Configuration Form -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Configuración General</h4>
+
+                    <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
+                        <!-- Sitemap Configuration -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="font-size-14 mb-3">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Configuración de Sitemap
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">URL Base del Sitio</label>
+                                    <input type="url" class="form-control" formControlName="sitemapBaseUrl" placeholder="https://tienda.lujandev.com">
+                                    <small class="text-muted">URL principal de tu tienda</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">Frecuencia de Cambio</label>
+                                    <select class="form-select" formControlName="sitemapProductChangefreq">
+                                        <option *ngFor="let option of changefreqOptions" [value]="option.value">
+                                            {{ option.label }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">Prioridad (0.0 - 1.0)</label>
+                                    <input type="number" class="form-control" formControlName="sitemapProductPriority" min="0" max="1" step="0.1" placeholder="0.8">
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="row g-3">
+                                    <div class="col-lg-6">
+                                        <div class="card border mb-0">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="avatar-sm flex-shrink-0 me-3">
+                                                        <span class="avatar-title bg-soft-primary text-primary rounded">
+                                                            <i class="fas fa-shopping-bag font-size-20"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h5 class="font-size-15 mb-1">Productos</h5>
+                                                        <p class="text-muted mb-3">Incluir catálogo de productos en sitemap</p>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" role="switch" id="includeProducts" formControlName="sitemapIncludeProducts">
+                                                            <label class="form-check-label" for="includeProducts">
+                                                                {{ configForm.value.sitemapIncludeProducts ? 'Activado' : 'Desactivado' }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-6">
+                                        <div class="card border mb-0">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="avatar-sm flex-shrink-0 me-3">
+                                                        <span class="avatar-title bg-soft-warning text-warning rounded">
+                                                            <i class="fas fa-folder font-size-20"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h5 class="font-size-15 mb-1">Categorías</h5>
+                                                        <p class="text-muted mb-3">Incluir páginas de categorías en sitemap</p>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" role="switch" id="includeCategories" formControlName="sitemapIncludeCategories">
+                                                            <label class="form-check-label" for="includeCategories">
+                                                                {{ configForm.value.sitemapIncludeCategories ? 'Activado' : 'Desactivado' }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Google Search Console -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="font-size-14 mb-3">
+                                    <i class="fab fa-google me-2"></i>Google Search Console
+                                </h5>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="card border mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-start">
+                                            <div class="avatar-sm flex-shrink-0 me-3">
+                                                <span class="avatar-title bg-soft-success text-success rounded">
+                                                    <i class="fab fa-google font-size-20"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h5 class="font-size-15 mb-1 d-none">Google Search Console</h5>
+                                                <p class="text-muted mb-3">Habilitar notificaciones automáticas a Google Search Console</p>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="gscEnabled" formControlName="googleSearchConsoleEnabled">
+                                                    <label class="form-check-label" for="gscEnabled">
+                                                        {{ configForm.value.googleSearchConsoleEnabled ? 'Activado' : 'Desactivado' }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6" *ngIf="configForm.value.googleSearchConsoleEnabled">
+                                <div class="mb-3">
+                                    <label class="form-label">URL del Sitio en GSC</label>
+                                    <input type="url" class="form-control" formControlName="googleSearchConsoleSiteUrl" placeholder="https://tienda.lujandev.com">
+                                    <small class="text-muted">URL verificada en Google Search Console</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6" *ngIf="configForm.value.googleSearchConsoleEnabled">
+                                <div class="mb-3">
+                                    <label class="form-label">API Key (JSON)</label>
+                                    <textarea class="form-control" formControlName="googleSearchConsoleApiKey" rows="3" placeholder='{"type": "service_account", "project_id": "..."}'></textarea>
+                                    <small class="text-muted">Credenciales de servicio de Google Cloud</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary me-2" [disabled]="saving || loading">
+                                    <i class="ri-save-line me-1"></i>
+                                    {{ saving ? 'Guardando...' : 'Guardar Configuración' }}
+                                </button>
+
+                                <button type="button" class="btn btn-info me-2" (click)="syncProducts()" [disabled]="syncing">
+                                    <i class="ri-refresh-line me-1"></i>
+                                    {{ syncing ? 'Sincronizando...' : 'Sincronizar Productos' }}
+                                </button>
+
+                                <button type="button" class="btn btn-success me-2" (click)="notifyGoogle()" [disabled]="notifying || !configForm.value.googleSearchConsoleEnabled">
+                                    <i class="ri-send-plane-line me-1"></i>
+                                    {{ notifying ? 'Enviando...' : 'Notificar a Google' }}
+                                </button>
+
+                                <button type="button" class="btn btn-secondary me-2" (click)="viewSitemap()">
+                                    <i class="ri-file-code-line me-1"></i>
+                                    Ver Sitemap
+                                </button>
+
+                                <button type="button" class="btn btn-warning" (click)="viewRobots()">
+                                    <i class="ri-robot-line me-1"></i>
+                                    Ver Robots.txt
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="avatar-sm">
-              <span class="avatar-title bg-light text-warning rounded-3">
-                <i class="ri-folder-open-line font-size-24"></i>
-              </span>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex">
-            <div class="flex-grow-1">
-              <p class="text-truncate font-size-14 mb-2">Última Generación</p>
-              <h4 class="mb-2 font-size-14">{{ stats.lastGeneration ? (stats.lastGeneration | date:'short') : 'Nunca' }}</h4>
-              <p class="text-muted mb-0">
-                <span class="text-success fw-bold font-size-12 me-2">
-                  <i class="ri-time-line me-1 align-middle"></i>Timestamp
-                </span>
-              </p>
+    <!-- Quick Links -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Accesos Rápidos</h4>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a routerLink="/seo/sitemap" class="btn btn-soft-primary">
+                            <i class="ri-file-list-line me-1"></i> Gestionar URLs del Sitemap
+                        </a>
+                        <a routerLink="/seo/robots" class="btn btn-soft-info">
+                            <i class="ri-file-text-line me-1"></i> Configurar Robots.txt
+                        </a>
+                        <a href="https://search.google.com/search-console" target="_blank" class="btn btn-soft-success">
+                            <i class="ri-google-line me-1"></i> Abrir Google Search Console
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="avatar-sm">
-              <span class="avatar-title bg-light text-success rounded-3">
-                <i class="ri-calendar-check-line font-size-24"></i>
-              </span>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
-
-  <!-- Configuration Form -->
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title mb-4">Configuración General</h4>
-
-          <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
-            <!-- Sitemap Configuration -->
-            <div class="row mb-4">
-              <div class="col-12">
-                <h5 class="font-size-14 mb-3">
-                  <i class="ri-map-pin-line me-2"></i>Configuración de Sitemap
-                </h5>
-              </div>
-
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">URL Base del Sitio</label>
-                  <input type="url" class="form-control" formControlName="sitemapBaseUrl" placeholder="https://tienda.lujandev.com">
-                  <small class="text-muted">URL principal de tu tienda</small>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="mb-3">
-                  <label class="form-label">Frecuencia de Cambio</label>
-                  <select class="form-select" formControlName="sitemapProductChangefreq">
-                    <option *ngFor="let option of changefreqOptions" [value]="option.value">
-                      {{ option.label }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="mb-3">
-                  <label class="form-label">Prioridad (0.0 - 1.0)</label>
-                  <input type="number" class="form-control" formControlName="sitemapProductPriority" 
-                         min="0" max="1" step="0.1" placeholder="0.8">
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="form-check form-switch mb-3">
-                  <input class="form-check-input" type="checkbox" id="includeProducts" 
-                         formControlName="sitemapIncludeProducts">
-                  <label class="form-check-label" for="includeProducts">
-                    Incluir productos en el sitemap
-                  </label>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="form-check form-switch mb-3">
-                  <input class="form-check-input" type="checkbox" id="includeCategories" 
-                         formControlName="sitemapIncludeCategories">
-                  <label class="form-check-label" for="includeCategories">
-                    Incluir categorías en el sitemap
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <hr class="my-4">
-
-            <!-- Google Search Console -->
-            <div class="row mb-4">
-              <div class="col-12">
-                <h5 class="font-size-14 mb-3">
-                  <i class="ri-google-line me-2"></i>Google Search Console
-                </h5>
-              </div>
-
-              <div class="col-12">
-                <div class="form-check form-switch mb-3">
-                  <input class="form-check-input" type="checkbox" id="gscEnabled" 
-                         formControlName="googleSearchConsoleEnabled">
-                  <label class="form-check-label" for="gscEnabled">
-                    Habilitar notificaciones automáticas a Google Search Console
-                  </label>
-                </div>
-              </div>
-
-              <div class="col-md-6" *ngIf="configForm.value.googleSearchConsoleEnabled">
-                <div class="mb-3">
-                  <label class="form-label">URL del Sitio en GSC</label>
-                  <input type="url" class="form-control" formControlName="googleSearchConsoleSiteUrl" 
-                         placeholder="https://tienda.lujandev.com">
-                  <small class="text-muted">URL verificada en Google Search Console</small>
-                </div>
-              </div>
-
-              <div class="col-md-6" *ngIf="configForm.value.googleSearchConsoleEnabled">
-                <div class="mb-3">
-                  <label class="form-label">API Key (JSON)</label>
-                  <textarea class="form-control" formControlName="googleSearchConsoleApiKey" 
-                            rows="3" placeholder='{"type": "service_account", "project_id": "..."}'></textarea>
-                  <small class="text-muted">Credenciales de servicio de Google Cloud</small>
-                </div>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="row">
-              <div class="col-12">
-                <button type="submit" class="btn btn-primary me-2" [disabled]="saving || loading">
-                  <i class="ri-save-line me-1"></i>
-                  {{ saving ? 'Guardando...' : 'Guardar Configuración' }}
-                </button>
-
-                <button type="button" class="btn btn-info me-2" (click)="syncProducts()" [disabled]="syncing">
-                  <i class="ri-refresh-line me-1"></i>
-                  {{ syncing ? 'Sincronizando...' : 'Sincronizar Productos' }}
-                </button>
-
-                <button type="button" class="btn btn-success me-2" (click)="notifyGoogle()" 
-                        [disabled]="notifying || !configForm.value.googleSearchConsoleEnabled">
-                  <i class="ri-send-plane-line me-1"></i>
-                  {{ notifying ? 'Enviando...' : 'Notificar a Google' }}
-                </button>
-
-                <button type="button" class="btn btn-outline-secondary me-2" (click)="viewSitemap()">
-                  <i class="ri-file-code-line me-1"></i>
-                  Ver Sitemap
-                </button>
-
-                <button type="button" class="btn btn-outline-secondary" (click)="viewRobots()">
-                  <i class="ri-robot-line me-1"></i>
-                  Ver Robots.txt
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Links -->
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title mb-4">Accesos Rápidos</h4>
-          <div class="d-flex flex-wrap gap-2">
-            <a routerLink="/seo/sitemap" class="btn btn-soft-primary">
-              <i class="ri-file-list-line me-1"></i> Gestionar URLs del Sitemap
-            </a>
-            <a routerLink="/seo/robots" class="btn btn-soft-info">
-              <i class="ri-file-text-line me-1"></i> Configurar Robots.txt
-            </a>
-            <a href="https://search.google.com/search-console" target="_blank" class="btn btn-soft-success">
-              <i class="ri-google-line me-1"></i> Abrir Google Search Console
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
