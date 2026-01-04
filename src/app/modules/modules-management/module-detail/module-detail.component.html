@@ -37,9 +37,11 @@
             <input 
               class="form-check-input"
               type="checkbox" 
+              id="toggleActive"
               [checked]="module.is_active"
-              (change)="toggleModule()">
-            <label class="form-check-label text-muted ms-2">
+              (change)="toggleModule()"
+              style="cursor: pointer;">
+            <label class="form-check-label text-muted" for="toggleActive" style="cursor: pointer;">
               {{ module.is_active ? 'Activo' : 'Inactivo' }}
             </label>
           </div>
