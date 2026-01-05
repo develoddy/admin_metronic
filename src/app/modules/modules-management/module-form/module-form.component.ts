@@ -33,6 +33,12 @@ export class ModuleFormComponent implements OnInit {
   zipFileName: string = '';
   zipFileSize: number = 0;
 
+  // 💾 Estado inicial para detección de cambios
+  private initialScreenshots: string[] = [];
+  private initialFeatures: string[] = [];
+  private initialTechStack: string[] = [];
+  private initialDownloadUrl: string = '';
+
   // Opciones
   typeOptions = [
     { value: 'physical', label: 'Producto Físico', icon: 'fa-box' },
@@ -124,10 +130,18 @@ export class ModuleFormComponent implements OnInit {
           // Deshabilitar key en modo edición
           this.moduleForm.get('key')?.disable();
           
-          // 🆕 Cargar screenshots y features
-          this.screenshots = response.module.screenshots || [];
-          this.features = response.module.features || [];
-          this.techStack = response.module.tech_stack || [];
+          // 🆕 Cargar screenshots y features (parsear JSON strings si es necesario)
+          this.screenshots = this.parseJsonField(response.module.screenshots) || [];
+          this.features = this.parseJsonField(response.module.features) || [];
+          this.techStack = this.parseJsonField(response.module.tech_stack) || [];
+          
+          // 💾 Guardar estado inicial para detección de cambios
+          this.initialScreenshots = [...this.screenshots];
+          this.initialFeatures = [...this.features];
+          this.initialTechStack = [...this.techStack];
+          this.initialDownloadUrl = response.module.download_url || '';
+          
+          console.log('📸 Screenshots cargados:', this.screenshots);
           
           // 🆕 Cargar información del ZIP si existe
           if (response.module.download_url) {
@@ -136,6 +150,9 @@ export class ModuleFormComponent implements OnInit {
           }
           
           console.log('✅ Formulario cargado correctamente');
+          
+          // 🔄 Forzar detección de cambios para actualizar la UI
+          this.cd.detectChanges();
         } else {
           console.error('⚠️ Respuesta del backend sin módulo:', response);
           this.toaster.open({
@@ -147,6 +164,7 @@ export class ModuleFormComponent implements OnInit {
           this.router.navigate(['/modules-management']);
         }
         this.isLoading = false;
+        this.cd.detectChanges();
       },
       error: (error) => {
         console.error('❌ Error loading module:', error);
@@ -238,13 +256,30 @@ export class ModuleFormComponent implements OnInit {
    * Cancelar y volver
    */
   async cancel(): Promise<void> {
-    // Si el formulario está limpio (sin cambios), navegar directamente
-    if (this.moduleForm.pristine) {
+    // Detectar si hay cambios en formulario o archivos
+    const formHasChanges = !this.moduleForm.pristine;
+    const screenshotsChanged = JSON.stringify(this.screenshots) !== JSON.stringify(this.initialScreenshots);
+    const featuresChanged = JSON.stringify(this.features) !== JSON.stringify(this.initialFeatures);
+    const techStackChanged = JSON.stringify(this.techStack) !== JSON.stringify(this.initialTechStack);
+    const downloadUrlChanged = (this.moduleForm.get('download_url')?.value || '') !== this.initialDownloadUrl;
+    
+    const hasAnyChanges = formHasChanges || screenshotsChanged || featuresChanged || techStackChanged || downloadUrlChanged;
+
+    // Si no hay cambios, navegar directamente
+    if (!hasAnyChanges) {
       this.router.navigate(['/modules-management']);
       return;
     }
 
-    // Si hay cambios, mostrar modal de confirmación
+    // Construir lista de cambios detectados
+    const changesList: string[] = [];
+    if (formHasChanges) changesList.push('📋 Campos de formulario modificados');
+    if (screenshotsChanged) changesList.push(`📸 Screenshots modificados (${this.screenshots.length} actual vs ${this.initialScreenshots.length} inicial)`);
+    if (featuresChanged) changesList.push(`✅ Características modificadas`);
+    if (techStackChanged) changesList.push(`💻 Stack tecnológico modificado`);
+    if (downloadUrlChanged) changesList.push(`📦 Archivo ZIP modificado`);
+
+    // Mostrar modal de confirmación con detalles
     const result = await Swal.fire({
       title: '¿Descartar cambios?',
       html: `
@@ -254,8 +289,8 @@ export class ModuleFormComponent implements OnInit {
             <strong>Cambios detectados:</strong>
           </p>
           <ul class="text-muted">
-            <li>📋 Campos modificados</li>
-            <li>⚠️ Los cambios no se guardarán</li>
+            ${changesList.map(change => `<li>${change}</li>`).join('')}
+            <li class="text-danger mt-2">⚠️ Los cambios no se guardarán</li>
           </ul>
           <p class="text-muted mt-3">
             <em>¿Estás seguro de que deseas salir sin guardar?</em>
@@ -274,6 +309,30 @@ export class ModuleFormComponent implements OnInit {
     if (result.isConfirmed) {
       this.router.navigate(['/modules-management']);
     }
+  }
+
+  /**
+   * 🔧 Helper: Parsear campos JSON que podrían venir como string
+   */
+  parseJsonField(field: any): any[] {
+    // Si ya es un array, retornarlo
+    if (Array.isArray(field)) {
+      return field;
+    }
+    
+    // Si es un string JSON, parsearlo
+    if (typeof field === 'string' && field.trim().startsWith('[')) {
+      try {
+        const parsed = JSON.parse(field);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.warn('⚠️ Error parsing JSON field:', field, e);
+        return [];
+      }
+    }
+    
+    // Si es null/undefined o cualquier otra cosa, retornar array vacío
+    return [];
   }
 
   /**
@@ -362,11 +421,22 @@ export class ModuleFormComponent implements OnInit {
       next: (response: any) => {
         console.log('✅ Upload successful:', response);
         this.uploadingScreenshot = false;
-        this.cd.detectChanges(); // 🔄 Forzar actualización de la UI
         
         if (response.ok && response.screenshots) {
           // Agregar las URLs generadas al array de screenshots
+          console.log('📸 Screenshots antes:', this.screenshots.length);
           this.screenshots.push(...response.screenshots);
+          console.log('📸 Screenshots después:', this.screenshots.length);
+          console.log('📸 URLs agregadas:', response.screenshots);
+          
+          // Limpiar archivos seleccionados
+          this.selectedFiles = [];
+          
+          // 🔄 Forzar actualización de la UI con timeout para asegurar rendering
+          setTimeout(() => {
+            this.cd.detectChanges();
+            console.log('🔄 Change detection triggered');
+          }, 100);
           
           this.toaster.open({
             text: `${response.screenshots.length} imagen(es) subida(s) correctamente`,
@@ -374,10 +444,8 @@ export class ModuleFormComponent implements OnInit {
             type: 'success',
             duration: 3000
           });
-
-          // Limpiar archivos seleccionados
-          this.selectedFiles = [];
-          this.cd.detectChanges(); // 🔄 Forzar actualización después de agregar screenshots
+        } else {
+          console.warn('⚠️ Response sin screenshots:', response);
         }
       },
       error: (error) => {
@@ -429,16 +497,87 @@ export class ModuleFormComponent implements OnInit {
   }
 
   /**
-   * 🆕 Remover screenshot
+   * 🗑️ Remover screenshot (elimina del array y del servidor)
    */
-  removeScreenshot(index: number): void {
-    this.screenshots.splice(index, 1);
-    this.toaster.open({
-      text: 'Screenshot eliminado',
-      caption: '✅ Éxito',
-      type: 'success',
-      duration: 2000
+  async removeScreenshot(index: number): Promise<void> {
+    const screenshotUrl = this.screenshots[index];
+    const moduleKey = this.moduleForm.get('key')?.value;
+
+    // Confirmar eliminación
+    const result = await Swal.fire({
+      title: '¿Eliminar screenshot?',
+      text: 'Esta acción eliminará el archivo del servidor',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6'
     });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    // Si la URL es del servidor y tenemos moduleKey, eliminar del backend
+    if (moduleKey && screenshotUrl.includes('/uploads/modules/')) {
+      try {
+        // Extraer el filename de la URL
+        const urlParts = screenshotUrl.split('/');
+        const filename = urlParts[urlParts.length - 1];
+
+        this.modulesService.deleteModuleScreenshot(moduleKey, filename).subscribe({
+          next: (response) => {
+            console.log('✅ Screenshot eliminado del servidor:', filename);
+            console.log('📸 Response:', response);
+            
+            // Eliminar del array local
+            this.screenshots.splice(index, 1);
+            
+            // 🔄 Forzar detección de cambios para actualizar la UI
+            this.cd.detectChanges();
+            
+            this.toaster.open({
+              text: 'Screenshot eliminado correctamente',
+              caption: '✅ Éxito',
+              type: 'success',
+              duration: 2000
+            });
+          },
+          error: (error) => {
+            console.error('❌ Error eliminando screenshot:', error);
+            // Eliminar del array local aunque falle el backend
+            this.screenshots.splice(index, 1);
+            
+            // 🔄 Forzar detección de cambios
+            this.cd.detectChanges();
+            
+            this.toaster.open({
+              text: 'Screenshot eliminado localmente (error en servidor)',
+              caption: '⚠️ Advertencia',
+              type: 'warning',
+              duration: 3000
+            });
+          }
+        });
+      } catch (error) {
+        console.error('Error extrayendo filename:', error);
+        this.screenshots.splice(index, 1);
+      }
+    } else {
+      // Si es URL externa o no hay moduleKey, solo eliminar del array
+      this.screenshots.splice(index, 1);
+      
+      // 🔄 Forzar detección de cambios
+      this.cd.detectChanges();
+      
+      this.toaster.open({
+        text: 'Screenshot eliminado',
+        caption: '✅ Éxito',
+        type: 'success',
+        duration: 2000
+      });
+    }
   }
 
   /**
@@ -650,29 +789,52 @@ export class ModuleFormComponent implements OnInit {
   }
 
   /**
-   * 📦 Elimina el archivo ZIP subido
+   * 📦 Elimina el archivo ZIP subido (con confirmación)
    */
-  removeZipFile(): void {
+  async removeZipFile(): Promise<void> {
     const moduleKey = this.moduleForm.get('key')?.value;
     
+    // Confirmar eliminación
+    const result = await Swal.fire({
+      title: '¿Eliminar archivo ZIP?',
+      text: 'Esta acción eliminará el archivo del servidor',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6'
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
     if (!moduleKey) {
       // Si no hay key, solo limpiar localmente
       this.selectedZipFile = null;
       this.zipFileName = '';
       this.zipFileSize = 0;
       this.moduleForm.patchValue({ download_url: '' });
+      
+      // 🔄 Forzar detección de cambios para actualizar la UI
+      this.cd.detectChanges();
       return;
     }
 
     this.modulesService.deleteModuleZip(moduleKey).subscribe({
       next: (response) => {
+        console.log('✅ ZIP eliminado del servidor');
         this.selectedZipFile = null;
         this.zipFileName = '';
         this.zipFileSize = 0;
         this.moduleForm.patchValue({ download_url: '' });
         
+        // 🔄 Forzar detección de cambios para actualizar la UI
+        this.cd.detectChanges();
+        
         this.toaster.open({
-          text: 'Archivo ZIP eliminado',
+          text: 'Archivo ZIP eliminado correctamente',
           caption: '✅ Éxito',
           type: 'success',
           duration: 2000
@@ -686,6 +848,16 @@ export class ModuleFormComponent implements OnInit {
         this.zipFileName = '';
         this.zipFileSize = 0;
         this.moduleForm.patchValue({ download_url: '' });
+        
+        // 🔄 Forzar detección de cambios para actualizar la UI
+        this.cd.detectChanges();
+        
+        this.toaster.open({
+          text: 'Archivo ZIP eliminado localmente (error en servidor)',
+          caption: '⚠️ Advertencia',
+          type: 'warning',
+          duration: 3000
+        });
       }
     });
   }
