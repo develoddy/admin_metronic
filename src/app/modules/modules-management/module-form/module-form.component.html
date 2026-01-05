@@ -348,12 +348,32 @@
                 </div>
                 
                 <!-- Loading State -->
-                <div *ngIf="uploadingZip" class="alert alert-info d-flex align-items-center mb-3">
-                  <div class="spinner-border spinner-border-sm me-3"></div>
-                  <div>
-                    <strong>Subiendo archivo ZIP...</strong>
-                    <p class="mb-0 small text-muted">Por favor espera mientras se procesa el archivo</p>
+                <div *ngIf="uploadingZip" class="alert alert-info mb-3">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="spinner-border spinner-border-sm me-3"></div>
+                    <div class="flex-grow-1">
+                      <strong>Subiendo archivo ZIP...</strong>
+                      <p class="mb-0 small text-muted">
+                        {{ zipUploadProgress }}% completado
+                        <span *ngIf="zipFileSize > 0"> • {{ formatFileSize(zipFileSize) }}</span>
+                      </p>
+                    </div>
                   </div>
+                  <!-- Barra de progreso -->
+                  <div class="progress" style="height: 8px;">
+                    <div 
+                      class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                      role="progressbar" 
+                      [style.width.%]="zipUploadProgress"
+                      [attr.aria-valuenow]="zipUploadProgress" 
+                      aria-valuemin="0" 
+                      aria-valuemax="100">
+                    </div>
+                  </div>
+                  <small class="text-muted d-block mt-2">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Por favor espera, archivos grandes pueden tardar varios minutos
+                  </small>
                 </div>
 
                 <!-- Preview del archivo ZIP subido -->

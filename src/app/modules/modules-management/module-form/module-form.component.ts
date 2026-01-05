@@ -29,6 +29,7 @@ export class ModuleFormComponent implements OnInit {
 
   // 🆕 ZIP file management
   uploadingZip = false;
+  zipUploadProgress = 0; // 📊 Progreso de subida (0-100)
   selectedZipFile: File | null = null;
   zipFileName: string = '';
   zipFileSize: number = 0;
@@ -752,37 +753,74 @@ export class ModuleFormComponent implements OnInit {
     const formData = new FormData();
     formData.append('zip', this.selectedZipFile);
 
+    console.log('📦 Iniciando subida de ZIP:', {
+      fileName: this.selectedZipFile.name,
+      fileSize: `${(this.selectedZipFile.size / 1024 / 1024).toFixed(2)}MB`,
+      moduleKey
+    });
+
     this.modulesService.uploadModuleZip(moduleKey, formData).subscribe({
-      next: (response: any) => {
-        console.log('✅ ZIP upload successful:', response);
-        this.uploadingZip = false;
-        this.cd.detectChanges();
-        
-        if (response.ok && response.url) {
-          // Asignar la URL al campo download_url
-          this.moduleForm.patchValue({ download_url: response.url });
+      next: (event: any) => {
+        // Manejar progreso de subida
+        if (event.type === 0) {
+          // HttpEventType.Sent
+          console.log('📤 Enviando archivo ZIP...');
+          this.zipUploadProgress = 0;
+        } else if (event.type === 1 && event.loaded && event.total) {
+          // HttpEventType.UploadProgress
+          const percentDone = Math.round(100 * event.loaded / event.total);
+          this.zipUploadProgress = percentDone;
+          console.log(`📊 Progreso: ${percentDone}% (${event.loaded}/${event.total} bytes)`);
+          this.cd.detectChanges();
+        } else if (event.type === 4) {
+          // HttpEventType.Response - subida completa
+          const response = event.body;
+          console.log('✅ ZIP upload successful:', response);
+          this.uploadingZip = false;
+          this.zipUploadProgress = 100;
+          this.cd.detectChanges();
           
-          this.toaster.open({
-            text: 'Archivo ZIP subido correctamente',
-            caption: '✅ Éxito',
-            type: 'success',
-            duration: 3000
-          });
+          if (response.ok && response.url) {
+            // Asignar la URL al campo download_url
+            this.moduleForm.patchValue({ download_url: response.url });
+            
+            this.toaster.open({
+              text: 'Archivo ZIP subido correctamente',
+              caption: '✅ Éxito',
+              type: 'success',
+              duration: 3000
+            });
+          }
         }
       },
       error: (error) => {
         console.error('❌ ZIP upload error:', error);
         this.uploadingZip = false;
+        this.zipUploadProgress = 0;
         this.selectedZipFile = null;
         this.zipFileName = '';
         this.zipFileSize = 0;
         this.cd.detectChanges();
         
+        // Mensaje de error mejorado para producción
+        let errorMessage = 'Error al subir el archivo ZIP';
+        
+        if (error.status === 0) {
+          errorMessage = 'Error de conexión. El archivo puede ser muy grande o hay un problema de red. ' +
+            'Verifica: (1) Tamaño del archivo (máx. 100MB), ' +
+            '(2) Configuración de nginx (client_max_body_size), ' +
+            '(3) Conexión a internet estable';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
         this.toaster.open({
-          text: error.error?.message || 'Error al subir el archivo ZIP',
+          text: errorMessage,
           caption: '❌ Error',
           type: 'danger',
-          duration: 4000
+          duration: 6000
         });
       }
     });

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { URL_SERVICIOS } from '../config/config';
 import { AuthService } from '../modules/auth';
@@ -262,16 +262,22 @@ export class ModulesService {
   /**
    * 📦 Sube archivo ZIP de un módulo digital
    */
-  uploadModuleZip(moduleKey: string, formData: FormData): Observable<any> {
+  uploadModuleZip(moduleKey: string, formData: FormData): Observable<HttpEvent<any>> {
     const headers = new HttpHeaders({
       'token': this.authService.token
       // NO establecer Content-Type, Angular lo hace automáticamente para FormData
     });
     
-    return this.http.post(
+    // ⏱️ Para archivos grandes, el timeout se maneja en nginx
+    // reportProgress: true permite monitorear el progreso de subida
+    return this.http.post<any>(
       `${URL_SERVICIOS}/modules/${moduleKey}/upload-zip`,
       formData,
-      { headers }
+      { 
+        headers,
+        reportProgress: true,
+        observe: 'events'
+      }
     );
   }
 
