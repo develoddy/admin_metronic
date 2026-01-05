@@ -27,6 +27,12 @@ export class ModuleFormComponent implements OnInit {
   newFeature = '';
   newTech = '';
 
+  // 🆕 ZIP file management
+  uploadingZip = false;
+  selectedZipFile: File | null = null;
+  zipFileName: string = '';
+  zipFileSize: number = 0;
+
   // Opciones
   typeOptions = [
     { value: 'physical', label: 'Producto Físico', icon: 'fa-box' },
@@ -122,6 +128,12 @@ export class ModuleFormComponent implements OnInit {
           this.screenshots = response.module.screenshots || [];
           this.features = response.module.features || [];
           this.techStack = response.module.tech_stack || [];
+          
+          // 🆕 Cargar información del ZIP si existe
+          if (response.module.download_url) {
+            this.zipFileName = response.module.download_url.split('/').pop() || '';
+            // Nota: El tamaño no se almacena, solo se muestra durante la carga
+          }
           
           console.log('✅ Formulario cargado correctamente');
         } else {
@@ -518,5 +530,174 @@ export class ModuleFormComponent implements OnInit {
    */
   onImageLoad(event: any): void {
     console.log('✅ Image loaded successfully:', event.target.src);
+  }
+
+  /**
+   * 📦 Maneja la selección de archivo ZIP
+   */
+  onZipFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.handleZipFile(file);
+    }
+  }
+
+  /**
+   * 📦 Drag & Drop - Manejar drop para ZIP
+   */
+  onZipDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handleZipFile(files[0]);
+    }
+  }
+
+  /**
+   * 📦 Procesa y valida el archivo ZIP
+   */
+  handleZipFile(file: File): void {
+    // Validar extensión
+    if (!file.name.toLowerCase().endsWith('.zip')) {
+      this.toaster.open({
+        text: 'Solo se permiten archivos .zip',
+        caption: '⚠️ Formato inválido',
+        type: 'warning',
+        duration: 3000
+      });
+      return;
+    }
+
+    // Validar tamaño (máx. 100MB)
+    const maxSize = 100 * 1024 * 1024; // 100MB en bytes
+    if (file.size > maxSize) {
+      this.toaster.open({
+        text: `El archivo es muy grande. Máximo 100MB (actual: ${(file.size / 1024 / 1024).toFixed(2)}MB)`,
+        caption: '⚠️ Archivo muy grande',
+        type: 'warning',
+        duration: 4000
+      });
+      return;
+    }
+
+    this.selectedZipFile = file;
+    this.zipFileName = file.name;
+    this.zipFileSize = file.size;
+    
+    // Subir automáticamente
+    this.uploadZipFile();
+  }
+
+  /**
+   * 📦 Sube el archivo ZIP al servidor
+   */
+  uploadZipFile(): void {
+    if (!this.selectedZipFile) {
+      return;
+    }
+
+    const moduleKey = this.moduleForm.get('key')?.value;
+    if (!moduleKey || !moduleKey.trim()) {
+      this.toaster.open({
+        text: 'Por favor ingresa un "key" antes de subir el archivo ZIP',
+        caption: '⚠️ Key requerido',
+        type: 'warning',
+        duration: 4000
+      });
+      return;
+    }
+
+    this.uploadingZip = true;
+    const formData = new FormData();
+    formData.append('zip', this.selectedZipFile);
+
+    this.modulesService.uploadModuleZip(moduleKey, formData).subscribe({
+      next: (response: any) => {
+        console.log('✅ ZIP upload successful:', response);
+        this.uploadingZip = false;
+        this.cd.detectChanges();
+        
+        if (response.ok && response.url) {
+          // Asignar la URL al campo download_url
+          this.moduleForm.patchValue({ download_url: response.url });
+          
+          this.toaster.open({
+            text: 'Archivo ZIP subido correctamente',
+            caption: '✅ Éxito',
+            type: 'success',
+            duration: 3000
+          });
+        }
+      },
+      error: (error) => {
+        console.error('❌ ZIP upload error:', error);
+        this.uploadingZip = false;
+        this.selectedZipFile = null;
+        this.zipFileName = '';
+        this.zipFileSize = 0;
+        this.cd.detectChanges();
+        
+        this.toaster.open({
+          text: error.error?.message || 'Error al subir el archivo ZIP',
+          caption: '❌ Error',
+          type: 'danger',
+          duration: 4000
+        });
+      }
+    });
+  }
+
+  /**
+   * 📦 Elimina el archivo ZIP subido
+   */
+  removeZipFile(): void {
+    const moduleKey = this.moduleForm.get('key')?.value;
+    
+    if (!moduleKey) {
+      // Si no hay key, solo limpiar localmente
+      this.selectedZipFile = null;
+      this.zipFileName = '';
+      this.zipFileSize = 0;
+      this.moduleForm.patchValue({ download_url: '' });
+      return;
+    }
+
+    this.modulesService.deleteModuleZip(moduleKey).subscribe({
+      next: (response) => {
+        this.selectedZipFile = null;
+        this.zipFileName = '';
+        this.zipFileSize = 0;
+        this.moduleForm.patchValue({ download_url: '' });
+        
+        this.toaster.open({
+          text: 'Archivo ZIP eliminado',
+          caption: '✅ Éxito',
+          type: 'success',
+          duration: 2000
+        });
+      },
+      error: (error) => {
+        console.error('❌ Error deleting ZIP:', error);
+        
+        // Limpiar localmente aunque falle el backend
+        this.selectedZipFile = null;
+        this.zipFileName = '';
+        this.zipFileSize = 0;
+        this.moduleForm.patchValue({ download_url: '' });
+      }
+    });
+  }
+
+  /**
+   * 📦 Formatea el tamaño del archivo
+   */
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   }
 }

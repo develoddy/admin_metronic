@@ -258,4 +258,34 @@ export class ModulesService {
       { headers }
     );
   }
+
+  /**
+   * 📦 Sube archivo ZIP de un módulo digital
+   */
+  uploadModuleZip(moduleKey: string, formData: FormData): Observable<any> {
+    const headers = new HttpHeaders({
+      'token': this.authService.token
+      // NO establecer Content-Type, Angular lo hace automáticamente para FormData
+    });
+    
+    return this.http.post(
+      `${URL_SERVICIOS}/modules/${moduleKey}/upload-zip`,
+      formData,
+      { headers }
+    );
+  }
+
+  /**
+   * 🗑️ Elimina el archivo ZIP de un módulo
+   */
+  deleteModuleZip(moduleKey: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'token': this.authService.token
+    });
+    
+    return this.http.delete(
+      `${URL_SERVICIOS}/modules/${moduleKey}/zip`,
+      { headers }
+    );
+  }
 }
