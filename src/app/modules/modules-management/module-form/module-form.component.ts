@@ -45,8 +45,16 @@ export class ModuleFormComponent implements OnInit {
     { value: 'physical', label: 'Producto Físico', icon: 'fa-box' },
     { value: 'digital', label: 'Producto Digital', icon: 'fa-download' },
     { value: 'service', label: 'Servicio', icon: 'fa-handshake' },
-    { value: 'integration', label: 'Integración', icon: 'fa-plug' }
+    { value: 'integration', label: 'Integración', icon: 'fa-plug' },
+    { value: 'saas', label: 'SaaS (Subscripción)', icon: 'fa-rocket' }
   ];
+
+  // 🆕 SaaS Pricing Plans
+  saasPricingPlans: any[] = [];
+  newPlanName = '';
+  newPlanPrice = 0;
+  newPlanDescription = '';
+  newPlanRecommended = false; // 🆕 Para marcar plan recomendado
 
   colorOptions = [
     { value: 'primary', label: 'Azul', class: 'bg-primary' },
@@ -111,6 +119,10 @@ export class ModuleFormComponent implements OnInit {
       base_price: [null, [Validators.min(0)]],
       download_url: [''],
       post_purchase_email: [''],
+      // 🆕 SaaS fields
+      saas_trial_days: [14],
+      saas_api_endpoint: [''],
+      saas_dashboard_route: ['']
     });
   }
 
@@ -136,7 +148,23 @@ export class ModuleFormComponent implements OnInit {
           this.features = this.parseJsonField(response.module.features) || [];
           this.techStack = this.parseJsonField(response.module.tech_stack) || [];
           
-          // 💾 Guardar estado inicial para detección de cambios
+          // � Cargar configuración SaaS si existe
+          if (response.module.saas_config) {
+            const saasConfig = typeof response.module.saas_config === 'string' 
+              ? JSON.parse(response.module.saas_config) 
+              : response.module.saas_config;
+            
+            if (saasConfig && typeof saasConfig === 'object') {
+              this.saasPricingPlans = saasConfig.pricing || [];
+              this.moduleForm.patchValue({
+                saas_trial_days: saasConfig.trial_days || 14,
+                saas_api_endpoint: saasConfig.api_endpoint || '',
+                saas_dashboard_route: saasConfig.dashboard_route || ''
+              });
+            }
+          }
+          
+          // �💾 Guardar estado inicial para detección de cambios
           this.initialScreenshots = [...this.screenshots];
           this.initialFeatures = [...this.features];
           this.initialTechStack = [...this.techStack];
@@ -217,6 +245,16 @@ export class ModuleFormComponent implements OnInit {
       tech_stack: this.techStack,
       requirements: {} // Por ahora vacío, se puede agregar UI después
     };
+
+    // 🚀 Agregar saas_config si es tipo SaaS
+    if (this.isSaaSModule) {
+      moduleData.saas_config = {
+        pricing: this.saasPricingPlans,
+        trial_days: this.moduleForm.get('saas_trial_days')?.value || 14,
+        api_endpoint: this.moduleForm.get('saas_api_endpoint')?.value || '',
+        dashboard_route: this.moduleForm.get('saas_dashboard_route')?.value || ''
+      };
+    }
 
     const request = this.isEditMode
       ? this.modulesService.updateModule(this.moduleKey!, moduleData)
@@ -649,6 +687,101 @@ export class ModuleFormComponent implements OnInit {
    */
   removeTech(index: number): void {
     this.techStack.splice(index, 1);
+  }
+
+  /**
+   * 🚀 SaaS: Agregar plan de pricing
+   */
+  addSaaSPlan(): void {
+    if (!this.newPlanName || !this.newPlanName.trim()) {
+      this.toaster.open({
+        text: 'Ingresa un nombre para el plan',
+        caption: '⚠️ Nombre requerido',
+        type: 'warning',
+        duration: 2000
+      });
+      return;
+    }
+
+    if (this.newPlanPrice <= 0) {
+      this.toaster.open({
+        text: 'El precio debe ser mayor a 0',
+        caption: '⚠️ Precio inválido',
+        type: 'warning',
+        duration: 2000
+      });
+      return;
+    }
+
+    // 🆕 Si se marca como recomendado, desmarcar otros planes
+    if (this.newPlanRecommended) {
+      this.saasPricingPlans.forEach(p => p.recommended = false);
+    }
+
+    const plan = {
+      name: this.newPlanName.trim(),
+      price: this.newPlanPrice,
+      description: this.newPlanDescription.trim() || '',
+      currency: 'EUR',
+      recommended: this.newPlanRecommended // 🆕 Guardar si es recomendado
+    };
+
+    this.saasPricingPlans.push(plan);
+    
+    // Limpiar campos
+    this.newPlanName = '';
+    this.newPlanPrice = 0;
+    this.newPlanDescription = '';
+    this.newPlanRecommended = false;
+
+    this.toaster.open({
+      text: `Plan "${plan.name}" agregado`,
+      caption: '✅ Éxito',
+      type: 'success',
+      duration: 2000
+    });
+  }
+
+  /**
+   * 🚀 SaaS: Remover plan
+   */
+  removeSaaSPlan(index: number): void {
+    const plan = this.saasPricingPlans[index];
+    this.saasPricingPlans.splice(index, 1);
+    
+    this.toaster.open({
+      text: `Plan "${plan.name}" eliminado`,
+      caption: '🗑️ Eliminado',
+      type: 'info',
+      duration: 2000
+    });
+  }
+
+  /**
+   * 🚀 SaaS: Marcar/desmarcar plan como recomendado
+   */
+  toggleRecommendedPlan(index: number): void {
+    // Desmarcar todos
+    this.saasPricingPlans.forEach((p, i) => {
+      p.recommended = (i === index) ? !p.recommended : false;
+    });
+    
+    const plan = this.saasPricingPlans[index];
+    this.toaster.open({
+      text: plan.recommended 
+        ? `Plan "${plan.name}" marcado como recomendado` 
+        : `Plan "${plan.name}" desmarcado`,
+      caption: '✅ Actualizado',
+      type: 'info',
+      duration: 2000
+    });
+  }
+
+  /**
+   * 🚀 SaaS: Verificar si el tipo es SaaS
+   */
+  get isSaaSModule(): boolean {
+    return this.moduleForm.get('type')?.value === 'saas';
   }
 
   /**

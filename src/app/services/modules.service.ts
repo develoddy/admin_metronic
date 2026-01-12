@@ -14,7 +14,7 @@ export interface Module {
   key: string;
   name: string;
   description: string;
-  type: 'physical' | 'digital' | 'service' | 'integration';
+  type: 'physical' | 'digital' | 'service' | 'integration' | 'saas';
   is_active: boolean;
   status: 'draft' | 'testing' | 'live' | 'archived';
   validation_days: number;
@@ -44,6 +44,18 @@ export interface Module {
   features?: string[];
   tech_stack?: string[];
   requirements?: string[];
+  // 🚀 SaaS fields
+  saas_config?: {
+    pricing?: Array<{
+      name: string;
+      price: number;
+      description: string;
+      currency: string;
+    }>;
+    trial_days?: number;
+    api_endpoint?: string;
+    dashboard_route?: string;
+  };
 }
 
 export interface ModuleStats {
