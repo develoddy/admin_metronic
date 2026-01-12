@@ -184,14 +184,18 @@
             
             <!--begin::Trial Days-->
             <div class="row mb-6">
-              <label class="col-lg-3 col-form-label fw-bold fs-6">Días de Trial</label>
+              <label class="col-lg-3 col-form-label required fw-bold fs-6">Días de Trial</label>
               <div class="col-lg-9">
                 <input 
                   type="number" 
                   class="form-control" 
+                  [class.is-invalid]="moduleForm.get('saas_trial_days')?.invalid && moduleForm.get('saas_trial_days')?.touched"
                   formControlName="saas_trial_days"
                   placeholder="14"
-                  min="0">
+                  min="1">
+                <div class="invalid-feedback" *ngIf="moduleForm.get('saas_trial_days')?.invalid && moduleForm.get('saas_trial_days')?.touched">
+                  Los días de trial son requeridos (mínimo 1)
+                </div>
                 <div class="form-text">Días de prueba gratuita (ej: 14, 30)</div>
               </div>
             </div>
@@ -199,15 +203,19 @@
 
             <!--begin::Dashboard Route-->
             <div class="row mb-6">
-              <label class="col-lg-3 col-form-label fw-bold fs-6">Ruta Dashboard</label>
+              <label class="col-lg-3 col-form-label required fw-bold fs-6">Ruta Dashboard</label>
               <div class="col-lg-9">
                 <div class="input-group">
-                  <span class="input-group-text">tienda.lujandev.com/app/</span>
+                  <span class="input-group-text">app.lujandev.com/</span>
                   <input 
                     type="text" 
                     class="form-control" 
+                    [class.is-invalid]="moduleForm.get('saas_dashboard_route')?.invalid && moduleForm.get('saas_dashboard_route')?.touched"
                     formControlName="saas_dashboard_route"
                     placeholder="newsletter-campaigns">
+                  <div class="invalid-feedback" *ngIf="moduleForm.get('saas_dashboard_route')?.invalid && moduleForm.get('saas_dashboard_route')?.touched">
+                    La ruta del dashboard es requerida
+                  </div>
                 </div>
                 <div class="form-text">Ruta del dashboard del cliente después de iniciar trial (ej: newsletter-campaigns)</div>
               </div>

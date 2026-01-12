@@ -120,9 +120,9 @@ export class ModuleFormComponent implements OnInit {
       download_url: [''],
       post_purchase_email: [''],
       // 🆕 SaaS fields
-      saas_trial_days: [14],
+      saas_trial_days: [14, [Validators.required, Validators.min(1)]],
       saas_api_endpoint: [''],
-      saas_dashboard_route: ['']
+      saas_dashboard_route: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]]
     });
   }
 
