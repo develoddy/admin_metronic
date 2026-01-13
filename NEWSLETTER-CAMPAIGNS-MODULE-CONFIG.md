@@ -33,7 +33,105 @@ API Endpoint: newsletter-campaigns
 (Opcional - Para documentación interna)
 ```
 
-### 💰 Planes de Pricing
+### � Contenido de Marketing
+
+#### Tagline
+```
+Automatiza tus campañas de email marketing y aumenta tus conversiones
+```
+*Frase corta y atractiva (máx. 255 caracteres)*
+
+#### Descripción Detallada (HTML)
+```html
+<div class="newsletter-description">
+  <h3>🚀 Lleva tu Email Marketing al Siguiente Nivel</h3>
+  <p>
+    <strong>Newsletter Campaigns</strong> es la plataforma todo-en-uno que necesitas para 
+    crear, gestionar y optimizar tus campañas de email marketing de forma profesional.
+  </p>
+  
+  <h4>✨ ¿Qué incluye?</h4>
+  <ul>
+    <li><strong>Editor Visual Drag & Drop:</strong> Crea emails hermosos sin código</li>
+    <li><strong>Gestión de Suscriptores:</strong> Importa, segmenta y organiza tus contactos</li>
+    <li><strong>A/B Testing:</strong> Optimiza tus campañas con pruebas automáticas</li>
+    <li><strong>Automatizaciones:</strong> Secuencias de emails basadas en comportamiento</li>
+    <li><strong>Analytics en Tiempo Real:</strong> Métricas detalladas de open rate, CTR y conversiones</li>
+    <li><strong>Plantillas Premium:</strong> Biblioteca de diseños profesionales listos para usar</li>
+  </ul>
+  
+  <h4>💡 Perfecto para:</h4>
+  <p>
+    Emprendedores, startups, ecommerce, SaaS, coaches, consultores y cualquier negocio 
+    que quiera escalar su comunicación con clientes a través de email marketing efectivo.
+  </p>
+  
+  <h4>🎯 Resultados Medibles</h4>
+  <p>
+    Monitorea cada aspecto de tus campañas: tasas de apertura, clicks, conversiones, 
+    ingresos generados y ROI. Toma decisiones basadas en datos reales.
+  </p>
+</div>
+```
+*Descripción larga para la landing page (soporta HTML)*
+
+#### Screenshots
+```
+Recomendación: Subir al menos 4 imágenes de:
+1. Dashboard principal con métricas
+2. Editor de campañas (drag & drop)
+3. Lista de suscriptores y segmentación
+4. Vista de analytics/reportes
+5. Panel de automatizaciones
+
+Formatos: JPG, PNG, GIF, WebP
+Tamaño máximo: 5MB por imagen
+Máximo: 10 imágenes
+
+URLs de ejemplo (reemplazar con screenshots reales):
+- https://i.imgur.com/dashboard-newsletter.png
+- https://i.imgur.com/editor-email.png
+- https://i.imgur.com/subscribers-list.png
+- https://i.imgur.com/analytics-reports.png
+```
+
+#### Características
+```
+✅ Editor visual drag & drop sin código
+✅ Gestión completa de suscriptores
+✅ Segmentación avanzada de audiencias
+✅ A/B Testing automático
+✅ Automatizaciones de email
+✅ Plantillas profesionales responsive
+✅ Analytics en tiempo real
+✅ Integración con webhooks
+✅ API REST completa
+✅ Personalización dinámica
+✅ Pruebas de spam score
+✅ Programación de envíos
+```
+*Lista de beneficios o características clave (una por línea)*
+
+#### Stack Tecnológico
+```
+Angular 16, Node.js 18, Express, MySQL, Sequelize, JWT, Nodemailer, SendGrid API, Chart.js, TailwindCSS
+```
+*Tecnologías usadas en el proyecto (separadas por comas)*
+
+### 📊 Validación Levels-style
+
+**Filosofía Levels:** Cada idea debe validarse rápidamente. Define X ventas en Y días. Si no alcanza el target → KILL y siguiente experimento.
+
+```
+Días para validar: 14
+Ventas objetivo: 5
+
+Target del módulo: 5 ventas en 14 días
+```
+
+*Si después de 14 días no se alcanzan 5 ventas, considerar pivotar o archivar el módulo*
+
+### �💰 Planes de Pricing
 
 #### Plan 1: Starter
 ```

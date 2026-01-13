@@ -54,6 +54,7 @@ export class ModuleFormComponent implements OnInit {
   newPlanName = '';
   newPlanPrice = 0;
   newPlanDescription = '';
+  newPlanStripePriceId = ''; // 🆕 Stripe Price ID
   newPlanRecommended = false; // 🆕 Para marcar plan recomendado
 
   colorOptions = [
@@ -712,6 +713,16 @@ export class ModuleFormComponent implements OnInit {
       });
       return;
     }
+    
+    if (!this.newPlanStripePriceId || !this.newPlanStripePriceId.trim()) {
+      this.toaster.open({
+        text: 'El Stripe Price ID es requerido para subscripciones',
+        caption: '⚠️ Stripe Price ID requerido',
+        type: 'warning',
+        duration: 3000
+      });
+      return;
+    }
 
     // 🆕 Si se marca como recomendado, desmarcar otros planes
     if (this.newPlanRecommended) {
@@ -723,6 +734,7 @@ export class ModuleFormComponent implements OnInit {
       price: this.newPlanPrice,
       description: this.newPlanDescription.trim() || '',
       currency: 'EUR',
+      stripe_price_id: this.newPlanStripePriceId.trim(), // 🆕 Guardar Stripe Price ID
       recommended: this.newPlanRecommended // 🆕 Guardar si es recomendado
     };
 
@@ -732,6 +744,7 @@ export class ModuleFormComponent implements OnInit {
     this.newPlanName = '';
     this.newPlanPrice = 0;
     this.newPlanDescription = '';
+    this.newPlanStripePriceId = '';
     this.newPlanRecommended = false;
 
     this.toaster.open({

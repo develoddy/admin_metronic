@@ -276,7 +276,16 @@
                           step="0.01"
                           min="0">
                       </div>
-                      <div class="col-md-5">
+                      <div class="col-md-3">
+                        <label class="form-label small fw-bold">Stripe Price ID *</label>
+                        <input 
+                          type="text" 
+                          class="form-control" 
+                          [(ngModel)]="newPlanStripePriceId"
+                          [ngModelOptions]="{standalone: true}"
+                          placeholder="price_xxxxx">
+                      </div>
+                      <div class="col-md-2">
                         <label class="form-label small fw-bold">Descripción</label>
                         <input 
                           type="text" 
@@ -350,6 +359,19 @@
                           <div class="d-flex align-items-baseline mb-3">
                             <h3 class="text-success mb-0">{{ plan.price }}€</h3>
                             <span class="text-muted ms-2">/mes</span>
+                          </div>
+                          
+                          <!-- Stripe Price ID -->
+                          <div class="mb-2" *ngIf="plan.stripe_price_id">
+                            <small class="text-muted">
+                              <i class="fab fa-stripe me-1"></i>
+                              <strong>Stripe ID:</strong> 
+                              <code class="bg-light p-1">{{ plan.stripe_price_id }}</code>
+                            </small>
+                          </div>
+                          <div class="alert alert-danger py-1 px-2 small" *ngIf="!plan.stripe_price_id">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Sin Stripe Price ID configurado
                           </div>
 
                           <!-- Toggle recomendado -->
