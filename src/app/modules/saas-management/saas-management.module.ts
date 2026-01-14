@@ -6,12 +6,19 @@ import { RouterModule } from '@angular/router';
 import { SaasManagementRoutingModule } from './saas-management-routing.module';
 import { SaasManagementComponent } from './saas-management.component';
 import { EmailTestingSaasComponent } from './email-testing-saas/email-testing-saas.component';
+import { TenantListComponent } from './tenants/tenant-list/tenant-list.component';
+import { TenantDetailComponent } from './tenants/tenant-detail/tenant-detail.component';
+import { SaasDashboardComponent } from './dashboard/saas-dashboard.component';
 import { SaasEmailTestingService } from './_services/saas-email-testing.service';
+import { SaasTenantsService } from './_services/saas-tenants.service';
 
 @NgModule({
   declarations: [
     SaasManagementComponent,
-    EmailTestingSaasComponent
+    EmailTestingSaasComponent,
+    TenantListComponent,
+    TenantDetailComponent,
+    SaasDashboardComponent
   ],
   imports: [
     CommonModule,
@@ -19,7 +26,8 @@ import { SaasEmailTestingService } from './_services/saas-email-testing.service'
     SaasManagementRoutingModule  // Debe ir último
   ],
   providers: [
-    SaasEmailTestingService
+    SaasEmailTestingService,
+    SaasTenantsService
   ]
 })
 export class SaasManagementModule { }

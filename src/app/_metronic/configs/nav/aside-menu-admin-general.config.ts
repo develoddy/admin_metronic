@@ -33,6 +33,14 @@ export const AsideMenuAdminGeneral = {
         page: '/saas',
         submenu: [
           {
+            title: 'Dashboard',
+            page: '/saas/dashboard'
+          },
+          {
+            title: 'Tenants',
+            page: '/saas/tenants'
+          },
+          {
             title: 'Testing Emails',
             page: '/saas/email-testing'
           }

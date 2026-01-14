@@ -1,0 +1,39 @@
+.card {
+  transition: transform 0.2s;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.bg-opacity-10 {
+  --bs-bg-opacity: 0.1;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.alert {
+  border-left: 4px solid;
+  
+  &.alert-warning {
+    border-left-color: #ffc107;
+  }
+  
+  &.alert-info {
+    border-left-color: #0dcaf0;
+  }
+  
+  &.alert-success {
+    border-left-color: #198754;
+  }
+  
+  &.alert-danger {
+    border-left-color: #dc3545;
+  }
+}

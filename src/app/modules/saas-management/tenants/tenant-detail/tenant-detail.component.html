@@ -1,0 +1,450 @@
+<div class="container-fluid mt-4">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3 text-muted">Cargando detalles...</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && tenant">
+    <!-- Header -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <button class="btn btn-sm btn-outline-secondary mb-2" (click)="goBack()">
+              <i class="fa fa-arrow-left me-2"></i>Volver a lista
+            </button>
+            <h3 class="mb-2">{{ tenant.name }}</h3>
+            <p class="text-muted mb-2">{{ tenant.email }}</p>
+            <div class="d-flex gap-2 align-items-center">
+              <span class="badge" [ngClass]="getStatusBadgeClass(tenant.status)">
+                {{ tenant.status }}
+              </span>
+              <span class="badge bg-info">{{ tenant.module_key }}</span>
+              <span class="badge bg-primary">{{ tenant.plan }}</span>
+            </div>
+          </div>
+          
+          <div class="text-end">
+            <!-- Quick Actions -->
+            <div *ngIf="tenant.status === 'trial'" class="mb-2">
+              <button class="btn btn-sm btn-warning me-2" (click)="extendTrial(7)">
+                <i class="fa fa-clock-o me-1"></i>Extender Trial
+              </button>
+            </div>
+            <div *ngIf="tenant.status === 'active'" class="mb-2">
+              <button class="btn btn-sm btn-danger" (click)="cancelSubscription()">
+                <i class="fa fa-times-circle me-1"></i>Cancelar Suscripción
+              </button>
+            </div>
+            <div *ngIf="tenant.status === 'suspended' || tenant.status === 'cancelled'" class="mb-2">
+              <button class="btn btn-sm btn-success" (click)="reactivateTenant()">
+                <i class="fa fa-check-circle me-1"></i>Reactivar Cuenta
+              </button>
+            </div>
+            <small class="text-muted">
+              Registrado: {{ formatDate(tenant.createdAt) }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a 
+          class="nav-link" 
+          [class.active]="activeTab === 'info'"
+          (click)="switchTab('info')"
+          style="cursor: pointer;">
+          <i class="fa fa-info-circle me-2"></i>Información
+        </a>
+      </li>
+      <li class="nav-item">
+        <a 
+          class="nav-link" 
+          [class.active]="activeTab === 'subscription'"
+          (click)="switchTab('subscription')"
+          style="cursor: pointer;">
+          <i class="fa fa-credit-card me-2"></i>Suscripción
+        </a>
+      </li>
+      <li class="nav-item">
+        <a 
+          class="nav-link" 
+          [class.active]="activeTab === 'history'"
+          (click)="switchTab('history')"
+          style="cursor: pointer;">
+          <i class="fa fa-history me-2"></i>Historial
+        </a>
+      </li>
+      <li class="nav-item">
+        <a 
+          class="nav-link" 
+          [class.active]="activeTab === 'notes'"
+          (click)="switchTab('notes')"
+          style="cursor: pointer;">
+          <i class="fa fa-sticky-note me-2"></i>Notas ({{ notes.length }})
+        </a>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Información General -->
+      <div *ngIf="activeTab === 'info'">
+        <div class="row">
+          <!-- Información Básica -->
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header">
+                <h5 class="card-title mb-0">📋 Información Básica</h5>
+              </div>
+              <div class="card-body">
+                <table class="table table-sm">
+                  <tbody>
+                    <tr>
+                      <td class="text-muted" style="width: 40%;">Nombre:</td>
+                      <td><strong>{{ tenant.name }}</strong></td>
+                    </tr>
+                    <tr>
+                      <td class="text-muted">Email:</td>
+                      <td>{{ tenant.email }}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-muted">Módulo:</td>
+                      <td>
+                        <span class="badge bg-info">{{ tenant.module_key }}</span>
+                        <div class="small text-muted mt-1" *ngIf="tenant.module">
+                          {{ tenant.module.name }}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="text-muted">Plan:</td>
+                      <td><span class="badge bg-primary">{{ tenant.plan }}</span></td>
+                    </tr>
+                    <tr>
+                      <td class="text-muted">Estado:</td>
+                      <td>
+                        <span class="badge" [ngClass]="getStatusBadgeClass(tenant.status)">
+                          {{ tenant.status }}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="text-muted">ID:</td>
+                      <td><code>{{ tenant.id }}</code></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trial Info -->
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header">
+                <h5 class="card-title mb-0">⏰ Trial</h5>
+              </div>
+              <div class="card-body">
+                <table class="table table-sm">
+                  <tbody>
+                    <tr>
+                      <td class="text-muted" style="width: 40%;">Trial extendido:</td>
+                      <td>
+                        <span *ngIf="tenant.trial_extended" class="badge badge-success">Sí</span>
+                        <span *ngIf="!tenant.trial_extended" class="badge badge-secondary">No</span>
+                      </td>
+                    </tr>
+                    <tr *ngIf="tenant.trial_ends_at">
+                      <td class="text-muted">Trial expira:</td>
+                      <td>
+                        {{ formatDate(tenant.trial_ends_at) }}
+                        <div class="small mt-1" [class.text-danger]="getDaysRemaining(tenant.trial_ends_at) < 3">
+                          <strong>{{ getDaysRemaining(tenant.trial_ends_at) }} días restantes</strong>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                
+                <div *ngIf="tenant.status === 'trial'" class="mt-3">
+                  <button class="btn btn-sm btn-warning me-2" (click)="extendTrial(7)">+7 días</button>
+                  <button class="btn btn-sm btn-warning me-2" (click)="extendTrial(14)">+14 días</button>
+                  <button class="btn btn-sm btn-warning" (click)="extendTrial(30)">+30 días</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metadata -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="card-title mb-0">🔧 Metadata</h5>
+          </div>
+          <div class="card-body">
+            <pre class="bg-light p-3 rounded">{{ tenant.metadata || '{}' }}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suscripción -->
+      <div *ngIf="activeTab === 'subscription'">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">💳 Información de Suscripción</h5>
+          </div>
+          <div class="card-body">
+            <table class="table table-sm">
+              <tbody>
+                <tr>
+                  <td class="text-muted" style="width: 30%;">Stripe Customer ID:</td>
+                  <td>
+                    <code *ngIf="tenant.stripe_customer_id">{{ tenant.stripe_customer_id }}</code>
+                    <span *ngIf="!tenant.stripe_customer_id" class="text-muted">-</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-muted">Stripe Subscription ID:</td>
+                  <td>
+                    <code *ngIf="tenant.stripe_subscription_id">{{ tenant.stripe_subscription_id }}</code>
+                    <span *ngIf="!tenant.stripe_subscription_id" class="text-muted">-</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-muted">Stripe Price ID:</td>
+                  <td>
+                    <code *ngIf="tenant.stripe_price_id">{{ tenant.stripe_price_id }}</code>
+                    <span *ngIf="!tenant.stripe_price_id" class="text-muted">-</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-muted">Fecha Suscripción:</td>
+                  <td>{{ formatDate(tenant.subscribed_at) }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted">Fecha Cancelación:</td>
+                  <td>{{ formatDate(tenant.cancelled_at) }}</td>
+                </tr>
+                <tr>
+                  <td class="text-muted">Fin de Acceso:</td>
+                  <td>{{ formatDate(tenant.subscription_ends_at) }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div *ngIf="tenant.status === 'active'" class="mt-4">
+              <button class="btn btn-danger" (click)="cancelSubscription()">
+                <i class="fa fa-times-circle me-2"></i>Cancelar Suscripción
+              </button>
+            </div>
+
+            <div *ngIf="tenant.status === 'cancelled' || tenant.status === 'suspended'" class="mt-4">
+              <button class="btn btn-success" (click)="reactivateTenant()">
+                <i class="fa fa-check-circle me-2"></i>Reactivar Cuenta
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historial -->
+      <div *ngIf="activeTab === 'history'">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">📜 Historial de Actividad</h5>
+          </div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-marker bg-success"></div>
+                <div class="timeline-content">
+                  <h6>Cuenta Creada</h6>
+                  <p class="text-muted mb-0">{{ formatDate(tenant.createdAt) }}</p>
+                </div>
+              </div>
+              
+              <div *ngIf="tenant.subscribed_at" class="timeline-item">
+                <div class="timeline-marker bg-primary"></div>
+                <div class="timeline-content">
+                  <h6>Suscripción Activada</h6>
+                  <p class="text-muted mb-0">{{ formatDate(tenant.subscribed_at) }}</p>
+                </div>
+              </div>
+              
+              <div *ngIf="tenant.cancelled_at" class="timeline-item">
+                <div class="timeline-marker bg-danger"></div>
+                <div class="timeline-content">
+                  <h6>Suscripción Cancelada</h6>
+                  <p class="text-muted mb-0">{{ formatDate(tenant.cancelled_at) }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center text-muted mt-4">
+              <small>Última actualización: {{ formatDate(tenant.updatedAt) }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notas -->
+      <div *ngIf="activeTab === 'notes'">
+        <div class="row">
+          <!-- Agregar nueva nota -->
+          <div class="col-lg-5 mb-4">
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fa fa-plus me-2"></i>Nueva Nota</h5>
+              </div>
+              <div class="card-body">
+                <form (submit)="addNote(); $event.preventDefault()">
+                  <!-- Tipo de nota -->
+                  <div class="mb-3">
+                    <label class="form-label">Tipo de Nota</label>
+                    <select 
+                      class="form-select" 
+                      [(ngModel)]="newNote.note_type"
+                      name="note_type"
+                      required>
+                      <option *ngFor="let type of noteTypes" [value]="type.value">
+                        {{ type.label }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Nota -->
+                  <div class="mb-3">
+                    <label class="form-label">Nota</label>
+                    <textarea 
+                      class="form-control" 
+                      rows="5" 
+                      [(ngModel)]="newNote.note"
+                      name="note"
+                      placeholder="Escribe tu nota aquí..."
+                      required></textarea>
+                    <div class="form-text">
+                      Esta nota será visible solo para administradores
+                    </div>
+                  </div>
+
+                  <!-- Importante -->
+                  <div class="mb-3">
+                    <div class="form-check">
+                      <input 
+                        class="form-check-input" 
+                        type="checkbox" 
+                        [(ngModel)]="newNote.is_important"
+                        name="is_important"
+                        id="checkImportant">
+                      <label class="form-check-label" for="checkImportant">
+                        <i class="fa fa-exclamation-triangle text-warning me-1"></i>
+                        Marcar como importante
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Botones -->
+                  <div class="d-grid gap-2">
+                    <button 
+                      type="submit" 
+                      class="btn btn-primary"
+                      [disabled]="isLoadingNotes || !newNote.note.trim()">
+                      <span *ngIf="!isLoadingNotes">
+                        <i class="fa fa-save me-2"></i>Guardar Nota
+                      </span>
+                      <span *ngIf="isLoadingNotes">
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        Guardando...
+                      </span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de notas -->
+          <div class="col-lg-7">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="fa fa-list me-2"></i>
+                  Historial de Notas ({{ notes.length }})
+                </h5>
+                <button 
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="loadNotes()"
+                  [disabled]="isLoadingNotes">
+                  <i class="fa fa-refresh" [class.fa-spin]="isLoadingNotes"></i>
+                </button>
+              </div>
+              <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                <!-- Loading -->
+                <div *ngIf="isLoadingNotes" class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                  </div>
+                  <p class="mt-2 text-muted">Cargando notas...</p>
+                </div>
+
+                <!-- Empty state -->
+                <div *ngIf="!isLoadingNotes && notes.length === 0" class="text-center py-5">
+                  <i class="fa fa-sticky-note-o fa-3x text-muted mb-3"></i>
+                  <p class="text-muted">No hay notas registradas</p>
+                  <small class="text-muted">Agrega la primera nota usando el formulario de la izquierda</small>
+                </div>
+
+                <!-- Notas -->
+                <div *ngIf="!isLoadingNotes && notes.length > 0">
+                  <div 
+                    *ngFor="let note of notes; let i = index" 
+                    class="note-item mb-3 p-3 border rounded"
+                    [class.border-warning]="note.is_important"
+                    [class.bg-light-warning]="note.is_important">
+                    
+                    <!-- Header de la nota -->
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <div class="d-flex gap-2 align-items-center">
+                        <span 
+                          class="badge" 
+                          [ngClass]="getNoteTypeBadgeClass(note.note_type)">
+                          {{ getNoteTypeLabel(note.note_type) }}
+                        </span>
+                        <span *ngIf="note.is_important" class="badge badge-light-warning">
+                          <i class="fa fa-exclamation-triangle me-1"></i>Importante
+                        </span>
+                      </div>
+                      <small class="text-muted">
+                        {{ formatDate(note.created_at) }}
+                      </small>
+                    </div>
+
+                    <!-- Contenido de la nota -->
+                    <p class="mb-2" style="white-space: pre-wrap;">{{ note.note }}</p>
+
+                    <!-- Footer -->
+                    <div class="text-end">
+                      <small class="text-muted">
+                        <i class="fa fa-user me-1"></i>
+                        Por: {{ note.created_by || 'admin' }}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

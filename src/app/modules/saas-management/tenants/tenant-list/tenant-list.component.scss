@@ -1,0 +1,50 @@
+.tenant-item {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tenant-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(2px);
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.dropdown-menu {
+  min-width: 200px;
+}
+
+.dropdown-item {
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+table th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+table td {
+  vertical-align: middle;
+  font-size: 0.875rem;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.pagination {
+  margin: 0;
+}
+
+.page-link {
+  cursor: pointer;
+}

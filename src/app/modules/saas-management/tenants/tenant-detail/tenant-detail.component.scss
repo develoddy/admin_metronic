@@ -1,0 +1,108 @@
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.timeline-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: -23px;
+  top: 20px;
+  width: 2px;
+  height: calc(100% - 10px);
+  background: #e0e0e0;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -30px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeline-content {
+  h6 {
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+}
+
+.card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.badge {
+  font-size: 0.85rem;
+  padding: 0.35em 0.65em;
+}
+
+.nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+  
+  .nav-link {
+    border: none;
+    color: #6c757d;
+    
+    &.active {
+      color: #0d6efd;
+      border-bottom: 2px solid #0d6efd;
+      margin-bottom: -2px;
+    }
+    
+    &:hover {
+      color: #0d6efd;
+    }
+  }
+}
+
+// Notes styles
+.note-item {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+}
+
+.bg-light-warning {
+  background-color: #fff3cd !important;
+}
+
+.badge-light-primary {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.badge-light-info {
+  background-color: #cff4fc;
+  color: #055160;
+}
+
+.badge-light-warning {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+.badge-light-success {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.badge-light-danger {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+.badge-light-secondary {
+  background-color: #e2e3e5;
+  color: #41464b;
+}
