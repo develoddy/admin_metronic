@@ -1,0 +1,244 @@
+<!-- Testing de Emails SaaS -->
+<div class="container-fluid mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h4 class="card-title mb-0">🧪 Testing de Emails SaaS</h4>
+      <p class="text-muted mb-0">Probar emails de trials y suscripciones</p>
+    </div>
+    <div class="card-body">
+      <p>Debug: isLoadingTenants = {{isLoadingTenants}}</p>
+      <p>Debug: availableTenants.length = {{availableTenants?.length || 0}}</p>
+      <p>El componente se cargó correctamente</p>
+    </div>
+  </div>
+</div>
+      <div>
+        <button 
+          type="button" 
+          class="btn btn-outline-primary btn-sm me-2"
+          (click)="refreshTenants()"
+          [disabled]="isLoadingTenants">
+          <i class="fa fa-refresh" [class.fa-spin]="isLoadingTenants"></i>
+          Actualizar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-success btn-sm"
+          (click)="runTrialNotificationsNow()"
+          [disabled]="isTesting">
+          <i class="fa fa-clock-o me-1"></i>
+          Ejecutar Cron
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- SMTP Status -->
+    <div class="alert" [ngClass]="{'alert-success': smtpStatus?.success, 'alert-danger': !smtpStatus?.success}" *ngIf="smtpStatus">
+      <div class="d-flex align-items-center">
+        <i class="fa" [ngClass]="{'fa-check-circle': smtpStatus?.success, 'fa-times-circle': !smtpStatus?.success}" style="font-size: 24px; margin-right: 10px;"></i>
+        <div>
+          <strong>Estado SMTP:</strong> {{smtpStatus?.message}}
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Panel izquierdo: Lista de Tenants -->
+      <div class="col-md-6">
+        <div class="mb-4">
+          <h5>1. Seleccionar Tenant</h5>
+          
+          <!-- Loading spinner -->
+          <div *ngIf="isLoadingTenants" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando tenants...</span>
+            </div>
+          </div>
+
+          <!-- Lista de tenants -->
+          <div *ngIf="!isLoadingTenants && availableTenants.length > 0" class="tenants-list" style="max-height: 500px; overflow-y: auto;">
+            <div 
+              *ngFor="let tenant of availableTenants" 
+              class="tenant-item border rounded p-3 mb-2 cursor-pointer"
+              [class.selected]="selectedTenant?.id === tenant.id"
+              [class.border-primary]="selectedTenant?.id === tenant.id"
+              (click)="selectTenant(tenant)">
+              
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center mb-1">
+                    <strong>{{tenant.name}}</strong>
+                    <span 
+                      class="badge ms-2"
+                      [class.bg-warning]="getStatusBadge(tenant) === 'trial'"
+                      [class.bg-success]="getStatusBadge(tenant) === 'active'"
+                      [class.bg-secondary]="getStatusBadge(tenant) === 'inactive'">
+                      {{getStatusBadge(tenant)}}
+                    </span>
+                  </div>
+                  
+                  <div class="text-muted small">
+                    <div><i class="fa fa-key me-1"></i>{{tenant.module_key}}</div>
+                    <div><i class="fa fa-envelope me-1"></i>{{tenant.email}}</div>
+                    <div *ngIf="tenant.plan === 'trial' || tenant.status === 'trial'">
+                      <i class="fa fa-clock-o me-1"></i>
+                      Trial expira: {{formatDate(tenant.trial_ends_at)}}
+                    </div>
+                    <div><i class="fa fa-calendar me-1"></i>Creado: {{formatDate(tenant.created_at)}}</div>
+                  </div>
+                </div>
+                
+                <div class="text-end">
+                  <div class="small">
+                    <span *ngIf="tenant.stripe_subscription_id" class="text-success">
+                      <i class="fa fa-credit-card"></i> Suscrito
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No hay tenants -->
+          <div *ngIf="!isLoadingTenants && availableTenants.length === 0" class="text-center py-4 text-muted">
+            <i class="fa fa-inbox fa-2x mb-2"></i>
+            <p>No hay tenants disponibles</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel derecho: Testing de emails -->
+      <div class="col-md-6">
+        <div class="mb-4">
+          <h5>2. Probar Emails</h5>
+          
+          <!-- Información de tenant seleccionado -->
+          <div *ngIf="selectedTenant" class="alert alert-info">
+            <div class="d-flex align-items-center">
+              <div>
+                <strong>{{selectedTenant.name}}</strong><br>
+                <small>
+                  Email: {{selectedTenant.email}}<br>
+                  Status: 
+                  <span 
+                    class="badge"
+                    [class.bg-warning]="getStatusBadge(selectedTenant) === 'trial'"
+                    [class.bg-success]="getStatusBadge(selectedTenant) === 'active'"
+                    [class.bg-secondary]="getStatusBadge(selectedTenant) === 'inactive'">
+                    {{getStatusBadge(selectedTenant)}}
+                  </span>
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selecciona tenant -->
+          <div *ngIf="!selectedTenant" class="alert alert-warning">
+            <i class="fa fa-info-circle me-2"></i>
+            Selecciona un tenant de la lista para continuar
+          </div>
+
+          <!-- Botones de testing -->
+          <div class="mb-3" *ngIf="selectedTenant">
+            <h6>Tipos de Email:</h6>
+            <div class="d-grid gap-2">
+              <button 
+                *ngFor="let emailType of emailTypes"
+                type="button"
+                class="btn btn-outline-primary text-start"
+                [disabled]="!selectedTenant || isLoading"
+                (click)="sendTestEmail(emailType.key)">
+                
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-bold">{{emailType.name}}</div>
+                    <small class="text-muted">{{emailType.description}}</small>
+                  </div>
+                  <i class="fa fa-paper-plane"></i>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Loading indicator -->
+          <div *ngIf="isLoading" class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Enviando email...</span>
+            </div>
+            <p class="mt-2 mb-0">Enviando email de prueba...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultados de testing -->
+    <div *ngIf="lastTestResults.length > 0" class="mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>📋 Historial de Testing</h5>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary btn-sm"
+          (click)="clearResults()">
+          <i class="fa fa-trash me-1"></i>Limpiar
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead class="table-light">
+            <tr>
+              <th>Hora</th>
+              <th>Tenant</th>
+              <th>Tipo de Email</th>
+              <th>Estado</th>
+              <th>Mensaje</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let result of lastTestResults">
+              <td>
+                <small>{{formatDate(result.timestamp || '')}}</small>
+              </td>
+              <td>
+                <code>#{{result.tenantId}}</code>
+              </td>
+              <td>
+                <span class="badge bg-secondary">
+                  {{result.emailType}}
+                </span>
+              </td>
+              <td>
+                <span 
+                  class="badge"
+                  [class.bg-success]="result.success"
+                  [class.bg-danger]="!result.success">
+                  {{result.success ? '✅ Enviado' : '❌ Error'}}
+                </span>
+              </td>
+              <td>
+                <small class="text-muted">{{result.message}}</small>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.tenant-item {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tenant-item:hover {
+  background-color: #f8f9fa;
+}
+
+.tenant-item.selected {
+  background-color: #e7f3ff;
+}
+</style>

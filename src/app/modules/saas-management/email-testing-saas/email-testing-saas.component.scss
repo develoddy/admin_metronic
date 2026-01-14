@@ -1,0 +1,18 @@
+.tenant-item {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tenant-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(2px);
+}
+
+.tenant-item.selected {
+  background-color: #e7f3ff;
+  border-width: 2px !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

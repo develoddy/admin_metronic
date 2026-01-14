@@ -24,6 +24,21 @@ export const AsideMenuAdminGeneral = {
         page: '/modules-management'
       },
       {
+        title: 'Gestión SaaS',
+        root: true,
+        name: "saas-management",
+        bullet: 'dot',
+        icon: 'flaticon2-server',
+        svg: './assets/media/svg/icons/Devices/Server.svg',
+        page: '/saas',
+        submenu: [
+          {
+            title: 'Testing Emails',
+            page: '/saas/email-testing'
+          }
+        ]
+      },
+      {
         title: 'Printful',
         root: true,
         name: "printful",

@@ -168,6 +168,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'saas',
+        loadChildren: () =>
+          import('../modules/saas-management/saas-management.module').then(
+            (m) => m.SaasManagementModule
+          ),
+      },
+      {
         path: 'prelaunch',
         loadChildren: () =>
           import('../modules/prelaunch-campaigns/prelaunch-campaigns.module').then(
