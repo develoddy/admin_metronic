@@ -261,11 +261,17 @@ export class ModuleFormComponent implements OnInit {
 
     // 🚀 Agregar saas_config si es tipo SaaS
     if (this.isSaaSModule) {
+      // 🔧 Normalizar dashboard_route (agregar / si falta)
+      let dashboardRoute = this.moduleForm.get('saas_dashboard_route')?.value || '';
+      if (dashboardRoute && !dashboardRoute.startsWith('/')) {
+        dashboardRoute = '/' + dashboardRoute;
+      }
+
       moduleData.saas_config = {
         pricing: this.saasPricingPlans,
         trial_days: this.moduleForm.get('saas_trial_days')?.value || 14,
         api_endpoint: this.moduleForm.get('saas_api_endpoint')?.value || '',
-        dashboard_route: this.moduleForm.get('saas_dashboard_route')?.value || ''
+        dashboard_route: dashboardRoute
       };
     }
 
