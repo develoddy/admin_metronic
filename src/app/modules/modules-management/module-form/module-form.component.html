@@ -212,12 +212,16 @@
                     class="form-control" 
                     [class.is-invalid]="moduleForm.get('saas_dashboard_route')?.invalid && moduleForm.get('saas_dashboard_route')?.touched"
                     formControlName="saas_dashboard_route"
-                    placeholder="newsletter-campaigns">
+                    placeholder="mailflow">
                   <div class="invalid-feedback" *ngIf="moduleForm.get('saas_dashboard_route')?.invalid && moduleForm.get('saas_dashboard_route')?.touched">
-                    La ruta del dashboard es requerida
+                    <span *ngIf="moduleForm.get('saas_dashboard_route')?.hasError('required')">La ruta del dashboard es requerida</span>
+                    <span *ngIf="moduleForm.get('saas_dashboard_route')?.hasError('pattern')">Solo letras minúsculas, números y guiones (sin espacios ni slashes)</span>
                   </div>
                 </div>
-                <div class="form-text">Ruta del dashboard del cliente después de iniciar trial (ej: newsletter-campaigns)</div>
+                <div class="form-text">
+                  Solo el nombre del módulo (ej: <code>mailflow</code>, <code>newsletter-campaigns</code>).<br>
+                  <strong>❌ NO usar</strong>: <code>/mailflow</code>, <code>mailflow/dashboard</code>, <code>/mailflow/dashboard</code>
+                </div>
               </div>
             </div>
             <!--end::Dashboard Route-->
