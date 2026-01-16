@@ -57,6 +57,10 @@ export class ModuleFormComponent implements OnInit {
   newPlanStripePriceId = ''; // 🆕 Stripe Price ID
   newPlanRecommended = false; // 🆕 Para marcar plan recomendado
 
+  // 🎬 Preview Mode
+  configuringPreview = false;
+  hasPreviewConfigured = false;
+
   colorOptions = [
     { value: 'primary', label: 'Azul', class: 'bg-primary' },
     { value: 'success', label: 'Verde', class: 'bg-success' },
@@ -149,7 +153,7 @@ export class ModuleFormComponent implements OnInit {
           this.features = this.parseJsonField(response.module.features) || [];
           this.techStack = this.parseJsonField(response.module.tech_stack) || [];
           
-          // � Cargar configuración SaaS si existe
+          // 🆕 Cargar configuración SaaS si existe
           if (response.module.saas_config) {
             const saasConfig = typeof response.module.saas_config === 'string' 
               ? JSON.parse(response.module.saas_config) 
@@ -164,8 +168,16 @@ export class ModuleFormComponent implements OnInit {
               });
             }
           }
+
+          // 🎬 Verificar si tiene preview configurado
+          if (response.module.preview_config) {
+            const previewConfig = typeof response.module.preview_config === 'string'
+              ? JSON.parse(response.module.preview_config)
+              : response.module.preview_config;
+            this.hasPreviewConfigured = previewConfig && previewConfig.enabled === true;
+          }
           
-          // �💾 Guardar estado inicial para detección de cambios
+          // 💾 Guardar estado inicial para detección de cambios
           this.initialScreenshots = [...this.screenshots];
           this.initialFeatures = [...this.features];
           this.initialTechStack = [...this.techStack];
@@ -264,6 +276,7 @@ export class ModuleFormComponent implements OnInit {
     request.subscribe({
       next: (response) => {
         this.isSaving = false;
+        this.cd.detectChanges(); // 🔄 Forzar actualización
         
         if (response.success) {
           this.toaster.open({
@@ -278,6 +291,7 @@ export class ModuleFormComponent implements OnInit {
       error: (error) => {
         console.error('❌ Error saving module:', error);
         this.isSaving = false;
+        this.cd.detectChanges(); // 🔄 Forzar actualización
         
         // Manejar errores del backend (409 = key duplicado, etc.)
         const errorMessage = error.error?.error || error.message || `Error al ${this.isEditMode ? 'actualizar' : 'crear'} el módulo`;
@@ -451,6 +465,8 @@ export class ModuleFormComponent implements OnInit {
     }
 
     this.uploadingScreenshot = true;
+    this.cd.detectChanges(); // 🔄 Forzar actualización
+    
     const formData = new FormData();
     
     this.selectedFiles.forEach(file => {
@@ -461,6 +477,7 @@ export class ModuleFormComponent implements OnInit {
       next: (response: any) => {
         console.log('✅ Upload successful:', response);
         this.uploadingScreenshot = false;
+        this.cd.detectChanges(); // 🔄 Forzar actualización
         
         if (response.ok && response.screenshots) {
           // Agregar las URLs generadas al array de screenshots
@@ -1056,4 +1073,60 @@ export class ModuleFormComponent implements OnInit {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   }
+
+  /**
+   * 🎬 Configurar preview mode
+   */
+  configurePreviewMode(): void {
+    if (!this.moduleKey) {
+      this.toaster.open({
+        text: 'Primero debes guardar el módulo',
+        caption: '⚠️ Advertencia',
+        type: 'warning'
+      });
+      return;
+    }
+
+    this.configuringPreview = true;
+    this.cd.detectChanges(); // 🔄 Forzar actualización
+
+    this.modulesService.configurePreview(this.moduleKey).subscribe({
+      next: (response) => {
+        console.log('✅ Preview configurado:', response);
+        
+        if (response.success) {
+          this.hasPreviewConfigured = true;
+          this.toaster.open({
+            text: `Preview habilitado: ${this.getPreviewUrl()}`,
+            caption: '✅ Preview Mode Activado',
+            type: 'success',
+            duration: 5000
+          });
+        }
+        
+        this.configuringPreview = false;
+        this.cd.detectChanges(); // 🔄 Forzar actualización
+      },
+      error: (error) => {
+        console.error('❌ Error configurando preview:', error);
+        this.configuringPreview = false;
+        this.cd.detectChanges(); // 🔄 Forzar actualización
+        
+        this.toaster.open({
+          text: error.error?.error || 'No se pudo configurar el preview',
+          caption: '❌ Error',
+          type: 'danger'
+        });
+      }
+    });
+  }
+
+  /**
+   * 🔗 Obtener URL del preview
+   */
+  getPreviewUrl(): string {
+    const key = this.moduleForm.get('key')?.value || this.moduleKey;
+    return `https://app.lujandev.com/preview/${key}`;
+  }
 }
+

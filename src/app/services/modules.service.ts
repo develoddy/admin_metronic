@@ -56,6 +56,24 @@ export interface Module {
     api_endpoint?: string;
     dashboard_route?: string;
   };
+  // 🎬 Preview config
+  preview_config?: {
+    enabled?: boolean;
+    route?: string;
+    public_endpoint?: string;
+    show_in_store?: boolean;
+    demo_button_text?: string;
+    generator_function?: string;
+    conversion_config?: {
+      recovery_key?: string;
+      redirect_route?: string;
+      auto_activate?: boolean;
+    };
+    rate_limiting?: {
+      max_requests?: number;
+      window_minutes?: number;
+    };
+  };
 }
 
 export interface ModuleStats {
@@ -303,6 +321,21 @@ export class ModulesService {
     
     return this.http.delete(
       `${URL_SERVICIOS}/modules/${moduleKey}/zip`,
+      { headers }
+    );
+  }
+
+  /**
+   * 🎬 Configurar preview mode para un módulo
+   */
+  configurePreview(moduleKey: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'token': this.authService.token
+    });
+    
+    return this.http.post(
+      `${URL_SERVICIOS}/modules/${moduleKey}/configure-preview`,
+      {},
       { headers }
     );
   }

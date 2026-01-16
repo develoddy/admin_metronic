@@ -401,6 +401,33 @@
             </div>
             <!--end::Pricing Plans-->
 
+            <!--begin::🎬 Preview Mode-->
+            <div class="row mb-6" *ngIf="isEditMode">
+              <label class="col-lg-3 col-form-label fw-bold fs-6">Preview Mode</label>
+              <div class="col-lg-9">
+                <button 
+                  type="button" 
+                  class="btn btn-light-primary"
+                  (click)="configurePreviewMode()"
+                  [disabled]="configuringPreview">
+                  <i class="fas fa-eye me-2"></i>
+                  <span *ngIf="!configuringPreview">{{ hasPreviewConfigured ? 'Reconfigurar Preview' : 'Habilitar Preview' }}</span>
+                  <span *ngIf="configuringPreview">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Configurando...
+                  </span>
+                </button>
+                <div class="form-text">
+                  Activa el modo preview para permitir demos sin registro en /preview/{{ moduleForm.get('key')?.value }}
+                </div>
+                <div class="alert alert-success mt-3" *ngIf="hasPreviewConfigured">
+                  <i class="fas fa-check-circle me-2"></i>
+                  Preview habilitado: <strong>{{ getPreviewUrl() }}</strong>
+                </div>
+              </div>
+            </div>
+            <!--end::🎬 Preview Mode-->
+
           </div>
         </div>
         <!--end::🚀 Configuración SaaS-->
