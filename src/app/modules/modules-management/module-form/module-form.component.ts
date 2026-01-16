@@ -161,10 +161,17 @@ export class ModuleFormComponent implements OnInit {
             
             if (saasConfig && typeof saasConfig === 'object') {
               this.saasPricingPlans = saasConfig.pricing || [];
+              
+              // 🔧 Quitar el slash inicial del dashboard_route para mostrarlo en el input
+              let dashboardRoute = saasConfig.dashboard_route || '';
+              if (dashboardRoute.startsWith('/')) {
+                dashboardRoute = dashboardRoute.substring(1);
+              }
+              
               this.moduleForm.patchValue({
                 saas_trial_days: saasConfig.trial_days || 14,
                 saas_api_endpoint: saasConfig.api_endpoint || '',
-                saas_dashboard_route: saasConfig.dashboard_route || ''
+                saas_dashboard_route: dashboardRoute
               });
             }
           }
