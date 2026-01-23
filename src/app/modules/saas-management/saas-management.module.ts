@@ -9,8 +9,10 @@ import { EmailTestingSaasComponent } from './email-testing-saas/email-testing-sa
 import { TenantListComponent } from './tenants/tenant-list/tenant-list.component';
 import { TenantDetailComponent } from './tenants/tenant-detail/tenant-detail.component';
 import { SaasDashboardComponent } from './dashboard/saas-dashboard.component';
+import { TrackingEventsComponent } from './tracking-events/tracking-events.component';
 import { SaasEmailTestingService } from './_services/saas-email-testing.service';
 import { SaasTenantsService } from './_services/saas-tenants.service';
+import { SaasTrackingEventsService } from './_services/saas-tracking-events.service';
 
 @NgModule({
   declarations: [
@@ -18,7 +20,8 @@ import { SaasTenantsService } from './_services/saas-tenants.service';
     EmailTestingSaasComponent,
     TenantListComponent,
     TenantDetailComponent,
-    SaasDashboardComponent
+    SaasDashboardComponent,
+    TrackingEventsComponent
   ],
   imports: [
     CommonModule,
@@ -27,7 +30,8 @@ import { SaasTenantsService } from './_services/saas-tenants.service';
   ],
   providers: [
     SaasEmailTestingService,
-    SaasTenantsService
+    SaasTenantsService,
+    SaasTrackingEventsService
   ]
 })
 export class SaasManagementModule { }

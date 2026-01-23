@@ -37,7 +37,7 @@ export interface TenantActionResponse {
   providedIn: 'root'
 })
 export class SaasTenantsService {
-  private baseUrl = `${URL_SERVICIOS}/saas-admin`;
+  private baseUrl = `${URL_SERVICIOS}/admin/saas`;
 
   constructor(private http: HttpClient) {}
 

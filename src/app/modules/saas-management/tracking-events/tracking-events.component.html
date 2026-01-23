@@ -1,0 +1,295 @@
+<div class="tracking-events-container">
+  
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h2>
+        <i class="fas fa-chart-line"></i>
+        Tracking Events
+      </h2>
+      <p class="subtitle">Visualización y análisis de eventos de todos los MVPs</p>
+    </div>
+    <div class="header-right">
+      <button 
+        class="btn btn-success"
+        (click)="exportToCSV()"
+        [disabled]="isExporting || isLoading || totalEvents === 0">
+        <i class="fas" [ngClass]="isExporting ? 'fa-spinner fa-spin' : 'fa-download'"></i>
+        {{ isExporting ? 'Exportando...' : 'Exportar CSV' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filters-grid">
+      
+      <!-- Module filter -->
+      <div class="filter-group">
+        <label>Módulo</label>
+        <select [(ngModel)]="filters.module" class="form-control">
+          <option value="">Todos los módulos</option>
+          <option *ngFor="let module of availableModules" [value]="module">
+            {{ module }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Event filter -->
+      <div class="filter-group">
+        <label>Evento</label>
+        <select [(ngModel)]="filters.event" class="form-control">
+          <option value="">Todos los eventos</option>
+          <option *ngFor="let event of availableEvents" [value]="event">
+            {{ event }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Session ID filter -->
+      <div class="filter-group">
+        <label>Session ID</label>
+        <input 
+          type="text" 
+          [(ngModel)]="filters.session_id" 
+          class="form-control"
+          placeholder="Buscar por session_id...">
+      </div>
+
+      <!-- User ID filter -->
+      <div class="filter-group">
+        <label>User ID</label>
+        <input 
+          type="text" 
+          [(ngModel)]="filters.user_id" 
+          class="form-control"
+          placeholder="Buscar por user_id...">
+      </div>
+
+      <!-- Tenant ID filter -->
+      <div class="filter-group">
+        <label>Tenant ID</label>
+        <input 
+          type="number" 
+          [(ngModel)]="filters.tenant_id" 
+          class="form-control"
+          placeholder="Buscar por tenant_id...">
+      </div>
+
+      <!-- Date from -->
+      <div class="filter-group">
+        <label>Fecha desde</label>
+        <input 
+          type="datetime-local" 
+          [(ngModel)]="filters.date_from" 
+          class="form-control">
+      </div>
+
+      <!-- Date to -->
+      <div class="filter-group">
+        <label>Fecha hasta</label>
+        <input 
+          type="datetime-local" 
+          [(ngModel)]="filters.date_to" 
+          class="form-control">
+      </div>
+
+      <!-- Limit -->
+      <div class="filter-group">
+        <label>Resultados por página</label>
+        <select [(ngModel)]="limit" class="form-control">
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+          <option [value]="200">200</option>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Filter actions -->
+    <div class="filter-actions">
+      <button 
+        class="btn btn-primary"
+        (click)="applyFilters()"
+        [disabled]="isLoading">
+        <i class="fas fa-filter"></i>
+        Aplicar Filtros
+      </button>
+      <button 
+        class="btn btn-outline-secondary"
+        (click)="clearFilters()"
+        [disabled]="isLoading">
+        <i class="fas fa-times"></i>
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar" *ngIf="!isLoading && totalEvents > 0">
+    <div class="stat">
+      <i class="fas fa-database"></i>
+      <span>Total: <strong>{{ totalEvents }}</strong> eventos</span>
+    </div>
+    <div class="stat">
+      <i class="fas fa-file-alt"></i>
+      <span>Página <strong>{{ currentPage }}</strong> de <strong>{{ totalPages }}</strong></span>
+    </div>
+    <div class="stat">
+      <i class="fas fa-list"></i>
+      <span>Mostrando <strong>{{ events.length }}</strong> eventos</span>
+    </div>
+  </div>
+
+  <!-- Error message -->
+  <div class="alert alert-danger" *ngIf="error">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ error }}
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Cargando eventos...</p>
+  </div>
+
+  <!-- Events Table -->
+  <div class="events-table-container" *ngIf="!isLoading && events.length > 0">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Timestamp</th>
+            <th>Evento</th>
+            <th>Módulo</th>
+            <th>Source</th>
+            <th>Session ID</th>
+            <th>User ID</th>
+            <th>Tenant ID</th>
+            <th>Properties</th>
+            <th>User Agent</th>
+            <th>IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events" [class.expanded]="isExpanded(event.id)">
+            <td>{{ event.id }}</td>
+            <td class="timestamp">{{ formatDate(event.timestamp) }}</td>
+            <td>
+              <span class="badge badge-event">{{ event.event }}</span>
+            </td>
+            <td>
+              <span class="badge badge-module" *ngIf="event.module">
+                {{ event.module }}
+              </span>
+              <span class="text-muted" *ngIf="!event.module">-</span>
+            </td>
+            <td>
+              <span class="badge badge-source" *ngIf="event.source">
+                {{ event.source }}
+              </span>
+              <span class="text-muted" *ngIf="!event.source">-</span>
+            </td>
+            <td>
+              <code 
+                class="session-id" 
+                (click)="copyToClipboard(event.session_id)"
+                title="Clic para copiar">
+                {{ event.session_id | slice:0:12 }}...
+              </code>
+            </td>
+            <td>
+              <code *ngIf="event.user_id" class="user-id">{{ event.user_id }}</code>
+              <span class="text-muted" *ngIf="!event.user_id">NULL</span>
+            </td>
+            <td>
+              <span *ngIf="event.tenant_id">{{ event.tenant_id }}</span>
+              <span class="text-muted" *ngIf="!event.tenant_id">NULL</span>
+            </td>
+            <td class="properties-cell">
+              <div class="properties-preview" *ngIf="!isExpanded(event.id)">
+                <code>{{ getPropertiesSnippet(event.properties) }}</code>
+                <button 
+                  class="btn-expand"
+                  (click)="toggleExpand(event.id)"
+                  title="Expandir JSON">
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+              </div>
+              <div class="properties-full" *ngIf="isExpanded(event.id)">
+                <pre><code class="text-black">{{ formatProperties(event.properties) }}</code></pre>
+                <button 
+                  class="btn-collapse"
+                  (click)="toggleExpand(event.id)"
+                  title="Colapsar">
+                  <i class="fas fa-chevron-up"></i>
+                </button>
+              </div>
+            </td>
+            <td class="user-agent">
+              <span *ngIf="event.user_agent" [title]="event.user_agent">
+                {{ event.user_agent | slice:0:30 }}...
+              </span>
+              <span class="text-muted" *ngIf="!event.user_agent">-</span>
+            </td>
+            <td>
+              <code *ngIf="event.ip_address">{{ event.ip_address }}</code>
+              <span class="text-muted" *ngIf="!event.ip_address">-</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && events.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-inbox"></i>
+    </div>
+    <h4>No se encontraron eventos</h4>
+    <p>No hay eventos que coincidan con los filtros seleccionados.</p>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-container" *ngIf="!isLoading && totalPages > 1">
+    <button 
+      class="btn btn-pagination"
+      [disabled]="currentPage === 1"
+      (click)="changePage(1)">
+      <i class="fas fa-angle-double-left"></i>
+    </button>
+    
+    <button 
+      class="btn btn-pagination"
+      [disabled]="currentPage === 1"
+      (click)="changePage(currentPage - 1)">
+      <i class="fas fa-angle-left"></i>
+    </button>
+    
+    <button 
+      *ngFor="let page of getPageRange()"
+      class="btn btn-pagination"
+      [class.active]="page === currentPage"
+      (click)="changePage(page)">
+      {{ page }}
+    </button>
+    
+    <button 
+      class="btn btn-pagination"
+      [disabled]="currentPage === totalPages"
+      (click)="changePage(currentPage + 1)">
+      <i class="fas fa-angle-right"></i>
+    </button>
+    
+    <button 
+      class="btn btn-pagination"
+      [disabled]="currentPage === totalPages"
+      (click)="changePage(totalPages)">
+      <i class="fas fa-angle-double-right"></i>
+    </button>
+  </div>
+
+</div>

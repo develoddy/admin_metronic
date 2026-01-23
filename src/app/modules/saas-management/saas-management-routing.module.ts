@@ -5,6 +5,7 @@ import { EmailTestingSaasComponent } from './email-testing-saas/email-testing-sa
 import { TenantListComponent } from './tenants/tenant-list/tenant-list.component';
 import { TenantDetailComponent } from './tenants/tenant-detail/tenant-detail.component';
 import { SaasDashboardComponent } from './dashboard/saas-dashboard.component';
+import { TrackingEventsComponent } from './tracking-events/tracking-events.component';
 
 const routes: Routes = [
   {
@@ -26,6 +27,10 @@ const routes: Routes = [
       {
         path: 'email-testing',
         component: EmailTestingSaasComponent
+      },
+      {
+        path: 'events',
+        component: TrackingEventsComponent
       },
       {
         path: '',

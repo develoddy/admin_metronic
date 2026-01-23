@@ -41,6 +41,10 @@ export const AsideMenuAdminGeneral = {
             page: '/saas/tenants'
           },
           {
+            title: 'Tracking Events',
+            page: '/saas/events'
+          },
+          {
             title: 'Testing Emails',
             page: '/saas/email-testing'
           }
