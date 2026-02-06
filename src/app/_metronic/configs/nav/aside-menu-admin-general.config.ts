@@ -24,6 +24,29 @@ export const AsideMenuAdminGeneral = {
         page: '/modules-management'
       },
       {
+        title: 'Product Video Express',
+        root: true,
+        name: "video-express",
+        bullet: 'dot',
+        icon: 'flaticon2-film',
+        svg: './assets/media/svg/icons/Devices/Video-camera.svg',
+        page: '/video-express',
+        submenu: [
+          {
+            title: 'Dashboard',
+            page: '/video-express'
+          },
+          {
+            title: 'Crear Video',
+            page: '/video-express/create'
+          },
+          {
+            title: 'Mis Jobs',
+            page: '/video-express/jobs'
+          }
+        ]
+      },
+      {
         title: 'Gestión SaaS',
         root: true,
         name: "saas-management",

@@ -224,6 +224,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'video-express',
+        loadChildren: () =>
+          import('../modules/video-express/video-express.module').then(
+            (m) => m.VideoExpressModule
+          ),
+      },
+      {
         path: '',
         redirectTo: '/dashboard',
         pathMatch: 'full',

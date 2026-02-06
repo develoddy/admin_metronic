@@ -1,0 +1,196 @@
+<div class="row">
+  <div class="col-xl-12">
+    <!-- Header -->
+    <div class="card card-custom gutter-b">
+      <div class="card-body d-flex align-items-center justify-content-between flex-wrap">
+        <div class="mr-2">
+          <h3 class="font-weight-bolder mb-0">🎥 Product Video Express</h3>
+          <div class="text-muted font-size-sm mt-2">
+            Genera videos cinematográficos de tus productos con IA en segundos
+          </div>
+        </div>
+        <div>
+          <button 
+            class="btn btn-primary font-weight-bolder"
+            (click)="createNewVideo()">
+            <i class="flaticon2-plus"></i>
+            Crear Video
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center py-10">
+      <div class="spinner spinner-primary spinner-lg"></div>
+      <p class="text-muted mt-3">Cargando dashboard...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+      <strong>Error:</strong> {{ error }}
+      <button class="btn btn-sm btn-light ml-3" (click)="loadDashboardData()">Reintentar</button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div *ngIf="!loading && !error && stats" class="row">
+      <!-- Total Videos -->
+      <div class="col-xl-3 col-lg-6">
+        <div class="card card-custom gutter-b">
+          <div class="card-body">
+            <span class="svg-icon svg-icon-3x svg-icon-primary">
+              <i class="flaticon2-pie-chart-2"></i>
+            </span>
+            <div class="text-dark font-weight-bolder font-size-h2 mt-3">
+              {{ stats.total }}
+            </div>
+            <div class="font-weight-bold text-muted font-size-sm">
+              Total Videos
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completed -->
+      <div class="col-xl-3 col-lg-6">
+        <div class="card card-custom gutter-b bg-light-success">
+          <div class="card-body">
+            <span class="svg-icon svg-icon-3x svg-icon-success">
+              <i class="flaticon2-check-mark"></i>
+            </span>
+            <div class="text-success font-weight-bolder font-size-h2 mt-3">
+              {{ stats.completed }}
+            </div>
+            <div class="font-weight-bold text-muted font-size-sm">
+              Completados ({{ getSuccessRate() }}%)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Processing -->
+      <div class="col-xl-3 col-lg-6">
+        <div class="card card-custom gutter-b bg-light-warning">
+          <div class="card-body">
+            <span class="svg-icon svg-icon-3x svg-icon-warning">
+              <i class="flaticon2-reload"></i>
+            </span>
+            <div class="text-warning font-weight-bolder font-size-h2 mt-3">
+              {{ stats.processing + stats.pending }}
+            </div>
+            <div class="font-weight-bold text-muted font-size-sm">
+              En Proceso
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Failed -->
+      <div class="col-xl-3 col-lg-6">
+        <div class="card card-custom gutter-b bg-light-danger">
+          <div class="card-body">
+            <span class="svg-icon svg-icon-3x svg-icon-danger">
+              <i class="flaticon2-exclamation"></i>
+            </span>
+            <div class="text-danger font-weight-bolder font-size-h2 mt-3">
+              {{ stats.failed }}
+            </div>
+            <div class="font-weight-bold text-muted font-size-sm">
+              Fallidos
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Jobs -->
+    <div *ngIf="!loading && !error" class="card card-custom gutter-b">
+      <div class="card-header border-0 pt-5">
+        <h3 class="card-title align-items-start flex-column">
+          <span class="card-label font-weight-bolder text-dark">Videos Recientes</span>
+          <span class="text-muted mt-3 font-weight-bold font-size-sm">Últimos 5 trabajos</span>
+        </h3>
+        <div class="card-toolbar">
+          <button 
+            class="btn btn-sm btn-light-primary font-weight-bolder"
+            (click)="viewAllJobs()">
+            Ver Todos
+          </button>
+        </div>
+      </div>
+      <div class="card-body pt-3 pb-0">
+        <!-- No jobs -->
+        <div *ngIf="recentJobs.length === 0" class="text-center py-10">
+          <div class="text-muted font-size-h4">
+            <i class="flaticon2-photo-camera icon-3x mb-5"></i>
+            <p>Aún no has creado videos</p>
+          </div>
+          <button class="btn btn-primary" (click)="createNewVideo()">
+            Crear tu Primer Video
+          </button>
+        </div>
+
+        <!-- Jobs table -->
+        <div *ngIf="recentJobs.length > 0" class="table-responsive">
+          <table class="table table-head-custom table-vertical-center">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Estilo</th>
+                <th>Estado</th>
+                <th>Creado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let job of recentJobs">
+                <td>
+                  <div class="symbol symbol-50 symbol-light-primary">
+                    <img [src]="job.product_image_url" alt="Product" class="img-fluid">
+                  </div>
+                </td>
+                <td>
+                  <span class="text-dark-75 font-weight-bolder d-block font-size-sm">
+                    {{ job.animation_style | titlecase }}
+                  </span>
+                </td>
+                <td>
+                  <span 
+                    [class]="'badge badge-pill ' + (job.status === 'completed' ? 'badge-success' : 
+                             job.status === 'processing' || job.status === 'pending' ? 'badge-warning' : 
+                             'badge-danger')">
+                    {{ job.status | titlecase }}
+                  </span>
+                </td>
+                <td>
+                  <span class="text-muted font-weight-bold">
+                    {{ job.created_at | date: 'short' }}
+                  </span>
+                </td>
+                <td>
+                  <button 
+                    class="btn btn-sm btn-light-primary btn-icon"
+                    (click)="viewJob(job.id)"
+                    title="Ver detalles">
+                    <i class="flaticon-eye"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Jobs Alert -->
+    <div *ngIf="hasActiveJobs()" class="alert alert-custom alert-light-info fade show mb-5" role="alert">
+      <div class="alert-icon">
+        <i class="flaticon2-reload"></i>
+      </div>
+      <div class="alert-text">
+        <strong>Videos en proceso:</strong> Tienes {{ stats!.processing + stats!.pending }} video(s) generándose. 
+        Se actualizan automáticamente cada 10 segundos.
+      </div>
+    </div>
+  </div>
+</div>

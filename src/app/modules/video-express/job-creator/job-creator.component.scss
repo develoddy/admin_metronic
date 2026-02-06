@@ -1,0 +1,32 @@
+.dropzone {
+  border: 2px dashed #E1E3EA;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: #3699FF;
+    background-color: #F3F6F9;
+  }
+  
+  .dropzone-msg {
+    padding: 2rem;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.border {
+  transition: all 0.2s ease;
+}
+
+.border-primary {
+  border-width: 2px !important;
+}
