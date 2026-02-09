@@ -30,3 +30,23 @@
 .border-primary {
   border-width: 2px !important;
 }
+
+// Best Practices Section
+.transition-icon {
+  transition: transform 0.3s ease;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.card-border {
+  border: 1px solid #E1E3EA;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: #3699FF;
+    box-shadow: 0 4px 12px rgba(54, 153, 255, 0.15);
+    transform: translateY(-2px);
+  }
+}

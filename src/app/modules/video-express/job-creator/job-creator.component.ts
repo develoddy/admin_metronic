@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { VideoExpressService } from '../_services/video-express.service';
 import { AnimationStyle, ANIMATION_STYLE_LABELS } from '../_models/video-job.model';
 
@@ -10,7 +11,19 @@ import { AnimationStyle, ANIMATION_STYLE_LABELS } from '../_models/video-job.mod
 @Component({
   selector: 'app-job-creator',
   templateUrl: './job-creator.component.html',
-  styleUrls: ['./job-creator.component.scss']
+  styleUrls: ['./job-creator.component.scss'],
+  animations: [
+    trigger('slideDown', [
+      transition(':enter', [
+        style({ height: '0', opacity: 0, overflow: 'hidden' }),
+        animate('300ms ease-out', style({ height: '*', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        style({ height: '*', opacity: 1, overflow: 'hidden' }),
+        animate('300ms ease-in', style({ height: '0', opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class JobCreatorComponent implements OnInit {
   selectedFile: File | null = null;
@@ -20,6 +33,7 @@ export class JobCreatorComponent implements OnInit {
   loading = false;
   error: string | null = null;
   success = false;
+  showBestPractices = true; // Mostrar guía por defecto
 
   // Estilos de animación disponibles
   animationStyles: Array<{ value: AnimationStyle; label: string; description: string }> = [
@@ -162,5 +176,12 @@ export class JobCreatorComponent implements OnInit {
     const bytes = this.selectedFile.size;
     const mb = bytes / (1024 * 1024);
     return `${mb.toFixed(2)} MB`;
+  }
+
+  /**
+   * Toggle de la sección de mejores prácticas
+   */
+  toggleBestPractices(): void {
+    this.showBestPractices = !this.showBestPractices;
   }
 }

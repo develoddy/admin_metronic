@@ -32,7 +32,13 @@ export class AdminChatService {
 
   connect() {
     if (this.socket && this.socket.connected) return;
-    this.socket = io((URL_SERVICIOS || '').replace(/\/api$/, '') , { transports: ['websocket'], upgrade: false });
+    this.socket = io((URL_SERVICIOS || '').replace(/\/api$/, ''), {
+      transports: ['polling', 'websocket'], // Intentar polling primero, luego upgrade a websocket
+      reconnectionDelay: 1000,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      timeout: 10000
+    });
 
     this.socket.on('connect', () => {
       console.log('[AdminChat] connected', this.socket?.id);
@@ -45,6 +51,18 @@ export class AdminChatService {
 
     this.socket.on('agent-registered', (data) => {
       console.log('[AdminChat] agent-registered', data);
+    });
+
+    this.socket.on('connect_error', (error) => {
+      console.warn('[AdminChat] Connection error (will retry):', error.message);
+    });
+
+    this.socket.on('disconnect', (reason) => {
+      console.log('[AdminChat] Disconnected:', reason);
+    });
+
+    this.socket.on('reconnect', (attemptNumber) => {
+      console.log('[AdminChat] Reconnected after', attemptNumber, 'attempts');
     });
 
     this.socket.on('new-user-message', (msg) => {

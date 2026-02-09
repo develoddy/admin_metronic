@@ -37,6 +37,176 @@
       </div>
     </div>
 
+    <!-- Best Practices Guide -->
+    <div class="card card-custom gutter-b">
+      <div class="card-header border-0 cursor-pointer" (click)="toggleBestPractices()">
+        <div class="card-title">
+          <span class="card-icon">
+            <i class="flaticon2-rocket-1 text-primary icon-2x"></i>
+          </span>
+          <h3 class="card-label font-weight-bolder text-dark">
+            💡 Mejores Prácticas: ¿Qué imágenes funcionan mejor?
+            <span class="text-muted font-weight-normal font-size-sm d-block mt-1">
+              Maximiza la calidad de tus videos con estos consejos
+            </span>
+          </h3>
+        </div>
+        <div class="card-toolbar">
+          <i 
+            class="ki ki-arrow-down icon-nm transition-icon"
+            [class.rotate-180]="showBestPractices"></i>
+        </div>
+      </div>
+      
+      <div class="card-body pt-2" *ngIf="showBestPractices" [@slideDown]>
+        <!-- Introduction -->
+        <div class="alert alert-custom alert-light-primary mb-5">
+          <div class="alert-text font-size-sm">
+            <strong>¿Por qué algunos videos se ven mejor?</strong><br>
+            Nuestro sistema crea micro-movimientos que dan vida a tus imágenes. Los mejores resultados se logran con fotos que tienen <strong>texturas, profundidad y elementos visuales dinámicos</strong>.
+          </div>
+        </div>
+
+        <!-- Examples Grid -->
+        <div class="row mb-5">
+          <!-- Example 1: Coffee -->
+          <div class="col-md-4 mb-4">
+            <div class="card card-custom card-border h-100">
+              <div class="card-body text-center">
+                <span class="label label-lg label-light-success label-inline mb-3">✅ Excelente</span>
+                <div class="symbol symbol-100 mx-auto mb-3">
+                  <div class="symbol-label bg-light-primary">
+                    <i class="flaticon2-coffee text-primary icon-3x"></i>
+                  </div>
+                </div>
+                <h5 class="font-weight-bold mb-2">☕ Café & Bebidas</h5>
+                <p class="text-muted font-size-sm mb-0">
+                  Vapor, espuma, brillos líquidos. El movimiento se ve natural y atractivo.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Example 2: Food -->
+          <div class="col-md-4 mb-4">
+            <div class="card card-custom card-border h-100">
+              <div class="card-body text-center">
+                <span class="label label-lg label-light-success label-inline mb-3">✅ Excelente</span>
+                <div class="symbol symbol-100 mx-auto mb-3">
+                  <div class="symbol-label bg-light-warning">
+                    <i class="flaticon2-shopping-cart-1 text-warning icon-3x"></i>
+                  </div>
+                </div>
+                <h5 class="font-weight-bold mb-2">🍔 Comida con Textura</h5>
+                <p class="text-muted font-size-sm mb-0">
+                  Salsas, brillos, queso derretido. Las texturas húmedas generan movimiento.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Example 3: Jewelry -->
+          <div class="col-md-4 mb-4">
+            <div class="card card-custom card-border h-100">
+              <div class="card-body text-center">
+                <span class="label label-lg label-light-success label-inline mb-3">✅ Excelente</span>
+                <div class="symbol symbol-100 mx-auto mb-3">
+                  <div class="symbol-label bg-light-danger">
+                    <i class="flaticon2-gift-1 text-danger icon-3x"></i>
+                  </div>
+                </div>
+                <h5 class="font-weight-bold mb-2">💍 Joyas & Relojes</h5>
+                <p class="text-muted font-size-sm mb-0">
+                  Reflejos metálicos, brillos. Sensación de lujo premium.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tips Grid -->
+        <div class="row">
+          <!-- What Works -->
+          <div class="col-lg-6">
+            <div class="card card-custom bg-light-success mb-4">
+              <div class="card-body">
+                <h4 class="text-success font-weight-bolder mb-4">
+                  <i class="flaticon2-check-mark mr-2"></i>
+                  ✅ Qué Funciona Mejor
+                </h4>
+                <ul class="list-unstyled mb-0">
+                  <li class="mb-3">
+                    <i class="flaticon2-correct text-success mr-2"></i>
+                    <strong>Texturas visibles:</strong> Madera, tela, líquidos, vapor
+                  </li>
+                  <li class="mb-3">
+                    <i class="flaticon2-correct text-success mr-2"></i>
+                    <strong>Brillos y reflejos:</strong> Metales, vidrio, superficies húmedas
+                  </li>
+                  <li class="mb-3">
+                    <i class="flaticon2-correct text-success mr-2"></i>
+                    <strong>Profundidad:</strong> Producto + fondo con contexto
+                  </li>
+                  <li class="mb-3">
+                    <i class="flaticon2-correct text-success mr-2"></i>
+                    <strong>Elementos orgánicos:</strong> Flores, plantas, comida fresca
+                  </li>
+                  <li class="mb-0">
+                    <i class="flaticon2-correct text-success mr-2"></i>
+                    <strong>Lighting dramático:</strong> Sombras, contrastes, highlights
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- What Doesn't Work -->
+          <div class="col-lg-6">
+            <div class="card card-custom bg-light-danger mb-4">
+              <div class="card-body">
+                <h4 class="text-danger font-weight-bolder mb-4">
+                  <i class="flaticon2-cross mr-2"></i>
+                  ❌ Qué Evitar
+                </h4>
+                <ul class="list-unstyled mb-0">
+                  <li class="mb-3">
+                    <i class="flaticon2-delete text-danger mr-2"></i>
+                    <strong>Fondos 100% planos:</strong> Sin contexto ni profundidad
+                  </li>
+                  <li class="mb-3">
+                    <i class="flaticon2-delete text-danger mr-2"></i>
+                    <strong>Productos aislados:</strong> Objeto solo sin ambiente
+                  </li>
+                  <li class="mb-3">
+                    <i class="flaticon2-delete text-danger mr-2"></i>
+                    <strong>Imágenes muy simples:</strong> Sin texturas ni detalles
+                  </li>
+                  <li class="mb-3">
+                    <i class="flaticon2-delete text-danger mr-2"></i>
+                    <strong>Colores uniformes:</strong> Sin variación tonal
+                  </li>
+                  <li class="mb-0">
+                    <i class="flaticon2-delete text-danger mr-2"></i>
+                    <strong>Baja resolución:</strong> Fotos pixeladas o borrosas
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pro Tips -->
+        <div class="alert alert-custom alert-light-warning">
+          <div class="alert-icon">
+            <i class="flaticon2-warning"></i>
+          </div>
+          <div class="alert-text">
+            <strong>💡 Pro Tip:</strong> El sistema genera <strong>movimientos sutiles</strong> que dan vida a la imagen. No esperes animaciones dramáticas, sino micro-movimientos que hacen que el producto parezca "fresco" y "recién servido". Ideal para redes sociales (Instagram Reels, TikTok, X Premium).
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Form -->
     <div class="row">
       <!-- Upload Section -->
