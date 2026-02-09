@@ -67,6 +67,9 @@ export interface MicroSaasKPIs {
   // Tendencias
   trends: Trends;
   
+  // Criterios de acciones (nuevo)
+  actionCriteria: ActionCriteria;
+  
   // Período
   period: '7d' | '30d' | '90d' | 'all';
   date_from: string;
@@ -93,6 +96,28 @@ export interface Trends {
   completions_change: number;
   downloads_change: number;
   trend_direction: 'up' | 'down';
+}
+
+export interface ActionCriteria {
+  can_promote: boolean;
+  can_archive: boolean;
+  can_continue: boolean;
+  promotion_criteria: {
+    sessions_min: boolean;
+    completions_min: boolean;
+    feedback_min: boolean;
+    days_min: boolean;
+    signal_positive: boolean;
+  };
+  archive_criteria: {
+    sessions_min: boolean;
+    signal_negative: boolean;
+  };
+  days_running: number;
+  blocking_reasons: {
+    promote: string[];
+    archive: string[];
+  };
 }
 
 export interface AllAnalyticsSummary {
