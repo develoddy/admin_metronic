@@ -60,6 +60,10 @@ export const AsideMenuAdminGeneral = {
             page: '/saas/dashboard'
           },
           {
+            title: '🧠 MVP Analytics',
+            page: '/saas/mvp-analytics'
+          },
+          {
             title: 'Tenants',
             page: '/saas/tenants'
           },

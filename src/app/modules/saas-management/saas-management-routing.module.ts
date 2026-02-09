@@ -6,6 +6,8 @@ import { TenantListComponent } from './tenants/tenant-list/tenant-list.component
 import { TenantDetailComponent } from './tenants/tenant-detail/tenant-detail.component';
 import { SaasDashboardComponent } from './dashboard/saas-dashboard.component';
 import { TrackingEventsComponent } from './tracking-events/tracking-events.component';
+import { MvpAnalyticsComponent } from './mvp-analytics/mvp-analytics.component';
+import { MvpDecisionEngineComponent } from './mvp-decision-engine/mvp-decision-engine.component';
 
 const routes: Routes = [
   {
@@ -31,6 +33,14 @@ const routes: Routes = [
       {
         path: 'events',
         component: TrackingEventsComponent
+      },
+      {
+        path: 'mvp-analytics',
+        component: MvpAnalyticsComponent
+      },
+      {
+        path: 'mvp-analytics/:moduleKey',
+        component: MvpDecisionEngineComponent
       },
       {
         path: '',

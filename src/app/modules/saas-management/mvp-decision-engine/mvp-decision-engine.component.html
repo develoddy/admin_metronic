@@ -1,0 +1,448 @@
+<div class="mvp-decision-container">
+  
+  <!-- Header -->
+  <div class="page-header">
+    <button class="btn btn-link back-button" (click)="goBack()">
+      <i class="fas fa-arrow-left me-2"></i>
+      Volver al Dashboard
+    </button>
+    
+    <div class="header-content">
+      <h2 class="page-title" *ngIf="analytics">
+        <i class="fas fa-brain text-primary me-2"></i>
+        {{ analytics.moduleName }}
+      </h2>
+      <span class="module-key badge bg-secondary" *ngIf="analytics">{{ analytics.moduleKey }}</span>
+    </div>
+
+    <div class="period-selector">
+      <div class="btn-group btn-group-sm" role="group">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          [class.active]="selectedPeriod === '7d'"
+          (click)="changePeriod('7d')">
+          7d
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          [class.active]="selectedPeriod === '30d'"
+          (click)="changePeriod('30d')">
+          30d
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          [class.active]="selectedPeriod === '90d'"
+          (click)="changePeriod('90d')">
+          90d
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          [class.active]="selectedPeriod === 'all'"
+          (click)="changePeriod('all')">
+          Todo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3 text-muted">Analizando MVP...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="alert alert-danger" *ngIf="error">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+  </div>
+
+  <!-- Warning: Insufficient Data -->
+  <div class="alert alert-warning" *ngIf="!isLoading && analytics && analytics.insufficient_data">
+    <div class="d-flex align-items-start">
+      <i class="fas fa-exclamation-triangle me-3 mt-1" style="font-size: 1.5rem;"></i>
+      <div>
+        <h6 class="alert-heading mb-2">⚠️ Datos Insuficientes para Análisis Confiable</h6>
+        <p class="mb-2">
+          Este MVP tiene pocos datos de tracking. Los KPIs y el Health Score pueden no ser representativos de la realidad del producto.
+        </p>
+        <div class="small">
+          <strong>Métricas actuales:</strong>
+          <ul class="mb-0 mt-1">
+            <li *ngIf="analytics.totalSessions < 5">{{ analytics.totalSessions }} sesiones (mínimo recomendado: 5)</li>
+            <li *ngIf="analytics.wizard_starts < 3">{{ analytics.wizard_starts }} wizard starts (mínimo: 3)</li>
+            <li *ngIf="analytics.total_feedback < 3">{{ analytics.total_feedback }} feedbacks (mínimo: 3)</li>
+          </ul>
+        </div>
+        <div class="mt-2">
+          <strong>Recomendación:</strong> Continuar recolectando datos antes de tomar decisiones definitivas.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content-grid" *ngIf="!isLoading && analytics">
+    
+    <!-- Left Column: Health Score & Recommendation -->
+    <div class="left-column">
+      
+      <!-- Health Score Card -->
+      <div class="card health-score-card">
+        <div class="card-body text-center">
+          <h6 class="card-subtitle mb-3">
+            Health Score
+            <span class="badge badge-warning badge-sm ms-2" *ngIf="analytics.insufficient_data">
+              Penalizado por poca data
+            </span>
+          </h6>
+          
+          <div class="score-gauge">
+            <svg viewBox="0 0 200 120" class="gauge-svg">
+              <!-- Background arc -->
+              <path 
+                d="M 20 100 A 80 80 0 0 1 180 100" 
+                fill="none" 
+                stroke="#e9ecef" 
+                stroke-width="20" 
+                stroke-linecap="round"/>
+              
+              <!-- Score arc -->
+              <path 
+                d="M 20 100 A 80 80 0 0 1 180 100" 
+                fill="none" 
+                [attr.stroke]="getScoreClass(analytics.healthScore) === 'success' ? '#28a745' : getScoreClass(analytics.healthScore) === 'warning' ? '#ffc107' : '#dc3545'"
+                stroke-width="20" 
+                stroke-linecap="round"
+                [attr.stroke-dasharray]="(analytics.healthScore / 100) * 251 + ' 251'"
+                class="score-arc"/>
+              
+              <!-- Score text -->
+              <text x="100" y="90" text-anchor="middle" class="score-text">
+                {{ analytics.healthScore }}
+              </text>
+            </svg>
+          </div>
+
+          <div class="score-label mt-3">
+            <span class="badge" [ngClass]="'badge-' + getScoreClass(analytics.healthScore)">
+              {{ analytics.healthScore >= 70 ? 'Excelente' : analytics.healthScore >= 50 ? 'Bueno' : 'Bajo' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendation Card -->
+      <div class="card recommendation-card">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-3">
+            <i class="fas fa-lightbulb text-warning me-2"></i>
+            Recomendación Automática
+          </h6>
+          
+          <div class="recommendation-content">
+            <div class="rec-badge-wrapper">
+              <span class="badge" [ngClass]="getActionBadge(analytics.recommendation.action)">
+                {{ getRecommendationIcon(analytics.recommendation.action) }}
+                {{ analytics.recommendation.action === 'create_module' ? 'CREAR MÓDULO' :
+                   analytics.recommendation.action === 'continue' ? 'CONTINUAR' : 'ARCHIVAR' }}
+              </span>
+              <small class="confidence">
+                Confianza: <strong>{{ analytics.recommendation.confidence }}</strong>
+              </small>
+            </div>
+
+            <p class="rec-reason">{{ analytics.recommendation.reason }}</p>
+
+            <div class="next-steps" *ngIf="analytics.recommendation.next_steps?.length">
+              <strong class="d-block mb-2">Próximos pasos:</strong>
+              <ul class="mb-0">
+                <li *ngFor="let step of analytics.recommendation.next_steps">{{ step }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decision Actions -->
+      <div class="card decision-actions-card">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-3">
+            <i class="fas fa-bolt text-primary me-2"></i>
+            Acciones del Motor
+          </h6>
+
+          <div class="action-buttons">
+            <button 
+              class="btn btn-success w-100 mb-2"
+              (click)="createModule()"
+              [disabled]="isExecutingDecision">
+              <i class="fas fa-rocket me-2"></i>
+              Crear Módulo Oficial
+            </button>
+
+            <button 
+              class="btn btn-primary w-100 mb-2"
+              (click)="continueValidation()"
+              [disabled]="isExecutingDecision">
+              <i class="fas fa-play me-2"></i>
+              Continuar Validación
+            </button>
+
+            <button 
+              class="btn btn-danger w-100"
+              (click)="archiveMVP()"
+              [disabled]="isExecutingDecision">
+              <i class="fas fa-archive me-2"></i>
+              Archivar MVP
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: KPIs & Alerts -->
+    <div class="right-column">
+      
+      <!-- KPIs Grid -->
+      <div class="card kpis-card">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-3">
+            <i class="fas fa-chart-bar text-info me-2"></i>
+            Métricas del MVP
+          </h6>
+
+          <div class="kpis-detailed-grid">
+            
+            <!-- Sesiones -->
+            <div class="kpi-detailed">
+              <div class="kpi-icon">📊</div>
+              <div class="kpi-info">
+                <div class="kpi-label">Sesiones Totales</div>
+                <div class="kpi-value">{{ analytics.totalSessions }}</div>
+                <div class="kpi-trend" *ngIf="analytics.trends">
+                  <span [ngClass]="formatTrend(analytics.trends.sessions_change).class">
+                    {{ formatTrend(analytics.trends.sessions_change).icon }}
+                    {{ formatTrend(analytics.trends.sessions_change).text }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Usuarios únicos -->
+            <div class="kpi-detailed">
+              <div class="kpi-icon">👥</div>
+              <div class="kpi-info">
+                <div class="kpi-label">Usuarios Únicos</div>
+                <div class="kpi-value">{{ analytics.uniqueUsers }}</div>
+              </div>
+            </div>
+
+            <!-- Wizard starts -->
+            <div class="kpi-detailed">
+              <div class="kpi-icon">▶️</div>
+              <div class="kpi-info">
+                <div class="kpi-label">Wizard Iniciados</div>
+                <div class="kpi-value">{{ analytics.wizard_starts }}</div>
+              </div>
+            </div>
+
+            <!-- Wizard completions -->
+            <div class="kpi-detailed">
+              <div class="kpi-icon">✅</div>
+              <div class="kpi-info">
+                <div class="kpi-label">Wizard Completados</div>
+                <div class="kpi-value">{{ analytics.wizard_completions }}</div>
+                <div class="kpi-trend" *ngIf="analytics.trends">
+                  <span [ngClass]="formatTrend(analytics.trends.completions_change).class">
+                    {{ formatTrend(analytics.trends.completions_change).icon }}
+                    {{ formatTrend(analytics.trends.completions_change).text }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Downloads -->
+            <div class="kpi-detailed">
+              <div class="kpi-icon">📥</div>
+              <div class="kpi-info">
+                <div class="kpi-label">Descargas</div>
+                <div class="kpi-value">{{ analytics.downloads }}</div>
+                <div class="kpi-trend" *ngIf="analytics.trends">
+                  <span [ngClass]="formatTrend(analytics.trends.downloads_change).class">
+                    {{ formatTrend(analytics.trends.downloads_change).icon }}
+                    {{ formatTrend(analytics.trends.downloads_change).text }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Returning users -->
+            <div class="kpi-detailed">
+              <div class="kpi-icon">🔄</div>
+              <div class="kpi-info">
+                <div class="kpi-label">Usuarios Recurrentes</div>
+                <div class="kpi-value">{{ analytics.returningUsers }}</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversion Rates -->
+      <div class="card rates-card">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-3">
+            <i class="fas fa-percentage text-success me-2"></i>
+            Tasas de Conversión
+          </h6>
+
+          <div class="rates-grid">
+            <div class="rate-item">
+              <div class="rate-label">
+                Conversión Wizard
+                <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.wizard_starts === 0">
+                  (sin wizard starts)
+                </small>
+              </div>
+              <div class="rate-value">{{ formatRate(analytics.conversion_rate, 'conversion') }}</div>
+              <div class="progress" style="height: 6px;">
+                <div 
+                  class="progress-bar bg-success" 
+                  [style.width.%]="analytics.conversion_rate"
+                  role="progressbar">
+                </div>
+              </div>
+            </div>
+
+            <div class="rate-item">
+              <div class="rate-label">
+                Tasa de Descarga
+                <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.wizard_completions === 0">
+                  (sin completions)
+                </small>
+              </div>
+              <div class="rate-value">{{ formatRate(analytics.download_rate, 'download') }}</div>
+              <div class="progress" style="height: 6px;">
+                <div 
+                  class="progress-bar bg-primary" 
+                  [style.width.%]="analytics.download_rate"
+                  role="progressbar">
+                </div>
+              </div>
+            </div>
+
+            <div class="rate-item">
+              <div class="rate-label">
+                Retención
+                <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.totalSessions === 0">
+                  (sin sesiones)
+                </small>
+              </div>
+              <div class="rate-value">{{ formatRate(analytics.retention_rate, 'retention') }}</div>
+              <div class="progress" style="height: 6px;">
+                <div 
+                  class="progress-bar bg-info" 
+                  [style.width.%]="analytics.retention_rate"
+                  role="progressbar">
+                </div>
+              </div>
+            </div>
+
+            <div class="rate-item">
+              <div class="rate-label">
+                Feedback Positivo
+                <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.total_feedback === 0">
+                  (sin feedback)
+                </small>
+              </div>
+              <div class="rate-value">{{ formatRate(analytics.helpful_rate, 'feedback') }}</div>
+              <div class="progress" style="height: 6px;">
+                <div 
+                  class="progress-bar bg-warning" 
+                  [style.width.%]="analytics.helpful_rate"
+                  role="progressbar">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="card feedback-card">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-3">
+            <i class="fas fa-comments text-primary me-2"></i>
+            Feedback de Usuarios
+          </h6>
+
+          <div class="feedback-stats">
+            <div class="feedback-item">
+              <span class="feedback-emoji">😊</span>
+              <div class="feedback-info">
+                <div class="feedback-label">Feedback Positivo</div>
+                <div class="feedback-value">{{ analytics.helpful_feedback }}</div>
+              </div>
+            </div>
+
+            <div class="feedback-item">
+              <span class="feedback-emoji">💬</span>
+              <div class="feedback-info">
+                <div class="feedback-label">Total Feedback</div>
+                <div class="feedback-value">{{ analytics.total_feedback }}</div>
+              </div>
+            </div>
+
+            <div class="feedback-item">
+              <span class="feedback-emoji">📈</span>
+              <div class="feedback-info">
+                <div class="feedback-label">Tasa de Respuesta</div>
+                <div class="feedback-value">{{ analytics.feedback_rate }}%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="card alerts-card" *ngIf="analytics.alerts && analytics.alerts.length > 0">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-3">
+            <i class="fas fa-bell text-danger me-2"></i>
+            Alertas ({{ analytics.alerts.length }})
+          </h6>
+
+          <div class="alerts-list">
+            <div 
+              class="alert-item" 
+              *ngFor="let alert of analytics.alerts"
+              [ngClass]="'alert-' + alert.type">
+              <div class="alert-header">
+                <strong>{{ alert.title }}</strong>
+                <span class="badge" [ngClass]="'badge-' + alert.priority">
+                  {{ alert.priority }}
+                </span>
+              </div>
+              <p class="alert-message">{{ alert.message }}</p>
+              <small class="alert-action" *ngIf="alert.action">
+                💡 {{ alert.action }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

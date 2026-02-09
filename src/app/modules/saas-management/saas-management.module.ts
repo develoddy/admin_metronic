@@ -10,9 +10,13 @@ import { TenantListComponent } from './tenants/tenant-list/tenant-list.component
 import { TenantDetailComponent } from './tenants/tenant-detail/tenant-detail.component';
 import { SaasDashboardComponent } from './dashboard/saas-dashboard.component';
 import { TrackingEventsComponent } from './tracking-events/tracking-events.component';
+import { MvpAnalyticsComponent } from './mvp-analytics/mvp-analytics.component';
+import { MvpDecisionEngineComponent } from './mvp-decision-engine/mvp-decision-engine.component';
 import { SaasEmailTestingService } from './_services/saas-email-testing.service';
 import { SaasTenantsService } from './_services/saas-tenants.service';
 import { SaasTrackingEventsService } from './_services/saas-tracking-events.service';
+import { MicroSaasAnalyticsService } from './_services/micro-saas-analytics.service';
+import { ModuleCreationService } from './_services/module-creation.service';
 
 @NgModule({
   declarations: [
@@ -21,7 +25,9 @@ import { SaasTrackingEventsService } from './_services/saas-tracking-events.serv
     TenantListComponent,
     TenantDetailComponent,
     SaasDashboardComponent,
-    TrackingEventsComponent
+    TrackingEventsComponent,
+    MvpAnalyticsComponent,
+    MvpDecisionEngineComponent
   ],
   imports: [
     CommonModule,
@@ -31,7 +37,9 @@ import { SaasTrackingEventsService } from './_services/saas-tracking-events.serv
   providers: [
     SaasEmailTestingService,
     SaasTenantsService,
-    SaasTrackingEventsService
+    SaasTrackingEventsService,
+    MicroSaasAnalyticsService,
+    ModuleCreationService
   ]
 })
 export class SaasManagementModule { }

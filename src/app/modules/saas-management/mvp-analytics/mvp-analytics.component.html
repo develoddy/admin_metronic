@@ -1,0 +1,298 @@
+<div class="mvp-analytics-container">
+  
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h2 class="page-title">
+        <i class="fas fa-brain text-primary me-2"></i>
+        MVP Analytics
+      </h2>
+      <p class="page-subtitle">Motor de Decisiones Automatizado para Micro-SaaS</p>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-outline-primary btn-sm" (click)="refresh()" [disabled]="isLoading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="isLoading"></i>
+        Refrescar
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label class="filter-label">Período:</label>
+      <div class="btn-group btn-group-sm" role="group">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          [class.active]="selectedPeriod === '7d'"
+          (click)="changePeriod('7d')">
+          7 días
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          [class.active]="selectedPeriod === '30d'"
+          (click)="changePeriod('30d')">
+          30 días
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          [class.active]="selectedPeriod === '90d'"
+          (click)="changePeriod('90d')">
+          90 días
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          [class.active]="selectedPeriod === 'all'"
+          (click)="changePeriod('all')">
+          Todo
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-label">Score:</label>
+      <div class="btn-group btn-group-sm" role="group">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          [class.active]="selectedFilter === 'all'"
+          (click)="changeFilter('all')">
+          Todos
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-success"
+          [class.active]="selectedFilter === 'high'"
+          (click)="changeFilter('high')">
+          Alto (≥70)
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-warning"
+          [class.active]="selectedFilter === 'medium'"
+          (click)="changeFilter('medium')">
+          Medio (40-69)
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-danger"
+          [class.active]="selectedFilter === 'low'"
+          (click)="changeFilter('low')">
+          Bajo (<40)
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-group ms-auto">
+      <input 
+        type="text" 
+        class="form-control form-control-sm"
+        placeholder="🔍 Buscar MVP..."
+        [(ngModel)]="searchTerm">
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards" *ngIf="summary">
+    <div class="summary-card">
+      <div class="card-icon bg-primary">
+        <i class="fas fa-rocket"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ summary.total_modules }}</div>
+        <div class="card-label">MVPs Activos</div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="card-icon bg-success">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ summary.ready_to_promote }}</div>
+        <div class="card-label">Listos para Módulo</div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="card-icon bg-warning">
+        <i class="fas fa-wrench"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ summary.needs_improvement }}</div>
+        <div class="card-label">Necesita Mejoras</div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="card-icon bg-info">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ summary.avg_score }}</div>
+        <div class="card-label">Score Promedio</div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="card-icon bg-danger">
+        <i class="fas fa-archive"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ summary.to_archive }}</div>
+        <div class="card-label">Para Archivar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading && analytics.length === 0">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3 text-muted">Analizando micro-SaaS...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="alert alert-danger" *ngIf="error">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+  </div>
+
+  <!-- No Data State -->
+  <div class="empty-state" *ngIf="!isLoading && filteredAnalytics.length === 0">
+    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+    <p class="text-muted mb-0">
+      No hay micro-SaaS con datos de tracking en este período.
+    </p>
+  </div>
+
+  <!-- MVP Analytics Grid -->
+  <div class="mvp-grid" *ngIf="filteredAnalytics.length > 0">
+    <div 
+      class="mvp-card" 
+      *ngFor="let mvp of filteredAnalytics"
+      (click)="viewDetails(mvp.moduleKey)"
+      [class.high-score]="mvp.healthScore >= 70"
+      [class.medium-score]="mvp.healthScore >= 40 && mvp.healthScore < 70"
+      [class.low-score]="mvp.healthScore < 40">
+      
+      <!-- Header -->
+      <div class="mvp-card-header">
+        <div class="mvp-title">
+          <h5>{{ mvp.moduleName }}</h5>
+          <small class="text-muted">{{ mvp.moduleKey }}</small>
+          <!-- Badge de datos insuficientes -->
+          <span class="badge badge-warning badge-sm mt-1" *ngIf="mvp.insufficient_data">
+            ⚠️ Low Data
+          </span>
+        </div>
+        <div class="mvp-recommendation">
+          <span class="badge" [ngClass]="getActionBadge(mvp.recommendation.action)">
+            {{ getRecommendationIcon(mvp.recommendation.action) }}
+            {{ mvp.recommendation.action === 'create_module' ? 'Crear Módulo' :
+               mvp.recommendation.action === 'continue' ? 'Continuar' : 'Archivar' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Health Score -->
+      <div class="health-score-container">
+        <div class="score-label">Health Score</div>
+        <div class="score-value" [ngClass]="'text-' + getScoreClass(mvp.healthScore)">
+          {{ mvp.healthScore }}
+          <small>/100</small>
+        </div>
+        <div class="progress" style="height: 8px;">
+          <div 
+            class="progress-bar" 
+            [ngClass]="'bg-' + getScoreClass(mvp.healthScore)"
+            [style.width.%]="mvp.healthScore"
+            role="progressbar">
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs Grid -->
+      <div class="kpis-grid">
+        <div class="kpi-item">
+          <div class="kpi-icon">📊</div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ mvp.totalSessions }}</div>
+            <div class="kpi-label">Sesiones</div>
+            <div class="kpi-trend" *ngIf="mvp.trends">
+              <span [ngClass]="formatTrend(mvp.trends.sessions_change).class">
+                {{ formatTrend(mvp.trends.sessions_change).icon }}
+                {{ formatTrend(mvp.trends.sessions_change).text }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-item">
+          <div class="kpi-icon">✅</div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ mvp.wizard_completions }}</div>
+            <div class="kpi-label">Completados</div>
+            <div class="kpi-trend" *ngIf="mvp.trends">
+              <span [ngClass]="formatTrend(mvp.trends.completions_change).class">
+                {{ formatTrend(mvp.trends.completions_change).icon }}
+                {{ formatTrend(mvp.trends.completions_change).text }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-item">
+          <div class="kpi-icon">📥</div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ mvp.downloads }}</div>
+            <div class="kpi-label">Descargas</div>
+            <div class="kpi-trend" *ngIf="mvp.trends">
+              <span [ngClass]="formatTrend(mvp.trends.downloads_change).class">
+                {{ formatTrend(mvp.trends.downloads_change).icon }}
+                {{ formatTrend(mvp.trends.downloads_change).text }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-item">
+          <div class="kpi-icon">{{ mvp.helpful_rate >= 70 ? '😊' : mvp.helpful_rate >= 50 ? '😐' : '😞' }}</div>
+          <div class="kpi-content">
+            <div class="kpi-value">{{ mvp.helpful_rate }}%</div>
+            <div class="kpi-label">Feedback +</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="alerts-section" *ngIf="mvp.alerts && mvp.alerts.length > 0">
+        <div 
+          class="alert-badge" 
+          *ngFor="let alert of mvp.alerts.slice(0, 2)"
+          [ngClass]="'alert-' + alert.type">
+          <i class="fas fa-info-circle me-1"></i>
+          {{ alert.title }}
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="mvp-card-footer">
+        <small class="text-muted">
+          <i class="fas fa-calendar-alt me-1"></i>
+          {{ getPeriodLabel(mvp.period) }}
+        </small>
+        <button class="btn btn-sm btn-outline-primary">
+          Ver Detalles
+          <i class="fas fa-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
