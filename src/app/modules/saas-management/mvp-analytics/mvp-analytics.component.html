@@ -270,6 +270,51 @@
         </div>
       </div>
 
+      <!-- Monetization Metrics (Nuevo: Feb 2026) -->
+      <div class="monetization-section" *ngIf="mvp.monetization_intent_count > 0">
+        <div class="section-title">
+          <i class="fas fa-coins text-warning me-1"></i>
+          <span>Monetization Validation</span>
+        </div>
+        <div class="monetization-metrics">
+          <div class="metric-item">
+            <div class="metric-label">Intent Clicks</div>
+            <div class="metric-value">{{ mvp.monetization_intent_count }}</div>
+            <div class="metric-percentage text-muted">
+              {{ mvp.preview_to_intent_rate }}% of completions
+            </div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">Emails Captured</div>
+            <div class="metric-value text-success">{{ mvp.pro_email_submitted_count }}</div>
+            <div class="metric-percentage" 
+                 [ngClass]="mvp.intent_to_email_rate >= 30 ? 'text-success' : 'text-warning'">
+              {{ mvp.intent_to_email_rate }}% conversion
+              <i class="fas fa-check-circle ms-1" *ngIf="mvp.intent_to_email_rate >= 30"></i>
+            </div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">Drop-offs</div>
+            <div class="metric-value text-danger">{{ mvp.pro_modal_dismissed_count }}</div>
+            <div class="metric-percentage text-muted">
+              {{ mvp.modal_dismissal_rate }}% dismissed
+            </div>
+          </div>
+        </div>
+        <div class="monetization-insight">
+          <i class="fas fa-lightbulb text-warning me-1"></i>
+          <span *ngIf="mvp.intent_to_email_rate >= 30" class="text-success">
+            ✅ Strong willingness to pay detected
+          </span>
+          <span *ngIf="mvp.intent_to_email_rate < 30 && mvp.intent_to_email_rate >= 15" class="text-warning">
+            ⚠️ Moderate interest - optimize offer
+          </span>
+          <span *ngIf="mvp.intent_to_email_rate < 15" class="text-danger">
+            ❌ Low conversion - rethink pricing/value prop
+          </span>
+        </div>
+      </div>
+      
       <!-- Alerts -->
       <div class="alerts-section" *ngIf="mvp.alerts && mvp.alerts.length > 0">
         <div 

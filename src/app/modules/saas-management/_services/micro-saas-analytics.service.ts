@@ -44,6 +44,14 @@ export interface MicroSaasKPIs {
   download_rate: number; // downloads / completions
   retention_rate: number; // returning users / total sessions
   
+  // === MONETIZATION METRICS (Nuevo: Feb 2026) ===
+  monetization_intent_count: number; // clicks en "Upgrade to Pro"
+  pro_email_submitted_count: number; // emails capturados
+  pro_modal_dismissed_count: number; // usuarios que cerraron modal sin email
+  preview_to_intent_rate: number; // % completions → intent
+  intent_to_email_rate: number; // % intent → email (key metric: WTP)
+  modal_dismissal_rate: number; // % abandonos
+  
   // Score agregado (0-100)
   healthScore: number;
   

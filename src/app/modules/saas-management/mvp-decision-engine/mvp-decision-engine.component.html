@@ -459,6 +459,100 @@
         </div>
       </div>
 
+      <!-- === MONETIZATION VALIDATION (Nuevo: Feb 2026) === -->
+      <div class="card monetization-card" *ngIf="analytics.monetization_intent_count > 0">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-3">
+            <i class="fas fa-coins text-warning me-2"></i>
+            Monetization Validation
+            <span class="badge bg-warning text-dark ms-2" style="font-size: 0.65rem;">
+              Experiment
+            </span>
+          </h6>
+
+          <!-- Funnel Overview -->
+          <div class="monetization-funnel mb-3">
+            <div class="funnel-step">
+              <div class="step-label">Completions</div>
+              <div class="step-value">{{ analytics.wizard_completions }}</div>
+              <div class="step-bar complete"></div>
+            </div>
+            <div class="funnel-arrow">→</div>
+            <div class="funnel-step">
+              <div class="step-label">Intent Clicks</div>
+              <div class="step-value">{{ analytics.monetization_intent_count }}</div>
+              <div class="step-percentage">{{ analytics.preview_to_intent_rate }}%</div>
+              <div class="step-bar" [style.width.%]="analytics.preview_to_intent_rate"></div>
+            </div>
+            <div class="funnel-arrow">→</div>
+            <div class="funnel-step">
+              <div class="step-label">Emails</div>
+              <div class="step-value text-success">{{ analytics.pro_email_submitted_count }}</div>
+              <div class="step-percentage" 
+                   [ngClass]="analytics.intent_to_email_rate >= 30 ? 'text-success' : 'text-warning'">
+                {{ analytics.intent_to_email_rate }}%
+              </div>
+              <div class="step-bar" [style.width.%]="analytics.intent_to_email_rate"></div>
+            </div>
+          </div>
+
+          <!-- Key Metrics -->
+          <div class="monetization-metrics">
+            <div class="metric-box intent">
+              <div class="metric-header">
+                <i class="fas fa-mouse-pointer"></i>
+                <span>Intent Rate</span>
+              </div>
+              <div class="metric-big-value">{{ analytics.preview_to_intent_rate }}%</div>
+              <div class="metric-description">of completions clicked upgrade</div>
+            </div>
+
+            <div class="metric-box conversion" 
+                 [ngClass]="analytics.intent_to_email_rate >= 30 ? 'success' : 'warning'">
+              <div class="metric-header">
+                <i class="fas fa-envelope"></i>
+                <span>Email Conversion</span>
+              </div>
+              <div class="metric-big-value">{{ analytics.intent_to_email_rate }}%</div>
+              <div class="metric-description">
+                {{ analytics.intent_to_email_rate >= 30 ? '✅ Strong WTP' : 
+                   analytics.intent_to_email_rate >= 15 ? '⚠️ Moderate' : '❌ Low WTP' }}
+              </div>
+            </div>
+
+            <div class="metric-box dropoff">
+              <div class="metric-header">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Drop-offs</span>
+              </div>
+              <div class="metric-big-value text-danger">{{ analytics.pro_modal_dismissed_count }}</div>
+              <div class="metric-description">{{ analytics.modal_dismissal_rate }}% dismissed modal</div>
+            </div>
+          </div>
+
+          <!-- Insight Box -->
+          <div class="monetization-insight" 
+               [ngClass]="analytics.intent_to_email_rate >= 30 ? 'success' : 
+                          analytics.intent_to_email_rate >= 15 ? 'warning' : 'danger'">
+            <i class="fas fa-lightbulb me-2"></i>
+            <div class="insight-content">
+              <strong *ngIf="analytics.intent_to_email_rate >= 30">
+                ✅ Strong Willingness to Pay Detected
+              </strong>
+              <strong *ngIf="analytics.intent_to_email_rate < 30 && analytics.intent_to_email_rate >= 15">
+                ⚠️ Moderate Interest - Optimize Offer
+              </strong>
+              <strong *ngIf="analytics.intent_to_email_rate < 15">
+                ❌ Low Conversion - Rethink Value Proposition
+              </strong>
+              <p class="mb-0 mt-1" style="font-size: 0.75rem; font-weight: 400;">
+                Target: 30-50% email conversion rate for validated WTP
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Feedback -->
       <div class="card feedback-card">
         <div class="card-body">
