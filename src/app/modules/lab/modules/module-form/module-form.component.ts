@@ -210,7 +210,7 @@ export class ModuleFormComponent implements OnInit {
             type: 'warning',
             duration: 3000
           });
-          this.router.navigate(['..'], { relativeTo: this.route });
+          this.router.navigate(['/lab/modules']);
         }
         this.isLoading = false;
         this.cd.detectChanges();
@@ -235,7 +235,7 @@ export class ModuleFormComponent implements OnInit {
           duration: 4000
         });
         this.isLoading = false;
-        this.router.navigate(['..'], { relativeTo: this.route });
+        this.router.navigate(['/lab/modules']);
       }
     });
   }
@@ -298,7 +298,7 @@ export class ModuleFormComponent implements OnInit {
             type: 'success',
             duration: 3000
           });
-          this.router.navigate(['..'], { relativeTo: this.route });
+          this.router.navigate(['/lab/modules']);
         }
       },
       error: (error) => {
@@ -334,7 +334,7 @@ export class ModuleFormComponent implements OnInit {
 
     // Si no hay cambios, navegar directamente
     if (!hasAnyChanges) {
-      this.router.navigate(['..'], { relativeTo: this.route });
+      this.router.navigate(['/lab/modules']);
       return;
     }
 
@@ -374,7 +374,7 @@ export class ModuleFormComponent implements OnInit {
     });
 
     if (result.isConfirmed) {
-      this.router.navigate(['..'], { relativeTo: this.route });
+      this.router.navigate(['/lab/modules']);
     }
   }
 

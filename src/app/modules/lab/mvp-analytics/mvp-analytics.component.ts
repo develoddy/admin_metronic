@@ -127,6 +127,7 @@ export class MvpAnalyticsComponent implements OnInit {
 
   /**
    * Abrir wizard del MVP en nueva pestaña
+   * Agrega ?internal=true para bypass de validación de status='testing'
    */
   openWizard(moduleKey: string, event?: Event): void {
     // Prevenir propagación del click a la tarjeta
@@ -134,13 +135,14 @@ export class MvpAnalyticsComponent implements OnInit {
       event.stopPropagation();
     }
     
-    // Construir URL del wizard
-    const wizardUrl = `${environment.URL_MVP_HUB}/preview/${moduleKey}`;
+    // Construir URL del wizard con acceso interno autorizado
+    // Esto permite abrir módulos en status='testing' desde Admin Panel
+    const wizardUrl = `${environment.URL_MVP_HUB}/preview/${moduleKey}?internal=true`;
     
     // Abrir en nueva pestaña
     window.open(wizardUrl, '_blank');
     
-    console.log(`🚀 Abriendo wizard: ${wizardUrl}`);
+    console.log(`🚀 Abriendo wizard interno: ${wizardUrl}`);
   }
 
   /**

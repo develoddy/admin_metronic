@@ -61,7 +61,7 @@ export class ModuleDetailComponent implements OnInit {
           icon: 'error',
           confirmButtonText: 'Volver'
         }).then(() => {
-          this.router.navigate(['..'], { relativeTo: this.route });
+          this.router.navigate(['/lab/modules']);
         });
         this.isLoading = false;
       }
@@ -72,7 +72,7 @@ export class ModuleDetailComponent implements OnInit {
    * Navegar a editar
    */
   editModule(): void {
-    this.router.navigate(['../edit', this.moduleKey], { relativeTo: this.route });
+    this.router.navigate(['/lab/modules/edit', this.moduleKey]);
   }
 
   /**
@@ -147,7 +147,7 @@ export class ModuleDetailComponent implements OnInit {
             timer: 2000,
             showConfirmButton: false
           });
-          this.router.navigate(['..'], { relativeTo: this.route });
+          this.router.navigate(['/lab/modules']);
         }
       },
       error: (error) => {

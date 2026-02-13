@@ -86,21 +86,21 @@ export class ModulesListComponent implements OnInit {
    * Navegar a crear módulo
    */
   createModule(): void {
-    this.router.navigate(['create'], { relativeTo: this.route });
+    this.router.navigate(['/lab/modules/create']);
   }
 
   /**
    * Navegar a editar módulo
    */
   editModule(module: Module): void {
-    this.router.navigate(['edit', module.key], { relativeTo: this.route });
+    this.router.navigate(['/lab/modules/edit', module.key]);
   }
 
   /**
    * Ver detalles del módulo
    */
   viewModule(module: Module): void {
-    this.router.navigate(['detail', module.key], { relativeTo: this.route });
+    this.router.navigate(['/lab/modules/detail', module.key]);
   }
 
   /**
