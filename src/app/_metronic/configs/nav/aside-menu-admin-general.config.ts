@@ -15,36 +15,48 @@ export const AsideMenuAdminGeneral = {
       /** --------- SECCION PROVEEDORES ---------*/
       { section : 'Proveedores'},
       {
-        title: '🧪 Lab',
+        title: 'Lab',
         root: true,
         name: "lab",
         bullet: 'dot',
-        icon: 'flaticon2-layers',
+        icon: 'flaticon2-rocket-1',
         svg: './assets/media/svg/icons/General/Settings-2.svg',
         page: '/lab',
         submenu: [
           {
-            title: '📦 Modules',
+            title: 'Modules',
+            icon: 'flaticon2-layers',
+            svg: './assets/media/svg/icons/Design/Layers.svg',
             page: '/lab/modules'
           },
           {
-            title: '📊 Analytics',
+            title: 'Analytics',
+            icon: 'flaticon2-chart',
+            svg: './assets/media/svg/icons/Shopping/Chart-line1.svg',
             page: '/lab/analytics'
           },
           {
-            title: '📡 Tracking',
+            title: 'Tracking',
+            icon: 'flaticon2-location',
+            svg: './assets/media/svg/icons/Map/Marker1.svg',
             page: '/lab/tracking'
           },
           {
-            title: '👥 Tenants',
+            title: 'Tenants',
+            icon: 'flaticon2-group',
+            svg: './assets/media/svg/icons/Communication/Group.svg',
             page: '/lab/tenants'
           },
           {
-            title: '📬 Emails',
+            title: 'Emails',
+            icon: 'flaticon2-mail',
+            svg: './assets/media/svg/icons/Communication/Mail-opened.svg',
             page: '/lab/email-testing'
           },
           {
             title: 'Dashboard',
+            icon: 'flaticon2-graphic',
+            svg: './assets/media/svg/icons/Layout/Layout-4-blocks.svg',
             page: '/lab/dashboard'
           }
         ]
