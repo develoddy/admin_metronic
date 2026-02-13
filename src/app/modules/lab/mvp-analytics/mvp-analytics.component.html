@@ -176,7 +176,6 @@
     <div 
       class="mvp-card" 
       *ngFor="let mvp of filteredAnalytics"
-      (click)="viewDetails(mvp.moduleKey)"
       [class.high-score]="mvp.healthScore >= 70"
       [class.medium-score]="mvp.healthScore >= 40 && mvp.healthScore < 70"
       [class.low-score]="mvp.healthScore < 40">
@@ -332,10 +331,22 @@
           <i class="fas fa-calendar-alt me-1"></i>
           {{ getPeriodLabel(mvp.period) }}
         </small>
-        <button class="btn btn-sm btn-outline-primary">
-          Ver Detalles
-          <i class="fas fa-arrow-right ms-1"></i>
-        </button>
+        <div class="action-buttons">
+          <button 
+            class="btn btn-sm btn-primary me-2"
+            (click)="openWizard(mvp.moduleKey, $event)"
+            title="Abrir wizard para probar MVP">
+            <i class="fas fa-rocket me-1"></i>
+            Probar
+          </button>
+          <button 
+            class="btn btn-sm btn-outline-secondary"
+            (click)="viewDetails(mvp.moduleKey); $event.stopPropagation()"
+            title="Ver métricas detalladas">
+            <i class="fas fa-chart-line me-1"></i>
+            Métricas
+          </button>
+        </div>
       </div>
     </div>
   </div>

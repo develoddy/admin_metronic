@@ -165,7 +165,7 @@ export class ModuleDetailComponent implements OnInit {
    * Volver a lista
    */
   goBack(): void {
-    this.router.navigate(['..'], { relativeTo: this.route });
+    this.router.navigate(['/lab/modules']);
   }
 
   /**

@@ -5,6 +5,7 @@ import {
   MicroSaasKPIs,
   AllAnalyticsSummary 
 } from '../_services/micro-saas-analytics.service';
+import { environment } from '../../../../environments/environment';
 
 /**
  * MVP Analytics Component
@@ -122,6 +123,24 @@ export class MvpAnalyticsComponent implements OnInit {
    */
   viewDetails(moduleKey: string): void {
     this.router.navigate(['/lab/analytics', moduleKey]);
+  }
+
+  /**
+   * Abrir wizard del MVP en nueva pestaña
+   */
+  openWizard(moduleKey: string, event?: Event): void {
+    // Prevenir propagación del click a la tarjeta
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    // Construir URL del wizard
+    const wizardUrl = `${environment.URL_MVP_HUB}/preview/${moduleKey}`;
+    
+    // Abrir en nueva pestaña
+    window.open(wizardUrl, '_blank');
+    
+    console.log(`🚀 Abriendo wizard: ${wizardUrl}`);
   }
 
   /**

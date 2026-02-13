@@ -270,7 +270,7 @@ export class MvpDecisionEngineComponent implements OnInit {
    * Volver al listado
    */
   goBack(): void {
-    this.router.navigate(['/saas/mvp-analytics']);
+    this.router.navigate(['/lab/analytics']);
   }
 
   /**
