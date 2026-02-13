@@ -46,6 +46,17 @@
         </select>
       </div>
 
+      <!-- Source filter (FASE 2: admin vs preview) -->
+      <div class="filter-group">
+        <label>Origen</label>
+        <select [(ngModel)]="filters.source" class="form-control">
+          <option value="">Todos los orígenes</option>
+          <option value="preview">👥 Preview (Público)</option>
+          <option value="admin">🔧 Admin (Tests Internos)</option>
+          <option value="pro_modal">💰 Pro Modal</option>
+        </select>
+      </div>
+
       <!-- Session ID filter -->
       <div class="filter-group">
         <label>Session ID</label>
@@ -122,6 +133,16 @@
         [disabled]="isLoading">
         <i class="fas fa-times"></i>
         Limpiar
+      </button>
+      <!-- Botón de limpieza de tests internos (solo development) -->
+      <button 
+        *ngIf="!isProduction"
+        class="btn btn-warning ms-2"
+        (click)="clearAdminEvents()"
+        [disabled]="isLoading"
+        title="Eliminar eventos con source='admin' (tests internos)">
+        <i class="fas fa-broom"></i>
+        Limpiar Tests Internos
       </button>
     </div>
   </div>

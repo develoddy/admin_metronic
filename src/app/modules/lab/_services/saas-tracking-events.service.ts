@@ -21,6 +21,7 @@ export interface TrackingEvent {
 export interface TrackingEventsFilters {
   module?: string;
   event?: string;
+  source?: string;
   session_id?: string;
   user_id?: string;
   tenant_id?: number;
@@ -59,6 +60,9 @@ export class SaasTrackingEventsService {
     }
     if (filters.event) {
       params = params.set('event', filters.event);
+    }
+    if (filters.source) {
+      params = params.set('source', filters.source);
     }
     if (filters.session_id) {
       params = params.set('session_id', filters.session_id);
@@ -117,6 +121,7 @@ export class SaasTrackingEventsService {
     // Agregar filtros a params (igual que en getTrackingEvents)
     if (filters.module) params = params.set('module', filters.module);
     if (filters.event) params = params.set('event', filters.event);
+    if (filters.source) params = params.set('source', filters.source);
     if (filters.session_id) params = params.set('session_id', filters.session_id);
     if (filters.user_id) params = params.set('user_id', filters.user_id);
     if (filters.tenant_id) params = params.set('tenant_id', filters.tenant_id.toString());
@@ -129,6 +134,18 @@ export class SaasTrackingEventsService {
       params,
       responseType: 'blob'
     });
+  }
+
+  /**
+   * Eliminar eventos por source (solo para development)
+   * ⚠️ Solo debe usarse en testing para limpiar eventos internos
+   */
+  deleteEventsBySource(source: string): Observable<{ success: boolean; deleted: number; message: string }> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete<{ success: boolean; deleted: number; message: string }>(
+      `${this.apiUrl}/by-source/${source}`,
+      { headers }
+    );
   }
 
   /**
