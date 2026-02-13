@@ -194,7 +194,7 @@
         <div class="mvp-recommendation">
           <span class="badge" [ngClass]="getActionBadge(mvp.recommendation.action)">
             {{ getRecommendationIcon(mvp.recommendation.action) }}
-            {{ mvp.recommendation.action === 'create_module' ? 'Crear Módulo' :
+            {{ mvp.recommendation.action === 'validate' ? 'Validar' :
                mvp.recommendation.action === 'continue' ? 'Continuar' : 'Archivar' }}
           </span>
         </div>

@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
-import { SaasManagementRoutingModule } from './saas-management-routing.module';
-import { SaasManagementComponent } from './saas-management.component';
+import { LabRoutingModule } from './lab-routing.module';
+import { LabComponent } from './lab.component';
 import { EmailTestingSaasComponent } from './email-testing-saas/email-testing-saas.component';
 import { TenantListComponent } from './tenants/tenant-list/tenant-list.component';
 import { TenantDetailComponent } from './tenants/tenant-detail/tenant-detail.component';
@@ -16,11 +16,10 @@ import { SaasEmailTestingService } from './_services/saas-email-testing.service'
 import { SaasTenantsService } from './_services/saas-tenants.service';
 import { SaasTrackingEventsService } from './_services/saas-tracking-events.service';
 import { MicroSaasAnalyticsService } from './_services/micro-saas-analytics.service';
-import { ModuleCreationService } from './_services/module-creation.service';
 
 @NgModule({
   declarations: [
-    SaasManagementComponent,
+    LabComponent,
     EmailTestingSaasComponent,
     TenantListComponent,
     TenantDetailComponent,
@@ -32,14 +31,14 @@ import { ModuleCreationService } from './_services/module-creation.service';
   imports: [
     CommonModule,
     FormsModule,
-    SaasManagementRoutingModule  // Debe ir último
+    LabRoutingModule  // Debe ir último
   ],
   providers: [
     SaasEmailTestingService,
     SaasTenantsService,
     SaasTrackingEventsService,
-    MicroSaasAnalyticsService,
-    ModuleCreationService
+    MicroSaasAnalyticsService
+    // ModuleCreationService eliminado - concepto unificado Module = MVP
   ]
 })
-export class SaasManagementModule { }
+export class LabModule { }

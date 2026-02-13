@@ -121,7 +121,7 @@ export class MvpAnalyticsComponent implements OnInit {
    * Ver detalles de un MVP
    */
   viewDetails(moduleKey: string): void {
-    this.router.navigate(['/saas/mvp-analytics', moduleKey]);
+    this.router.navigate(['/lab/analytics', moduleKey]);
   }
 
   /**
@@ -143,7 +143,7 @@ export class MvpAnalyticsComponent implements OnInit {
    */
   getActionBadge(action: string): string {
     switch (action) {
-      case 'create_module':
+      case 'validate':
         return 'badge-success';
       case 'continue':
         return 'badge-primary';

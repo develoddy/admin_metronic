@@ -150,7 +150,7 @@
             <div class="rec-badge-wrapper">
               <span class="badge" [ngClass]="getActionBadge(analytics.recommendation.action)">
                 {{ getRecommendationIcon(analytics.recommendation.action) }}
-                {{ analytics.recommendation.action === 'create_module' ? 'CREAR MÓDULO' :
+                {{ analytics.recommendation.action === 'validate' ? 'VALIDAR Y ACTIVAR' :
                    analytics.recommendation.action === 'continue' ? 'CONTINUAR' : 'ARCHIVAR' }}
               </span>
               <small class="confidence">
@@ -187,40 +187,40 @@
               
               <!-- Sessions -->
               <div class="criteria-item">
-                <i class="fas" [ngClass]="analytics.actionCriteria.promotion_criteria.sessions_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
-                <span [class.text-muted]="!analytics.actionCriteria.promotion_criteria.sessions_min">
+                <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.sessions_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
+                <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.sessions_min">
                   {{ analytics.totalSessions }} / 20 sesiones
                 </span>
               </div>
 
               <!-- Completions -->
               <div class="criteria-item">
-                <i class="fas" [ngClass]="analytics.actionCriteria.promotion_criteria.completions_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
-                <span [class.text-muted]="!analytics.actionCriteria.promotion_criteria.completions_min">
+                <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.completions_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
+                <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.completions_min">
                   {{ analytics.wizard_completions }} / 5 wizard completados
                 </span>
               </div>
 
               <!-- Feedback -->
               <div class="criteria-item">
-                <i class="fas" [ngClass]="analytics.actionCriteria.promotion_criteria.feedback_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
-                <span [class.text-muted]="!analytics.actionCriteria.promotion_criteria.feedback_min">
+                <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.feedback_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
+                <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.feedback_min">
                   {{ analytics.total_feedback }} / 5 feedbacks
                 </span>
               </div>
 
               <!-- Days Running -->
               <div class="criteria-item">
-                <i class="fas" [ngClass]="analytics.actionCriteria.promotion_criteria.days_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
-                <span [class.text-muted]="!analytics.actionCriteria.promotion_criteria.days_min">
+                <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.days_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
+                <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.days_min">
                   {{ analytics.actionCriteria.days_running }} / 3 días validación
                 </span>
               </div>
 
               <!-- Positive Signal -->
               <div class="criteria-item">
-                <i class="fas" [ngClass]="analytics.actionCriteria.promotion_criteria.signal_positive ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
-                <span [class.text-muted]="!analytics.actionCriteria.promotion_criteria.signal_positive">
+                <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.signal_positive ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
+                <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.signal_positive">
                   Señal positiva fuerte
                 </span>
               </div>
@@ -228,28 +228,28 @@
           </div>
 
           <div class="action-buttons">
-            <!-- Botón: Crear Módulo -->
+            <!-- Botón: Validar y Activar Módulo -->
             <button 
               class="btn btn-success w-100 mb-2"
               (click)="createModule()"
-              [disabled]="!analytics.actionCriteria?.can_promote || isExecutingDecision"
-              [title]="analytics.actionCriteria?.can_promote ? 'MVP validado: cumple todos los criterios' : analytics.actionCriteria?.blocking_reasons.promote.join(', ')">
+              [disabled]="!analytics.actionCriteria?.can_validate || isExecutingDecision"
+              [title]="analytics.actionCriteria?.can_validate ? 'MVP validado: cumple todos los criterios' : analytics.actionCriteria?.blocking_reasons.validate.join(', ')">
               <i class="fas fa-rocket me-2"></i>
-              Crear Módulo Oficial
+              Validar y Activar
               
               <i class="fas fa-question-circle ms-2" 
-                 *ngIf="!analytics.actionCriteria?.can_promote"
+                 *ngIf="!analytics.actionCriteria?.can_validate"
                  style="opacity: 0.6; font-size: 12px;"
-                 [title]="analytics.actionCriteria?.blocking_reasons.promote.join('\n')"></i>
+                 [title]="analytics.actionCriteria?.blocking_reasons.validate.join('\n')"></i>
             </button>
 
             <!-- Explicación si está bloqueado -->
             <div class="blocking-reason text-muted mb-3" 
-                 *ngIf="!analytics.actionCriteria?.can_promote"
+                 *ngIf="!analytics.actionCriteria?.can_validate"
                  style="font-size: 11px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
               <i class="fas fa-info-circle me-1"></i>
               <strong>Bloqueado:</strong> 
-              {{ analytics.actionCriteria?.blocking_reasons.promote[0] }}
+              {{ analytics.actionCriteria?.blocking_reasons.validate[0] }}
             </div>
 
             <!-- Botón: Continuar (siempre disponible) -->

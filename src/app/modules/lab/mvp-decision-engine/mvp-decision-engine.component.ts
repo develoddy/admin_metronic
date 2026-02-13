@@ -5,18 +5,19 @@ import {
   MicroSaasAnalyticsService, 
   MicroSaasKPIs 
 } from '../_services/micro-saas-analytics.service';
-import { ModuleCreationService } from '../_services/module-creation.service';
 
 /**
  * MVP Decision Engine Component
  * 
- * Vista detallada de un micro-SaaS con motor de decisiones para:
- * - Crear módulo oficial
- * - Archivar MVP
- * - Continuar validación
+ * Vista detallada de un Module con motor de decisiones para:
+ * - Validar y activar (status = live)
+ * - Archivar (status = archived)
+ * - Continuar validación (status = testing)
+ * 
+ * Nota: Ya no existe "conversión a módulo" - un Module con status=testing ES el MVP.
  * 
  * @author Claude (GitHub Copilot)
- * @date 2026-02-09
+ * @date 2026-02-13
  */
 
 @Component({
@@ -43,7 +44,6 @@ export class MvpDecisionEngineComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private analyticsService: MicroSaasAnalyticsService,
-    private moduleCreationService: ModuleCreationService,
     private cd: ChangeDetectorRef
   ) {}
 
@@ -91,18 +91,18 @@ export class MvpDecisionEngineComponent implements OnInit {
   }
 
   /**
-   * Ejecutar decisión: Crear Módulo
+   * Ejecutar decisión: Validar y Activar (cambiar status a live)
    */
   async createModule(): Promise<void> {
     const result = await Swal.fire({
-      title: '🚀 Crear Módulo Oficial',
+      title: '✅ Validar y Activar Módulo',
       html: `
-        <p class="mb-3">¿Estás seguro de crear el módulo oficial para <strong>${this.analytics?.moduleName}</strong>?</p>
-        <p class="text-muted small">Se copiará la configuración del preview y se activará el módulo.</p>
+        <p class="mb-3">¿Estás seguro de validar y activar <strong>${this.analytics?.moduleName}</strong>?</p>
+        <p class="text-muted small">El módulo cambiará su status de "testing" a "live".</p>
       `,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'Sí, crear módulo',
+      confirmButtonText: 'Sí, activar módulo',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#6c757d'
@@ -112,27 +112,28 @@ export class MvpDecisionEngineComponent implements OnInit {
 
     this.isExecutingDecision = true;
     
-    this.moduleCreationService.createModuleFromMVP(this.moduleKey, {
-      auto_activate: true,
-      copy_preview_config: true,
-      initial_status: 'testing'
-    }).subscribe({
+    // Usar executeDecision con action 'validate' para cambiar status a 'live'
+    this.analyticsService.executeDecision(
+      this.moduleKey,
+      'validate',
+      'Módulo validado y activado desde motor de decisiones'
+    ).subscribe({
       next: (response) => {
         if (response.success) {
           Swal.fire({
             icon: 'success',
-            title: '✅ Módulo Creado',
+            title: '✅ Módulo Activado',
             html: `
-              <p>El módulo <strong>${response.module?.name || this.moduleKey}</strong> ha sido creado exitosamente.</p>
-              <p class="text-muted small">Ahora puedes configurarlo en Gestión de Módulos.</p>
+              <p>El módulo <strong>${this.analytics?.moduleName}</strong> ha sido activado exitosamente.</p>
+              <p class="text-muted small">Ahora puedes configurarlo en la gestión de módulos.</p>
             `,
             confirmButtonText: 'Ver Módulo',
             showCancelButton: true,
             cancelButtonText: 'Continuar aquí'
           }).then((result) => {
             if (result.isConfirmed) {
-              const editUrl = this.moduleCreationService.getModuleEditUrl(this.moduleKey);
-              this.router.navigateByUrl(editUrl);
+              // Navegar a la edición del módulo en lab/modules
+              this.router.navigate(['/lab/modules/edit', this.moduleKey]);
             } else {
               this.loadAnalytics(); // Recargar datos
             }
@@ -142,11 +143,11 @@ export class MvpDecisionEngineComponent implements OnInit {
         this.cd.detectChanges();
       },
       error: (err) => {
-        console.error('❌ Error creating module:', err);
+        console.error('❌ Error validating module:', err);
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: err.error?.message || 'Error al crear el módulo'
+          text: err.error?.message || 'Error al validar el módulo'
         });
         this.isExecutingDecision = false;
         this.cd.detectChanges();
@@ -246,7 +247,7 @@ export class MvpDecisionEngineComponent implements OnInit {
             timer: 2000,
             showConfirmButton: false
           }).then(() => {
-            this.router.navigate(['/saas/mvp-analytics']);
+            this.router.navigate(['/lab/analytics']);
           });
         }
         this.isExecutingDecision = false;
@@ -281,7 +282,7 @@ export class MvpDecisionEngineComponent implements OnInit {
 
   getActionBadge(action: string): string {
     switch (action) {
-      case 'create_module':
+      case 'validate':
         return 'badge-success';
       case 'continue':
         return 'badge-primary';

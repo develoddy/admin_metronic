@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Toaster } from 'ngx-toast-notifications';
 import { ModulesService, Module } from 'src/app/services/modules.service';
 import Swal from 'sweetalert2';
@@ -21,6 +21,7 @@ export class ModulesListComponent implements OnInit {
   constructor(
     public modulesService: ModulesService,
     private router: Router,
+    private route: ActivatedRoute,
     private toaster: Toaster,
     private cd: ChangeDetectorRef
   ) { }
@@ -85,21 +86,21 @@ export class ModulesListComponent implements OnInit {
    * Navegar a crear módulo
    */
   createModule(): void {
-    this.router.navigate(['/modules-management/create']);
+    this.router.navigate(['create'], { relativeTo: this.route });
   }
 
   /**
    * Navegar a editar módulo
    */
   editModule(module: Module): void {
-    this.router.navigate(['/modules-management/edit', module.key]);
+    this.router.navigate(['edit', module.key], { relativeTo: this.route });
   }
 
   /**
    * Ver detalles del módulo
    */
   viewModule(module: Module): void {
-    this.router.navigate(['/modules-management/detail', module.key]);
+    this.router.navigate(['detail', module.key], { relativeTo: this.route });
   }
 
   /**

@@ -85,7 +85,7 @@ export interface MicroSaasKPIs {
 }
 
 export interface Recommendation {
-  action: 'continue' | 'archive' | 'create_module';
+  action: 'validate' | 'continue' | 'archive';
   confidence: 'low' | 'medium' | 'high';
   reason: string;
   next_steps: string[];
@@ -107,10 +107,10 @@ export interface Trends {
 }
 
 export interface ActionCriteria {
-  can_promote: boolean;
+  can_validate: boolean;
   can_archive: boolean;
   can_continue: boolean;
-  promotion_criteria: {
+  validation_criteria: {
     sessions_min: boolean;
     completions_min: boolean;
     feedback_min: boolean;
@@ -123,7 +123,7 @@ export interface ActionCriteria {
   };
   days_running: number;
   blocking_reasons: {
-    promote: string[];
+    validate: string[];
     archive: string[];
   };
 }
@@ -219,16 +219,16 @@ export class MicroSaasAnalyticsService {
   }
 
   /**
-   * Ejecutar decisión sobre un MVP
+   * Ejecutar decisión sobre un Module
    * 
    * @param moduleKey - Key del módulo
-   * @param action - Acción a ejecutar: 'continue', 'archive', 'create_module'
+   * @param action - Acción a ejecutar: 'validate' (live), 'continue' (testing), 'archive'
    * @param reason - Razón de la decisión (opcional)
    * @returns Observable con resultado de la decisión
    */
   executeDecision(
     moduleKey: string,
-    action: 'continue' | 'archive' | 'create_module',
+    action: 'validate' | 'continue' | 'archive',
     reason?: string
   ): Observable<DecisionResponse> {
     const headers = this.getAuthHeaders();
@@ -270,7 +270,7 @@ export class MicroSaasAnalyticsService {
    */
   getRecommendationIcon(action: string): string {
     switch (action) {
-      case 'create_module':
+      case 'validate':
         return '🚀';
       case 'continue':
         return '⏸️';
@@ -286,7 +286,7 @@ export class MicroSaasAnalyticsService {
    */
   getActionBadgeClass(action: string): string {
     switch (action) {
-      case 'create_module':
+      case 'validate':
         return 'badge-success';
       case 'continue':
         return 'badge-warning';

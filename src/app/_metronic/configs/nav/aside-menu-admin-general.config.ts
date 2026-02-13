@@ -15,13 +15,39 @@ export const AsideMenuAdminGeneral = {
       /** --------- SECCION PROVEEDORES ---------*/
       { section : 'Proveedores'},
       {
-        title: 'Gestión de Módulos',
+        title: '🧪 Lab',
         root: true,
-        name: "modules-management",
+        name: "lab",
         bullet: 'dot',
         icon: 'flaticon2-layers',
-        svg: './assets/media/svg/icons/Layout/Layout-4-blocks.svg',
-        page: '/modules-management'
+        svg: './assets/media/svg/icons/General/Settings-2.svg',
+        page: '/lab',
+        submenu: [
+          {
+            title: '📦 Modules',
+            page: '/lab/modules'
+          },
+          {
+            title: '📊 Analytics',
+            page: '/lab/analytics'
+          },
+          {
+            title: '📡 Tracking',
+            page: '/lab/tracking'
+          },
+          {
+            title: '👥 Tenants',
+            page: '/lab/tenants'
+          },
+          {
+            title: '📬 Emails',
+            page: '/lab/email-testing'
+          },
+          {
+            title: 'Dashboard',
+            page: '/lab/dashboard'
+          }
+        ]
       },
       {
         title: 'Product Video Express',
@@ -43,37 +69,6 @@ export const AsideMenuAdminGeneral = {
           {
             title: 'Mis Jobs',
             page: '/video-express/jobs'
-          }
-        ]
-      },
-      {
-        title: 'Gestión SaaS',
-        root: true,
-        name: "saas-management",
-        bullet: 'dot',
-        icon: 'flaticon2-server',
-        svg: './assets/media/svg/icons/Devices/Server.svg',
-        page: '/saas',
-        submenu: [
-          {
-            title: 'Dashboard',
-            page: '/saas/dashboard'
-          },
-          {
-            title: '🧠 MVP Analytics',
-            page: '/saas/mvp-analytics'
-          },
-          {
-            title: 'Tenants',
-            page: '/saas/tenants'
-          },
-          {
-            title: 'Tracking Events',
-            page: '/saas/events'
-          },
-          {
-            title: 'Testing Emails',
-            page: '/saas/email-testing'
           }
         ]
       },

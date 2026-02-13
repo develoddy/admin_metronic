@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { SaasManagementComponent } from './saas-management.component';
+import { LabComponent } from './lab.component';
 import { EmailTestingSaasComponent } from './email-testing-saas/email-testing-saas.component';
 import { TenantListComponent } from './tenants/tenant-list/tenant-list.component';
 import { TenantDetailComponent } from './tenants/tenant-detail/tenant-detail.component';
@@ -12,11 +12,28 @@ import { MvpDecisionEngineComponent } from './mvp-decision-engine/mvp-decision-e
 const routes: Routes = [
   {
     path: '',
-    component: SaasManagementComponent,
+    component: LabComponent,
     children: [
       {
         path: 'dashboard',
         component: SaasDashboardComponent
+      },
+      {
+        path: 'modules',
+        loadChildren: () => 
+          import('./modules/modules.module').then(m => m.ModulesModule)
+      },
+      {
+        path: 'analytics',
+        component: MvpAnalyticsComponent
+      },
+      {
+        path: 'analytics/:moduleKey',
+        component: MvpDecisionEngineComponent
+      },
+      {
+        path: 'tracking',
+        component: TrackingEventsComponent
       },
       {
         path: 'tenants',
@@ -31,18 +48,6 @@ const routes: Routes = [
         component: EmailTestingSaasComponent
       },
       {
-        path: 'events',
-        component: TrackingEventsComponent
-      },
-      {
-        path: 'mvp-analytics',
-        component: MvpAnalyticsComponent
-      },
-      {
-        path: 'mvp-analytics/:moduleKey',
-        component: MvpDecisionEngineComponent
-      },
-      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'
@@ -55,4 +60,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class SaasManagementRoutingModule { }
+export class LabRoutingModule { }

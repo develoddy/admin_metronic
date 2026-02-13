@@ -66,7 +66,7 @@ export class TenantDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/saas/tenants']);
+    this.router.navigate(['/lab/tenants']);
   }
 
   switchTab(tab: string): void {

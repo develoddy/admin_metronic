@@ -168,11 +168,22 @@ const routes: Routes = [
           ),
       },
       {
-        path: 'saas',
+        path: 'lab',
         loadChildren: () =>
-          import('../modules/saas-management/saas-management.module').then(
-            (m) => m.SaasManagementModule
+          import('../modules/lab/lab.module').then(
+            (m) => m.LabModule
           ),
+      },
+      // Redirects retrocompatibles
+      {
+        path: 'saas',
+        redirectTo: 'lab',
+        pathMatch: 'prefix'
+      },
+      {
+        path: 'modules-management',
+        redirectTo: 'lab/modules',
+        pathMatch: 'prefix'
       },
       {
         path: 'prelaunch',
@@ -214,13 +225,6 @@ const routes: Routes = [
         loadChildren: () =>
           import('../components/seo/seo.module').then(
             (m) => m.SeoModule
-          ),
-      },
-      {
-        path: 'modules-management',
-        loadChildren: () =>
-          import('../modules/modules-management/modules-management.module').then(
-            (m) => m.ModulesManagementModule
           ),
       },
       {

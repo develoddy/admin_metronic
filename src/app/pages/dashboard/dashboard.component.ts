@@ -817,14 +817,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
    * Editar módulo
    */
   editModule(module: Module): void {
-    this.router.navigate(['/modules-management/edit', module.key]);
+    this.router.navigate(['/lab/modules/edit', module.key]);
   }
 
   /**
    * Navegar a crear módulo
    */
   navigateToCreateModule(): void {
-    this.router.navigate(['/modules-management/create']);
+    this.router.navigate(['/lab/modules/create']);
   }
 
   /**

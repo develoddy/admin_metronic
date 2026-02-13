@@ -218,7 +218,7 @@ export class TenantListComponent implements OnInit {
   }
 
   viewTenantDetails(tenantId: number): void {
-    this.router.navigate(['/saas/tenants', tenantId]);
+    this.router.navigate(['/lab/tenants', tenantId]);
   }
 
   extendTrial(tenant: TenantListItem, days: number): void {
