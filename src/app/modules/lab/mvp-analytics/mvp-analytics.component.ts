@@ -10,8 +10,8 @@ import { environment } from '../../../../environments/environment';
 /**
  * MVP Analytics Component
  * 
- * Dashboard inteligente con KPIs, scores y recomendaciones automáticas
- * para todos los micro-SaaS activos.
+ * Intelligent dashboard with KPIs, scores and automated recommendations
+ * for all active micro-SaaS.
  * 
  * @author Claude (GitHub Copilot)
  * @date 2026-02-09
@@ -50,7 +50,7 @@ export class MvpAnalyticsComponent implements OnInit {
   }
 
   /**
-   * Cargar analytics de todos los micro-SaaS
+   * Load analytics for all micro-SaaS
    */
   loadAnalytics(): void {
     this.isLoading = true;
@@ -67,7 +67,7 @@ export class MvpAnalyticsComponent implements OnInit {
       },
       error: (err) => {
         console.error('❌ Error loading analytics:', err);
-        this.error = 'Error al cargar analytics';
+        this.error = 'Error loading analytics';
         this.isLoading = false;
         this.cd.detectChanges();
       }
@@ -75,7 +75,7 @@ export class MvpAnalyticsComponent implements OnInit {
   }
 
   /**
-   * Filtrar analytics según criterios
+   * Filter analytics by criteria
    */
   get filteredAnalytics(): MicroSaasKPIs[] {
     let filtered = this.analytics;
@@ -103,7 +103,7 @@ export class MvpAnalyticsComponent implements OnInit {
   }
 
   /**
-   * Cambiar período
+   * Change period
    */
   changePeriod(period: '7d' | '30d' | '90d' | 'all'): void {
     this.selectedPeriod = period;
@@ -111,7 +111,7 @@ export class MvpAnalyticsComponent implements OnInit {
   }
 
   /**
-   * Cambiar filtro
+   * Change filter
    */
   changeFilter(filter: 'all' | 'high' | 'medium' | 'low'): void {
     this.selectedFilter = filter;
@@ -119,48 +119,48 @@ export class MvpAnalyticsComponent implements OnInit {
   }
 
   /**
-   * Ver detalles de un MVP
+   * View details of an MVP
    */
   viewDetails(moduleKey: string): void {
     this.router.navigate(['/lab/analytics', moduleKey]);
   }
 
   /**
-   * Abrir wizard del MVP en nueva pestaña
-   * Agrega ?internal=true para bypass de validación de status='testing'
+   * Open MVP wizard in new tab
+   * Adds ?internal=true to bypass status='testing' validation
    */
   openWizard(moduleKey: string, event?: Event): void {
-    // Prevenir propagación del click a la tarjeta
+    // Prevent click propagation to card
     if (event) {
       event.stopPropagation();
     }
     
-    // Construir URL del wizard con acceso interno autorizado
-    // Esto permite abrir módulos en status='testing' desde Admin Panel
+    // Build wizard URL with authorized internal access
+    // This allows opening modules with status='testing' from Admin Panel
     const wizardUrl = `${environment.URL_MVP_HUB}/preview/${moduleKey}?internal=true`;
     
-    // Abrir en nueva pestaña
+    // Open in new tab
     window.open(wizardUrl, '_blank');
     
-    console.log(`🚀 Abriendo wizard interno: ${wizardUrl}`);
+    console.log(`🚀 Opening internal wizard: ${wizardUrl}`);
   }
 
   /**
-   * Recargar datos
+   * Reload data
    */
   refresh(): void {
     this.loadAnalytics();
   }
 
   /**
-   * Obtener clase CSS según score
+   * Get CSS class by score
    */
   getScoreClass(score: number): string {
     return this.analyticsService.getScoreColor(score);
   }
 
   /**
-   * Obtener clase CSS según badge action
+   * Get CSS class by badge action
    */
   getActionBadge(action: string): string {
     switch (action) {
@@ -176,7 +176,7 @@ export class MvpAnalyticsComponent implements OnInit {
   }
 
   /**
-   * Formatear trend
+   * Format trend
    */
   formatTrend(change: number): any {
     const sign = change > 0 ? '+' : '';
@@ -191,21 +191,21 @@ export class MvpAnalyticsComponent implements OnInit {
   }
 
   /**
-   * Obtener icono de recomendación
+   * Get recommendation icon
    */
   getRecommendationIcon(action: string): string {
     return this.analyticsService.getRecommendationIcon(action);
   }
 
   /**
-   * Obtener label de período
+   * Get period label
    */
   getPeriodLabel(period: string): string {
     const labels = {
-      '7d': 'Últimos 7 días',
-      '30d': 'Últimos 30 días',
-      '90d': 'Últimos 90 días',
-      'all': 'Todo el tiempo'
+      '7d': 'Last 7 days',
+      '30d': 'Last 30 days',
+      '90d': 'Last 90 days',
+      'all': 'All time'
     };
     
     return labels[period] || labels['30d'];

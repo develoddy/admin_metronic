@@ -73,7 +73,7 @@ export class SaasDashboardComponent implements OnInit {
   calculateMetrics(tenants: any[]): void {
     this.metrics.totalTenants = tenants.length;
     
-    // Contar por estado
+    // Count by status
     this.metrics.activeTenants = tenants.filter(t => t.status === 'active').length;
     this.metrics.trialTenants = tenants.filter(t => t.status === 'trial').length;
     this.metrics.cancelledTenants = tenants.filter(t => t.status === 'cancelled').length;
@@ -91,20 +91,20 @@ export class SaasDashboardComponent implements OnInit {
       .filter(t => t.status === 'active')
       .reduce((sum, t) => sum + (planPrices[t.plan] || 0), 0);
 
-    // Tasa de conversión (trial → active)
+    // Conversion rate (trial → active)
     const totalConverted = this.metrics.activeTenants + this.metrics.cancelledTenants;
     const totalTrialCompleted = totalConverted + this.metrics.expiredTenants;
     this.metrics.conversionRate = totalTrialCompleted > 0 
       ? (this.metrics.activeTenants / totalTrialCompleted) * 100 
       : 0;
 
-    // Churn rate (cancelados / total activos alguna vez)
+    // Churn rate (cancelled / total ever active)
     const everActive = this.metrics.activeTenants + this.metrics.cancelledTenants;
     this.metrics.churnRate = everActive > 0 
       ? (this.metrics.cancelledTenants / everActive) * 100 
       : 0;
 
-    // Nuevos tenants este mes
+    // New tenants this month
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     this.metrics.newTenantsThisMonth = tenants.filter(t => {
@@ -112,7 +112,7 @@ export class SaasDashboardComponent implements OnInit {
       return createdAt >= firstDayOfMonth;
     }).length;
 
-    // Trials expirando en 7 días
+    // Trials expiring in 7 days
     const next7Days = new Date();
     next7Days.setDate(next7Days.getDate() + 7);
     this.metrics.expiringTrialsNext7Days = tenants.filter(t => {

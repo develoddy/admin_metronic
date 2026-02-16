@@ -7,12 +7,12 @@
         <i class="fas fa-brain text-primary me-2"></i>
         MVP Analytics
       </h2>
-      <p class="page-subtitle">Motor de Decisiones Automatizado para Micro-SaaS</p>
+      <p class="page-subtitle">Automated Decision Engine for Micro-SaaS</p>
     </div>
     <div class="header-right">
       <button class="btn btn-outline-primary btn-sm" (click)="refresh()" [disabled]="isLoading">
         <i class="fas fa-sync-alt" [class.fa-spin]="isLoading"></i>
-        Refrescar
+        Refresh
       </button>
     </div>
   </div>
@@ -20,35 +20,35 @@
   <!-- Filters -->
   <div class="filters-bar">
     <div class="filter-group">
-      <label class="filter-label">Período:</label>
+      <label class="filter-label">Period:</label>
       <div class="btn-group btn-group-sm" role="group">
         <button 
           type="button" 
           class="btn btn-outline-secondary"
           [class.active]="selectedPeriod === '7d'"
           (click)="changePeriod('7d')">
-          7 días
+          7 days
         </button>
         <button 
           type="button" 
           class="btn btn-outline-secondary"
           [class.active]="selectedPeriod === '30d'"
           (click)="changePeriod('30d')">
-          30 días
+          30 days
         </button>
         <button 
           type="button" 
           class="btn btn-outline-secondary"
           [class.active]="selectedPeriod === '90d'"
           (click)="changePeriod('90d')">
-          90 días
+          90 days
         </button>
         <button 
           type="button" 
           class="btn btn-outline-secondary"
           [class.active]="selectedPeriod === 'all'"
           (click)="changePeriod('all')">
-          Todo
+          All
         </button>
       </div>
     </div>
@@ -61,28 +61,28 @@
           class="btn btn-outline-secondary"
           [class.active]="selectedFilter === 'all'"
           (click)="changeFilter('all')">
-          Todos
+          All
         </button>
         <button 
           type="button" 
           class="btn btn-outline-success"
           [class.active]="selectedFilter === 'high'"
           (click)="changeFilter('high')">
-          Alto (≥70)
+          High (≥70)
         </button>
         <button 
           type="button" 
           class="btn btn-outline-warning"
           [class.active]="selectedFilter === 'medium'"
           (click)="changeFilter('medium')">
-          Medio (40-69)
+          Medium (40-69)
         </button>
         <button 
           type="button" 
           class="btn btn-outline-danger"
           [class.active]="selectedFilter === 'low'"
           (click)="changeFilter('low')">
-          Bajo (<40)
+          Low (<40)
         </button>
       </div>
     </div>
@@ -91,7 +91,7 @@
       <input 
         type="text" 
         class="form-control form-control-sm"
-        placeholder="🔍 Buscar MVP..."
+        placeholder="🔍 Search MVP..."
         [(ngModel)]="searchTerm">
     </div>
   </div>
@@ -104,7 +104,7 @@
       </div>
       <div class="card-content">
         <div class="card-value">{{ summary.total_modules }}</div>
-        <div class="card-label">MVPs Activos</div>
+        <div class="card-label">Active MVPs</div>
       </div>
     </div>
 
@@ -114,7 +114,7 @@
       </div>
       <div class="card-content">
         <div class="card-value">{{ summary.ready_to_promote }}</div>
-        <div class="card-label">Listos para Módulo</div>
+        <div class="card-label">Ready for Module</div>
       </div>
     </div>
 
@@ -124,7 +124,7 @@
       </div>
       <div class="card-content">
         <div class="card-value">{{ summary.needs_improvement }}</div>
-        <div class="card-label">Necesita Mejoras</div>
+        <div class="card-label">Needs Improvement</div>
       </div>
     </div>
 
@@ -134,7 +134,7 @@
       </div>
       <div class="card-content">
         <div class="card-value">{{ summary.avg_score }}</div>
-        <div class="card-label">Score Promedio</div>
+        <div class="card-label">Average Score</div>
       </div>
     </div>
 
@@ -144,7 +144,7 @@
       </div>
       <div class="card-content">
         <div class="card-value">{{ summary.to_archive }}</div>
-        <div class="card-label">Para Archivar</div>
+        <div class="card-label">To Archive</div>
       </div>
     </div>
   </div>
@@ -152,9 +152,9 @@
   <!-- Loading State -->
   <div class="loading-state" *ngIf="isLoading && analytics.length === 0">
     <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Cargando...</span>
+      <span class="visually-hidden">Loading...</span>
     </div>
-    <p class="mt-3 text-muted">Analizando micro-SaaS...</p>
+    <p class="mt-3 text-muted">Analyzing micro-SaaS...</p>
   </div>
 
   <!-- Error State -->
@@ -167,7 +167,7 @@
   <div class="empty-state" *ngIf="!isLoading && filteredAnalytics.length === 0">
     <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
     <p class="text-muted mb-0">
-      No hay micro-SaaS con datos de tracking en este período.
+      No micro-SaaS with tracking data in this period.
     </p>
   </div>
 
@@ -185,7 +185,7 @@
         <div class="mvp-title">
           <h5>{{ mvp.moduleName }}</h5>
           <small class="text-muted">{{ mvp.moduleKey }}</small>
-          <!-- Badge de datos insuficientes -->
+          <!-- Badge for insufficient data -->
           <span class="badge badge-warning badge-sm mt-1" *ngIf="mvp.insufficient_data">
             ⚠️ Low Data
           </span>
@@ -193,8 +193,8 @@
         <div class="mvp-recommendation">
           <span class="badge" [ngClass]="getActionBadge(mvp.recommendation.action)">
             {{ getRecommendationIcon(mvp.recommendation.action) }}
-            {{ mvp.recommendation.action === 'validate' ? 'Validar' :
-               mvp.recommendation.action === 'continue' ? 'Continuar' : 'Archivar' }}
+            {{ mvp.recommendation.action === 'validate' ? 'Validate' :
+               mvp.recommendation.action === 'continue' ? 'Continue' : 'Archive' }}
           </span>
         </div>
       </div>
@@ -222,7 +222,7 @@
           <div class="kpi-icon">📊</div>
           <div class="kpi-content">
             <div class="kpi-value">{{ mvp.totalSessions }}</div>
-            <div class="kpi-label">Sesiones</div>
+            <div class="kpi-label">Sessions</div>
             <div class="kpi-trend" *ngIf="mvp.trends">
               <span [ngClass]="formatTrend(mvp.trends.sessions_change).class">
                 {{ formatTrend(mvp.trends.sessions_change).icon }}
@@ -236,7 +236,7 @@
           <div class="kpi-icon">✅</div>
           <div class="kpi-content">
             <div class="kpi-value">{{ mvp.wizard_completions }}</div>
-            <div class="kpi-label">Completados</div>
+            <div class="kpi-label">Completed</div>
             <div class="kpi-trend" *ngIf="mvp.trends">
               <span [ngClass]="formatTrend(mvp.trends.completions_change).class">
                 {{ formatTrend(mvp.trends.completions_change).icon }}
@@ -250,7 +250,7 @@
           <div class="kpi-icon">📥</div>
           <div class="kpi-content">
             <div class="kpi-value">{{ mvp.downloads }}</div>
-            <div class="kpi-label">Descargas</div>
+            <div class="kpi-label">Downloads</div>
             <div class="kpi-trend" *ngIf="mvp.trends">
               <span [ngClass]="formatTrend(mvp.trends.downloads_change).class">
                 {{ formatTrend(mvp.trends.downloads_change).icon }}
@@ -335,16 +335,16 @@
           <button 
             class="btn btn-sm btn-primary me-2"
             (click)="openWizard(mvp.moduleKey, $event)"
-            title="Abrir wizard para probar MVP">
+            title="Open wizard to test MVP">
             <i class="fas fa-rocket me-1"></i>
-            Probar
+            Test
           </button>
           <button 
             class="btn btn-sm btn-outline-secondary"
             (click)="viewDetails(mvp.moduleKey); $event.stopPropagation()"
-            title="Ver métricas detalladas">
+            title="View detailed metrics">
             <i class="fas fa-chart-line me-1"></i>
-            Métricas
+            Metrics
           </button>
         </div>
       </div>

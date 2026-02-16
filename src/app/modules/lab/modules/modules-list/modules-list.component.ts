@@ -31,7 +31,7 @@ export class ModulesListComponent implements OnInit {
   }
 
   /**
-   * Cargar módulos
+   * Load modules
    */
   loadModules(): void {
     this.isLoading = true;
@@ -59,7 +59,7 @@ export class ModulesListComponent implements OnInit {
   }
 
   /**
-   * Filtrar módulos
+   * Filter modules
    */
   get filteredModules(): Module[] {
     let filtered = this.modules;
@@ -83,28 +83,28 @@ export class ModulesListComponent implements OnInit {
   }
 
   /**
-   * Navegar a crear módulo
+   * Navigate to create module
    */
   createModule(): void {
     this.router.navigate(['/lab/modules/create']);
   }
 
   /**
-   * Navegar a editar módulo
+   * Navigate to edit module
    */
   editModule(module: Module): void {
     this.router.navigate(['/lab/modules/edit', module.key]);
   }
 
   /**
-   * Ver detalles del módulo
+   * View module details
    */
   viewModule(module: Module): void {
     this.router.navigate(['/lab/modules/detail', module.key]);
   }
 
   /**
-   * Toggle activar/desactivar módulo
+   * Toggle activate/deactivate module
    */
   toggleModule(module: Module, event: Event): void {
     event.stopPropagation();
@@ -221,7 +221,7 @@ export class ModulesListComponent implements OnInit {
   }
 
   /**
-   * Verificar si módulo está en riesgo
+   * Check if module is at risk
    */
   isModuleAtRisk(module: Module): boolean {
     const daysRemaining = this.calculateDaysRemaining(module);

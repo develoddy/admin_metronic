@@ -4,7 +4,7 @@
   <div class="page-header">
     <button class="btn btn-link back-button" (click)="goBack()">
       <i class="fas fa-arrow-left me-2"></i>
-      Volver al Dashboard
+      Back to Dashboard
     </button>
     
     <div class="header-content">
@@ -43,7 +43,7 @@
           class="btn btn-outline-secondary"
           [class.active]="selectedPeriod === 'all'"
           (click)="changePeriod('all')">
-          Todo
+          All
         </button>
       </div>
     </div>
@@ -52,9 +52,9 @@
   <!-- Loading -->
   <div class="loading-state" *ngIf="isLoading">
     <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Cargando...</span>
+      <span class="visually-hidden">Loading...</span>
     </div>
-    <p class="mt-3 text-muted">Analizando MVP...</p>
+    <p class="mt-3 text-muted">Analyzing MVP...</p>
   </div>
 
   <!-- Error -->
@@ -68,20 +68,20 @@
     <div class="d-flex align-items-start">
       <i class="fas fa-exclamation-triangle me-3 mt-1" style="font-size: 1.5rem;"></i>
       <div>
-        <h6 class="alert-heading mb-2">⚠️ Datos Insuficientes para Análisis Confiable</h6>
+        <h6 class="alert-heading mb-2">⚠️ Insufficient Data for Reliable Analysis</h6>
         <p class="mb-2">
-          Este MVP tiene pocos datos de tracking. Los KPIs y el Health Score pueden no ser representativos de la realidad del producto.
+          This MVP has little tracking data. KPIs and the Health Score may not represent the product reality.
         </p>
         <div class="small">
-          <strong>Métricas actuales:</strong>
+          <strong>Current metrics:</strong>
           <ul class="mb-0 mt-1">
-            <li *ngIf="analytics.totalSessions < 5">{{ analytics.totalSessions }} sesiones (mínimo recomendado: 5)</li>
-            <li *ngIf="analytics.wizard_starts < 3">{{ analytics.wizard_starts }} wizard starts (mínimo: 3)</li>
-            <li *ngIf="analytics.total_feedback < 3">{{ analytics.total_feedback }} feedbacks (mínimo: 3)</li>
+            <li *ngIf="analytics.totalSessions < 5">{{ analytics.totalSessions }} sessions (recommended minimum: 5)</li>
+            <li *ngIf="analytics.wizard_starts < 3">{{ analytics.wizard_starts }} wizard starts (minimum: 3)</li>
+            <li *ngIf="analytics.total_feedback < 3">{{ analytics.total_feedback }} feedbacks (minimum: 3)</li>
           </ul>
         </div>
         <div class="mt-2">
-          <strong>Recomendación:</strong> Continuar recolectando datos antes de tomar decisiones definitivas.
+          <strong>Recommendation:</strong> Continue collecting data before making final decisions.
         </div>
       </div>
     </div>
@@ -99,7 +99,7 @@
           <h6 class="card-subtitle mb-3">
             Health Score
             <span class="badge badge-warning badge-sm ms-2" *ngIf="analytics.insufficient_data">
-              Penalizado por poca data
+              Penalized by low data
             </span>
           </h6>
           
@@ -132,7 +132,7 @@
 
           <div class="score-label mt-3">
             <span class="badge" [ngClass]="'badge-' + getScoreClass(analytics.healthScore)">
-              {{ analytics.healthScore >= 70 ? 'Excelente' : analytics.healthScore >= 50 ? 'Bueno' : 'Bajo' }}
+              {{ analytics.healthScore >= 70 ? 'Excellent' : analytics.healthScore >= 50 ? 'Good' : 'Low' }}
             </span>
           </div>
         </div>
@@ -143,25 +143,25 @@
         <div class="card-body">
           <h6 class="card-subtitle mb-3">
             <i class="fas fa-lightbulb text-warning me-2"></i>
-            Recomendación Automática
+            Automated Recommendation
           </h6>
           
           <div class="recommendation-content">
             <div class="rec-badge-wrapper">
               <span class="badge" [ngClass]="getActionBadge(analytics.recommendation.action)">
                 {{ getRecommendationIcon(analytics.recommendation.action) }}
-                {{ analytics.recommendation.action === 'validate' ? 'VALIDAR Y ACTIVAR' :
-                   analytics.recommendation.action === 'continue' ? 'CONTINUAR' : 'ARCHIVAR' }}
+                {{ analytics.recommendation.action === 'validate' ? 'VALIDATE & ACTIVATE' :
+                   analytics.recommendation.action === 'continue' ? 'CONTINUE' : 'ARCHIVE' }}
               </span>
               <small class="confidence">
-                Confianza: <strong>{{ analytics.recommendation.confidence }}</strong>
+                Confidence: <strong>{{ analytics.recommendation.confidence }}</strong>
               </small>
             </div>
 
             <p class="rec-reason">{{ analytics.recommendation.reason }}</p>
 
             <div class="next-steps" *ngIf="analytics.recommendation.next_steps?.length">
-              <strong class="d-block mb-2">Próximos pasos:</strong>
+              <strong class="d-block mb-2">Next steps:</strong>
               <ul class="mb-0">
                 <li *ngFor="let step of analytics.recommendation.next_steps">{{ step }}</li>
               </ul>
@@ -175,21 +175,21 @@
         <div class="card-body">
           <h6 class="card-subtitle mb-3">
             <i class="fas fa-bolt text-primary me-2"></i>
-            Acciones del Motor
+            Engine Actions
           </h6>
 
           <!-- Checklist de Criterios -->
           <div class="criteria-checklist mb-4" *ngIf="analytics.actionCriteria">
             <div class="checklist-section">
               <strong class="d-block mb-2 text-muted" style="font-size: 12px; text-transform: uppercase;">
-                Criterios Validación
+                Validation Criteria
               </strong>
               
               <!-- Sessions -->
               <div class="criteria-item">
                 <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.sessions_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
                 <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.sessions_min">
-                  {{ analytics.totalSessions }} / 20 sesiones
+                  {{ analytics.totalSessions }} / 20 sessions
                 </span>
               </div>
 
@@ -197,7 +197,7 @@
               <div class="criteria-item">
                 <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.completions_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
                 <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.completions_min">
-                  {{ analytics.wizard_completions }} / 5 wizard completados
+                  {{ analytics.wizard_completions }} / 5 wizards completed
                 </span>
               </div>
 
@@ -213,7 +213,7 @@
               <div class="criteria-item">
                 <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.days_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
                 <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.days_min">
-                  {{ analytics.actionCriteria.days_running }} / 3 días validación
+                  {{ analytics.actionCriteria.days_running }} / 3 validation days
                 </span>
               </div>
 
@@ -221,21 +221,21 @@
               <div class="criteria-item">
                 <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.signal_positive ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
                 <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.signal_positive">
-                  Señal positiva fuerte
+                  Strong positive signal
                 </span>
               </div>
             </div>
           </div>
 
           <div class="action-buttons">
-            <!-- Botón: Validar y Activar Módulo -->
+            <!-- Button: Validate & Activate Module -->
             <button 
               class="btn btn-success w-100 mb-2"
               (click)="createModule()"
               [disabled]="!analytics.actionCriteria?.can_validate || isExecutingDecision"
-              [title]="analytics.actionCriteria?.can_validate ? 'MVP validado: cumple todos los criterios' : analytics.actionCriteria?.blocking_reasons.validate.join(', ')">
+              [title]="analytics.actionCriteria?.can_validate ? 'Validated MVP: meets all criteria' : analytics.actionCriteria?.blocking_reasons.validate.join(', ')">
               <i class="fas fa-rocket me-2"></i>
-              Validar y Activar
+              Validate & Activate
               
               <i class="fas fa-question-circle ms-2" 
                  *ngIf="!analytics.actionCriteria?.can_validate"
@@ -243,33 +243,33 @@
                  [title]="analytics.actionCriteria?.blocking_reasons.validate.join('\n')"></i>
             </button>
 
-            <!-- Explicación si está bloqueado -->
+            <!-- Explanation if blocked -->
             <div class="blocking-reason text-muted mb-3" 
                  *ngIf="!analytics.actionCriteria?.can_validate"
                  style="font-size: 11px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
               <i class="fas fa-info-circle me-1"></i>
-              <strong>Bloqueado:</strong> 
+              <strong>Blocked:</strong> 
               {{ analytics.actionCriteria?.blocking_reasons.validate[0] }}
             </div>
 
-            <!-- Botón: Continuar (siempre disponible) -->
+            <!-- Button: Continue (always available) -->
             <button 
               class="btn btn-primary w-100 mb-2"
               (click)="continueValidation()"
               [disabled]="isExecutingDecision"
-              title="El MVP muestra potencial, pero necesita más datos">
+              title="MVP shows potential, but needs more data">
               <i class="fas fa-play me-2"></i>
-              Continuar Validación
+              Continue Validation
             </button>
 
-            <!-- Botón: Archivar -->
+            <!-- Button: Archive -->
             <button 
               class="btn btn-danger w-100"
               (click)="archiveMVP()"
               [disabled]="!analytics.actionCriteria?.can_archive || isExecutingDecision"
-              [title]="analytics.actionCriteria?.can_archive ? 'Señal negativa clara detectada' : 'No hay señal negativa clara suficiente'">
+              [title]="analytics.actionCriteria?.can_archive ? 'Clear negative signal detected' : 'No clear negative signal yet'">
               <i class="fas fa-archive me-2"></i>
-              Archivar MVP
+              Archive MVP
               
               <i class="fas fa-question-circle ms-2" 
                  *ngIf="!analytics.actionCriteria?.can_archive"
@@ -277,12 +277,12 @@
                  [title]="analytics.actionCriteria?.blocking_reasons.archive.join('\n')"></i>
             </button>
 
-            <!-- Explicación si archivar está bloqueado -->
+            <!-- Explanation if archive is blocked -->
             <div class="blocking-reason text-muted mt-2" 
                  *ngIf="!analytics.actionCriteria?.can_archive"
                  style="font-size: 11px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
               <i class="fas fa-info-circle me-1"></i>
-              {{ analytics.actionCriteria?.blocking_reasons.archive[0] || 'MVP aún necesita más datos para confirmar patrón negativo' }}
+              {{ analytics.actionCriteria?.blocking_reasons.archive[0] || 'MVP still needs more data to confirm negative pattern' }}
             </div>
           </div>
         </div>
@@ -298,16 +298,16 @@
         <div class="card-body">
           <h6 class="card-subtitle mb-3">
             <i class="fas fa-chart-bar text-info me-2"></i>
-            Métricas del MVP
+            MVP Metrics
           </h6>
 
           <div class="kpis-detailed-grid">
             
-            <!-- Sesiones -->
+            <!-- Sessions -->
             <div class="kpi-detailed">
               <div class="kpi-icon">📊</div>
               <div class="kpi-info">
-                <div class="kpi-label">Sesiones Totales</div>
+                <div class="kpi-label">Total Sessions</div>
                 <div class="kpi-value">{{ analytics.totalSessions }}</div>
                 <div class="kpi-trend" *ngIf="analytics.trends">
                   <span [ngClass]="formatTrend(analytics.trends.sessions_change).class">
@@ -318,11 +318,11 @@
               </div>
             </div>
 
-            <!-- Usuarios únicos -->
+            <!-- Unique users -->
             <div class="kpi-detailed">
               <div class="kpi-icon">👥</div>
               <div class="kpi-info">
-                <div class="kpi-label">Usuarios Únicos</div>
+                <div class="kpi-label">Unique Users</div>
                 <div class="kpi-value">{{ analytics.uniqueUsers }}</div>
               </div>
             </div>
@@ -331,7 +331,7 @@
             <div class="kpi-detailed">
               <div class="kpi-icon">▶️</div>
               <div class="kpi-info">
-                <div class="kpi-label">Wizard Iniciados</div>
+                <div class="kpi-label">Wizards Started</div>
                 <div class="kpi-value">{{ analytics.wizard_starts }}</div>
               </div>
             </div>
@@ -340,7 +340,7 @@
             <div class="kpi-detailed">
               <div class="kpi-icon">✅</div>
               <div class="kpi-info">
-                <div class="kpi-label">Wizard Completados</div>
+                <div class="kpi-label">Wizards Completed</div>
                 <div class="kpi-value">{{ analytics.wizard_completions }}</div>
                 <div class="kpi-trend" *ngIf="analytics.trends">
                   <span [ngClass]="formatTrend(analytics.trends.completions_change).class">
@@ -355,7 +355,7 @@
             <div class="kpi-detailed">
               <div class="kpi-icon">📥</div>
               <div class="kpi-info">
-                <div class="kpi-label">Descargas</div>
+                <div class="kpi-label">Downloads</div>
                 <div class="kpi-value">{{ analytics.downloads }}</div>
                 <div class="kpi-trend" *ngIf="analytics.trends">
                   <span [ngClass]="formatTrend(analytics.trends.downloads_change).class">
@@ -370,7 +370,7 @@
             <div class="kpi-detailed">
               <div class="kpi-icon">🔄</div>
               <div class="kpi-info">
-                <div class="kpi-label">Usuarios Recurrentes</div>
+                <div class="kpi-label">Returning Users</div>
                 <div class="kpi-value">{{ analytics.returningUsers }}</div>
               </div>
             </div>
@@ -384,15 +384,15 @@
         <div class="card-body">
           <h6 class="card-subtitle mb-3">
             <i class="fas fa-percentage text-success me-2"></i>
-            Tasas de Conversión
+            Conversion Rates
           </h6>
 
           <div class="rates-grid">
             <div class="rate-item">
               <div class="rate-label">
-                Conversión Wizard
+                Wizard Conversion
                 <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.wizard_starts === 0">
-                  (sin wizard starts)
+                  (no wizard starts)
                 </small>
               </div>
               <div class="rate-value">{{ formatRate(analytics.conversion_rate, 'conversion') }}</div>
@@ -407,9 +407,9 @@
 
             <div class="rate-item">
               <div class="rate-label">
-                Tasa de Descarga
+                Download Rate
                 <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.wizard_completions === 0">
-                  (sin completions)
+                  (no completions)
                 </small>
               </div>
               <div class="rate-value">{{ formatRate(analytics.download_rate, 'download') }}</div>
@@ -424,9 +424,9 @@
 
             <div class="rate-item">
               <div class="rate-label">
-                Retención
+                Retention
                 <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.totalSessions === 0">
-                  (sin sesiones)
+                  (no sessions)
                 </small>
               </div>
               <div class="rate-value">{{ formatRate(analytics.retention_rate, 'retention') }}</div>
@@ -441,9 +441,9 @@
 
             <div class="rate-item">
               <div class="rate-label">
-                Feedback Positivo
+                Positive Feedback
                 <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.total_feedback === 0">
-                  (sin feedback)
+                  (no feedback)
                 </small>
               </div>
               <div class="rate-value">{{ formatRate(analytics.helpful_rate, 'feedback') }}</div>
@@ -558,14 +558,14 @@
         <div class="card-body">
           <h6 class="card-subtitle mb-3">
             <i class="fas fa-comments text-primary me-2"></i>
-            Feedback de Usuarios
+            User Feedback
           </h6>
 
           <div class="feedback-stats">
             <div class="feedback-item">
               <span class="feedback-emoji">😊</span>
               <div class="feedback-info">
-                <div class="feedback-label">Feedback Positivo</div>
+                <div class="feedback-label">Positive Feedback</div>
                 <div class="feedback-value">{{ analytics.helpful_feedback }}</div>
               </div>
             </div>
@@ -581,7 +581,7 @@
             <div class="feedback-item">
               <span class="feedback-emoji">📈</span>
               <div class="feedback-info">
-                <div class="feedback-label">Tasa de Respuesta</div>
+                <div class="feedback-label">Response Rate</div>
                 <div class="feedback-value">{{ analytics.feedback_rate }}%</div>
               </div>
             </div>
@@ -594,7 +594,7 @@
         <div class="card-body">
           <h6 class="card-subtitle mb-3">
             <i class="fas fa-bell text-danger me-2"></i>
-            Alertas ({{ analytics.alerts.length }})
+            Alerts ({{ analytics.alerts.length }})
           </h6>
 
           <div class="alerts-list">

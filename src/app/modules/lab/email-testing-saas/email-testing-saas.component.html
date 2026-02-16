@@ -4,8 +4,8 @@
     <div class="card-header">
       <div class="d-flex justify-content-between align-items-center">
         <div>
-          <h4 class="card-title mb-0">🧪 Testing de Emails SaaS</h4>
-          <p class="text-muted mb-0">Probar emails de trials y suscripciones</p>
+          <h4 class="card-title mb-0">🧪 SaaS Email Testing</h4>
+          <p class="text-muted mb-0">Test trial and subscription emails</p>
         </div>
         <div>
           <button 
@@ -14,7 +14,7 @@
             (click)="refreshTenants()"
             [disabled]="isLoadingTenants">
             <i class="fa fa-refresh" [ngClass]="{'fa-spin': isLoadingTenants}"></i>
-            Actualizar
+            Refresh
           </button>
           <button 
             type="button" 
@@ -22,7 +22,7 @@
             (click)="runTrialNotificationsNow()"
             [disabled]="isTesting">
             <i class="fa fa-clock-o me-1"></i>
-            Ejecutar Cron
+            Run Cron
           </button>
         </div>
       </div>
@@ -34,7 +34,7 @@
         <div class="d-flex align-items-center">
           <i class="fa fa-2x me-2" [ngClass]="{'fa-check-circle': smtpStatus?.success, 'fa-times-circle': !smtpStatus?.success}"></i>
           <div>
-            <strong>Estado SMTP:</strong> {{smtpStatus?.message}}
+            <strong>SMTP Status:</strong> {{smtpStatus?.message}}
           </div>
         </div>
       </div>
@@ -43,12 +43,12 @@
         <!-- Panel izquierdo: Lista de Tenants -->
         <div class="col-md-6">
           <div class="mb-4">
-            <h5>1. Seleccionar Tenant</h5>
+            <h5>1. Select Tenant</h5>
             
             <!-- Loading spinner -->
             <div *ngIf="isLoadingTenants" class="text-center py-4">
               <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando tenants...</span>
+                <span class="visually-hidden">Loading tenants...</span>
               </div>
             </div>
 
@@ -81,15 +81,15 @@
                       <div><i class="fa fa-envelope me-1"></i>{{tenant.email}}</div>
                       <div *ngIf="tenant.plan === 'trial' || tenant.status === 'trial'">
                         <i class="fa fa-clock-o me-1"></i>
-                        Trial expira: {{formatDate(tenant.trial_ends_at)}}
+                        Trial expires: {{formatDate(tenant.trial_ends_at)}}
                       </div>
-                      <div><i class="fa fa-calendar me-1"></i>Creado: {{formatDate(tenant.created_at)}}</div>
+                      <div><i class="fa fa-calendar me-1"></i>Created: {{formatDate(tenant.created_at)}}</div>
                     </div>
                   </div>
                   
                   <div class="text-end">
                     <span *ngIf="tenant.stripe_subscription_id" class="text-success small">
-                      <i class="fa fa-credit-card"></i> Suscrito
+                      <i class="fa fa-credit-card"></i> Subscribed
                     </span>
                   </div>
                 </div>
@@ -99,7 +99,7 @@
             <!-- No hay tenants -->
             <div *ngIf="!isLoadingTenants && availableTenants.length === 0" class="text-center py-4 text-muted">
               <i class="fa fa-inbox fa-2x mb-2"></i>
-              <p>No hay tenants disponibles</p>
+              <p>No tenants available</p>
             </div>
           </div>
         </div>
@@ -107,7 +107,7 @@
         <!-- Panel derecho: Testing de emails -->
         <div class="col-md-6">
           <div class="mb-4">
-            <h5>2. Probar Emails</h5>
+            <h5>2. Test Emails</h5>
             
             <!-- Información de tenant seleccionado -->
             <div *ngIf="selectedTenant" class="alert alert-info">
@@ -132,12 +132,12 @@
             <!-- Selecciona tenant -->
             <div *ngIf="!selectedTenant" class="alert alert-warning">
               <i class="fa fa-info-circle me-2"></i>
-              Selecciona un tenant de la lista para continuar
+              Select a tenant from the list to continue
             </div>
 
             <!-- Botones de testing -->
             <div class="mb-3" *ngIf="selectedTenant">
-              <h6>Tipos de Email:</h6>
+              <h6>Email Types:</h6>
               <div class="d-grid gap-2">
                 <button 
                   *ngFor="let emailType of emailTypes"
@@ -160,9 +160,9 @@
             <!-- Loading indicator -->
             <div *ngIf="isLoading" class="text-center py-3">
               <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Enviando email...</span>
+                <span class="visually-hidden">Sending email...</span>
               </div>
-              <p class="mt-2 mb-0">Enviando email de prueba...</p>
+              <p class="mt-2 mb-0">Sending test email...</p>
             </div>
           </div>
         </div>
@@ -171,12 +171,12 @@
       <!-- Resultados de testing -->
       <div *ngIf="lastTestResults.length > 0" class="mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5>📋 Historial de Testing</h5>
+          <h5>📋 Testing History</h5>
           <button 
             type="button" 
             class="btn btn-outline-secondary btn-sm"
             (click)="clearResults()">
-            <i class="fa fa-trash me-1"></i>Limpiar
+            <i class="fa fa-trash me-1"></i>Clear
           </button>
         </div>
 
@@ -184,11 +184,11 @@
           <table class="table table-sm table-striped">
             <thead class="table-light">
               <tr>
-                <th>Hora</th>
+                <th>Time</th>
                 <th>Tenant</th>
-                <th>Tipo de Email</th>
-                <th>Estado</th>
-                <th>Mensaje</th>
+                <th>Email Type</th>
+                <th>Status</th>
+                <th>Message</th>
               </tr>
             </thead>
             <tbody>
@@ -208,7 +208,7 @@
                   <span 
                     class="badge"
                     [ngClass]="{'bg-success': result.success, 'bg-danger': !result.success}">
-                    {{result.success ? '✅ Enviado' : '❌ Error'}}
+                    {{result.success ? '✅ Sent' : '❌ Error'}}
                   </span>
                 </td>
                 <td>

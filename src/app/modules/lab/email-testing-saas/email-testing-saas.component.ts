@@ -1,6 +1,6 @@
 /**
  * 🧪 SAAS EMAIL TESTING COMPONENT
- * Componente para probar emails del sistema de trials y suscripciones desde admin
+ * Component to test emails for trial and subscription system from admin
  */
 
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
@@ -53,33 +53,33 @@ export class EmailTestingSaasComponent implements OnInit {
   emailTypes = [
     {
       key: 'trial-welcome',
-      name: '🎉 Bienvenida Trial',
-      description: 'Email enviado cuando un tenant inicia su trial'
+      name: '🎉 Trial Welcome',
+      description: 'Email sent when a tenant starts their trial'
     },
     {
       key: 'trial-expiring',
-      name: '⏰ Trial por Expirar',
-      description: 'Email enviado 3 días antes de que expire el trial'
+      name: '⏰ Trial Expiring',
+      description: 'Email sent 3 days before trial expires'
     },
     {
       key: 'trial-expired',
-      name: '❌ Trial Expirado',
-      description: 'Email enviado cuando el trial ha expirado'
+      name: '❌ Trial Expired',
+      description: 'Email sent when trial has expired'
     },
     {
       key: 'payment-success',
-      name: '💳 Pago Exitoso',
-      description: 'Email enviado tras un pago exitoso'
+      name: '💳 Payment Successful',
+      description: 'Email sent after successful payment'
     },
     {
       key: 'subscription-cancelled',
-      name: '🚫 Suscripción Cancelada',
-      description: 'Email enviado cuando se cancela la suscripción'
+      name: '🚫 Subscription Cancelled',
+      description: 'Email sent when subscription is cancelled'
     },
     {
       key: 'access-lost',
-      name: '🔒 Acceso Perdido',
-      description: 'Email enviado cuando se pierde el acceso'
+      name: '🔒 Access Lost',
+      description: 'Email sent when access is lost'
     }
   ];
 
@@ -96,7 +96,7 @@ export class EmailTestingSaasComponent implements OnInit {
   }
 
   /**
-   * Cargar tenants disponibles
+   * Load available tenants
    */
   loadTenants(): void {
     console.log('🧪 [EmailTestingSaasComponent] loadTenants() called');
@@ -113,7 +113,7 @@ export class EmailTestingSaasComponent implements OnInit {
         this.cd.detectChanges();
       },
       error: (error) => {
-        console.error('❌ [EmailTestingSaasComponent] Error cargando tenants:', error);
+        console.error('❌ [EmailTestingSaasComponent] Error loading tenants:', error);
         this.isLoadingTenants = false;
         this.cd.detectChanges();
       },
@@ -126,7 +126,7 @@ export class EmailTestingSaasComponent implements OnInit {
   }
 
   /**
-   * Probar configuración SMTP
+   * Test SMTP configuration
    */
   testSMTPConfiguration(): void {
     console.log('🧪 [EmailTestingSaasComponent] testSMTPConfiguration() called');
@@ -138,21 +138,21 @@ export class EmailTestingSaasComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ [EmailTestingSaasComponent] Error testing SMTP:', error);
-        this.smtpStatus = { success: false, message: 'Error al probar SMTP' };
+        this.smtpStatus = { success: false, message: 'Error testing SMTP' };
         this.cd.detectChanges();
       }
     });
   }
 
   /**
-   * Seleccionar tenant
+   * Select tenant
    */
   selectTenant(tenant: Tenant): void {
     this.selectedTenant = tenant;
   }
 
   /**
-   * Enviar email de prueba
+   * Send test email
    */
   sendTestEmail(emailType: string): void {
     if (!this.selectedTenant) {
@@ -206,11 +206,11 @@ export class EmailTestingSaasComponent implements OnInit {
         this.cd.detectChanges();
       },
       error: (error) => {
-        console.error('❌ Error enviando email:', error);
+        console.error('❌ Error sending email:', error);
         
         const testResult: EmailTestResult = {
           success: false,
-          message: error.error?.message || 'Error desconocido',
+          message: error.error?.message || 'Unknown error',
           tenantId: this.selectedTenant!.id,
           emailType: emailType,
           timestamp: new Date().toISOString()
@@ -228,21 +228,21 @@ export class EmailTestingSaasComponent implements OnInit {
   }
 
   /**
-   * Ejecutar cron de notificaciones manualmente
+   * Run trial notifications cron manually
    */
   runTrialNotificationsNow(): void {
     this.isTesting = true;
     
     this.emailTestingService.runTrialNotificationsNow().subscribe({
       next: (result) => {
-        console.log('✅ Cron ejecutado:', result);
-        alert('✅ Cron ejecutado correctamente. Revisa la consola para más detalles.');
+        console.log('✅ Cron executed:', result);
+        alert('✅ Cron executed successfully. Check console for more details.');
         this.isTesting = false;
         this.cd.detectChanges();
       },
       error: (error) => {
-        console.error('❌ Error ejecutando cron:', error);
-        alert('❌ Error ejecutando cron');
+        console.error('❌ Error executing cron:', error);
+        alert('❌ Error executing cron');
         this.isTesting = false;
         this.cd.detectChanges();
       }
@@ -250,7 +250,7 @@ export class EmailTestingSaasComponent implements OnInit {
   }
 
   /**
-   * Formatear fecha
+   * Format date
    */
   formatDate(dateString: string | null): string {
     if (!dateString) return 'N/A';
@@ -265,7 +265,7 @@ export class EmailTestingSaasComponent implements OnInit {
   }
 
   /**
-   * Obtener badge de status
+   * Get status badge
    */
   getStatusBadge(tenant: Tenant): string {
     if (tenant.plan === 'trial' || tenant.status === 'trial') {
@@ -278,14 +278,14 @@ export class EmailTestingSaasComponent implements OnInit {
   }
 
   /**
-   * Limpiar resultados
+   * Clear results
    */
   clearResults(): void {
     this.lastTestResults = [];
   }
 
   /**
-   * Recargar tenants
+   * Reload tenants
    */
   refreshTenants(): void {
     this.selectedTenant = null;

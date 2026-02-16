@@ -1,4 +1,4 @@
-<!--begin::Gestión de Módulos-->
+<!--begin::Module Management-->
 <div class="modules-management">
   <!--begin::Header-->
   <div class="card mb-6">
@@ -7,28 +7,28 @@
         <div>
           <h1 class="text-dark fw-bolder fs-2x mb-2">
             <i class="fas fa-cubes text-primary me-2"></i>
-            Gestión de Módulos
+            Module Management
           </h1>
           <p class="text-muted fs-6 mb-0">
-            Administra tus experimentos y valida ideas rápidamente (Levels-style)
+            Manage your experiments and validate ideas quickly (Levels-style)
           </p>
         </div>
         <button 
           class="btn btn-primary"
           (click)="createModule()">
           <i class="fas fa-plus me-2"></i>
-          Crear Módulo
+          Create Module
         </button>
       </div>
     </div>
   </div>
   <!--end::Header-->
 
-  <!--begin::Filtros-->
+  <!--begin::Filters-->
   <div class="card mb-6">
     <div class="card-body">
       <div class="row g-4">
-        <!-- Búsqueda -->
+        <!-- Search -->
         <div class="col-md-6">
           <div class="input-group">
             <span class="input-group-text">
@@ -37,17 +37,17 @@
             <input 
               type="text" 
               class="form-control" 
-              placeholder="Buscar por nombre, key o descripción..."
+              placeholder="Search by name, key or description..."
               [(ngModel)]="searchTerm">
           </div>
         </div>
 
-        <!-- Filtro por estado -->
+        <!-- Filter by status -->
         <div class="col-md-3">
           <select 
             class="form-select"
             [(ngModel)]="statusFilter">
-            <option value="all">Todos los estados</option>
+            <option value="all">All statuses</option>
             <option value="draft">📄 Draft</option>
             <option value="testing">🧪 Testing</option>
             <option value="live">🟢 Live</option>
@@ -72,9 +72,9 @@
   <div *ngIf="isLoading" class="card">
     <div class="card-body text-center py-20">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Cargando...</span>
+        <span class="visually-hidden">Loading...</span>
       </div>
-      <p class="text-muted mt-3">Cargando módulos...</p>
+      <p class="text-muted mt-3">Loading modules...</p>
     </div>
   </div>
   <!--end::Loading-->
@@ -126,7 +126,7 @@
               <div class="col-6">
                 <div class="border border-gray-300 border-dashed rounded p-3">
                   <span class="text-muted fs-8 d-block mb-1">
-                    <i class="fas fa-chart-line me-1"></i>Ventas
+                    <i class="fas fa-chart-line me-1"></i>Sales
                   </span>
                   <span class="fw-bold text-dark fs-6">{{ module.total_sales }}</span>
                 </div>
@@ -146,9 +146,9 @@
           <!--begin::Validation-->
           <div class="mb-4">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="text-muted fs-8">Target de validación:</span>
+              <span class="text-muted fs-8">Validation target:</span>
               <span class="badge badge-light-warning fs-8">
-                {{ module.validation_target_sales }} en {{ module.validation_days }} días
+                {{ module.validation_target_sales }} in {{ module.validation_days }} days
               </span>
             </div>
             <div class="progress h-6px">
@@ -165,8 +165,8 @@
           <div *ngIf="module.status === 'testing' && module.launched_at" class="alert alert-warning d-flex align-items-center py-3 mb-4">
             <i class="fas fa-hourglass-half fs-3 me-3"></i>
             <div class="flex-grow-1">
-              <span class="fw-bold d-block">Quedan {{ calculateDaysRemaining(module) }} días</span>
-              <span class="fs-8">{{ module.validation_target_sales - module.total_sales }} ventas más para validar</span>
+              <span class="fw-bold d-block">{{ calculateDaysRemaining(module) }} days remaining</span>
+              <span class="fs-8">{{ module.validation_target_sales - module.total_sales }} more sales to validate</span>
             </div>
           </div>
           <!--end::Testing Alert-->
@@ -177,14 +177,14 @@
               class="btn btn-sm btn-light-primary flex-grow-1"
               (click)="editModule(module); $event.stopPropagation()">
               <i class="fas fa-edit me-1"></i>
-              Editar
+              Edit
             </button>
             <button 
               *ngIf="module.status !== 'archived'"
               class="btn btn-sm btn-light-danger"
               (click)="archiveModule(module, $event)">
               <i class="fas fa-archive me-1"></i>
-              Archivar
+              Archive
             </button>
           </div>
           <!--end::Actions-->
@@ -203,20 +203,20 @@
         </div>
       </div>
       <h5 class="fw-bolder text-muted mb-2">
-        {{ searchTerm || statusFilter !== 'all' ? 'No se encontraron módulos' : 'No hay módulos registrados' }}
+        {{ searchTerm || statusFilter !== 'all' ? 'No modules found' : 'No modules registered' }}
       </h5>
       <p class="text-muted fs-7 mb-4">
-        {{ searchTerm || statusFilter !== 'all' ? 'Prueba con otros filtros' : 'Crea tu primer módulo para empezar a validar ideas' }}
+        {{ searchTerm || statusFilter !== 'all' ? 'Try other filters' : 'Create your first module to start validating ideas' }}
       </p>
       <button 
         *ngIf="!searchTerm && statusFilter === 'all'"
         class="btn btn-primary"
         (click)="createModule()">
         <i class="fas fa-plus me-2"></i>
-        Crear Primer Módulo
+        Create First Module
       </button>
     </div>
   </div>
   <!--end::Empty State-->
 </div>
-<!--end::Gestión de Módulos-->
+<!--end::Module Management-->

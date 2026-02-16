@@ -9,12 +9,12 @@ import {
 /**
  * MVP Decision Engine Component
  * 
- * Vista detallada de un Module con motor de decisiones para:
- * - Validar y activar (status = live)
- * - Archivar (status = archived)
- * - Continuar validación (status = testing)
+ * Detailed view of a Module with decision engine for:
+ * - Validate and activate (status = live)
+ * - Archive (status = archived)
+ * - Continue validation (status = testing)
  * 
- * Nota: Ya no existe "conversión a módulo" - un Module con status=testing ES el MVP.
+ * Note: There's no longer "module conversion" - a Module with status=testing IS the MVP.
  * 
  * @author Claude (GitHub Copilot)
  * @date 2026-02-13
@@ -57,7 +57,7 @@ export class MvpDecisionEngineComponent implements OnInit {
   }
 
   /**
-   * Cargar analytics del MVP
+   * Load MVP analytics
    */
   loadAnalytics(): void {
     this.isLoading = true;
@@ -68,14 +68,14 @@ export class MvpDecisionEngineComponent implements OnInit {
         if (response.success) {
           this.analytics = response.analytics;
         } else {
-          this.error = 'No se encontraron datos para este MVP';
+          this.error = 'No data found for this MVP';
         }
         this.isLoading = false;
         this.cd.detectChanges();
       },
       error: (err) => {
         console.error('❌ Error loading analytics:', err);
-        this.error = 'Error al cargar analytics del MVP';
+        this.error = 'Error loading MVP analytics';
         this.isLoading = false;
         this.cd.detectChanges();
       }
@@ -83,7 +83,7 @@ export class MvpDecisionEngineComponent implements OnInit {
   }
 
   /**
-   * Cambiar período
+   * Change period
    */
   changePeriod(period: '7d' | '30d' | '90d' | 'all'): void {
     this.selectedPeriod = period;
@@ -91,19 +91,19 @@ export class MvpDecisionEngineComponent implements OnInit {
   }
 
   /**
-   * Ejecutar decisión: Validar y Activar (cambiar status a live)
+   * Execute decision: Validate and Activate (change status to live)
    */
   async createModule(): Promise<void> {
     const result = await Swal.fire({
-      title: '✅ Validar y Activar Módulo',
+      title: '✅ Validate & Activate Module',
       html: `
-        <p class="mb-3">¿Estás seguro de validar y activar <strong>${this.analytics?.moduleName}</strong>?</p>
-        <p class="text-muted small">El módulo cambiará su status de "testing" a "live".</p>
+        <p class="mb-3">Are you sure you want to validate and activate <strong>${this.analytics?.moduleName}</strong>?</p>
+        <p class="text-muted small">The module will change its status from "testing" to "live".</p>
       `,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'Sí, activar módulo',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Yes, activate module',
+      cancelButtonText: 'Cancel',
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#6c757d'
     });
@@ -112,30 +112,30 @@ export class MvpDecisionEngineComponent implements OnInit {
 
     this.isExecutingDecision = true;
     
-    // Usar executeDecision con action 'validate' para cambiar status a 'live'
+    // Use executeDecision with action 'validate' to change status to 'live'
     this.analyticsService.executeDecision(
       this.moduleKey,
       'validate',
-      'Módulo validado y activado desde motor de decisiones'
+      'Module validated and activated from decision engine'
     ).subscribe({
       next: (response) => {
         if (response.success) {
           Swal.fire({
             icon: 'success',
-            title: '✅ Módulo Activado',
+            title: '✅ Module Activated',
             html: `
-              <p>El módulo <strong>${this.analytics?.moduleName}</strong> ha sido activado exitosamente.</p>
-              <p class="text-muted small">Ahora puedes configurarlo en la gestión de módulos.</p>
+              <p>The module <strong>${this.analytics?.moduleName}</strong> has been activated successfully.</p>
+              <p class="text-muted small">You can now configure it in module management.</p>
             `,
-            confirmButtonText: 'Ver Módulo',
+            confirmButtonText: 'View Module',
             showCancelButton: true,
-            cancelButtonText: 'Continuar aquí'
+            cancelButtonText: 'Continue here'
           }).then((result) => {
             if (result.isConfirmed) {
-              // Navegar a la edición del módulo en lab/modules
+              // Navigate to module edit in lab/modules
               this.router.navigate(['/lab/modules/edit', this.moduleKey]);
             } else {
-              this.loadAnalytics(); // Recargar datos
+              this.loadAnalytics(); // Reload data
             }
           });
         }
@@ -147,7 +147,7 @@ export class MvpDecisionEngineComponent implements OnInit {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: err.error?.message || 'Error al validar el módulo'
+          text: err.error?.message || 'Error validating module'
         });
         this.isExecutingDecision = false;
         this.cd.detectChanges();
@@ -156,19 +156,19 @@ export class MvpDecisionEngineComponent implements OnInit {
   }
 
   /**
-   * Ejecutar decisión: Continuar Validación
+   * Execute decision: Continue Validation
    */
   async continueValidation(): Promise<void> {
     const result = await Swal.fire({
-      title: '⏸️ Continuar Validación',
+      title: '⏸️ Continue Validation',
       html: `
-        <p class="mb-3">El MVP <strong>${this.analytics?.moduleName}</strong> continuará en fase de validación.</p>
-        <p class="text-muted small">Se seguirá recolectando datos de tracking para evaluar su performance.</p>
+        <p class="mb-3">MVP <strong>${this.analytics?.moduleName}</strong> will continue in validation phase.</p>
+        <p class="text-muted small">Tracking data will continue to be collected to evaluate its performance.</p>
       `,
       icon: 'info',
       showCancelButton: true,
-      confirmButtonText: 'Continuar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Continue',
+      cancelButtonText: 'Cancel',
       confirmButtonColor: '#007bff'
     });
 
@@ -179,14 +179,14 @@ export class MvpDecisionEngineComponent implements OnInit {
     this.analyticsService.executeDecision(
       this.moduleKey, 
       'continue',
-      'Decisión manual: continuar recolectando datos'
+      'Manual decision: continue collecting data'
     ).subscribe({
       next: (response) => {
         if (response.success) {
           Swal.fire({
             icon: 'success',
-            title: '✅ Decisión Registrada',
-            text: 'El MVP continuará en fase de validación.',
+            title: '✅ Decision Registered',
+            text: 'MVP will continue in validation phase.',
             timer: 2000,
             showConfirmButton: false
           });
@@ -200,7 +200,7 @@ export class MvpDecisionEngineComponent implements OnInit {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Error al registrar la decisión'
+          text: 'Error registering decision'
         });
         this.isExecutingDecision = false;
         this.cd.detectChanges();
@@ -209,22 +209,22 @@ export class MvpDecisionEngineComponent implements OnInit {
   }
 
   /**
-   * Ejecutar decisión: Archivar MVP
+   * Execute decision: Archive MVP
    */
   async archiveMVP(): Promise<void> {
     const result = await Swal.fire({
-      title: '🗄️ Archivar MVP',
+      title: '🗄️ Archive MVP',
       html: `
-        <p class="mb-3">¿Estás seguro de archivar <strong>${this.analytics?.moduleName}</strong>?</p>
-        <p class="text-danger small">Esta acción marcará el MVP como archivado y dejará de aparecer en el dashboard principal.</p>
+        <p class="mb-3">Are you sure you want to archive <strong>${this.analytics?.moduleName}</strong>?</p>
+        <p class="text-danger small">This action will mark the MVP as archived and it will stop appearing in the main dashboard.</p>
       `,
       icon: 'warning',
       input: 'textarea',
-      inputLabel: 'Motivo del archivo (opcional)',
-      inputPlaceholder: 'Ej: Performance insuficiente, pivote de producto...',
+      inputLabel: 'Archive reason (optional)',
+      inputPlaceholder: 'E.g.: Insufficient performance, product pivot...',
       showCancelButton: true,
-      confirmButtonText: 'Sí, archivar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Yes, archive',
+      cancelButtonText: 'Cancel',
       confirmButtonColor: '#dc3545',
       cancelButtonColor: '#6c757d'
     });
@@ -236,14 +236,14 @@ export class MvpDecisionEngineComponent implements OnInit {
     this.analyticsService.executeDecision(
       this.moduleKey,
       'archive',
-      result.value || 'Archivado manualmente desde motor de decisiones'
+      result.value || 'Manually archived from decision engine'
     ).subscribe({
       next: (response) => {
         if (response.success) {
           Swal.fire({
             icon: 'success',
-            title: '✅ MVP Archivado',
-            text: 'El MVP ha sido archivado exitosamente.',
+            title: '✅ MVP Archived',
+            text: 'MVP has been archived successfully.',
             timer: 2000,
             showConfirmButton: false
           }).then(() => {
@@ -258,7 +258,7 @@ export class MvpDecisionEngineComponent implements OnInit {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Error al archivar el MVP'
+          text: 'Error archiving MVP'
         });
         this.isExecutingDecision = false;
         this.cd.detectChanges();
@@ -267,14 +267,14 @@ export class MvpDecisionEngineComponent implements OnInit {
   }
 
   /**
-   * Volver al listado
+   * Go back to list
    */
   goBack(): void {
     this.router.navigate(['/lab/analytics']);
   }
 
   /**
-   * Utilidades
+   * Utilities
    */
   getScoreClass(score: number): string {
     return this.analyticsService.getScoreColor(score);
@@ -310,27 +310,27 @@ export class MvpDecisionEngineComponent implements OnInit {
   }
 
   /**
-   * Formatear tasa con contexto de datos insuficientes
+   * Format rate with insufficient data context
    */
   formatRate(rate: number, context: 'conversion' | 'download' | 'retention' | 'feedback'): string {
     if (!this.analytics) return '0%';
     
-    // Si hay datos insuficientes y la tasa es 0, mostrar N/A
+    // If there's insufficient data and rate is 0, show N/A
     if (this.analytics.insufficient_data && rate === 0) {
-      return 'N/A (poca data)';
+      return 'N/A (low data)';
     }
     
-    // Si la tasa es 0 por falta de eventos base, mostrar contexto
+    // If rate is 0 due to lack of base events, show context
     if (rate === 0) {
       switch (context) {
         case 'conversion':
-          return this.analytics.wizard_starts === 0 ? 'N/A (sin starts)' : '0%';
+          return this.analytics.wizard_starts === 0 ? 'N/A (no starts)' : '0%';
         case 'download':
-          return this.analytics.wizard_completions === 0 ? 'N/A (sin completions)' : '0%';
+          return this.analytics.wizard_completions === 0 ? 'N/A (no completions)' : '0%';
         case 'feedback':
-          return this.analytics.total_feedback === 0 ? 'N/A (sin feedback)' : '0%';
+          return this.analytics.total_feedback === 0 ? 'N/A (no feedback)' : '0%';
         case 'retention':
-          return this.analytics.totalSessions === 0 ? 'N/A (sin sesiones)' : '0%';
+          return this.analytics.totalSessions === 0 ? 'N/A (no sessions)' : '0%';
       }
     }
     
