@@ -127,22 +127,67 @@ export class MvpAnalyticsComponent implements OnInit {
 
   /**
    * Open MVP wizard in new tab
-   * Adds ?internal=true to bypass status='testing' validation
+   * 
+   * 🔧 LÓGICA INTELIGENTE:
+   * - Status 'testing'/'draft' → Añade ?internal=true (test admin, no contamina métricas)
+   * - Status 'live' → Sin ?internal=true (experiencia de usuario real)
+   * 
+   * @param moduleKey - Module key to test
+   * @param utmSource - Optional UTM source for testing attribution (twitter, reddit, linkedin, etc.)
+   * @param event - Click event to stop propagation
    */
-  openWizard(moduleKey: string, event?: Event): void {
+  openWizard(moduleKey: string, utmSource: string | null = null, event?: Event): void {
     // Prevent click propagation to card
     if (event) {
       event.stopPropagation();
     }
     
-    // Build wizard URL with authorized internal access
-    // This allows opening modules with status='testing' from Admin Panel
-    const wizardUrl = `${environment.URL_MVP_HUB}/preview/${moduleKey}?internal=true`;
+    // 🔧 Find MVP to check its status
+    const mvp = this.analytics.find(m => m.moduleKey === moduleKey);
+    const isTestingMode = mvp?.status === 'testing' || mvp?.status === 'draft';
+    
+    // Build base URL
+    let wizardUrl = `${environment.URL_MVP_HUB}/preview/${moduleKey}`;
+    
+    // Build query params
+    const params: string[] = [];
+    
+    // 🔧 Solo añadir internal=true si está en modo testing/draft
+    // En modo 'live', simular experiencia de usuario real
+    if (isTestingMode) {
+      params.push('internal=true');
+    }
+    
+    // Add UTM params if source is specified
+    if (utmSource) {
+      params.push(`utm_source=${utmSource}`);
+      params.push(`utm_campaign=test_admin`);
+      
+      // Set medium based on source
+      const mediumMap: { [key: string]: string } = {
+        'twitter': 'social',
+        'reddit': 'social',
+        'linkedin': 'message',
+        'discord': 'community',
+        'indiehackers': 'forum',
+        'producthunt': 'launch'
+      };
+      
+      const medium = mediumMap[utmSource] || 'social';
+      params.push(`utm_medium=${medium}`);
+    }
+    
+    // Append query params to URL (only if there are params)
+    if (params.length > 0) {
+      wizardUrl += '?' + params.join('&');
+    }
     
     // Open in new tab
     window.open(wizardUrl, '_blank');
     
-    console.log(`🚀 Opening internal wizard: ${wizardUrl}`);
+    const modeLabel = isTestingMode ? 'TESTING MODE (internal)' : 'LIVE MODE (real user)';
+    const sourceLabel = utmSource ? `${utmSource}` : 'direct';
+    console.log(`🚀 Opening wizard [${modeLabel}] as ${sourceLabel} user: ${wizardUrl}`);
   }
 
   /**

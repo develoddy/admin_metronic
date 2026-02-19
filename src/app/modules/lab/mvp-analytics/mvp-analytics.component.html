@@ -332,13 +332,59 @@
           {{ getPeriodLabel(mvp.period) }}
         </small>
         <div class="action-buttons">
-          <button 
-            class="btn btn-sm btn-primary me-2"
-            (click)="openWizard(mvp.moduleKey, $event)"
-            title="Open wizard to test MVP">
-            <i class="fas fa-rocket me-1"></i>
-            Test
-          </button>
+          <!-- Test Button with UTM Dropdown -->
+          <div class="btn-group me-2" ngbDropdown placement="bottom-right">
+            <button 
+              class="btn btn-sm btn-primary"
+              (click)="openWizard(mvp.moduleKey, null, $event)"
+              title="Open wizard to test MVP (Direct)">
+              <i class="fas fa-rocket me-1"></i>
+              Test
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split"
+              ngbDropdownToggle
+              title="Test with different UTM sources">
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu" ngbDropdownMenu>
+              <h6 class="dropdown-header">
+                <i class="fas fa-flask me-1"></i>
+                Test as User from...
+              </h6>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item" (click)="openWizard(mvp.moduleKey, null, $event)">
+                <i class="fas fa-home me-2"></i>
+                Direct (No UTM)
+              </button>
+              <button class="dropdown-item" (click)="openWizard(mvp.moduleKey, 'twitter', $event)">
+                <i class="fab fa-twitter me-2 text-info"></i>
+                Twitter
+              </button>
+              <button class="dropdown-item" (click)="openWizard(mvp.moduleKey, 'reddit', $event)">
+                <i class="fab fa-reddit me-2 text-danger"></i>
+                Reddit
+              </button>
+              <button class="dropdown-item" (click)="openWizard(mvp.moduleKey, 'linkedin', $event)">
+                <i class="fab fa-linkedin me-2 text-primary"></i>
+                LinkedIn
+              </button>
+              <button class="dropdown-item" (click)="openWizard(mvp.moduleKey, 'discord', $event)">
+                <i class="fab fa-discord me-2 text-indigo"></i>
+                Discord
+              </button>
+              <button class="dropdown-item" (click)="openWizard(mvp.moduleKey, 'indiehackers', $event)">
+                <i class="fas fa-rocket me-2 text-warning"></i>
+                Indie Hackers
+              </button>
+              <button class="dropdown-item" (click)="openWizard(mvp.moduleKey, 'producthunt', $event)">
+                <i class="fab fa-product-hunt me-2 text-danger"></i>
+                Product Hunt
+              </button>
+            </div>
+          </div>
+          
           <button 
             class="btn btn-sm btn-outline-secondary"
             (click)="viewDetails(mvp.moduleKey); $event.stopPropagation()"

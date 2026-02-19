@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { LabRoutingModule } from './lab-routing.module';
 import { LabComponent } from './lab.component';
@@ -31,6 +32,7 @@ import { MicroSaasAnalyticsService } from './_services/micro-saas-analytics.serv
   imports: [
     CommonModule,
     FormsModule,
+    NgbModule,
     LabRoutingModule  // Debe ir último
   ],
   providers: [

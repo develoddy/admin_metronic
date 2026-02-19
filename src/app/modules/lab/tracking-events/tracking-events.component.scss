@@ -220,6 +220,30 @@
     background: #e8f5e9;
     color: #388e3c;
   }
+
+  // 🆕 UTM tracking badges
+  &.badge-campaign {
+    background: #fff3e0;
+    color: #f57c00;
+  }
+
+  &.badge-medium {
+    background: #fce4ec;
+    color: #c2185b;
+  }
+
+  // 🆕 Access type badges
+  &.badge-access-public {
+    background: #e8f5e9;
+    color: #388e3c;
+    font-size: 10px;
+  }
+
+  &.badge-access-admin {
+    background: #ffebee;
+    color: #d32f2f;
+    font-size: 10px;
+  }
 }
 
 // ========================================

@@ -51,9 +51,47 @@
         <label>Origen</label>
         <select [(ngModel)]="filters.source" class="form-control">
           <option value="">Todos los orígenes</option>
-          <option value="preview">👥 Preview (Público)</option>
-          <option value="admin">🔧 Admin (Tests Internos)</option>
+          <option value="direct">🏠 Direct (Sin UTM)</option>
+          <option value="preview">👥 Preview (Legacy)</option>
+          <option value="admin">🔧 Admin (Legacy)</option>
           <option value="pro_modal">💰 Pro Modal</option>
+          <!-- 🆕 UTM Channels -->
+          <option value="twitter">🐦 Twitter</option>
+          <option value="reddit">🔥 Reddit</option>
+          <option value="linkedin">💼 LinkedIn</option>
+          <option value="discord">💬 Discord</option>
+          <option value="indiehackers">🚀 Indie Hackers</option>
+          <option value="producthunt">🏆 Product Hunt</option>
+        </select>
+      </div>
+
+      <!-- 🆕 Campaign filter (UTM) -->
+      <div class="filter-group">
+        <label>Campaña (UTM)</label>
+        <input 
+          type="text" 
+          [(ngModel)]="filters.campaign" 
+          class="form-control"
+          placeholder="ej: launch, update_day3...">
+      </div>
+
+      <!-- 🆕 Medium filter (UTM) -->
+      <div class="filter-group">
+        <label>Medio (UTM)</label>
+        <input 
+          type="text" 
+          [(ngModel)]="filters.medium" 
+          class="form-control"
+          placeholder="ej: social, forum, message...">
+      </div>
+
+      <!-- 🆕 Internal Access filter -->
+      <div class="filter-group">
+        <label>Acceso</label>
+        <select [(ngModel)]="filters.is_internal_access" class="form-control">
+          <option [value]="undefined">Todos (Público + Admin)</option>
+          <option [value]="false">🌐 Solo Público</option>
+          <option [value]="true">🔒 Solo Admin (?internal=true)</option>
         </select>
       </div>
 
@@ -134,13 +172,13 @@
         <i class="fas fa-times"></i>
         Limpiar
       </button>
-      <!-- Botón de limpieza de tests internos (solo development) -->
+      <!-- 🆕 Botón de limpieza de tests internos (solo development) -->
       <button 
         *ngIf="!isProduction"
         class="btn btn-warning ms-2"
         (click)="clearAdminEvents()"
         [disabled]="isLoading"
-        title="Eliminar eventos con source='admin' (tests internos)">
+        title="Eliminar eventos con is_internal_access=true (tests internos con ?internal=true)">
         <i class="fas fa-broom"></i>
         Limpiar Tests Internos
       </button>
@@ -186,6 +224,9 @@
             <th>Evento</th>
             <th>Módulo</th>
             <th>Source</th>
+            <th>Campaign</th>
+            <th>Medium</th>
+            <th>Access</th>
             <th>Session ID</th>
             <th>User ID</th>
             <th>Tenant ID</th>
@@ -212,6 +253,30 @@
                 {{ event.source }}
               </span>
               <span class="text-muted" *ngIf="!event.source">-</span>
+            </td>
+            <!-- 🆕 Campaign (UTM) -->
+            <td>
+              <span class="badge badge-campaign" *ngIf="getCampaign(event)">
+                {{ getCampaign(event) }}
+              </span>
+              <span class="text-muted" *ngIf="!getCampaign(event)">-</span>
+            </td>
+            <!-- 🆕 Medium (UTM) -->
+            <td>
+              <span class="badge badge-medium" *ngIf="getMedium(event)">
+                {{ getMedium(event) }}
+              </span>
+              <span class="text-muted" *ngIf="!getMedium(event)">-</span>
+            </td>
+            <!-- 🆕 Internal Access -->
+            <td>
+              <span class="badge badge-access-public" *ngIf="getInternalAccess(event) === false">
+                🌐 Public
+              </span>
+              <span class="badge badge-access-admin" *ngIf="getInternalAccess(event) === true">
+                🔒 Admin
+              </span>
+              <span class="text-muted" *ngIf="getInternalAccess(event) === null">-</span>
             </td>
             <td>
               <code 

@@ -248,6 +248,39 @@ export class TrackingEventsComponent implements OnInit {
   }
 
   /**
+   * 🆕 Obtener campaign desde properties
+   */
+  getCampaign(event: TrackingEvent): string | null {
+    try {
+      return event.properties?.campaign || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * 🆕 Obtener medium desde properties
+   */
+  getMedium(event: TrackingEvent): string | null {
+    try {
+      return event.properties?.medium || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * 🆕 Obtener is_internal_access desde properties
+   */
+  getInternalAccess(event: TrackingEvent): boolean | null {
+    try {
+      return event.properties?.is_internal_access ?? null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
    * Copiar session_id al clipboard
    */
   copyToClipboard(text: string): void {
@@ -260,9 +293,9 @@ export class TrackingEventsComponent implements OnInit {
   }
 
   /**
-   * Limpiar eventos de tests internos (source='admin')
-   * ⚠️ Solo disponible en development para limpiar pruebas
-   * NO afecta eventos públicos (source='preview')
+   * 🆕 Limpiar eventos de tests internos (is_internal_access=true)
+   * Sistema UTM tracking - Protege eventos públicos (is_internal_access=false)
+   * ⚠️ Solo disponible en development para limpiar pruebas antes de lanzar MVP
    */
   async clearAdminEvents(): Promise<void> {
     // Modal de confirmación profesional con SweetAlert2
@@ -271,17 +304,31 @@ export class TrackingEventsComponent implements OnInit {
       html: `
         <div class="text-start">
           <p class="mb-3">
-            Estás a punto de <strong>eliminar TODOS los eventos</strong> con <code>source="admin"</code>.
+            Estás a punto de <strong>eliminar TODOS los eventos</strong> con <code>is_internal_access=true</code>.
           </p>
           
-          <div class="alert alert-warning" style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
+          <div class="alert alert-info" style="background: #e3f2fd; border: 1px solid #2196f3; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
             <div style="display: flex; align-items: start;">
-              <i class="fas fa-shield-alt" style="color: #ff9800; margin-right: 10px; margin-top: 2px;"></i>
-              <div>
+              <i class="fas fa-info-circle" style="color: #2196f3; margin-right: 10px; margin-top: 2px;"></i>
+              <div style="font-size: 13px;">
+                <strong>¿Qué se eliminará?</strong>
+                <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+                  <li>Accesos con <code>?internal=true</code> (tus pruebas desde Admin Panel)</li>
+                  <li>Eventos de navegación interna mientras configurabas el MVP</li>
+                  <li>Simulaciones y tests previos al lanzamiento</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-success" style="background: #e8f5e9; border: 1px solid #4caf50; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
+            <div style="display: flex; align-items: start;">
+              <i class="fas fa-shield-alt" style="color: #4caf50; margin-right: 10px; margin-top: 2px;"></i>
+              <div style="font-size: 13px;">
                 <strong>Protección de datos públicos:</strong>
-                <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 13px;">
-                  <li>Los eventos con <code>source="preview"</code> permanecerán <strong>intactos</strong></li>
-                  <li>Solo se eliminarán tus pruebas internas del Admin Panel</li>
+                <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+                  <li>Los eventos con <code>is_internal_access=false</code> permanecerán <strong>intactos</strong></li>
+                  <li>Toda data UTM (Twitter, Reddit, LinkedIn, etc.) se conserva</li>
                   <li>Las métricas de usuarios reales NO serán afectadas</li>
                 </ul>
               </div>
@@ -289,18 +336,18 @@ export class TrackingEventsComponent implements OnInit {
           </div>
 
           <p class="text-muted" style="font-size: 13px;">
-            <i class="fas fa-info-circle"></i>
-            Esta acción es útil para limpiar eventos de prueba antes de lanzar un MVP al público.
+            <i class="fas fa-lightbulb"></i>
+            <strong>Caso de uso:</strong> Úsalo antes del Día 7 para tener analytics limpias al ejecutar las queries de validación.
           </p>
         </div>
       `,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: '<i class="fas fa-broom me-1"></i> Sí, limpiar tests',
+      confirmButtonText: '<i class="fas fa-broom me-1"></i> Sí, limpiar tests internos',
       cancelButtonText: '<i class="fas fa-times me-1"></i> Cancelar',
       confirmButtonColor: '#ff9800',
       cancelButtonColor: '#6c757d',
-      width: '550px',
+      width: '600px',
       customClass: {
         confirmButton: 'btn btn-warning',
         cancelButton: 'btn btn-secondary'
@@ -314,24 +361,29 @@ export class TrackingEventsComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
     
-    this.trackingService.deleteEventsBySource('admin').subscribe({
+    // 🆕 Usar el nuevo endpoint que elimina por is_internal_access=true
+    this.trackingService.deleteInternalAccessEvents().subscribe({
       next: (response) => {
         if (response.success) {
           // Modal de éxito
           Swal.fire({
-            title: '✅ Tests Limpiados',
+            title: '✅ Tests Internos Limpiados',
             html: `
               <div class="text-center">
                 <p class="mb-2">
                   Se eliminaron <strong>${response.deleted} eventos</strong> de tests internos.
                 </p>
-                <p class="text-muted" style="font-size: 13px;">
-                  Los datos de usuarios reales (source="preview") permanecen seguros.
+                <p class="text-success" style="font-size: 13px;">
+                  <i class="fas fa-check-circle"></i>
+                  Los datos de usuarios reales (<code>is_internal_access=false</code>) permanecen seguros.
+                </p>
+                <p class="text-muted" style="font-size: 12px; margin-top: 8px;">
+                  Ahora tus analytics reflejan solo tráfico real con atribución UTM correcta.
                 </p>
               </div>
             `,
             icon: 'success',
-            timer: 3000,
+            timer: 4000,
             showConfirmButton: false,
             timerProgressBar: true
           });
@@ -342,7 +394,7 @@ export class TrackingEventsComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('❌ Error deleting admin events:', err);
+        console.error('❌ Error deleting internal access events:', err);
         
         // Modal de error
         Swal.fire({

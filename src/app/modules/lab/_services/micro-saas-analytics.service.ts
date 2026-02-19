@@ -20,6 +20,7 @@ import { URL_SERVICIOS } from '../../../config/config';
 export interface MicroSaasKPIs {
   moduleKey: string;
   moduleName: string;
+  status: 'draft' | 'testing' | 'live' | 'archived'; // 🔧 Estado del módulo para lógica inteligente
   
   // Métricas básicas
   totalSessions: number;

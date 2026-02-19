@@ -53,3 +53,4 @@ src/assets
 .DS_Store
 ._*
 Thumbs.db
+*.md
