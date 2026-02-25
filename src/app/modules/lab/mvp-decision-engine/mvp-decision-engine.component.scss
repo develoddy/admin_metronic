@@ -374,6 +374,83 @@
         }
       }
 
+      // Pain Resonance Card (Landing Only)
+      .pain-resonance-card {
+        background: linear-gradient(135deg, #fff3e0 0%, #fafafa 100%);
+        border-left: 4px solid #ff6b6b !important;
+
+        .pain-points-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.875rem;
+
+          .pain-point-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ffe0e0;
+            transition: all 0.2s ease;
+
+            &:hover {
+              border-color: #ff6b6b;
+              box-shadow: 0 2px 8px rgba(255, 107, 107, 0.15);
+            }
+
+            .pain-rank {
+              width: 30px;
+              height: 30px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: linear-gradient(135deg, #ff6b6b, #ff8787);
+              color: white;
+              border-radius: 50%;
+              font-weight: 700;
+              font-size: 0.875rem;
+              flex-shrink: 0;
+            }
+
+            .pain-info {
+              flex: 1;
+              min-width: 0;
+
+              .pain-label {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 0.125rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+
+              .pain-clicks {
+                font-size: 0.75rem;
+                color: #6c757d;
+              }
+            }
+
+            .pain-bar-wrapper {
+              width: 80px;
+              height: 6px;
+              background: #f0f0f0;
+              border-radius: 3px;
+              overflow: hidden;
+              flex-shrink: 0;
+
+              .pain-bar {
+                height: 100%;
+                background: linear-gradient(90deg, #ff6b6b, #ff8787);
+                transition: width 0.3s ease;
+              }
+            }
+          }
+        }
+      }
+
       // === MONETIZATION CARD (Nuevo: Feb 2026) ===
       .monetization-card {
         background: linear-gradient(135deg, #fff8e1 0%, #fffef7 100%);

@@ -38,6 +38,7 @@ export class MvpAnalyticsComponent implements OnInit {
   
   // UI State
   viewMode: 'grid' | 'list' = 'grid';
+  groupByConcept = false; // Toggle for concept family view
 
   constructor(
     private analyticsService: MicroSaasAnalyticsService,
@@ -100,6 +101,63 @@ export class MvpAnalyticsComponent implements OnInit {
     }
     
     return filtered;
+  }
+
+  /**
+   * 🆕 Group analytics by concept name
+   * Returns a map of concept names to their phases
+   */
+  get conceptGroups(): Map<string, MicroSaasKPIs[]> {
+    const groups = new Map<string, MicroSaasKPIs[]>();
+    
+    this.filteredAnalytics.forEach(mvp => {
+      const conceptName = mvp.conceptName || mvp.moduleKey;
+      if (!groups.has(conceptName)) {
+        groups.set(conceptName, []);
+      }
+      groups.get(conceptName)!.push(mvp);
+    });
+    
+    // Sort phases within each concept by phase_order
+    groups.forEach((phases, conceptName) => {
+      phases.sort((a, b) => (a.phaseOrder || 0) - (b.phaseOrder || 0));
+    });
+    
+    return groups;
+  }
+
+  /**
+   * 🆕 Get all concept groups as array for ngFor
+   */
+  get conceptGroupsArray(): Array<{ conceptName: string; phases: MicroSaasKPIs[] }> {
+    return Array.from(this.conceptGroups.entries()).map(([conceptName, phases]) => ({
+      conceptName,
+      phases
+    }));
+  }
+
+  /**
+   * 🆕 Get current (most advanced) phase for a concept
+   */
+  getCurrentPhase(phases: MicroSaasKPIs[]): MicroSaasKPIs {
+    // Return the phase with highest phase_order that is live or testing
+    const activePhases = phases.filter(p => p.status === 'live' || p.status === 'testing');
+    if (activePhases.length > 0) {
+      return activePhases.reduce((max, p) => 
+        (p.phaseOrder || 0) > (max.phaseOrder || 0) ? p : max
+      );
+    }
+    // Otherwise return the most advanced phase
+    return phases.reduce((max, p) => 
+      (p.phaseOrder || 0) > (max.phaseOrder || 0) ? p : max
+    );
+  }
+
+  /**
+   * 🆕 Toggle between normal and concept-grouped view
+   */
+  toggleConceptView(): void {
+    this.groupByConcept = !this.groupByConcept;
   }
 
   /**

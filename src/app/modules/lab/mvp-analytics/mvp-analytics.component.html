@@ -94,6 +94,18 @@
         placeholder="🔍 Search MVP..."
         [(ngModel)]="searchTerm">
     </div>
+
+    <!-- Toggle Concept View -->
+    <div class="filter-group ms-2">
+      <button 
+        class="btn btn-sm"
+        [ngClass]="groupByConcept ? 'btn-primary' : 'btn-outline-secondary'"
+        (click)="toggleConceptView()"
+        title="Group by concept family">
+        <i class="fas" [ngClass]="groupByConcept ? 'fa-sitemap' : 'fa-th'"></i>
+        {{ groupByConcept ? 'Concept View' : 'Normal View' }}
+      </button>
+    </div>
   </div>
 
   <!-- Summary Cards -->
@@ -171,8 +183,8 @@
     </p>
   </div>
 
-  <!-- MVP Analytics Grid -->
-  <div class="mvp-grid" *ngIf="filteredAnalytics.length > 0">
+  <!-- MVP Analytics Grid - Normal View -->
+  <div class="mvp-grid" *ngIf="!groupByConcept && filteredAnalytics.length > 0">
     <div 
       class="mvp-card" 
       *ngFor="let mvp of filteredAnalytics"
@@ -185,9 +197,31 @@
         <div class="mvp-title">
           <h5>{{ mvp.moduleName }}</h5>
           <small class="text-muted">{{ mvp.moduleKey }}</small>
+          
           <!-- Badge for insufficient data -->
           <span class="badge badge-warning badge-sm mt-1" *ngIf="mvp.insufficient_data">
             ⚠️ Low Data
+          </span>
+          
+          <!-- Badge for validation stage / phase -->
+          <span 
+            class="badge badge-sm mt-1" 
+            [ngClass]="{
+              'badge-info': mvp.moduleType === 'landing',
+              'badge-primary': mvp.moduleType === 'wizard',
+              'badge-success': mvp.moduleType === 'live'
+            }">
+            <ng-container *ngIf="mvp.moduleType === 'landing'">🏖️ Landing</ng-container>
+            <ng-container *ngIf="mvp.moduleType === 'wizard'">🧙 Wizard</ng-container>
+            <ng-container *ngIf="mvp.moduleType === 'live'">🚀 Live</ng-container>
+          </span>
+          
+          <!-- Phase indicator (if part of multi-phase concept) -->
+          <span 
+            class="badge badge-secondary badge-sm mt-1" 
+            *ngIf="mvp.conceptName && mvp.phaseOrder !== undefined"
+            title="Phase {{ mvp.phaseOrder }} of concept '{{ mvp.conceptName }}'">
+            Phase {{ mvp.phaseOrder }}
           </span>
         </div>
         <div class="mvp-recommendation">
@@ -218,6 +252,8 @@
 
       <!-- KPIs Grid -->
       <div class="kpis-grid">
+
+        <!-- Sessions — shown for both landing & wizard -->
         <div class="kpi-item">
           <div class="kpi-icon">📊</div>
           <div class="kpi-content">
@@ -232,45 +268,93 @@
           </div>
         </div>
 
-        <div class="kpi-item">
-          <div class="kpi-icon">✅</div>
-          <div class="kpi-content">
-            <div class="kpi-value">{{ mvp.wizard_completions }}</div>
-            <div class="kpi-label">Completed</div>
-            <div class="kpi-trend" *ngIf="mvp.trends">
-              <span [ngClass]="formatTrend(mvp.trends.completions_change).class">
-                {{ formatTrend(mvp.trends.completions_change).icon }}
-                {{ formatTrend(mvp.trends.completions_change).text }}
-              </span>
+        <!-- ── WIZARD KPIs ─────────────────────────────── -->
+        <ng-container *ngIf="mvp.moduleType !== 'landing'">
+          <div class="kpi-item">
+            <div class="kpi-icon">✅</div>
+            <div class="kpi-content">
+              <div class="kpi-value">{{ mvp.wizard_completions }}</div>
+              <div class="kpi-label">Completed</div>
+              <div class="kpi-trend" *ngIf="mvp.trends">
+                <span [ngClass]="formatTrend(mvp.trends.completions_change).class">
+                  {{ formatTrend(mvp.trends.completions_change).icon }}
+                  {{ formatTrend(mvp.trends.completions_change).text }}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="kpi-item">
-          <div class="kpi-icon">📥</div>
-          <div class="kpi-content">
-            <div class="kpi-value">{{ mvp.downloads }}</div>
-            <div class="kpi-label">Downloads</div>
-            <div class="kpi-trend" *ngIf="mvp.trends">
-              <span [ngClass]="formatTrend(mvp.trends.downloads_change).class">
-                {{ formatTrend(mvp.trends.downloads_change).icon }}
-                {{ formatTrend(mvp.trends.downloads_change).text }}
-              </span>
+          <div class="kpi-item">
+            <div class="kpi-icon">📥</div>
+            <div class="kpi-content">
+              <div class="kpi-value">{{ mvp.downloads }}</div>
+              <div class="kpi-label">Downloads</div>
+              <div class="kpi-trend" *ngIf="mvp.trends">
+                <span [ngClass]="formatTrend(mvp.trends.downloads_change).class">
+                  {{ formatTrend(mvp.trends.downloads_change).icon }}
+                  {{ formatTrend(mvp.trends.downloads_change).text }}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="kpi-item">
-          <div class="kpi-icon">{{ mvp.helpful_rate >= 70 ? '😊' : mvp.helpful_rate >= 50 ? '😐' : '😞' }}</div>
-          <div class="kpi-content">
-            <div class="kpi-value">{{ mvp.helpful_rate }}%</div>
-            <div class="kpi-label">Feedback +</div>
+          <div class="kpi-item">
+            <div class="kpi-icon">{{ mvp.helpful_rate >= 70 ? '😊' : mvp.helpful_rate >= 50 ? '😐' : '😞' }}</div>
+            <div class="kpi-content">
+              <div class="kpi-value">{{ mvp.helpful_rate }}%</div>
+              <div class="kpi-label">Feedback +</div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- ── LANDING KPIs ────────────────────────────── -->
+        <ng-container *ngIf="mvp.moduleType === 'landing'">
+          <div class="kpi-item">
+            <div class="kpi-icon">🖱️</div>
+            <div class="kpi-content">
+              <div class="kpi-value">{{ (mvp.landing_metrics?.engagement_rate || 0) }}%</div>
+              <div class="kpi-label">Engagement</div>
+              <small class="text-muted">{{ (mvp.landing_metrics?.engagement_clicks || 0) }} clicks</small>
+            </div>
+          </div>
+
+          <div class="kpi-item">
+            <div class="kpi-icon">📋</div>
+            <div class="kpi-content">
+              <div class="kpi-value">{{ (mvp.landing_metrics?.waitlist_signups || 0) }}</div>
+              <div class="kpi-label">Waitlist</div>
+            </div>
+          </div>
+
+          <div class="kpi-item">
+            <div class="kpi-icon">{{ (mvp.landing_metrics?.waitlist_conversion || 0) >= 10 ? '🔥' : (mvp.landing_metrics?.waitlist_conversion || 0) >= 3 ? '📈' : '➖' }}</div>
+            <div class="kpi-content">
+              <div class="kpi-value">{{ (mvp.landing_metrics?.waitlist_conversion || 0) }}%</div>
+              <div class="kpi-label">Conversion</div>
+            </div>
+          </div>
+        </ng-container>
+
+      </div>
+
+      <!-- Pain Resonance section — only for landing modules -->
+      <div class="pain-resonance-section" *ngIf="mvp.moduleType === 'landing' && mvp.landing_metrics?.top_pain_points?.length">
+        <div class="section-title">
+          <i class="fas fa-fire text-danger me-1"></i>
+          <span>Pain Resonance</span>
+        </div>
+        <div class="pain-list">
+          <div
+            class="pain-item"
+            *ngFor="let pain of mvp.landing_metrics!.top_pain_points.slice(0, 3)">
+            <span class="pain-label">{{ pain.metric }}</span>
+            <span class="badge badge-secondary pain-clicks">{{ pain.clicks }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Monetization Metrics (Nuevo: Feb 2026) -->
-      <div class="monetization-section" *ngIf="mvp.monetization_intent_count > 0">
+      <!-- Monetization Metrics (Nuevo: Feb 2026) — wizard modules only -->
+      <div class="monetization-section" *ngIf="mvp.moduleType !== 'landing' && mvp.monetization_intent_count > 0">
         <div class="section-title">
           <i class="fas fa-coins text-warning me-1"></i>
           <span>Monetization Validation</span>
@@ -393,6 +477,119 @@
             Metrics
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Concept Family View - Grouped by Concept -->
+  <div class="concept-family-grid" *ngIf="groupByConcept && filteredAnalytics.length > 0">
+    <div 
+      class="concept-family-card" 
+      *ngFor="let group of conceptGroupsArray">
+      
+      <!-- Concept Header -->
+      <div class="concept-header">
+        <div class="concept-title">
+          <h5>
+            <i class="fas fa-sitemap me-2 text-primary"></i>
+            {{ group.conceptName }}
+          </h5>
+          <span class="badge bg-secondary">{{ group.phases.length }} phase{{ group.phases.length > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="concept-health">
+          <span class="badge" 
+            [ngClass]="{
+              'bg-success': getCurrentPhase(group.phases).healthScore >= 70,
+              'bg-warning': getCurrentPhase(group.phases).healthScore >= 40 && getCurrentPhase(group.phases).healthScore < 70,
+              'bg-danger': getCurrentPhase(group.phases).healthScore < 40
+            }">
+            Current: {{ getCurrentPhase(group.phases).healthScore }} score
+          </span>
+        </div>
+      </div>
+
+      <!-- Phase Timeline -->
+      <div class="phase-timeline">
+        <div 
+          class="phase-item"
+          *ngFor="let phase of group.phases; let i = index"
+          [class.active]="phase.status === 'live' || phase.status === 'testing'"
+          (click)="viewDetails(phase.moduleKey)">
+          
+          <div class="phase-connector" *ngIf="i > 0"></div>
+          
+          <div class="phase-badge">
+            <span 
+              class="badge"
+              [ngClass]="{
+                'bg-info': phase.moduleType === 'landing',
+                'bg-primary': phase.moduleType === 'wizard',
+                'bg-success': phase.moduleType === 'live'
+              }">
+              <ng-container *ngIf="phase.moduleType === 'landing'">🏖️ Landing</ng-container>
+              <ng-container *ngIf="phase.moduleType === 'wizard'">🧙 Wizard</ng-container>
+              <ng-container *ngIf="phase.moduleType === 'live'">🚀 Live</ng-container>
+            </span>
+          </div>
+
+          <div class="phase-content">
+            <div class="phase-name">
+              <strong>{{ phase.moduleName }}</strong>
+              <small class="text-muted d-block">{{ phase.moduleKey }}</small>
+            </div>
+            
+            <div class="phase-status">
+              <span class="badge badge-sm" 
+                [ngClass]="{
+                  'bg-success': phase.status === 'live',
+                  'bg-warning': phase.status === 'testing',
+                  'bg-secondary': phase.status === 'draft',
+                  'bg-dark': phase.status === 'archived'
+                }">
+                {{ phase.status }}
+              </span>
+            </div>
+
+            <div class="phase-metrics mt-2">
+              <div class="metric-row">
+                <span class="metric-label">Health:</span>
+                <span class="metric-value" 
+                  [ngClass]="{
+                    'text-success': phase.healthScore >= 70,
+                    'text-warning': phase.healthScore >= 40 && phase.healthScore < 70,
+                    'text-danger': phase.healthScore < 40
+                  }">
+                  {{ phase.healthScore }}
+                </span>
+              </div>
+              
+              <div class="metric-row" *ngIf="phase.moduleType === 'landing' && phase.landing_metrics">
+                <span class="metric-label">Waitlist:</span>
+                <span class="metric-value">{{ phase.landing_metrics.waitlist_signups || 0 }}</span>
+              </div>
+              
+              <div class="metric-row" *ngIf="phase.moduleType === 'wizard'">
+                <span class="metric-label">Completions:</span>
+                <span class="metric-value">{{ phase.wizard_completions }}</span>
+              </div>
+              
+              <div class="metric-row">
+                <span class="metric-label">Sessions:</span>
+                <span class="metric-value">{{ phase.totalSessions }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Concept Actions -->
+      <div class="concept-actions mt-3">
+        <button 
+          class="btn btn-sm btn-outline-primary"
+          (click)="viewDetails(getCurrentPhase(group.phases).moduleKey)">
+          <i class="fas fa-chart-line me-1"></i>
+          View Current Phase Details
+        </button>
       </div>
     </div>
   </div>

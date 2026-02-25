@@ -12,7 +12,30 @@
         <i class="fas fa-brain text-primary me-2"></i>
         {{ analytics.moduleName }}
       </h2>
-      <span class="module-key badge bg-secondary" *ngIf="analytics">{{ analytics.moduleKey }}</span>
+      <div *ngIf="analytics" class="d-flex gap-2 align-items-center">
+        <span class="module-key badge bg-secondary">{{ analytics.moduleKey }}</span>
+        
+        <!-- Phase badge -->
+        <span 
+          class="badge"
+          [ngClass]="{
+            'bg-info': analytics.moduleType === 'landing',
+            'bg-primary': analytics.moduleType === 'wizard',
+            'bg-success': analytics.moduleType === 'live'
+          }">
+          <ng-container *ngIf="analytics.moduleType === 'landing'">🏖️ Landing</ng-container>
+          <ng-container *ngIf="analytics.moduleType === 'wizard'">🧙 Wizard</ng-container>
+          <ng-container *ngIf="analytics.moduleType === 'live'">🚀 Live</ng-container>
+        </span>
+        
+        <!-- Concept badge (if part of multi-phase concept) -->
+        <span 
+          class="badge bg-light text-dark" 
+          *ngIf="analytics.conceptName && analytics.phaseOrder !== undefined"
+          title="Part of '{{ analytics.conceptName }}' concept family">
+          {{ analytics.conceptName }} • Phase {{ analytics.phaseOrder }}
+        </span>
+      </div>
     </div>
 
     <div class="period-selector">
@@ -46,6 +69,18 @@
           All
         </button>
       </div>
+
+      <!-- Create Next Phase Button -->
+      <button 
+        *ngIf="analytics && canProgressToNextPhase()"
+        type="button"
+        class="btn btn-sm ms-3"
+        [ngClass]="getProgressionValidation().criteriaMet ? 'btn-success' : 'btn-warning'"
+        (click)="createNextPhase()"
+        title="Create {{ getNextPhaseName() }} phase for this MVP">
+        <i class="fas fa-arrow-right me-1"></i>
+        Create {{ getNextPhaseName() }}
+      </button>
     </div>
   </div>
 
@@ -76,8 +111,15 @@
           <strong>Current metrics:</strong>
           <ul class="mb-0 mt-1">
             <li *ngIf="analytics.totalSessions < 5">{{ analytics.totalSessions }} sessions (recommended minimum: 5)</li>
-            <li *ngIf="analytics.wizard_starts < 3">{{ analytics.wizard_starts }} wizard starts (minimum: 3)</li>
-            <li *ngIf="analytics.total_feedback < 3">{{ analytics.total_feedback }} feedbacks (minimum: 3)</li>
+            <li *ngIf="analytics.moduleType === 'landing' && analytics.landing_metrics?.demo_views < 3">
+              {{ analytics.landing_metrics?.demo_views || 0 }} demo views (minimum: 3)
+            </li>
+            <li *ngIf="analytics.moduleType !== 'landing' && analytics.wizard_starts < 3">
+              {{ analytics.wizard_starts }} wizard starts (minimum: 3)
+            </li>
+            <li *ngIf="analytics.moduleType !== 'landing' && analytics.total_feedback < 3">
+              {{ analytics.total_feedback }} feedbacks (minimum: 3)
+            </li>
           </ul>
         </div>
         <div class="mt-2">
@@ -193,16 +235,24 @@
                 </span>
               </div>
 
-              <!-- Completions -->
-              <div class="criteria-item">
+              <!-- Landing: Waitlist Signups -->
+              <div class="criteria-item" *ngIf="analytics.moduleType === 'landing'">
+                <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.completions_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
+                <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.completions_min">
+                  {{ analytics.landing_metrics?.waitlist_signups || 0 }} / 3 waitlist signups
+                </span>
+              </div>
+
+              <!-- Wizard: Completions -->
+              <div class="criteria-item" *ngIf="analytics.moduleType !== 'landing'">
                 <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.completions_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
                 <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.completions_min">
                   {{ analytics.wizard_completions }} / 5 wizards completed
                 </span>
               </div>
 
-              <!-- Feedback -->
-              <div class="criteria-item">
+              <!-- Wizard: Feedback -->
+              <div class="criteria-item" *ngIf="analytics.moduleType !== 'landing'">
                 <i class="fas" [ngClass]="analytics.actionCriteria.validation_criteria.feedback_min ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'"></i>
                 <span [class.text-muted]="!analytics.actionCriteria.validation_criteria.feedback_min">
                   {{ analytics.total_feedback }} / 5 feedbacks
@@ -327,8 +377,26 @@
               </div>
             </div>
 
-            <!-- Wizard starts -->
-            <div class="kpi-detailed">
+            <!-- Landing: Demo Views -->
+            <div class="kpi-detailed" *ngIf="analytics.moduleType === 'landing'">
+              <div class="kpi-icon">👁️</div>
+              <div class="kpi-info">
+                <div class="kpi-label">Demo Views</div>
+                <div class="kpi-value">{{ analytics.landing_metrics?.demo_views || 0 }}</div>
+              </div>
+            </div>
+
+            <!-- Landing: Waitlist Signups -->
+            <div class="kpi-detailed" *ngIf="analytics.moduleType === 'landing'">
+              <div class="kpi-icon">🎯</div>
+              <div class="kpi-info">
+                <div class="kpi-label">Waitlist Signups</div>
+                <div class="kpi-value">{{ analytics.landing_metrics?.waitlist_signups || 0 }}</div>
+              </div>
+            </div>
+
+            <!-- Wizard: Wizard starts -->
+            <div class="kpi-detailed" *ngIf="analytics.moduleType !== 'landing'">
               <div class="kpi-icon">▶️</div>
               <div class="kpi-info">
                 <div class="kpi-label">Wizards Started</div>
@@ -336,8 +404,8 @@
               </div>
             </div>
 
-            <!-- Wizard completions -->
-            <div class="kpi-detailed">
+            <!-- Wizard: Wizard completions -->
+            <div class="kpi-detailed" *ngIf="analytics.moduleType !== 'landing'">
               <div class="kpi-icon">✅</div>
               <div class="kpi-info">
                 <div class="kpi-label">Wizards Completed</div>
@@ -351,8 +419,8 @@
               </div>
             </div>
 
-            <!-- Downloads -->
-            <div class="kpi-detailed">
+            <!-- Downloads (Wizard Only) -->
+            <div class="kpi-detailed" *ngIf="analytics.moduleType !== 'landing'">
               <div class="kpi-icon">📥</div>
               <div class="kpi-info">
                 <div class="kpi-label">Downloads</div>
@@ -366,8 +434,8 @@
               </div>
             </div>
 
-            <!-- Returning users -->
-            <div class="kpi-detailed">
+            <!-- Returning users (Wizard Only) -->
+            <div class="kpi-detailed" *ngIf="analytics.moduleType !== 'landing'">
               <div class="kpi-icon">🔄</div>
               <div class="kpi-info">
                 <div class="kpi-label">Returning Users</div>
@@ -375,6 +443,37 @@
               </div>
             </div>
 
+          </div>
+        </div>
+      </div>
+
+      <!-- Pain Resonance (Landing Only) -->
+      <div class="card pain-resonance-card" *ngIf="analytics.moduleType === 'landing' && analytics.landing_metrics?.top_pain_points && analytics.landing_metrics.top_pain_points.length > 0">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-3">
+            <i class="fas fa-bullseye text-danger me-2"></i>
+            Pain Resonance
+            <span class="badge bg-info ms-2" style="font-size: 0.65rem;">Landing</span>
+          </h6>
+
+          <div class="pain-points-list">
+            <div class="pain-point-item" *ngFor="let pain of analytics.landing_metrics.top_pain_points; let i = index">
+              <div class="pain-rank">{{ i + 1 }}</div>
+              <div class="pain-info">
+                <div class="pain-label">{{ pain.pain_point }}</div>
+                <div class="pain-clicks">{{ pain.clicks }} clicks</div>
+              </div>
+              <div class="pain-bar-wrapper">
+                <div class="pain-bar" [style.width.%]="(pain.clicks / analytics.landing_metrics.top_pain_points[0].clicks) * 100"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-2">
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i>
+              Shows which pain points most resonated with users during demos
+            </small>
           </div>
         </div>
       </div>
@@ -388,7 +487,44 @@
           </h6>
 
           <div class="rates-grid">
-            <div class="rate-item">
+            <!-- Landing: Engagement Rate -->
+            <div class="rate-item" *ngIf="analytics.moduleType === 'landing'">
+              <div class="rate-label">
+                Engagement Rate
+                <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.landing_metrics?.demo_views === 0">
+                  (no demo views)
+                </small>
+              </div>
+              <div class="rate-value">{{ (analytics.landing_metrics?.engagement_rate || 0) }}%</div>
+              <div class="progress" style="height: 6px;">
+                <div 
+                  class="progress-bar bg-success" 
+                  [style.width.%]="analytics.landing_metrics?.engagement_rate || 0"
+                  role="progressbar">
+                </div>
+              </div>
+            </div>
+
+            <!-- Landing: Waitlist Conversion -->
+            <div class="rate-item" *ngIf="analytics.moduleType === 'landing'">
+              <div class="rate-label">
+                Waitlist Conversion
+                <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.landing_metrics?.demo_views === 0">
+                  (no demo views)
+                </small>
+              </div>
+              <div class="rate-value">{{ (analytics.landing_metrics?.waitlist_conversion || 0) }}%</div>
+              <div class="progress" style="height: 6px;">
+                <div 
+                  class="progress-bar bg-primary" 
+                  [style.width.%]="analytics.landing_metrics?.waitlist_conversion || 0"
+                  role="progressbar">
+                </div>
+              </div>
+            </div>
+
+            <!-- Wizard: Wizard Conversion -->
+            <div class="rate-item" *ngIf="analytics.moduleType !== 'landing'">
               <div class="rate-label">
                 Wizard Conversion
                 <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.wizard_starts === 0">
@@ -405,7 +541,8 @@
               </div>
             </div>
 
-            <div class="rate-item">
+            <!-- Wizard: Download Rate -->
+            <div class="rate-item" *ngIf="analytics.moduleType !== 'landing'">
               <div class="rate-label">
                 Download Rate
                 <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.wizard_completions === 0">
@@ -460,7 +597,7 @@
       </div>
 
       <!-- === MONETIZATION VALIDATION (Nuevo: Feb 2026) === -->
-      <div class="card monetization-card" *ngIf="analytics.monetization_intent_count > 0">
+      <div class="card monetization-card" *ngIf="analytics.moduleType !== 'landing' && analytics.monetization_intent_count > 0">
         <div class="card-body">
           <h6 class="card-subtitle mb-3">
             <i class="fas fa-coins text-warning me-2"></i>
@@ -553,8 +690,8 @@
         </div>
       </div>
 
-      <!-- Feedback -->
-      <div class="card feedback-card">
+      <!-- Feedback (Wizard Only) -->
+      <div class="card feedback-card" *ngIf="analytics.moduleType !== 'landing'">
         <div class="card-body">
           <h6 class="card-subtitle mb-3">
             <i class="fas fa-comments text-primary me-2"></i>
