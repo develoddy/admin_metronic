@@ -576,7 +576,8 @@
               </div>
             </div>
 
-            <div class="rate-item">
+            <!-- Positive Feedback (only for wizards, not landings) -->
+            <div class="rate-item" *ngIf="analytics.moduleType !== 'landing'">
               <div class="rate-label">
                 Positive Feedback
                 <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.total_feedback === 0">
