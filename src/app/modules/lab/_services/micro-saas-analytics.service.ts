@@ -73,7 +73,8 @@ export interface MicroSaasKPIs {
   landing_metrics?: {
     demo_views: number;          // prevention_demo_viewed events
     engagement_clicks: number;   // metric_clicked events total
-    engagement_rate: number;     // engagement_clicks / demo_views (%)
+    engagement_rate: number;     // % of users who clicked at least 1 pain point (max 100%)
+    avg_clicks_per_view: number; // average pain points explored per user (can be > 1)
     waitlist_signups: number;    // waitlist_success events
     waitlist_conversion: number; // waitlist_signups / demo_views (%)
     top_pain_points: Array<{     // sorted by click count

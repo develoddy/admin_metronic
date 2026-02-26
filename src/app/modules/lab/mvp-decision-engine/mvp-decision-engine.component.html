@@ -491,8 +491,8 @@
             <div class="rate-item" *ngIf="analytics.moduleType === 'landing'">
               <div class="rate-label">
                 Engagement Rate
-                <small class="text-muted d-block" style="font-size: 0.7rem;" *ngIf="analytics.landing_metrics?.demo_views === 0">
-                  (no demo views)
+                <small class="text-muted d-block" style="font-size: 0.7rem;">
+                  {{ (analytics.landing_metrics?.avg_clicks_per_view || 0) }} avg clicks/user
                 </small>
               </div>
               <div class="rate-value">{{ (analytics.landing_metrics?.engagement_rate || 0) }}%</div>
