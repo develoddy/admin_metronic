@@ -8,7 +8,7 @@ import { BankAccount, INCOME_CATEGORIES, RECURRENCE_TYPES } from '../../interfac
 @Component({
   selector: 'app-income-edit',
   templateUrl: './income-edit.component.html',
-  styleUrls: ['./income-edit.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/incomes/_income-edit.scss']
 })
 export class IncomeEditComponent implements OnInit {
   form: FormGroup;

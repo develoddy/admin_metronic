@@ -4,7 +4,7 @@ import { CategoryExpenseBreakdown } from '../../interfaces/finance.interface';
 @Component({
   selector: 'app-category-breakdown',
   templateUrl: './category-breakdown.component.html',
-  styleUrls: ['./category-breakdown.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/components/_category-breakdown.scss']
 })
 export class CategoryBreakdownComponent implements OnChanges, AfterViewInit {
   @Input() categories: CategoryExpenseBreakdown[] = [];

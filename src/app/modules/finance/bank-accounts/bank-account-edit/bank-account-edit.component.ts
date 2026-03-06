@@ -9,7 +9,7 @@ import { ACCOUNT_TYPES, CURRENCIES } from '../../interfaces/finance.interface';
 @Component({
   selector: 'app-bank-account-edit',
   templateUrl: './bank-account-edit.component.html',
-  styleUrls: ['./bank-account-edit.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/bank-accounts/_bank-account-edit.scss']
 })
 export class BankAccountEditComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

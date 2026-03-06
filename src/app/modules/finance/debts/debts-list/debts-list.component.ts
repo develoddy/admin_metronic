@@ -7,7 +7,7 @@ import { Debt, DEBT_TYPES, DEBT_STATUS, DEBT_PRIORITIES } from '../../interfaces
 @Component({
   selector: 'app-debts-list',
   templateUrl: './debts-list.component.html',
-  styleUrls: ['./debts-list.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/debts/_debts-list.scss']
 })
 export class DebtsListComponent implements OnInit {
   debts: Debt[] = [];

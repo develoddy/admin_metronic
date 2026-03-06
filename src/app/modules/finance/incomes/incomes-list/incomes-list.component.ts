@@ -7,7 +7,7 @@ import { Income, BankAccount, INCOME_CATEGORIES } from '../../interfaces/finance
 @Component({
   selector: 'app-incomes-list',
   templateUrl: './incomes-list.component.html',
-  styleUrls: ['./incomes-list.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/incomes/_incomes-list.scss']
 })
 export class IncomesListComponent implements OnInit {
   incomes: Income[] = [];

@@ -8,7 +8,7 @@ import { BankAccount, RECURRENCE_TYPES, InternalTransferRequest } from '../inter
 @Component({
   selector: 'app-transfer',
   templateUrl: './transfer.component.html',
-  styleUrls: ['./transfer.component.scss']
+  styleUrls: ['../../../../assets/css/finance/transfer/_transfer.scss']
 })
 export class TransferComponent implements OnInit {
   form: FormGroup;

@@ -1,0 +1,104 @@
+// Estilos personalizados para Bank Accounts List
+
+// Card styling
+.card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+}
+
+// RESPONSIVE MOBILE
+@media (max-width: 768px) {
+  .card-header {
+    .card-title {
+      margin-bottom: 1rem;
+    }
+
+    .card-toolbar {
+      width: 100%;
+      
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  // Account cards grid
+  .row .col-md-6 {
+    margin-bottom: 1rem;
+  }
+
+  // Table responsive
+  .table-responsive {
+    table {
+      thead {
+        display: none;
+      }
+
+      tbody {
+        tr {
+          display: block;
+          margin-bottom: 1rem;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          background: #fff;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+          td {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0.75rem 1rem;
+            border: 0;
+            border-bottom: 1px solid #f0f0f0;
+
+            &:last-child {
+              border-bottom: 0;
+              flex-direction: row;
+              justify-content: flex-start;
+              gap: 0.5rem;
+            }
+
+            &:first-child {
+              background: #f8f9fa;
+              font-weight: 600;
+            }
+
+            &::before {
+              content: attr(data-label);
+              font-weight: 600;
+              color: #666;
+              font-size: 0.75rem;
+              text-transform: uppercase;
+              margin-bottom: 0.25rem;
+            }
+
+            &:last-child::before {
+              content: '';
+              margin: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .btn-icon {
+    padding: 0.375rem;
+    min-width: 36px;
+  }
+}
+
+@media (max-width: 576px) {
+  .card-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .fs-2 {
+    font-size: 1.5rem !important;
+  }
+}

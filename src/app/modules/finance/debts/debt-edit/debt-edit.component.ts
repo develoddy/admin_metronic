@@ -8,7 +8,7 @@ import { BankAccount, DEBT_TYPES, DEBT_STATUS, DEBT_PRIORITIES } from '../../int
 @Component({
   selector: 'app-debt-edit',
   templateUrl: './debt-edit.component.html',
-  styleUrls: ['./debt-edit.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/debts/_debt-edit.scss']
 })
 export class DebtEditComponent implements OnInit {
   form: FormGroup;

@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-liability-edit',
   templateUrl: './liability-edit.component.html',
-  styleUrls: ['./liability-edit.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/liabilities/_liability-edit.scss']
 })
 export class LiabilityEditComponent implements OnInit {
   isEditMode = false;

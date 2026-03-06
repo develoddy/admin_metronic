@@ -5,7 +5,7 @@ import { FinanceAggregatorService } from '../../services/finance-aggregator.serv
 @Component({
   selector: 'app-financial-overview',
   templateUrl: './financial-overview.component.html',
-  styleUrls: ['./financial-overview.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/components/_financial-overview.scss']
 })
 export class FinancialOverviewComponent implements OnChanges {
   @Input() financialSummary: FinancialSummary | null = null;

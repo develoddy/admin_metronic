@@ -9,7 +9,7 @@ import { BankAccount } from '../../interfaces/finance.interface';
 @Component({
   selector: 'app-bank-accounts-list',
   templateUrl: './bank-accounts-list.component.html',
-  styleUrls: ['./bank-accounts-list.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/bank-accounts/_bank-accounts-list.scss']
 })
 export class BankAccountsListComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

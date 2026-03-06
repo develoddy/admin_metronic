@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-asset-edit',
   templateUrl: './asset-edit.component.html',
-  styleUrls: ['./asset-edit.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/assets/_asset-edit.scss']
 })
 export class AssetEditComponent implements OnInit {
   isEditMode = false;

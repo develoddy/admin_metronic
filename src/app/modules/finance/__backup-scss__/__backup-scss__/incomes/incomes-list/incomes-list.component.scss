@@ -1,0 +1,152 @@
+// Incomes List Component Styles
+
+// Summary cards premium style
+.bg-light-success,
+.bg-light-info {
+  .card-body {
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Table enhancements
+.table {
+  .text-success {
+    font-weight: 600;
+  }
+}
+
+// RESPONSIVE MOBILE
+@media (max-width: 768px) {
+  // Card title y toolbar stack
+  .card-header {
+    .card-title {
+      margin-bottom: 1rem;
+    }
+
+    .card-toolbar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 100%;
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  // Filter buttons stack on mobile
+  .btn-group.w-100 {
+    flex-direction: column;
+    
+    .btn {
+      border-radius: 0.375rem !important;
+      margin-bottom: 0.5rem;
+      width: 100%;
+    }
+  }
+
+  // Summary stats full width on mobile
+  .row.mb-6 {
+    .col-md-6 {
+      margin-bottom: 1rem;
+    }
+  }
+
+  // Table responsive - convert to cards on mobile
+  .table-responsive {
+    border: 0;
+
+    table {
+      border: 0;
+
+      thead {
+        display: none;
+      }
+
+      tbody {
+        tr {
+          display: block;
+          margin-bottom: 1rem;
+          border: 1px solid #dee2e6;
+          border-radius: 8px;
+          background: #fff;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+          td {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0.75rem 1rem;
+            border: 0;
+            border-bottom: 1px solid #f0f0f0;
+
+            &:last-child {
+              border-bottom: 0;
+              flex-direction: row;
+              justify-content: flex-start;
+              gap: 0.5rem;
+            }
+
+            &:first-child {
+              background: #f8f9fa;
+              font-weight: 600;
+            }
+
+            &::before {
+              content: attr(data-label);
+              font-weight: 600;
+              color: #666;
+              font-size: 0.75rem;
+              text-transform: uppercase;
+              margin-bottom: 0.25rem;
+              flex-shrink: 0;
+            }
+
+            // Action buttons don't need label
+            &:last-child::before {
+              content: '';
+              margin: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Action buttons in table
+  .btn-icon {
+    padding: 0.375rem;
+    min-width: 36px;
+  }
+
+  // Badge adjustments
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.6rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .card-header {
+    h3 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .fs-2 {
+    font-size: 1.5rem !important;
+  }
+
+  .fs-7 {
+    font-size: 0.8rem !important;
+  }
+
+  .fs-6 {
+    font-size: 0.9rem !important;
+  }
+}

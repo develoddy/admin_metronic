@@ -17,7 +17,7 @@ interface ExpensesByAccount {
 @Component({
   selector: 'app-expenses-list',
   templateUrl: './expenses-list.component.html',
-  styleUrls: ['./expenses-list.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/expenses/_expenses-list.scss']
 })
 export class ExpensesListComponent implements OnInit {
   expenses: Expense[] = [];

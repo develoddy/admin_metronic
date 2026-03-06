@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-liabilities-list',
   templateUrl: './liabilities-list.component.html',
-  styleUrls: ['./liabilities-list.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/liabilities/_liabilities-list.scss']
 })
 export class LiabilitiesListComponent implements OnInit {
   liabilities: Liability[] = [];

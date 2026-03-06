@@ -4,7 +4,7 @@ import { AccountExpenseBreakdown } from '../../interfaces/finance.interface';
 @Component({
   selector: 'app-account-expense-card',
   templateUrl: './account-expense-card.component.html',
-  styleUrls: ['./account-expense-card.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/components/_account-expense-card.scss']
 })
 export class AccountExpenseCardComponent {
   @Input() account!: AccountExpenseBreakdown;

@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-assets-list',
   templateUrl: './assets-list.component.html',
-  styleUrls: ['./assets-list.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/assets/_assets-list.scss']
 })
 export class AssetsListComponent implements OnInit {
   assets: Asset[] = [];

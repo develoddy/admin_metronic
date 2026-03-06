@@ -4,7 +4,7 @@ import { DebtPriorityItem } from '../../interfaces/finance.interface';
 @Component({
   selector: 'app-debt-priority',
   templateUrl: './debt-priority.component.html',
-  styleUrls: ['./debt-priority.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/components/_debt-priority.scss']
 })
 export class DebtPriorityComponent {
   @Input() debts: DebtPriorityItem[] = [];

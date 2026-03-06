@@ -8,7 +8,7 @@ import { BankAccount, EXPENSE_CATEGORIES, PAYMENT_METHODS } from '../../interfac
 @Component({
   selector: 'app-expense-edit',
   templateUrl: './expense-edit.component.html',
-  styleUrls: ['./expense-edit.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/expenses/_expense-edit.scss']
 })
 export class ExpenseEditComponent implements OnInit {
   form: FormGroup;

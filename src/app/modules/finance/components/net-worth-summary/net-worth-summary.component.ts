@@ -6,7 +6,7 @@ import { NetWorth } from '../../interfaces/finance.interface';
 @Component({
   selector: 'app-net-worth-summary',
   templateUrl: './net-worth-summary.component.html',
-  styleUrls: ['./net-worth-summary.component.scss']
+  styleUrls: ['../../../../../assets/css/finance/components/_net-worth-summary.scss']
 })
 export class NetWorthSummaryComponent implements OnInit {
   netWorthData: NetWorth | null = null;
