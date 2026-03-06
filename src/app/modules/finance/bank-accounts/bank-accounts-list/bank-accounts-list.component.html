@@ -1,0 +1,122 @@
+<div class="card">
+  <div class="card-header border-0 pt-6">
+    <div class="card-title">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-bank fs-2 me-3"></i>
+        <div>
+          <h3 class="mb-0">Cuentas Bancarias</h3>
+          <span class="text-muted fs-7 fw-bold">Gestiona tus cuentas bancarias</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-toolbar">
+      <button type="button" class="btn btn-primary btn-sm" (click)="createAccount()">
+        <i class="bi bi-plus-circle"></i>
+        Nueva Cuenta
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="text-center py-10">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Cargando...</span>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error && !isLoading" class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+    </div>
+
+    <!-- Summary Card -->
+    <div *ngIf="!isLoading && !error && bankAccounts.length > 0" class="mb-6">
+      <div class="card bg-light-primary">
+        <div class="card-body py-4">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-cash-stack fs-2x text-primary me-4"></i>
+            <div class="flex-grow-1">
+              <div class="text-gray-700 fw-bold fs-6">Balance Total</div>
+              <div class="fs-2 fw-bolder text-primary">{{ formatCurrency(getTotalBalance()) }}</div>
+            </div>
+            <div class="ms-auto">
+              <div class="badge badge-light-primary fs-6">
+                {{ getActiveAccountsCount() }} cuentas activas
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No accounts -->
+    <div *ngIf="!isLoading && !error && bankAccounts.length === 0" class="text-center py-10">
+      <i class="bi bi-inbox fs-3x text-muted mb-3"></i>
+      <p class="text-muted fs-5">No hay cuentas bancarias registradas</p>
+      <button type="button" class="btn btn-primary" (click)="createAccount()">
+        <i class="bi bi-plus-circle"></i>
+        Crear Primera Cuenta
+      </button>
+    </div>
+
+    <!-- Accounts List -->
+    <div *ngIf="!isLoading && !error && bankAccounts.length > 0" class="table-responsive">
+      <table class="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3">
+        <thead>
+          <tr class="fw-bolder text-muted bg-light">
+            <th class="min-w-150px">Cuenta</th>
+            <th class="min-w-120px">Banco</th>
+            <th class="min-w-100px">Tipo</th>
+            <th class="min-w-120px text-end">Balance</th>
+            <th class="min-w-80px text-center">Estado</th>
+            <th class="min-w-100px text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let account of bankAccounts" [class.opacity-50]="!account.is_active">
+            <td>
+              <div class="d-flex align-items-center">
+                <i class="{{ getAccountTypeIcon(account.account_type) }} fs-2 me-3 text-primary"></i>
+                <div>
+                  <div class="fw-bold text-dark">{{ account.name }}</div>
+                  <div class="text-muted fs-7" *ngIf="account.notes">{{ account.notes }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="text-dark fw-bold d-block fs-6">
+                {{ account.bank_name || '-' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-light-info">
+                {{ getAccountTypeLabel(account.account_type) }}
+              </span>
+            </td>
+            <td class="text-end">
+              <span class="text-dark fw-bolder d-block fs-5" 
+                    [class.text-success]="account.balance >= 0" 
+                    [class.text-danger]="account.balance < 0">
+                {{ formatCurrency(account.balance, account.currency) }}
+              </span>
+            </td>
+            <td class="text-center">
+              <span class="badge" [class.badge-light-success]="account.is_active" [class.badge-light-danger]="!account.is_active">
+                {{ account.is_active ? 'Activa' : 'Inactiva' }}
+              </span>
+            </td>
+            <td class="text-end">
+              <button type="button" class="btn btn-icon btn-light-primary btn-sm me-2" (click)="editAccount(account.id!)" title="Editar">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+              <button type="button" class="btn btn-icon btn-light-danger btn-sm" (click)="deleteAccount(account)" title="Eliminar">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

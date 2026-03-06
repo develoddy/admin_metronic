@@ -1,0 +1,96 @@
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i class="bi bi-{{ isEditMode ? 'pencil-square' : 'plus-circle' }} me-2"></i>
+      {{ isEditMode ? 'Editar' : 'Nueva' }} Cuenta Bancaria
+    </h3>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="card-body">
+      <!-- Error Alert -->
+      <div *ngIf="error" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+      </div>
+
+      <div class="row">
+        <!-- Account Name -->
+        <div class="col-md-6 mb-5">
+          <label class="form-label required">Nombre de la Cuenta</label>
+          <input type="text" class="form-control" formControlName="name" placeholder="Ej: Cuenta Corriente Principal">
+          <div class="form-text">El nombre que quieres darle a esta cuenta</div>
+          <div class="invalid-feedback d-block" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
+            El nombre es requerido
+          </div>
+        </div>
+
+        <!-- Bank Name -->
+        <div class="col-md-6 mb-5">
+          <label class="form-label">Nombre del Banco</label>
+          <input type="text" class="form-control" formControlName="bank_name" placeholder="Ej: Banco Santander">
+          <div class="form-text">Nombre de la entidad bancaria</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Account Type -->
+        <div class="col-md-4 mb-5">
+          <label class="form-label required">Tipo de Cuenta</label>
+          <select class="form-select" formControlName="account_type">
+            <option *ngFor="let type of accountTypes" [value]="type.value">{{ type.label }}</option>
+          </select>
+        </div>
+
+        <!-- Balance -->
+        <div class="col-md-4 mb-5">
+          <label class="form-label required">Balance Actual</label>
+          <input type="number" step="0.01" class="form-control" formControlName="balance" placeholder="0.00">
+          <div class="invalid-feedback d-block" *ngIf="form.get('balance')?.invalid && form.get('balance')?.touched">
+            El balance es requerido
+          </div>
+        </div>
+
+        <!-- Currency -->
+        <div class="col-md-4 mb-5">
+          <label class="form-label required">Moneda</label>
+          <select class="form-select" formControlName="currency">
+            <option *ngFor="let curr of currencies" [value]="curr.value">{{ curr.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Active Status -->
+      <div class="mb-5">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" formControlName="is_active" id="is_active">
+          <label class="form-check-label" for="is_active">
+            Cuenta Activa
+          </label>
+        </div>
+        <div class="form-text">Las cuentas inactivas no se incluyen en los cálculos del dashboard</div>
+      </div>
+
+      <!-- Notes -->
+      <div class="mb-5">
+        <label class="form-label">Notas</label>
+        <textarea class="form-control" formControlName="notes" rows="3" placeholder="Notas adicionales sobre esta cuenta"></textarea>
+      </div>
+    </div>
+
+    <div class="card-footer d-flex justify-content-end">
+      <button type="button" class="btn btn-light me-3" (click)="cancel()" [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="isSubmitting" [class.disabled]="form.invalid">
+        <span *ngIf="!isSubmitting">
+          <i class="bi bi-check-circle me-1"></i>
+          {{ isEditMode ? 'Actualizar' : 'Crear' }} Cuenta
+        </span>
+        <span *ngIf="isSubmitting">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Guardando...
+        </span>
+      </button>
+    </div>
+  </form>
+</div>

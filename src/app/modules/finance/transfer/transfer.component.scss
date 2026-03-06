@@ -1,0 +1,208 @@
+// Transfer Component Styles
+
+// Transfer card styling
+.card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+}
+
+// Transfer type selection block - Clean and minimal
+.alert {
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  padding: 1.25rem;
+  background: #ffffff !important;
+  
+  &.alert-light {
+    background: #ffffff !important;
+    border-color: #e2e8f0;
+  }
+
+  .form-check {
+    margin-bottom: 0;
+    
+    .form-check-input {
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+      
+      &:checked {
+        background-color: #1e3a8a;
+        border-color: #1e3a8a;
+      }
+      
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+      }
+    }
+    
+    .form-check-label {
+      cursor: pointer;
+      color: #0f172a;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+      
+      i {
+        color: #1e3a8a;
+        margin-right: 0.5rem;
+      }
+    }
+  }
+  
+  small {
+    color: #64748b;
+    font-size: 0.875rem;
+    
+    i {
+      color: #1e3a8a;
+      margin-right: 0.35rem;
+    }
+  }
+}
+
+.transfer-icon {
+  font-size: 3rem;
+  color: #1e3a8a;
+  margin: 1rem 0;
+}
+
+.account-selector {
+  .card {
+    border: 2px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #1e3a8a;
+      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
+    }
+
+    &.selected {
+      border-color: #1e3a8a;
+      background-color: rgba(30, 58, 138, 0.03);
+    }
+  }
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+  }
+}
+
+.amount-input {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+// RESPONSIVE MOBILE
+@media (max-width: 768px) {
+  .card {
+    margin: 0 -10px;
+    border-radius: 0;
+  }
+
+  .card-header {
+    h3 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+
+  .transfer-icon {
+    font-size: 2.5rem;
+  }
+
+  // Account selector cards stack
+  .account-selector {
+    .row {
+      .col-md-6 {
+        margin-bottom: 1rem;
+      }
+    }
+
+    .card {
+      .card-body {
+        padding: 1rem;
+      }
+
+      h5 {
+        font-size: 1rem;
+      }
+
+      .text-muted {
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  .amount-input {
+    font-size: 1.25rem;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+
+  .form-control {
+    font-size: 0.95rem;
+    padding: 0.65rem 0.85rem;
+  }
+
+  // Action buttons full width
+  .card-footer {
+    .btn {
+      width: 100%;
+      margin-bottom: 0.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  // Transfer summary
+  .alert {
+    font-size: 0.9rem;
+
+    h6 {
+      font-size: 1rem;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .card-body {
+    padding: 1rem;
+  }
+
+  .transfer-icon {
+    font-size: 2rem;
+  }
+
+  .amount-input {
+    font-size: 1.1rem;
+  }
+
+  .form-control {
+    font-size: 0.9rem;
+  }
+}

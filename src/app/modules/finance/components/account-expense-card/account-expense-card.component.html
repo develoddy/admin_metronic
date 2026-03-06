@@ -1,0 +1,35 @@
+<div class="account-card card mb-3">
+  <div class="card-body">
+    <div class="account-header d-flex align-items-center mb-2">
+      <div
+        class="account-dot me-2"
+        [style.background-color]="getAccountTypeColor(account.accountType)">
+      </div>
+      <div class="account-name flex-grow-1">{{ account.accountName }}</div>
+      <span class="account-type badge badge-light">{{ getAccountTypeLabel(account.accountType) }}</span>
+    </div>
+
+    <div *ngIf="account.bankName" class="bank-name text-muted small mb-3">
+      {{ account.bankName }}
+    </div>
+
+    <!-- Lista de gastos por concepto -->
+    <div class="expense-items">
+      <div
+        *ngFor="let item of account.items.slice(0, 5)"
+        class="expense-item d-flex justify-content-between mb-1">
+        <span class="item-concept text-muted small">{{ item.concept }}</span>
+        <span class="item-amount small text-danger">−{{ formatCurrency(item.amount) }}</span>
+      </div>
+      <div *ngIf="account.items.length > 5" class="text-muted small mt-1">
+        +{{ account.items.length - 5 }} conceptos más
+      </div>
+    </div>
+
+    <!-- Total -->
+    <div class="account-total d-flex justify-content-between mt-3 pt-2 border-top">
+      <span class="fw-bold small">Total</span>
+      <span class="fw-bold">−{{ formatCurrency(account.totalExpenses) }}</span>
+    </div>
+  </div>
+</div>

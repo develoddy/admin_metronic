@@ -1,0 +1,123 @@
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">{{ isEditMode ? 'Editar Ingreso' : 'Nuevo Ingreso' }}</h3>
+  </div>
+
+  <div class="card-body">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="row mb-6">
+        <!-- Bank Account -->
+        <div class="col-md-6">
+          <label class="form-label required">Cuenta Bancaria</label>
+          <select class="form-select" formControlName="bank_account_id">
+            <option value="">Selecciona una cuenta...</option>
+            <option *ngFor="let account of bankAccounts" [value]="account.id">
+              {{ account.name }} - {{ account.bank_name }}
+            </option>
+          </select>
+          <div *ngIf="f['bank_account_id'].invalid && f['bank_account_id'].touched" class="text-danger mt-2">
+            <small *ngIf="f['bank_account_id'].errors?.required">La cuenta bancaria es requerida</small>
+          </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="col-md-6">
+          <label class="form-label required">Monto</label>
+          <input type="number" class="form-control" formControlName="amount" 
+                 placeholder="0.00" step="0.01" min="0.01">
+          <div *ngIf="f['amount'].invalid && f['amount'].touched" class="text-danger mt-2">
+            <small *ngIf="f['amount'].errors?.required">El monto es requerido</small>
+            <small *ngIf="f['amount'].errors?.min">El monto debe ser mayor a 0</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-6">
+        <!-- Description -->
+        <div class="col-md-12">
+          <label class="form-label required">Descripción</label>
+          <input type="text" class="form-control" formControlName="description" 
+                 placeholder="Ej: Salario mensual, Pago cliente proyecto X, etc.">
+          <div *ngIf="f['description'].invalid && f['description'].touched" class="text-danger mt-2">
+            <small *ngIf="f['description'].errors?.required">La descripción es requerida</small>
+            <small *ngIf="f['description'].errors?.maxlength">Máximo 255 caracteres</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-6">
+        <!-- Category -->
+        <div class="col-md-6">
+          <label class="form-label required">Categoría</label>
+          <select class="form-select" formControlName="category">
+            <option *ngFor="let cat of categories" [value]="cat.value">
+              {{ cat.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Income Date -->
+        <div class="col-md-6">
+          <label class="form-label required">Fecha</label>
+          <input type="date" class="form-control" formControlName="date">
+          <div *ngIf="f['date'].invalid && f['date'].touched" class="text-danger mt-2">
+            <small *ngIf="f['date'].errors?.required">La fecha es requerida</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-6">
+        <!-- Is Recurring -->
+        <div class="col-md-6">
+          <label class="form-label">Ingreso Recurrente</label>
+          <div class="form-check form-switch form-check-custom form-check-solid">
+            <input class="form-check-input" type="checkbox" formControlName="is_recurring" 
+                   id="is_recurring_switch">
+            <label class="form-check-label" for="is_recurring_switch">
+              Este ingreso se repite periódicamente
+            </label>
+          </div>
+        </div>
+
+        <!-- Recurrence Type -->
+        <div class="col-md-6" *ngIf="f['is_recurring'].value">
+          <label class="form-label">Frecuencia</label>
+          <select class="form-select" formControlName="recurrence_type">
+            <option *ngFor="let type of recurrenceTypes" [value]="type.value">
+              {{ type.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-6">
+        <!-- Tags -->
+        <div class="col-md-6">
+          <label class="form-label">Etiquetas</label>
+          <input type="text" class="form-control" formControlName="tags" 
+                 placeholder="Separa etiquetas con comas">
+          <small class="text-muted">Ej: cliente1, proyecto-web, extra</small>
+        </div>
+
+        <!-- Notes -->
+        <div class="col-md-6">
+          <label class="form-label">Notas</label>
+          <textarea class="form-control" formControlName="notes" rows="3" 
+                    placeholder="Notas adicionales..."></textarea>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="d-flex justify-content-end">
+        <button type="button" class="btn btn-light me-3" (click)="cancel()" [disabled]="loading">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading || form.invalid">
+          <span *ngIf="!loading">{{ isEditMode ? 'Actualizar' : 'Crear' }} Ingreso</span>
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          <span *ngIf="loading">Guardando...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -168,6 +168,55 @@ export const AsideMenuAdminGeneral = {
         ]
       },
 
+      /** --------- SECCION FINANZAS ---------*/
+      { section: 'Finanzas Personales' },
+      {
+        title: 'Finanzas',
+        root: true,
+        name: "finance",
+        bullet: 'dot',
+        icon: 'flaticon2-chart',
+        svg: './assets/media/svg/icons/Shopping/Chart-bar1.svg',
+        page: '/finance',
+        submenu: [
+          {
+            title: 'Dashboard',
+            page: '/finance/dashboard'
+          },
+          {
+            title: 'Cuentas Bancarias',
+            page: '/finance/bank-accounts'
+          },
+          {
+            title: 'Transferencias',
+            page: '/finance/transfer'
+          },
+          {
+            title: 'Ingresos',
+            page: '/finance/incomes'
+          },
+          {
+            title: 'Gastos',
+            page: '/finance/expenses'
+          },
+          {
+            title: 'Deudas',
+            page: '/finance/debts'
+          },
+          {
+            title: 'Activos',
+            page: '/finance/assets',
+            icon: 'flaticon2-arrow-up',
+            svg: './assets/media/svg/icons/Navigation/Arrow-up.svg'
+          },
+          {
+            title: 'Pasivos',
+            page: '/finance/liabilities',
+            icon: 'flaticon2-arrow-down',
+            svg: './assets/media/svg/icons/Navigation/Arrow-down.svg'
+          }
+        ]
+      },
 
       /** --------- SECCION E-ECOMMERCE ---------*/
       { section: 'e-Commerce' },

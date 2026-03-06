@@ -383,15 +383,31 @@ export class AnalyticsService {
   /**
    * Format currency
    */
-  formatCurrency(value: number, currency: string = '€'): string {
-    return `${currency}${value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+  formatCurrency(value: number | string | null | undefined, currency: string = '€'): string {
+    // Convertir a número y validar
+    const numValue = typeof value === 'number' ? value : parseFloat(value as string);
+    
+    // Si no es un número válido, retornar 0
+    if (isNaN(numValue) || !isFinite(numValue)) {
+      return `${currency}0.00`;
+    }
+    
+    return `${currency}${numValue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
   }
 
   /**
    * Format percentage
    */
-  formatPercentage(value: number): string {
-    return `${value.toFixed(2)}%`;
+  formatPercentage(value: number | string | null | undefined): string {
+    // Convertir a número y validar
+    const numValue = typeof value === 'number' ? value : parseFloat(value as string);
+    
+    // Si no es un número válido, retornar 0
+    if (isNaN(numValue) || !isFinite(numValue)) {
+      return '0.00%';
+    }
+    
+    return `${numValue.toFixed(2)}%`;
   }
 
   /**

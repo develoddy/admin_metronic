@@ -1,0 +1,177 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="mb-1">
+        <i class="bi bi-arrow-down-circle-fill text-danger me-2"></i>
+        Gestión de Pasivos
+      </h3>
+      <p class="text-muted mb-0">Administra tus deudas, préstamos y obligaciones financieras</p>
+    </div>
+    <button class="btn btn-danger" (click)="createLiability()">
+      <i class="bi bi-plus-circle me-1"></i>
+      Nuevo Pasivo
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-danger" role="status">
+      <span class="sr-only">Cargando...</span>
+    </div>
+    <p class="mt-3 text-muted">Cargando pasivos...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadLiabilities()">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !error">
+    
+    <!-- Filters & Search -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-3">
+          <!-- Type Filter -->
+          <div class="col-md-4">
+            <label class="form-label">Filtrar por Tipo</label>
+            <select class="form-control" [(ngModel)]="selectedType" (change)="onTypeFilterChange()">
+              <option value="all">Todos los tipos</option>
+              <option value="credit_card">Tarjeta de Crédito</option>
+              <option value="loan">Préstamo</option>
+              <option value="mortgage">Hipoteca</option>
+              <option value="debt">Deuda</option>
+              <option value="other">Otro</option>
+            </select>
+          </div>
+
+          <!-- Search -->
+          <div class="col-md-8">
+            <label class="form-label">Buscar</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-search"></i>
+              </span>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Buscar por nombre o notas..." 
+                [(ngModel)]="searchTerm"
+                (input)="onSearchChange()"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="card mb-3 border-danger">
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-md-4">
+            <h6 class="text-muted mb-1">Total de Pasivos</h6>
+            <h4 class="mb-0 text-danger">{{ filteredLiabilities.length }}</h4>
+          </div>
+          <div class="col-md-4">
+            <h6 class="text-muted mb-1">Deuda Restante</h6>
+            <h4 class="mb-0 text-danger">{{ formatCurrency(totalRemaining) }}</h4>
+          </div>
+          <div class="col-md-4">
+            <h6 class="text-muted mb-1">Cuota Mensual Total</h6>
+            <h4 class="mb-0 text-danger">{{ formatCurrency(totalMonthly) }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liabilities Table -->
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive" *ngIf="filteredLiabilities.length > 0">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th class="text-end">Deuda Total</th>
+                <th class="text-end">Restante</th>
+                <th class="text-end">Cuota Mensual</th>
+                <th>Progreso</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let liability of filteredLiabilities">
+                <td>
+                  <strong>{{ liability.name }}</strong>
+                  <br>
+                  <small class="text-muted" *ngIf="liability.notes">{{ liability.notes | slice:0:40 }}{{ liability.notes.length > 40 ? '...' : '' }}</small>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getTypeBadgeClass(liability.type)">
+                    {{ getTypeLabel(liability.type) }}
+                  </span>
+                </td>
+                <td class="text-end">
+                  <small class="text-muted">{{ formatCurrency(liability.total_amount) }}</small>
+                </td>
+                <td class="text-end">
+                  <strong class="text-danger">{{ formatCurrency(liability.remaining_amount) }}</strong>
+                </td>
+                <td class="text-end">
+                  <strong>{{ formatCurrency(liability.monthly_payment) }}</strong>
+                </td>
+                <td style="min-width: 150px;">
+                  <div class="progress" style="height: 20px;">
+                    <div 
+                      class="progress-bar" 
+                      [ngClass]="getProgressBarClass(getProgressPercentage(liability))"
+                      [style.width.%]="getProgressPercentage(liability)"
+                      role="progressbar">
+                      <small>{{ getProgressPercentage(liability) }}%</small>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-center">
+                  <button 
+                    class="btn btn-sm btn-outline-primary me-1" 
+                    (click)="editLiability(liability)"
+                    title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-outline-danger" 
+                    (click)="deleteLiability(liability)"
+                    title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="filteredLiabilities.length === 0" class="text-center py-5">
+          <i class="bi bi-inbox display-1 text-muted"></i>
+          <p class="mt-3 text-muted">
+            <span *ngIf="liabilities.length === 0">No tienes pasivos registrados aún.</span>
+            <span *ngIf="liabilities.length > 0 && filteredLiabilities.length === 0">No se encontraron pasivos con los filtros aplicados.</span>
+          </p>
+          <button class="btn btn-danger" (click)="createLiability()" *ngIf="liabilities.length === 0">
+            <i class="bi bi-plus-circle me-1"></i>
+            Crear Primer Pasivo
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

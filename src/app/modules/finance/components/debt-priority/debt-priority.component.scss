@@ -1,0 +1,151 @@
+.debt-priority-section {
+  .alert {
+    border-left-width: 4px;
+    border-left-style: solid;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-radius: 8px;
+    color: #0f172a;
+    
+    .alert-heading {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #0f172a;
+
+      i {
+        opacity: 0.8;
+        margin-right: 0.5rem;
+      }
+    }
+
+    p, .small {
+      color: #475569;
+    }
+
+    &.alert-warning {
+      border-left-color: #1e3a8a;
+      background: rgba(30, 58, 138, 0.03);
+    }
+
+    &.alert-danger {
+      border-left-color: #ef4444;
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    &.alert-success {
+      border-left-color: #10b981;
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    &.alert-info {
+      border-left-color: #1e3a8a;
+      background: rgba(30, 58, 138, 0.05);
+    }
+  }
+
+  .priority-list {
+    .priority-item {
+      border: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: all 0.2s;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+
+      .priority-badge {
+        font-size: 0.9rem;
+        font-weight: 700;
+        padding: 6px 12px;
+        min-width: 40px;
+        text-align: center;
+      }
+
+      h6 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0;
+      }
+
+      .debt-payment {
+        font-size: 1.1rem;
+        font-family: monospace;
+      }
+
+      .debt-info {
+        font-size: 0.85rem;
+      }
+
+      .debt-reasoning {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border-left: 3px solid var(--bs-primary);
+      }
+    }
+  }
+}
+
+// RESPONSIVE MOBILE
+@media (max-width: 768px) {
+  .debt-priority-section {
+    .priority-list {
+      .priority-item {
+        .d-flex {
+          flex-direction: column;
+          align-items: flex-start !important;
+          gap: 0.75rem;
+        }
+
+        .priority-badge {
+          font-size: 0.8rem;
+          padding: 4px 10px;
+        }
+
+        h6 {
+          font-size: 0.95rem;
+        }
+
+        .debt-payment {
+          font-size: 1rem;
+        }
+
+        .debt-info {
+          font-size: 0.8rem;
+          width: 100%;
+        }
+
+        .debt-reasoning {
+          font-size: 0.75rem;
+          padding: 6px 10px;
+        }
+
+        .text-end {
+          text-align: left !important;
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .debt-priority-section {
+    .priority-list {
+      .priority-item {
+        padding: 1rem;
+
+        h6 {
+          font-size: 0.9rem;
+        }
+
+        .debt-payment {
+          font-size: 0.95rem;
+        }
+      }
+    }
+  }
+}

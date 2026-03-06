@@ -75,6 +75,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'finance',
+        loadChildren: () =>
+          import('../modules/finance/finance.module').then(
+            (m) => m.FinanceModule
+          ),
+      },
+      {
         path: 'categories',
         loadChildren: () =>
           import('../modules/categories/categories.module').then(

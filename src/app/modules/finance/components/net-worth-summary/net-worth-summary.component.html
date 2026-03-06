@@ -1,0 +1,127 @@
+<div class="net-worth-card">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-border text-warning" role="status">
+      <span class="sr-only">Cargando...</span>
+    </div>
+    <p class="mt-2 text-muted">Calculando patrimonio neto...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadNetWorth()">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Success State -->
+  <div *ngIf="!isLoading && !error && netWorthData" class="net-worth-content">
+    <!-- Header -->
+    <div class="net-worth-header">
+      <div class="header-left">
+        <i class="bi bi-gem header-icon"></i>
+        <div>
+          <h5 class="mb-0">PATRIMONIO NETO</h5>
+          <small class="text-muted">Tu posición financiera actual</small>
+        </div>
+      </div>
+      <div *ngIf="metrics" class="header-right">
+        <span class="badge" [ngClass]="'badge-' + metrics.healthColor">
+          <i [class]="getHealthIcon()"></i>
+          {{ getHealthStatusLabel() }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Main Value -->
+    <div class="net-worth-main">
+      <div class="main-value" [ngClass]="{
+        'positive': netWorthData.netWorth > 0,
+        'negative': netWorthData.netWorth < 0,
+        'neutral': netWorthData.netWorth === 0
+      }">
+        <span class="currency-symbol">€</span>
+        {{ formatCurrency(netWorthData.netWorth).replace('€', '').replace(',', '.') }}
+      </div>
+      <!-- <div class="change-indicator" *ngIf="getPercentageChange() !== 0">
+        <i class="bi bi-arrow-up" *ngIf="getPercentageChange() > 0"></i>
+        <i class="bi bi-arrow-down" *ngIf="getPercentageChange() < 0"></i>
+        {{ getPercentageChange() }}% vs mes anterior
+      </div> -->
+    </div>
+
+    <!-- Assets & Liabilities Breakdown -->
+    <div class="breakdown-row">
+      <div class="breakdown-item assets">
+        <div class="breakdown-header">
+          <i class="bi bi-arrow-up-circle-fill"></i>
+          <span class="breakdown-label">ACTIVOS</span>
+        </div>
+        <div class="breakdown-value">
+          {{ formatCurrency(netWorthData.totalAssets) }}
+        </div>
+        <div class="breakdown-details">
+          <small class="text-muted">
+            {{ netWorthData.counts.assets + netWorthData.counts.bankAccounts }} elementos
+          </small>
+        </div>
+      </div>
+
+      <div class="breakdown-divider"></div>
+
+      <div class="breakdown-item liabilities">
+        <div class="breakdown-header">
+          <i class="bi bi-arrow-down-circle-fill"></i>
+          <span class="breakdown-label">PASIVOS</span>
+        </div>
+        <div class="breakdown-value">
+          {{ formatCurrency(netWorthData.totalLiabilities) }}
+        </div>
+        <div class="breakdown-details">
+          <small class="text-muted">
+            {{ netWorthData.counts.liabilities }} deudas
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics Row -->
+    <div *ngIf="metrics" class="metrics-row">
+      <div class="metric-item">
+        <div class="metric-label">Ratio A/P</div>
+        <div class="metric-value" [ngClass]="metrics.healthColor + '-text'">
+          {{ metrics.assetLiabilityRatio }}x
+        </div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">Endeudamiento</div>
+        <div class="metric-value" [ngClass]="{
+          'success-text': metrics.debtPercentage < 30,
+          'warning-text': metrics.debtPercentage >= 30 && metrics.debtPercentage < 50,
+          'danger-text': metrics.debtPercentage >= 50
+        }">
+          {{ metrics.debtPercentage }}%
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Recommendations (first 2) -->
+    <div *ngIf="recommendations.length > 0" class="quick-recommendations">
+      <div class="recommendation-item" *ngFor="let rec of recommendations.slice(0, 2)">
+        <i class="bi bi-lightbulb-fill me-2"></i>
+        <span>{{ rec }}</span>
+      </div>
+    </div>
+
+    <!-- Action Button -->
+    <div class="action-row">
+      <button type="button"
+              class="btn btn-sm btn-outline-light"
+              (click)="goToPatrimonioTab()">
+        Ver Detalle Completo <i class="bi bi-arrow-right ms-1"></i>
+      </button>
+    </div>
+  </div>
+</div>

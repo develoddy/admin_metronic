@@ -1,0 +1,187 @@
+<div class="card">
+  <div class="card-header border-0 pt-6">
+    <div class="card-title">
+      <h3 class="fw-bolder">
+        <i class="bi bi-arrow-left-right text-primary"></i> Nueva Transferencia
+      </h3>
+      <p class="text-muted fs-7 mb-0">Transfiere dinero entre tus cuentas o a cuentas externas</p>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      
+      <!-- Transfer Type Selection -->
+      <div class="row mb-6">
+        <div class="col-md-12">
+          <div class="alert alert-light d-flex align-items-center">
+            <div class="form-check form-check-custom form-check-solid me-4">
+              <input class="form-check-input" type="checkbox" formControlName="is_external" id="isExternal">
+              <label class="form-check-label fw-bold" for="isExternal">
+                <i class="bi bi-bank2"></i> Transferencia Externa
+              </label>
+            </div>
+            <small class="text-muted">
+              <span *ngIf="!f['is_external'].value">
+                <i class="bi bi-arrow-left-right"></i> Entre tus cuentas (no cuenta como gasto)
+              </span>
+              <span *ngIf="f['is_external'].value">
+                <i class="bi bi-box-arrow-right"></i> A cuenta de terceros (cuenta como gasto)
+              </span>
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-6">
+        <!-- Source Account -->
+        <div class="col-md-6">
+          <label class="form-label required">Cuenta Origen</label>
+          <select class="form-select" formControlName="source_account_id" (change)="onSourceAccountChange()">
+            <option value="">-- Selecciona cuenta origen --</option>
+            <option *ngFor="let account of bankAccounts" [value]="account.id">
+              <i [class]="getAccountIcon(account.account_type)"></i>
+              {{ account.name }} - {{ account.bank_name }} ({{ formatCurrency(account.balance) }})
+            </option>
+          </select>
+          <div *ngIf="f['source_account_id'].invalid && f['source_account_id'].touched" class="text-danger mt-2">
+            <small>Debe seleccionar una cuenta origen</small>
+          </div>
+        </div>
+
+        <!-- Target Account (solo para transferencias internas) -->
+        <div class="col-md-6" *ngIf="!f['is_external'].value">
+          <label class="form-label required">Cuenta Destino</label>
+          <select class="form-select" formControlName="target_account_id" (change)="updateSelectedAccounts()">
+            <option value="">-- Selecciona cuenta destino --</option>
+            <option 
+              *ngFor="let account of filteredTargetAccounts" 
+              [value]="account.id">
+              <i [class]="getAccountIcon(account.account_type)"></i>
+              {{ account.name }} - {{ account.bank_name }} ({{ formatCurrency(account.balance) }})
+            </option>
+          </select>
+          <div *ngIf="f['target_account_id'].invalid && f['target_account_id'].touched" class="text-danger mt-2">
+            <small>Debe seleccionar una cuenta destino</small>
+          </div>
+        </div>
+
+        <!-- External Recipient (solo para transferencias externas) -->
+        <div class="col-md-6" *ngIf="f['is_external'].value">
+          <label class="form-label required">Destinatario</label>
+          <input type="text" class="form-control" formControlName="external_recipient"
+                 placeholder="Nombre del destinatario o institución">
+          <div *ngIf="f['external_recipient'].invalid && f['external_recipient'].touched" class="text-danger mt-2">
+            <small>El nombre del destinatario es requerido</small>
+          </div>
+          <small class="text-muted">
+            <i class="bi bi-info-circle"></i> Ej: Juan Pérez, Banco Santander, etc.
+          </small>
+        </div>
+      </div>
+
+      <div class="row mb-6">
+        <!-- Amount -->
+        <div class="col-md-6">
+          <label class="form-label required">Monto a Transferir</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" formControlName="amount" 
+                   placeholder="0.00" step="0.01" min="0.01" (input)="onAmountChange()">
+          </div>
+          <div *ngIf="f['amount'].invalid && f['amount'].touched" class="text-danger mt-2">
+            <small *ngIf="f['amount'].errors?.required">El monto es requerido</small>
+            <small *ngIf="f['amount'].errors?.min">El monto debe ser mayor a 0</small>
+          </div>
+          <small class="text-muted" *ngIf="selectedSourceAccount">
+            <i class="bi bi-info-circle"></i> Saldo disponible: {{ formatCurrency(selectedSourceAccount.balance) }}
+          </small>
+        </div>
+
+        <!-- Date -->
+        <div class="col-md-6">
+          <label class="form-label required">Fecha</label>
+          <input type="date" class="form-control" formControlName="date">
+          <div *ngIf="f['date'].invalid && f['date'].touched" class="text-danger mt-2">
+            <small>La fecha es requerida</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-6">
+        <!-- Description -->
+        <div class="col-md-12">
+          <label class="form-label">Descripción</label>
+          <input type="text" class="form-control" formControlName="description"
+                 placeholder="Ej: Ahorro mensual, pago de servicios, etc.">
+        </div>
+      </div>
+
+      <div class="row mb-6">
+        <!-- Is Recurring -->
+        <div class="col-md-6">
+          <div class="form-check form-check-custom form-check-solid">
+            <input class="form-check-input" type="checkbox" formControlName="is_recurring" id="isRecurring">
+            <label class="form-check-label" for="isRecurring">
+              <i class="bi bi-arrow-repeat"></i> Transferencia Recurrente
+            </label>
+          </div>
+          <small class="text-muted">Marca esta opción si realizas esta transferencia regularmente</small>
+        </div>
+
+        <!-- Recurrence Type -->
+        <div class="col-md-6" *ngIf="f['is_recurring'].value">
+          <label class="form-label">Frecuencia</label>
+          <select class="form-select" formControlName="recurrence_type">
+            <option *ngFor="let type of recurrenceTypes" [value]="type.value">
+              {{ type.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-6">
+        <!-- Notes -->
+        <div class="col-md-12">
+          <label class="form-label">Notas</label>
+          <textarea class="form-control" formControlName="notes" rows="3"
+                    placeholder="Notas adicionales sobre esta transferencia..."></textarea>
+        </div>
+      </div>
+
+      <!-- Preview Card -->
+      <div class="alert alert-info d-flex align-items-center" *ngIf="selectedSourceAccount && selectedTargetAccount && f['amount'].value">
+        <i class="bi bi-info-circle fs-2x me-4"></i>
+        <div class="d-flex flex-column">
+          <h5 class="mb-1">Vista Previa de la Transferencia</h5>
+          <div class="d-flex align-items-center">
+            <span class="badge badge-light-primary me-2">{{ selectedSourceAccount.name }}</span>
+            <i class="bi bi-arrow-right mx-2"></i>
+            <span class="badge badge-light-success me-2">{{ selectedTargetAccount.name }}</span>
+            <span class="fw-bold fs-4 ms-3">{{ formatCurrency(f['amount'].value) }}</span>
+          </div>
+          <small class="text-muted mt-2">
+            Saldo final {{ selectedSourceAccount.name }}: {{ formatCurrency(selectedSourceAccount.balance - (+f['amount'].value || 0)) }} |
+            Saldo final {{ selectedTargetAccount.name }}: {{ formatCurrency(selectedTargetAccount.balance + (+f['amount'].value || 0)) }}
+          </small>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="d-flex justify-content-end">
+        <button type="button" class="btn btn-light me-3" (click)="cancel()" [disabled]="loading">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">
+          <span *ngIf="!loading">
+            <i class="bi bi-check-circle"></i> Realizar Transferencia
+          </span>
+          <span *ngIf="loading">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Procesando...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

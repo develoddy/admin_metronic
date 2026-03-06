@@ -1,0 +1,181 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="mb-1">
+        <i class="bi bi-arrow-up-circle-fill text-success me-2"></i>
+        {{ isEditMode ? 'Editar Activo' : 'Nuevo Activo' }}
+      </h3>
+      <p class="text-muted mb-0">{{ isEditMode ? 'Modifica los datos del activo' : 'Registra un nuevo activo' }}</p>
+    </div>
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="bi bi-arrow-left me-1"></i>
+      Volver
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-success" role="status">
+      <span class="sr-only">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!isLoading" class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="card">
+        <div class="card-body">
+          <form (ngSubmit)="onSubmit()">
+            
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label class="form-label">
+                Nombre del Activo <span class="text-danger">*</span>
+              </label>
+              <input 
+                type="text" 
+                class="form-control" 
+                [(ngModel)]="asset.name" 
+                name="name"
+                placeholder="Ej: Casa en Madrid, Acciones Tesla, Coche BMW..."
+                required
+              >
+            </div>
+
+            <!-- Tipo -->
+            <div class="mb-3">
+              <label class="form-label">
+                Tipo de Activo <span class="text-danger">*</span>
+              </label>
+              <select 
+                class="form-control" 
+                [(ngModel)]="asset.type" 
+                name="type"
+                (change)="onTypeChange()"
+                required>
+                <option *ngFor="let type of assetTypes" [value]="type.value">
+                  {{ type.label }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Valor Actual -->
+            <div class="mb-3">
+              <label class="form-label">
+                Valor Actual (€) <span class="text-danger">*</span>
+              </label>
+              <input 
+                type="number" 
+                class="form-control" 
+                [(ngModel)]="asset.current_value" 
+                name="current_value"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                required
+              >
+              <small class="form-text text-muted">Valor estimado actual del activo</small>
+            </div>
+
+            <!-- Cuenta Bancaria (solo si es tipo cash) -->
+            <div class="mb-3" *ngIf="asset.type === 'cash' && bankAccounts.length > 0">
+              <label class="form-label">
+                Cuenta Bancaria Asociada <span class="text-muted">(Opcional)</span>
+              </label>
+              <select 
+                class="form-control" 
+                [(ngModel)]="asset.bank_account_id" 
+                name="bank_account_id">
+                <option [ngValue]="null">-- Ninguna --</option>
+                <option *ngFor="let ba of bankAccounts" [ngValue]="ba.id">
+                  {{ ba.name }} ({{ ba.balance }}€)
+                </option>
+              </select>
+              <small class="form-text text-muted">Solo disponible para activos tipo "Efectivo"</small>
+            </div>
+
+            <!-- Fecha de Adquisición -->
+            <div class="mb-3">
+              <label class="form-label">
+                Fecha de Adquisición <span class="text-muted">(Opcional)</span>
+              </label>
+              <input 
+                type="date" 
+                class="form-control" 
+                [(ngModel)]="asset.purchase_date" 
+                name="purchase_date"
+              >
+            </div>
+
+            <!-- Notas -->
+            <div class="mb-3">
+              <label class="form-label">
+                Notas <span class="text-muted">(Opcional)</span>
+              </label>
+              <textarea 
+                class="form-control" 
+                [(ngModel)]="asset.notes" 
+                name="notes"
+                rows="3"
+                placeholder="Describe características, ubicación, etc..."></textarea>
+            </div>
+
+            <!-- Estado Activo -->
+            <div class="mb-4">
+              <div class="form-check">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  [(ngModel)]="asset.is_active" 
+                  name="is_active"
+                  id="is_active">
+                <label class="form-check-label" for="is_active">
+                  Activo (incluir en cálculo de patrimonio)
+                </label>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-success" 
+                [disabled]="isSaving">
+                <span *ngIf="!isSaving">
+                  <i class="bi bi-check-circle me-1"></i>
+                  {{ isEditMode ? 'Guardar Cambios' : 'Crear Activo' }}
+                </span>
+                <span *ngIf="isSaving">
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                  Guardando...
+                </span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Help Card -->
+      <div class="card mt-3 bg-light">
+        <div class="card-body">
+          <h6 class="card-title">
+            <i class="bi bi-info-circle me-1"></i>
+            Tipos de Activos
+          </h6>
+          <ul class="mb-0 small">
+            <li><strong>Efectivo:</strong> Dinero en cuentas bancarias, ahorros en efectivo</li>
+            <li><strong>Propiedad:</strong> Casas, terrenos, locales comerciales</li>
+            <li><strong>Inversión:</strong> Acciones, fondos, bonos, criptomonedas</li>
+            <li><strong>Vehículo:</strong> Coches, motos, barcos</li>
+            <li><strong>Otro:</strong> Joyas, arte, colecciones, etc.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

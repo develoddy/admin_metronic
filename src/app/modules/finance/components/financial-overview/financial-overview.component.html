@@ -1,0 +1,406 @@
+<div *ngIf="overview" class="financial-overview">
+  <!-- Header con estado -->
+  <div class="overview-header mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h2 class="overview-title mb-1">
+          <i class="bi bi-speedometer2"></i> Vista Rápida Financiera
+        </h2>
+        <p class="text-muted mb-0">{{ overview.month }}</p>
+      </div>
+      <div class="col-md-4 text-end">
+        <span [class]="'badge fs-6 px-4 py-2 ' + getStatusBadgeClass()">
+          {{ getStatusBadgeText() }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Sidebar: Balance y Cuentas -->
+    <div class="col-lg-4">
+      <!-- Balance Card -->
+      <div class="card mb-4 balance-card">
+        <div class="card-body">
+          <h6 class="text-muted mb-2">Balance Neto del Mes</h6>
+          <h2 [class]="'balance-amount ' + (overview.monthlyBalance < 0 ? 'text-danger' : 'text-success')">
+            {{ formatCurrency(overview.monthlyBalance) }}
+          </h2>
+          <hr class="my-3">
+          <div class="balance-breakdown">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Ingresos</span>
+              <span class="text-success fw-bold">+{{ formatCurrency(overview.totalIncome) }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Gastos</span>
+              <span class="text-danger fw-bold">−{{ formatCurrency(overview.totalExpenses) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cuentas Bancarias -->
+      <div class="accounts-section">
+        <h6 class="section-title mb-3">
+          <i class="bi bi-bank"></i> Por Cuenta Bancaria
+        </h6>
+        <app-account-expense-card
+          *ngFor="let account of overview.accountBreakdown"
+          [account]="account">
+        </app-account-expense-card>
+      </div>
+    </div>
+
+    <!-- Main Content: Análisis -->
+    <div class="col-lg-8">
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" data-toggle="tab" href="#tab-categories" role="tab">
+            <i class="bi bi-pie-chart"></i> Análisis por Categoría
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#tab-action-plan" role="tab">
+            <i class="bi bi-clipboard-check"></i> Plan de Acción
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#tab-recommendations" role="tab">
+            <i class="bi bi-lightbulb"></i> Recomendaciones
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#tab-debts" role="tab">
+            <i class="bi bi-card-list"></i> Prioridad de Deudas
+            <span *ngIf="overview.debtPriority.length > 0" class="badge badge-danger ml-2">{{ overview.debtPriority.length }}</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#tab-patrimonio" role="tab" id="patrimonio-tab">
+            <i class="bi bi-gem"></i> Patrimonio
+          </a>
+        </li>
+      </ul>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Tab: Categories -->
+        <div class="tab-pane fade show active" id="tab-categories">
+          <div class="row">
+            <div class="col-md-6">
+              <app-category-breakdown
+                [categories]="overview.categoryBreakdown"
+                [totalExpenses]="overview.totalExpenses">
+              </app-category-breakdown>
+            </div>
+            <div class="col-md-6">
+              <div class="category-list">
+                <h6 class="mb-3">Desglose Detallado</h6>
+                <div
+                  *ngFor="let cat of overview.categoryBreakdown"
+                  class="category-item mb-3">
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>
+                      <i [class]="cat.icon + ' me-2'" [style.color]="cat.color"></i>
+                      {{ cat.categoryLabel }}
+                    </span>
+                    <span class="fw-bold">{{ formatCurrency(cat.amount) }}</span>
+                  </div>
+                  <div class="progress" style="height: 6px;">
+                    <div
+                      class="progress-bar"
+                      [style.width.%]="cat.percentage"
+                      [style.background-color]="cat.color">
+                    </div>
+                  </div>
+                  <small class="text-muted">{{ formatPercentage(cat.percentage) }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Action Plan -->
+        <div class="tab-pane fade" id="tab-action-plan">
+          <div class="action-plan-section">
+            
+            <!-- Alert de situación crítica -->
+            <div *ngIf="overview.status === 'deficit'" class="alert alert-danger border-left-danger mb-4">
+              <h6 class="alert-heading font-weight-bold mb-2">
+                <i class="bi bi-exclamation-triangle"></i> Situación real: gastas más de lo que ingresas
+              </h6>
+              <p class="mb-0">
+                Tus ingresos son {{ formatCurrency(overview.totalIncome) }} y tus gastos comprometidos 
+                suman {{ formatCurrency(overview.totalExpenses) }}, dejando solo {{ formatCurrency(overview.monthlyBalance) }} 
+                — que en la práctica desaparecen en imprevistos. El problema no es el método que usas, 
+                sino que hay que reducir deudas antes de poder ahorrar.
+              </p>
+            </div>
+
+            <!-- Método Avalancha -->
+            <div *ngIf="overview.debtPriority.length > 0" class="card border-warning mb-4">
+              <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0">
+                  <i class="bi bi-bullseye"></i> Método Avalancha: orden de ataque a deudas
+                </h6>
+                <small>Paga mínimos en todo y vuelca cualquier extra en este orden</small>
+              </div>
+              <div class="card-body">
+                <app-debt-priority [debts]="overview.debtPriority"></app-debt-priority>
+              </div>
+            </div>
+
+            <!-- Grid de acciones -->
+            <div class="row">
+              <!-- Acciones Inmediatas -->
+              <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                      <i class="bi bi-lightning"></i> Acciones Inmediatas
+                    </h6>
+                    <small>Esta semana, sin esperar</small>
+                  </div>
+                  <div class="card-body">
+                    <div class="action-step mb-3" *ngIf="hasCategory('utilities')">
+                      <div class="d-flex align-items-start">
+                        <span class="badge badge-primary mr-2">01</span>
+                        <div>
+                          <p class="mb-0 small">
+                            Revisa tus servicios básicos (internet, móvil, seguros). Podrías ahorrar 
+                            hasta un 30% renegociando o cambiando de proveedor.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="action-step mb-3" *ngIf="overview.debtPriority.length > 0">
+                      <div class="d-flex align-items-start">
+                        <span class="badge badge-primary mr-2">02</span>
+                        <div>
+                          <p class="mb-0 small">
+                            Contacta con tus acreedores para renegociar plazos. 3-6 meses de respiro 
+                            te ayudarán a estabilizar la situación.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="action-step mb-3" *ngIf="hasCategory('entertainment')">
+                      <div class="d-flex align-items-start">
+                        <span class="badge badge-primary mr-2">03</span>
+                        <div>
+                          <p class="mb-0 small">
+                            Revisa suscripciones digitales no esenciales. Cancela temporalmente las que 
+                            no uses diariamente.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="action-step" *ngIf="overview.status === 'surplus'">
+                      <div class="d-flex align-items-start">
+                        <span class="badge badge-success mr-2">✓</span>
+                        <div>
+                          <p class="mb-0 small">
+                            Tu situación es estable. Considera automatizar tu ahorro mensual con 
+                            transferencias programadas.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fase 2: Objetivos futuros -->
+              <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                  <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                      <i class="bi bi-star"></i> Fase 2: cuando salgas de deudas
+                    </h6>
+                    <small>Objetivo: aplicar 50/30/20 con {{ formatCurrency(overview.totalIncome) }}</small>
+                  </div>
+                  <div class="card-body">
+                    <div class="future-step mb-3">
+                      <div class="d-flex align-items-start">
+                        <span class="badge badge-info mr-2">50%</span>
+                        <div class="flex-grow-1">
+                          <p class="mb-1 small font-weight-bold">Necesidades (hipoteca, comida, servicios)</p>
+                          <p class="mb-0 small text-muted">
+                            Máx. {{ formatCurrency(overview.totalIncome * 0.5) }}/mes
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="future-step mb-3">
+                      <div class="d-flex align-items-start">
+                        <span class="badge badge-info mr-2">30%</span>
+                        <div class="flex-grow-1">
+                          <p class="mb-1 small font-weight-bold">Caprichos y familia</p>
+                          <p class="mb-0 small text-muted">
+                            {{ formatCurrency(overview.totalIncome * 0.3) }}/mes para ocio sin culpa
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="future-step">
+                      <div class="d-flex align-items-start">
+                        <span class="badge badge-success mr-2">20%</span>
+                        <div class="flex-grow-1">
+                          <p class="mb-1 small font-weight-bold">Ahorro e inversión</p>
+                          <p class="mb-0 small text-muted">
+                            {{ formatCurrency(overview.totalIncome * 0.2) }}/mes → 
+                            {{ formatCurrency(overview.totalIncome * 0.2 * 12) }}/año
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lo que haces bien -->
+            <div class="alert alert-success border-left-success">
+              <h6 class="alert-heading font-weight-bold mb-2">
+                <i class="bi bi-check-circle"></i> Lo que ya haces bien
+              </h6>
+              <p class="mb-0 small">
+                <ng-container *ngIf="overview.accountBreakdown.length > 1">
+                  Tienes los gastos bien distribuidos entre {{ overview.accountBreakdown.length }} cuentas, 
+                  lo que facilita el control mental. 
+                </ng-container>
+                <ng-container *ngIf="overview.status === 'surplus'">
+                  Mantienes un balance positivo de {{ formatCurrency(overview.monthlyBalance) }}. 
+                </ng-container>
+                <ng-container *ngIf="hasCategory('groceries')">
+                  Tus gastos de alimentación están controlados. 
+                </ng-container>
+                <ng-container *ngIf="overview.debtPriority.length > 0">
+                  El problema principal es tener {{ overview.debtPriority.length }} deudas simultáneas. 
+                  Cuando las elimines, tu situación cambia radicalmente.
+                </ng-container>
+                <ng-container *ngIf="overview.debtPriority.length === 0">
+                  Sin deudas activas, puedes enfocarte completamente en ahorro e inversión.
+                </ng-container>
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab: Recommendations -->
+        <div class="tab-pane fade" id="tab-recommendations">
+          <div class="recommendations-section">
+            <div *ngIf="overview.recommendations.length === 0" class="alert alert-info text-center">
+              <i class="bi bi-info-circle fs-3"></i>
+              <p class="mt-2 mb-0">Generando recomendaciones basadas en tus datos financieros...</p>
+            </div>
+
+            <div
+              *ngFor="let rec of overview.recommendations"
+              [class]="'alert alert-' + getRecommendationClass(rec.type) + ' d-flex align-items-start'">
+              <i [class]="getRecommendationIcon(rec.type) + ' fs-3 mr-3 mt-1'"></i>
+              <div class="flex-grow-1">
+                <h6 class="alert-heading mb-2 font-weight-bold">{{ rec.title }}</h6>
+                <p class="mb-2">{{ rec.message }}</p>
+                <small *ngIf="rec.action" class="d-block text-dark font-weight-semibold">
+                  <i class="bi bi-arrow-right mr-1"></i> <strong>Acción recomendada:</strong> {{ rec.action }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Debts Priority -->
+        <div class="tab-pane fade" id="tab-debts">
+          <div *ngIf="overview.debtPriority.length > 0">
+            <app-debt-priority [debts]="overview.debtPriority"></app-debt-priority>
+          </div>
+
+          <div *ngIf="overview.debtPriority.length === 0" class="alert alert-success text-center">
+            <i class="bi bi-check-circle fs-1"></i>
+            <h5 class="mt-3">Sin Deudas Registradas</h5>
+            <p class="text-muted">
+              No se han detectado deudas activas este mes. Si tienes deudas, asegúrate de registrarlas 
+              en el módulo de Deudas para obtener un plan de pago optimizado.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tab: Patrimonio (Net Worth) -->
+        <div class="tab-pane fade" id="tab-patrimonio">
+          <div class="patrimonio-content">
+            <div class="alert alert-info mb-4">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Vista de Patrimonio Neto:</strong> Aquí visualizas tu posición financiera global considerando 
+              todos tus activos (propiedades, inversiones, cuentas bancarias) menos tus pasivos (deudas, préstamos).
+            </div>
+
+            <!-- Net Worth Section se renderiza automáticamente en el dashboard principal -->
+            <div class="text-center py-5">
+              <i class="bi bi-gem text-warning" style="font-size: 4rem;"></i>
+              <h4 class="mt-4 mb-3">Panel de Patrimonio Neto</h4>
+              <p class="text-muted mb-4">
+                El resumen de tu patrimonio neto se muestra en la card destacada del dashboard principal.
+              </p>
+              
+              <div class="row mt-5">
+                <div class="col-md-6">
+                  <div class="card border-success">
+                    <div class="card-body">
+                      <h5 class="card-title text-success">
+                        <i class="bi bi-plus-circle"></i> Gestionar Activos
+                      </h5>
+                      <p class="card-text text-muted">
+                        Registra propiedades, inversiones, vehículos y otros activos que posees.
+                      </p>
+                      <a [routerLink]="['/finance/assets']" class="btn btn-outline-success btn-sm">
+                        Ir a Activos <i class="bi bi-arrow-right"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="card border-danger">
+                    <div class="card-body">
+                      <h5 class="card-title text-danger">
+                        <i class="bi bi-dash-circle"></i> Gestionar Pasivos
+                      </h5>
+                      <p class="card-text text-muted">
+                        Registra deudas, préstamos, hipotecas y otras obligaciones financieras.
+                      </p>
+                      <a [routerLink]="['/finance/liabilities']" class="btn btn-outline-danger btn-sm">
+                        Ir a Pasivos <i class="bi bi-arrow-right"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alert alert-warning mt-5 text-start">
+                <h6 class="alert-heading">
+                  <i class="bi bi-lightbulb-fill me-2"></i>Próximas Funcionalidades
+                </h6>
+                <ul class="mb-0">
+                  <li>Gráfico de evolución histórica del patrimonio</li>
+                  <li>Distribución de activos por tipo (propiedades, inversiones, etc.)</li>
+                  <li>Comparativa mensual de patrimonio neto</li>
+                  <li>Proyecciones de patrimonio futuro</li>
+                  <li>Alertas cuando el patrimonio disminuye</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

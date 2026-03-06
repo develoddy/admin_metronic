@@ -1,0 +1,104 @@
+// Income Edit Component Styles
+
+// Form styling
+.card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+}
+
+.form-check-input {
+  border-radius: 4px;
+  border: 2px solid #cbd5e1;
+  
+  &:checked {
+    background-color: #10b981;
+    border-color: #10b981;
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+}
+
+// RESPONSIVE MOBILE
+@media (max-width: 768px) {
+  .card {
+    margin: 0 -10px;
+    border-radius: 0;
+  }
+
+  .card-header {
+    h3 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+
+  // Form groups stack
+  .row {
+    .col-md-6,
+    .col-md-4,
+    .col-md-8 {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 0.95rem;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .form-check-label {
+    font-size: 0.9rem;
+  }
+
+  // Action buttons full width
+  .card-footer {
+    .btn {
+      width: 100%;
+      margin-bottom: 0.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .card-body {
+    padding: 1rem;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 0.9rem;
+  }
+}

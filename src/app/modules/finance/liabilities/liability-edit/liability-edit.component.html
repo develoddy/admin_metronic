@@ -1,0 +1,258 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="mb-1">
+        <i class="bi bi-arrow-down-circle-fill text-danger me-2"></i>
+        {{ isEditMode ? 'Editar Pasivo' : 'Nuevo Pasivo' }}
+      </h3>
+      <p class="text-muted mb-0">{{ isEditMode ? 'Modifica los datos del pasivo' : 'Registra una nueva obligación financiera' }}</p>
+    </div>
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      <i class="bi bi-arrow-left me-1"></i>
+      Volver
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-danger" role="status">
+      <span class="sr-only">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!isLoading" class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="card">
+        <div class="card-body">
+          <form (ngSubmit)="onSubmit()">
+            
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label class="form-label">
+                Nombre del Pasivo <span class="text-danger">*</span>
+              </label>
+              <input 
+                type="text" 
+                class="form-control" 
+                [(ngModel)]="liability.name" 
+                name="name"
+                placeholder="Ej: Hipoteca Casa, Préstamo Personal, Tarjeta Visa..."
+                required
+              >
+            </div>
+
+            <!-- Tipo -->
+            <div class="mb-3">
+              <label class="form-label">
+                Tipo de Pasivo <span class="text-danger">*</span>
+              </label>
+              <select 
+                class="form-control" 
+                [(ngModel)]="liability.type" 
+                name="type"
+                required>
+                <option *ngFor="let type of liabilityTypes" [value]="type.value">
+                  {{ type.label }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Monto Total y Restante -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">
+                    Monto Total (€) <span class="text-danger">*</span>
+                  </label>
+                  <input 
+                    type="number" 
+                    class="form-control" 
+                    [(ngModel)]="liability.total_amount" 
+                    name="total_amount"
+                    step="0.01"
+                    min="0"
+                    (change)="onTotalAmountChange()"
+                    placeholder="0.00"
+                    required
+                  >
+                  <small class="form-text text-muted">Monto total de la deuda original</small>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">
+                    Monto Restante (€) <span class="text-danger">*</span>
+                  </label>
+                  <input 
+                    type="number" 
+                    class="form-control" 
+                    [(ngModel)]="liability.remaining_amount" 
+                    name="remaining_amount"
+                    step="0.01"
+                    min="0"
+                    [max]="liability.total_amount || 0"
+                    placeholder="0.00"
+                    required
+                  >
+                  <small class="form-text text-muted">Cuánto queda por pagar</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress Bar (visual) -->
+            <div class="mb-3" *ngIf="liability.total_amount && liability.remaining_amount !== null">
+              <label class="form-label">Progreso de Pago</label>
+              <div class="progress" style="height: 25px;">
+                <div 
+                  class="progress-bar bg-success" 
+                  [style.width.%]="getPaymentProgress()"
+                  role="progressbar">
+                  <strong>{{ getPaymentProgress() }}% pagado</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cuota Mensual e Interés -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">
+                    Cuota Mensual (€) <span class="text-danger">*</span>
+                  </label>
+                  <input 
+                    type="number" 
+                    class="form-control" 
+                    [(ngModel)]="liability.monthly_payment" 
+                    name="monthly_payment"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    required
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">
+                    Tasa de Interés (%) <span class="text-muted">(Opcional)</span>
+                  </label>
+                  <input 
+                    type="number" 
+                    class="form-control" 
+                    [(ngModel)]="liability.interest_rate" 
+                    name="interest_rate"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    placeholder="0.00"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Fechas -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">
+                    Fecha de Inicio <span class="text-muted">(Opcional)</span>
+                  </label>
+                  <input 
+                    type="date" 
+                    class="form-control" 
+                    [(ngModel)]="liability.start_date" 
+                    name="start_date"
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">
+                    Fecha de Vencimiento <span class="text-muted">(Opcional)</span>
+                  </label>
+                  <input 
+                    type="date" 
+                    class="form-control" 
+                    [(ngModel)]="liability.due_date" 
+                    name="due_date"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Notas -->
+            <div class="mb-3">
+              <label class="form-label">
+                Notas <span class="text-muted">(Opcional)</span>
+              </label>
+              <textarea 
+                class="form-control" 
+                [(ngModel)]="liability.notes" 
+                name="notes"
+                rows="3"
+                placeholder="Describe condiciones especiales, entidad financiera, etc..."></textarea>
+            </div>
+
+            <!-- Estado Activo -->
+            <div class="mb-4">
+              <div class="form-check">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  [(ngModel)]="liability.is_active" 
+                  name="is_active"
+                  id="is_active">
+                <label class="form-check-label" for="is_active">
+                  Activo (incluir en cálculo de patrimonio)
+                </label>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-danger" 
+                [disabled]="isSaving">
+                <span *ngIf="!isSaving">
+                  <i class="bi bi-check-circle me-1"></i>
+                  {{ isEditMode ? 'Guardar Cambios' : 'Crear Pasivo' }}
+                </span>
+                <span *ngIf="isSaving">
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                  Guardando...
+                </span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Help Card -->
+      <div class="card mt-3 bg-light">
+        <div class="card-body">
+          <h6 class="card-title">
+            <i class="bi bi-info-circle me-1"></i>
+            Tipos de Pasivos
+          </h6>
+          <ul class="mb-0 small">
+            <li><strong>Tarjeta de Crédito:</strong> Saldo pendiente en tarjetas</li>
+            <li><strong>Préstamo Personal:</strong> Préstamos de consumo, créditos rápidos</li>
+            <li><strong>Hipoteca:</strong> Préstamos hipotecarios para vivienda</li>
+            <li><strong>Deuda:</strong> Deudas personales, préstamos informales</li>
+            <li><strong>Otro:</strong> Otros tipos de obligaciones financieras</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

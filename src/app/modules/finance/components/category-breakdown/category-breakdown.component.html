@@ -1,0 +1,30 @@
+<div class="category-chart-card card">
+  <div class="card-body text-center">
+    <h6 class="card-title mb-3">Gastos por Categoría</h6>
+    
+    <!-- Canvas para gráfico -->
+    <canvas
+      #chartCanvas
+      width="200"
+      height="200"
+      class="mb-3">
+    </canvas>
+
+    <!-- Leyenda -->
+    <div class="legend">
+      <div
+        *ngFor="let cat of categories.slice(0, 5)"
+        class="legend-item d-flex align-items-center mb-2">
+        <div
+          class="legend-dot me-2"
+          [style.background-color]="cat.color">
+        </div>
+        <span class="legend-label flex-grow-1 text-start">{{ cat.categoryLabel }}</span>
+        <span class="legend-percentage">{{ formatPercentage(cat.percentage) }}</span>
+      </div>
+      <div *ngIf="categories.length > 5" class="text-muted small mt-2">
+        +{{ categories.length - 5 }} categorías más
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<div class="debt-priority-section">
+  <div class="alert alert-warning mb-4">
+    <h6 class="alert-heading mb-1">
+      <i class="bi bi-exclamation-triangle"></i> Método Avalancha Recomendado
+    </h6>
+    <p class="mb-0 small">
+      Paga el mínimo en todas las deudas y vuelca cualquier dinero extra en la deuda #1. Cuando la liquides, ataca la #2, y así sucesivamente.
+    </p>
+  </div>
+
+  <div class="priority-list">
+    <div
+      *ngFor="let debt of debts"
+      class="priority-item card mb-3">
+      <div class="card-body">
+        <div class="d-flex align-items-start">
+          <span [class]="'priority-badge badge ' + getPriorityBadgeClass(debt.priority)">
+            #{{ debt.priority }}
+          </span>
+          
+          <div class="flex-grow-1 ms-3">
+            <div class="d-flex justify-content-between mb-2">
+              <div>
+                <h6 class="mb-1">{{ debt.creditor }}</h6>
+                <small class="text-muted">{{ debt.debtType }}</small>
+              </div>
+              <div class="text-end">
+                <div class="debt-payment fw-bold text-danger">
+                  {{ formatCurrency(debt.monthlyPayment) }}/mes
+                </div>
+                <small class="text-muted">Total: {{ formatCurrency(debt.remainingBalance) }}</small>
+              </div>
+            </div>
+
+            <div class="debt-info d-flex align-items-center gap-3 mb-2">
+              <span class="badge badge-light">
+                <i class="bi bi-percent"></i> {{ formatPercentage(debt.interestRate) }} interés
+              </span>
+            </div>
+
+            <div class="debt-reasoning">
+              <small class="text-muted">
+                <i class="bi bi-info-circle"></i> {{ debt.reasoning }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="debts.length === 0" class="text-center text-muted py-5">
+    <i class="bi bi-check-circle fs-1 text-success"></i>
+    <p class="mt-2">¡No tienes deudas activas!</p>
+  </div>
+</div>
