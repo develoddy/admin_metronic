@@ -355,35 +355,47 @@
     </div>
 
     <!-- Issues and Recommendations -->
-    <div class="row">
+    <div class="row g-4">
+      <!-- Áreas de Atención -->
       <div class="col-md-6" *ngIf="financialSummary.healthStatus.issues.length > 0">
-        <div class="card">
-          <div class="card-header bg-warning">
-            <h5 class="card-title mb-0 text-white">
-              <i class="bi bi-exclamation-triangle"></i> Áreas de Atención
-            </h5>
+        <div class="alert-card">
+          <div class="alert-card-header">
+            <div class="alert-icon-wrapper">
+              <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div>
+              <h5 class="alert-card-title">Áreas de Atención</h5>
+              <p class="alert-card-subtitle">Puntos que requieren tu acción</p>
+            </div>
           </div>
-          <div class="card-body">
-            <ul class="issues-list">
-              <li *ngFor="let issue of financialSummary.healthStatus.issues">
-                {{ issue }}
+          <div class="alert-card-body">
+            <ul class="priority-list">
+              <li *ngFor="let issue of financialSummary.healthStatus.issues; let i = index">
+                <span class="priority-number">{{ i + 1 }}</span>
+                <span class="priority-text">{{ issue }}</span>
               </li>
             </ul>
           </div>
         </div>
       </div>
 
+      <!-- Recomendaciones -->
       <div class="col-md-6" *ngIf="financialSummary.healthStatus.recommendations.length > 0">
-        <div class="card">
-          <div class="card-header bg-primary">
-            <h5 class="card-title mb-0 text-white">
-              <i class="bi bi-lightbulb"></i> Recomendaciones
-            </h5>
+        <div class="success-card">
+          <div class="success-card-header">
+            <div class="success-icon-wrapper">
+              <i class="bi bi-lightbulb"></i>
+            </div>
+            <div>
+              <h5 class="success-card-title">Recomendaciones</h5>
+              <p class="success-card-subtitle">Optimiza tu salud financiera</p>
+            </div>
           </div>
-          <div class="card-body">
-            <ul class="recommendations-list">
+          <div class="success-card-body">
+            <ul class="recommendation-list">
               <li *ngFor="let recommendation of financialSummary.healthStatus.recommendations">
-                {{ recommendation }}
+                <i class="bi bi-arrow-right-circle"></i>
+                <span>{{ recommendation }}</span>
               </li>
             </ul>
           </div>
@@ -392,12 +404,12 @@
 
       <!-- Success message when no issues -->
       <div class="col-md-12" *ngIf="financialSummary.healthStatus.issues.length === 0 && financialSummary.healthStatus.recommendations.length === 0">
-        <div class="card bg-light-success">
-          <div class="card-body text-center py-5">
-            <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-            <h4 class="text-success">¡Excelente Salud Financiera!</h4>
-            <p class="text-muted">No hay áreas de preocupación en este momento. Sigue manteniendo estos buenos hábitos financieros.</p>
+        <div class="excellent-health-card">
+          <div class="excellent-health-icon">
+            <i class="bi bi-check-circle"></i>
           </div>
+          <h4 class="excellent-health-title">¡Excelente Salud Financiera!</h4>
+          <p class="excellent-health-text">No hay áreas de preocupación en este momento. Sigue manteniendo estos buenos hábitos financieros.</p>
         </div>
       </div>
     </div>

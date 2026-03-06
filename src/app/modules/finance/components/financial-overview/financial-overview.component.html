@@ -127,169 +127,235 @@
           <div class="action-plan-section">
             
             <!-- Alert de situación crítica -->
-            <div *ngIf="overview.status === 'deficit'" class="alert alert-danger border-left-danger mb-4">
-              <h6 class="alert-heading font-weight-bold mb-2">
-                <i class="bi bi-exclamation-triangle"></i> Situación real: gastas más de lo que ingresas
-              </h6>
-              <p class="mb-0">
-                Tus ingresos son {{ formatCurrency(overview.totalIncome) }} y tus gastos comprometidos 
-                suman {{ formatCurrency(overview.totalExpenses) }}, dejando solo {{ formatCurrency(overview.monthlyBalance) }} 
-                — que en la práctica desaparecen en imprevistos. El problema no es el método que usas, 
-                sino que hay que reducir deudas antes de poder ahorrar.
-              </p>
+            <div *ngIf="overview.status === 'deficit'" class="alert-card mb-4">
+              <div class="alert-icon">
+                <i class="bi bi-exclamation-triangle"></i>
+              </div>
+              <div class="alert-content">
+                <h6 class="alert-title">Situación real: gastas más de lo que ingresas</h6>
+                <p class="alert-text">
+                  Tus ingresos son {{ formatCurrency(overview.totalIncome) }} y tus gastos comprometidos 
+                  suman {{ formatCurrency(overview.totalExpenses) }}, dejando solo {{ formatCurrency(overview.monthlyBalance) }} 
+                  — que en la práctica desaparecen en imprevistos. El problema no es el método que usas, 
+                  sino que hay que reducir deudas antes de poder ahorrar.
+                </p>
+              </div>
             </div>
 
             <!-- Método Avalancha -->
-            <div *ngIf="overview.debtPriority.length > 0" class="card border-warning mb-4">
-              <div class="card-header bg-warning text-dark">
-                <h6 class="mb-0">
-                  <i class="bi bi-bullseye"></i> Método Avalancha: orden de ataque a deudas
-                </h6>
-                <small>Paga mínimos en todo y vuelca cualquier extra en este orden</small>
+            <div *ngIf="overview.debtPriority.length > 0" class="debt-priority-card mb-4">
+              <div class="debt-priority-header">
+                <div class="debt-priority-icon">
+                  <i class="bi bi-bullseye"></i>
+                </div>
+                <div>
+                  <h6 class="debt-priority-title">Método Avalancha: orden de ataque a deudas</h6>
+                  <small class="debt-priority-subtitle">Paga mínimos en todo y vuelca cualquier extra en este orden</small>
+                </div>
               </div>
-              <div class="card-body">
+              <div class="debt-priority-body">
                 <app-debt-priority [debts]="overview.debtPriority"></app-debt-priority>
               </div>
             </div>
 
             <!-- Grid de acciones -->
-            <div class="row">
+            <div class="plan-grid">
               <!-- Acciones Inmediatas -->
-              <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                  <div class="card-header bg-primary text-white">
-                    <h6 class="mb-0">
-                      <i class="bi bi-lightning"></i> Acciones Inmediatas
-                    </h6>
-                    <small>Esta semana, sin esperar</small>
+              <div class="plan-card plan-card-primary">
+                <div class="plan-card-header">
+                  <div class="plan-card-icon">
+                    <i class="bi bi-lightning-fill"></i>
                   </div>
-                  <div class="card-body">
-                    <div class="action-step mb-3" *ngIf="hasCategory('utilities')">
-                      <div class="d-flex align-items-start">
-                        <span class="badge badge-primary mr-2">01</span>
-                        <div>
-                          <p class="mb-0 small">
-                            Revisa tus servicios básicos (internet, móvil, seguros). Podrías ahorrar 
-                            hasta un 30% renegociando o cambiando de proveedor.
-                          </p>
-                        </div>
+                  <div>
+                    <h6 class="plan-card-title">Acciones Inmediatas</h6>
+                    <small class="plan-card-subtitle">Esta semana, sin esperar</small>
+                  </div>
+                </div>
+                <div class="plan-card-body">
+                  <!-- Insights inteligentes de ahorro -->
+                  <ng-container *ngIf="overview.detailedInsights?.expenseInsights.length > 0">
+                    <div class="action-step" 
+                         *ngFor="let insight of overview.detailedInsights.expenseInsights.slice(0, 3); let i = index"
+                         [class.action-step-highlight]="insight.priority === 'high'">
+                      <div class="step-number" [class.step-number-high]="insight.priority === 'high'">{{ (i + 1).toString().padStart(2, '0') }}</div>
+                      <div class="step-content">
+                        <p class="mb-1">
+                          <strong>{{ insight.categoryLabel }}:</strong> 
+                          <span *ngIf="insight.savingsPotential && insight.savingsPotential > 0" class="savings-badge">
+                            Ahorro: {{ formatCurrency(insight.savingsPotential) }}/mes
+                          </span>
+                        </p>
+                        <p class="mb-0">{{ insight.suggestion }}</p>
+                      </div>
+                    </div>
+                  </ng-container>
+                  
+                  <!-- Fallback: Acciones genéricas -->
+                  <ng-container *ngIf="!overview.detailedInsights || overview.detailedInsights.expenseInsights.length === 0">
+                    <div class="action-step" *ngIf="hasCategory('utilities')">
+                      <div class="step-number">01</div>
+                      <div class="step-content">
+                        <p>Revisa tus servicios básicos (internet, móvil, seguros). Podrías ahorrar 
+                          hasta un 30% renegociando o cambiando de proveedor.</p>
                       </div>
                     </div>
                     
-                    <div class="action-step mb-3" *ngIf="overview.debtPriority.length > 0">
-                      <div class="d-flex align-items-start">
-                        <span class="badge badge-primary mr-2">02</span>
-                        <div>
-                          <p class="mb-0 small">
-                            Contacta con tus acreedores para renegociar plazos. 3-6 meses de respiro 
-                            te ayudarán a estabilizar la situación.
-                          </p>
-                        </div>
+                    <div class="action-step" *ngIf="overview.debtPriority.length > 0">
+                      <div class="step-number">02</div>
+                      <div class="step-content">
+                        <p>Contacta con tus acreedores para renegociar plazos. 3-6 meses de respiro 
+                          te ayudarán a estabilizar la situación.</p>
                       </div>
                     </div>
 
-                    <div class="action-step mb-3" *ngIf="hasCategory('entertainment')">
-                      <div class="d-flex align-items-start">
-                        <span class="badge badge-primary mr-2">03</span>
-                        <div>
-                          <p class="mb-0 small">
-                            Revisa suscripciones digitales no esenciales. Cancela temporalmente las que 
-                            no uses diariamente.
-                          </p>
-                        </div>
+                    <div class="action-step" *ngIf="hasCategory('entertainment')">
+                      <div class="step-number">03</div>
+                      <div class="step-content">
+                        <p>Revisa suscripciones digitales no esenciales. Cancela temporalmente las que 
+                          no uses diariamente.</p>
                       </div>
                     </div>
-
-                    <div class="action-step" *ngIf="overview.status === 'surplus'">
-                      <div class="d-flex align-items-start">
-                        <span class="badge badge-success mr-2">✓</span>
-                        <div>
-                          <p class="mb-0 small">
-                            Tu situación es estable. Considera automatizar tu ahorro mensual con 
-                            transferencias programadas.
-                          </p>
-                        </div>
-                      </div>
+                  </ng-container>
+                  
+                  <div class="action-step action-step-success" *ngIf="overview.status === 'surplus'">
+                    <div class="step-icon">
+                      <i class="bi bi-check-circle-fill"></i>
                     </div>
+                    <div class="step-content">
+                      <p>Tu situación es estable. Considera automatizar tu ahorro mensual con 
+                        transferencias programadas.</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Ahorro total potencial -->
+                  <div class="savings-summary" *ngIf="overview.detailedInsights?.savingsPotentialTotal > 0">
+                    <i class="bi bi-piggy-bank"></i>
+                    <strong>Ahorro potencial total:</strong>
+                    <span class="amount">{{ formatCurrency(overview.detailedInsights.savingsPotentialTotal) }}/mes</span>
+                    <span class="yearly">({{ formatCurrency(overview.detailedInsights.savingsPotentialTotal * 12) }}/año)</span>
                   </div>
                 </div>
               </div>
 
               <!-- Fase 2: Objetivos futuros -->
-              <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                  <div class="card-header bg-info text-white">
-                    <h6 class="mb-0">
-                      <i class="bi bi-star"></i> Fase 2: cuando salgas de deudas
-                    </h6>
-                    <small>Objetivo: aplicar 50/30/20 con {{ formatCurrency(overview.totalIncome) }}</small>
+              <div class="plan-card plan-card-info">
+                <div class="plan-card-header">
+                  <div class="plan-card-icon">
+                    <i class="bi bi-star-fill"></i>
                   </div>
-                  <div class="card-body">
-                    <div class="future-step mb-3">
-                      <div class="d-flex align-items-start">
-                        <span class="badge badge-info mr-2">50%</span>
-                        <div class="flex-grow-1">
-                          <p class="mb-1 small font-weight-bold">Necesidades (hipoteca, comida, servicios)</p>
-                          <p class="mb-0 small text-muted">
-                            Máx. {{ formatCurrency(overview.totalIncome * 0.5) }}/mes
-                          </p>
-                        </div>
-                      </div>
+                  <div>
+                    <h6 class="plan-card-title">Fase 2: cuando salgas de deudas</h6>
+                    <small class="plan-card-subtitle">Objetivo: aplicar 50/30/20 con {{ formatCurrency(overview.totalIncome) }}</small>
+                  </div>
+                </div>
+                <div class="plan-card-body">
+                  <div class="future-step">
+                    <div class="future-badge future-badge-primary">50%</div>
+                    <div class="future-content">
+                      <p class="future-title">Necesidades (hipoteca, comida, servicios)</p>
+                      <p class="future-amount">Máx. {{ formatCurrency(overview.totalIncome * 0.5) }}/mes</p>
                     </div>
+                  </div>
 
-                    <div class="future-step mb-3">
-                      <div class="d-flex align-items-start">
-                        <span class="badge badge-info mr-2">30%</span>
-                        <div class="flex-grow-1">
-                          <p class="mb-1 small font-weight-bold">Caprichos y familia</p>
-                          <p class="mb-0 small text-muted">
-                            {{ formatCurrency(overview.totalIncome * 0.3) }}/mes para ocio sin culpa
-                          </p>
-                        </div>
-                      </div>
+                  <div class="future-step">
+                    <div class="future-badge future-badge-secondary">30%</div>
+                    <div class="future-content">
+                      <p class="future-title">Caprichos y familia</p>
+                      <p class="future-amount">{{ formatCurrency(overview.totalIncome * 0.3) }}/mes para ocio sin culpa</p>
                     </div>
+                  </div>
 
-                    <div class="future-step">
-                      <div class="d-flex align-items-start">
-                        <span class="badge badge-success mr-2">20%</span>
-                        <div class="flex-grow-1">
-                          <p class="mb-1 small font-weight-bold">Ahorro e inversión</p>
-                          <p class="mb-0 small text-muted">
-                            {{ formatCurrency(overview.totalIncome * 0.2) }}/mes → 
-                            {{ formatCurrency(overview.totalIncome * 0.2 * 12) }}/año
-                          </p>
-                        </div>
-                      </div>
+                  <div class="future-step">
+                    <div class="future-badge future-badge-success">20%</div>
+                    <div class="future-content">
+                      <p class="future-title">Ahorro e inversión</p>
+                      <p class="future-amount">
+                        {{ formatCurrency(overview.totalIncome * 0.2) }}/mes → 
+                        {{ formatCurrency(overview.totalIncome * 0.2 * 12) }}/año
+                      </p>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Análisis de herramientas profesionales (Indie Hacker / Freelancer) -->
+            <div class="professional-tools-card" 
+                 *ngIf="overview.detailedInsights?.userProfile && 
+                        (overview.detailedInsights.userProfile.profileType === 'indie_hacker' || 
+                         overview.detailedInsights.userProfile.profileType === 'freelancer') &&
+                        overview.detailedInsights.userProfile.professionalTools?.length > 0">
+              <div class="tools-header">
+                <div class="tools-icon">
+                  <i class="bi bi-code-slash"></i>
+                </div>
+                <div>
+                  <h6 class="tools-title">
+                    Tus servicios como {{ overview.detailedInsights.userProfile.profileType === 'indie_hacker' ? 'Indie Hacker' : 'Freelancer' }}
+                  </h6>
+                  <small class="tools-subtitle">Evaluación inteligente de herramientas profesionales</small>
+                </div>
+              </div>
+              <div class="tools-body">
+                <div class="tool-item" *ngFor="let tool of overview.detailedInsights.userProfile.professionalTools">
+                  <div class="tool-verdict" [class]="'verdict-' + tool.verdict">
+                    <i *ngIf="tool.verdict === 'essential'" class="bi bi-check-circle-fill"></i>
+                    <i *ngIf="tool.verdict === 'review'" class="bi bi-question-circle-fill"></i>
+                    <i *ngIf="tool.verdict === 'optional'" class="bi bi-x-circle-fill"></i>
+                    <span>{{ tool.verdict === 'essential' ? '✓ ESENCIAL' : tool.verdict === 'review' ? '? REVISAR' : '✗ OPCIONAL' }}</span>
+                  </div>
+                  <div class="tool-details">
+                    <p class="tool-name">{{ tool.tool }} <span class="tool-amount">{{ formatCurrency(tool.amount) }}/mes</span></p>
+                    <p class="tool-reasoning">{{ tool.reasoning }}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Lo que haces bien -->
-            <div class="alert alert-success border-left-success">
-              <h6 class="alert-heading font-weight-bold mb-2">
-                <i class="bi bi-check-circle"></i> Lo que ya haces bien
-              </h6>
-              <p class="mb-0 small">
-                <ng-container *ngIf="overview.accountBreakdown.length > 1">
-                  Tienes los gastos bien distribuidos entre {{ overview.accountBreakdown.length }} cuentas, 
-                  lo que facilita el control mental. 
-                </ng-container>
-                <ng-container *ngIf="overview.status === 'surplus'">
-                  Mantienes un balance positivo de {{ formatCurrency(overview.monthlyBalance) }}. 
-                </ng-container>
-                <ng-container *ngIf="hasCategory('groceries')">
-                  Tus gastos de alimentación están controlados. 
-                </ng-container>
-                <ng-container *ngIf="overview.debtPriority.length > 0">
-                  El problema principal es tener {{ overview.debtPriority.length }} deudas simultáneas. 
-                  Cuando las elimines, tu situación cambia radicalmente.
-                </ng-container>
-                <ng-container *ngIf="overview.debtPriority.length === 0">
-                  Sin deudas activas, puedes enfocarte completamente en ahorro e inversión.
-                </ng-container>
-              </p>
+            <div class="success-card mt-4">
+              <div class="success-icon">
+                <i class="bi bi-check-circle-fill"></i>
+              </div>
+              <div class="success-content">
+                <h6 class="success-title">Lo que ya haces bien</h6>
+                <p class="success-text">
+                  <ng-container *ngIf="overview.accountBreakdown.length > 1">
+                    Tienes los gastos bien distribuidos entre {{ overview.accountBreakdown.length }} cuentas, 
+                    lo que facilita el control mental. 
+                  </ng-container>
+                  <ng-container *ngIf="overview.status === 'surplus'">
+                    Mantienes un balance positivo de {{ formatCurrency(overview.monthlyBalance) }}. 
+                  </ng-container>
+                  <ng-container *ngIf="hasCategory('groceries')">
+                    Tus gastos de alimentación están controlados. 
+                  </ng-container>
+                  
+                  <!-- Contexto inteligente de deudas -->
+                  <ng-container *ngIf="overview.detailedInsights?.debtContext; else simpleDebt">
+                    El problema principal es tener {{ overview.detailedInsights.debtContext.message }}
+                  </ng-container>
+                  <ng-template #simpleDebt>
+                    <ng-container *ngIf="overview.debtPriority.length > 0">
+                      El problema principal es tener {{ overview.debtPriority.length }} deudas simultáneas. 
+                      Cuando las elimines, tu situación cambia radicalmente.
+                    </ng-container>
+                  </ng-template>
+                  
+                  <ng-container *ngIf="overview.debtPriority.length === 0">
+                    Sin deudas activas, puedes enfocarte completamente en ahorro e inversión.
+                  </ng-container>
+                  
+                  <!-- Insights positivos adicionales -->
+                  <ng-container *ngIf="overview.detailedInsights?.expenseInsights.length > 0">
+                    <ng-container *ngFor="let insight of overview.detailedInsights.expenseInsights">
+                      <ng-container *ngIf="insight.savingsPotential === 0">
+                        {{ insight.suggestion }}
+                      </ng-container>
+                    </ng-container>
+                  </ng-container>
+                </p>
+              </div>
             </div>
 
           </div>

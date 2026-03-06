@@ -258,6 +258,7 @@ export interface FinancialOverview {
   categoryBreakdown: CategoryExpenseBreakdown[];
   debtPriority: DebtPriorityItem[];
   recommendations: FinancialRecommendation[];
+  detailedInsights?: DetailedInsights; // NUEVO: Análisis más profundo (opcional)
 }
 
 export interface AccountExpenseBreakdown {
@@ -298,11 +299,49 @@ export interface FinancialRecommendation {
   title: string;
   message: string;
   action?: string;
+  savingsPotential?: number; // NUEVO: Ahorro potencial en euros
+  context?: string; // NUEVO: Contexto adicional con números específicos
 }
 
 // ============================================
-// API RESPONSE
-// ============================================// ============================================
+// DETAILED EXPENSE ANALYSIS - Análisis detallado de gastos
+// ============================================
+export interface ExpenseInsight {
+  category: string;
+  categoryLabel: string;
+  currentAmount: number;
+  marketBenchmark?: number; // Gasto promedio del mercado
+  savingsPotential?: number; // Cuánto podrías ahorrar
+  suggestion: string;
+  priority: 'high' | 'medium' | 'low'; // Alta = revisar urgente
+}
+
+export interface UserProfile {
+  profileType: 'indie_hacker' | 'freelancer' | 'family' | 'standard';
+  confidence: number; // 0-100: qué tan seguro está el algoritmo
+  indicators: string[]; // Qué gastos lo indican
+  professionalTools?: {
+    tool: string;
+    category: string;
+    amount: number;
+    verdict: 'essential' | 'review' | 'optional';
+    reasoning: string;
+  }[];
+}
+
+export interface DetailedInsights {
+  expenseInsights: ExpenseInsight[];
+  userProfile: UserProfile;
+  savingsPotentialTotal: number;
+  debtContext?: {
+    totalDebts: number;
+    totalMonthlyPayment: number;
+    percentageOfIncome: number;
+    message: string;
+  };
+}
+
+// ============================================
 // API RESPONSE - Respuesta del API
 // ============================================
 export interface ApiResponse<T> {
