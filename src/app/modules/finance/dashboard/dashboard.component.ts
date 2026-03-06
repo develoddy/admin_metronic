@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FinanceService } from '../services/finance.service';
@@ -12,12 +12,14 @@ import {
   getCategoryBadgeClass
 } from '../interfaces/finance.interface';
 
+declare var $: any;
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
   
   // Data
@@ -45,6 +47,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  ngAfterViewInit(): void {
+    // Setup accordion icon rotation for Internal Transfers
+    $('#internalTransfersCollapse').on('shown.bs.collapse', () => {
+      $('#transfersAccordionIcon').addClass('rotated');
+    });
+
+    $('#internalTransfersCollapse').on('hidden.bs.collapse', () => {
+      $('#transfersAccordionIcon').removeClass('rotated');
+    });
   }
 
   /**

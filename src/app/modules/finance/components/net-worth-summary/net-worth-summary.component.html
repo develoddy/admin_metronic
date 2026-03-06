@@ -1,14 +1,14 @@
-<div class="net-worth-card">
+<div class="net-worth-compact">
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner-border text-warning" role="status">
+  <div *ngIf="isLoading" class="loading-state-compact">
+    <div class="spinner-border spinner-border-sm text-warning" role="status">
       <span class="sr-only">Cargando...</span>
     </div>
-    <p class="mt-2 text-muted">Calculando patrimonio neto...</p>
+    <small class="text-muted ms-2">Calculando patrimonio neto...</small>
   </div>
 
   <!-- Error State -->
-  <div *ngIf="error && !isLoading" class="alert alert-danger" role="alert">
+  <div *ngIf="error && !isLoading" class="alert alert-danger alert-sm mb-0" role="alert">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
     {{ error }}
     <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadNetWorth()">
@@ -16,111 +16,63 @@
     </button>
   </div>
 
-  <!-- Success State -->
-  <div *ngIf="!isLoading && !error && netWorthData" class="net-worth-content">
-    <!-- Header -->
-    <div class="net-worth-header">
-      <div class="header-left">
-        <i class="bi bi-gem header-icon"></i>
-        <div>
-          <h5 class="mb-0">PATRIMONIO NETO</h5>
-          <small class="text-muted">Tu posición financiera actual</small>
-        </div>
-      </div>
-      <div *ngIf="metrics" class="header-right">
-        <span class="badge" [ngClass]="'badge-' + metrics.healthColor">
-          <i [class]="getHealthIcon()"></i>
-          {{ getHealthStatusLabel() }}
-        </span>
-      </div>
+  <!-- Success State - Compact Inline Version -->
+  <div *ngIf="!isLoading && !error && netWorthData" class="net-worth-inline-row">
+    <!-- Title & Badge -->
+    <div class="inline-header">
+      <i class="bi bi-gem me-2"></i>
+      <span class="section-label">PATRIMONIO NETO</span>
+      <span *ngIf="metrics" class="badge ms-2" [ngClass]="'badge-' + metrics.healthColor">
+        {{ getHealthStatusLabel() }}
+      </span>
     </div>
 
-    <!-- Main Value -->
-    <div class="net-worth-main">
-      <div class="main-value" [ngClass]="{
-        'positive': netWorthData.netWorth > 0,
-        'negative': netWorthData.netWorth < 0,
-        'neutral': netWorthData.netWorth === 0
-      }">
-        <span class="currency-symbol">€</span>
-        {{ formatCurrency(netWorthData.netWorth).replace('€', '').replace(',', '.') }}
-      </div>
-      <!-- <div class="change-indicator" *ngIf="getPercentageChange() !== 0">
-        <i class="bi bi-arrow-up" *ngIf="getPercentageChange() > 0"></i>
-        <i class="bi bi-arrow-down" *ngIf="getPercentageChange() < 0"></i>
-        {{ getPercentageChange() }}% vs mes anterior
-      </div> -->
-    </div>
-
-    <!-- Assets & Liabilities Breakdown -->
-    <div class="breakdown-row">
-      <div class="breakdown-item assets">
-        <div class="breakdown-header">
-          <i class="bi bi-arrow-up-circle-fill"></i>
-          <span class="breakdown-label">ACTIVOS</span>
-        </div>
-        <div class="breakdown-value">
-          {{ formatCurrency(netWorthData.totalAssets) }}
-        </div>
-        <div class="breakdown-details">
-          <small class="text-muted">
-            {{ netWorthData.counts.assets + netWorthData.counts.bankAccounts }} elementos
-          </small>
+    <!-- Metrics: Activos | Pasivos | Ratio A/P -->
+    <div class="inline-metrics">
+      <!-- Activos -->
+      <div class="inline-metric-item">
+        <i class="bi bi-arrow-up-circle-fill text-success me-2"></i>
+        <div class="metric-info">
+          <span class="metric-label-small">Activos</span>
+          <span class="metric-value-compact text-success">
+            {{ formatCurrency(netWorthData.totalAssets) }}
+          </span>
         </div>
       </div>
 
-      <div class="breakdown-divider"></div>
+      <div class="metric-divider">|</div>
 
-      <div class="breakdown-item liabilities">
-        <div class="breakdown-header">
-          <i class="bi bi-arrow-down-circle-fill"></i>
-          <span class="breakdown-label">PASIVOS</span>
+      <!-- Pasivos -->
+      <div class="inline-metric-item">
+        <i class="bi bi-arrow-down-circle-fill text-danger me-2"></i>
+        <div class="metric-info">
+          <span class="metric-label-small">Pasivos</span>
+          <span class="metric-value-compact text-danger">
+            {{ formatCurrency(netWorthData.totalLiabilities) }}
+          </span>
         </div>
-        <div class="breakdown-value">
-          {{ formatCurrency(netWorthData.totalLiabilities) }}
-        </div>
-        <div class="breakdown-details">
-          <small class="text-muted">
-            {{ netWorthData.counts.liabilities }} deudas
-          </small>
+      </div>
+
+      <div class="metric-divider">|</div>
+
+      <!-- Ratio A/P -->
+      <div class="inline-metric-item" *ngIf="metrics">
+        <i class="bi bi-percent me-2" [ngClass]="metrics.healthColor + '-icon'"></i>
+        <div class="metric-info">
+          <span class="metric-label-small">Ratio A/P</span>
+          <span class="metric-value-compact" [ngClass]="metrics.healthColor + '-text'">
+            {{ metrics.assetLiabilityRatio }}x
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- Metrics Row -->
-    <div *ngIf="metrics" class="metrics-row">
-      <div class="metric-item">
-        <div class="metric-label">Ratio A/P</div>
-        <div class="metric-value" [ngClass]="metrics.healthColor + '-text'">
-          {{ metrics.assetLiabilityRatio }}x
-        </div>
-      </div>
-      <div class="metric-item">
-        <div class="metric-label">Endeudamiento</div>
-        <div class="metric-value" [ngClass]="{
-          'success-text': metrics.debtPercentage < 30,
-          'warning-text': metrics.debtPercentage >= 30 && metrics.debtPercentage < 50,
-          'danger-text': metrics.debtPercentage >= 50
-        }">
-          {{ metrics.debtPercentage }}%
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Recommendations (first 2) -->
-    <div *ngIf="recommendations.length > 0" class="quick-recommendations">
-      <div class="recommendation-item" *ngFor="let rec of recommendations.slice(0, 2)">
-        <i class="bi bi-lightbulb-fill me-2"></i>
-        <span>{{ rec }}</span>
-      </div>
-    </div>
-
-    <!-- Action Button -->
-    <div class="action-row">
+    <!-- Action Link -->
+    <div class="inline-action">
       <button type="button"
-              class="btn btn-sm btn-outline-light"
+              class="btn btn-link btn-sm text-primary"
               (click)="goToPatrimonioTab()">
-        Ver Detalle Completo <i class="bi bi-arrow-right ms-1"></i>
+        Ver detalle <i class="bi bi-arrow-right ms-1"></i>
       </button>
     </div>
   </div>

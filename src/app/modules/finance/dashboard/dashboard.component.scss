@@ -16,6 +16,88 @@
   }
 }
 
+// =====================================================
+// HEALTH SCORE CARD - PRIMARY METRIC
+// =====================================================
+.health-score-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e8ecef;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #1e3a8a 0%, #667eea 100%);
+  }
+
+  .card-body {
+    padding: 2.5rem;
+  }
+
+  .health-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.5px;
+  }
+
+  .health-badge {
+    font-size: 1.5rem;
+    padding: 0.75rem 2.5rem;
+    font-weight: 700;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .health-description {
+    font-size: 1.125rem;
+    color: #475569;
+    font-weight: 500;
+  }
+
+  .health-progress {
+    height: 40px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      transition: width 1s ease-in-out;
+    }
+
+    .health-score-text {
+      color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+// =====================================================
+// CONSOLIDATED KPI ROW - VISUAL HIERARCHY
+// =====================================================
+.kpi-row {
+  .col {
+    padding: 0 0.5rem;
+  }
+}
+
 .card {
   margin-bottom: 20px;
   border-radius: 16px;
@@ -26,40 +108,79 @@
 
   &:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
   }
 }
 
 .stat-card {
   text-align: center;
-  padding: 1.75rem;
+  padding: 0;
   border-radius: 16px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   background: #ffffff;
   border: 1px solid #e8ecef;
   
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  .card-body {
+    padding: 1.5rem 1rem;
   }
   
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  // PRIMARY METRICS - Larger, more prominent
+  &.stat-card-primary {
+    border: 2px solid #e8ecef;
+
+    .stat-value-primary {
+      font-size: 2.25rem;
+      font-weight: 800;
+      margin: 0.75rem 0;
+      letter-spacing: -1px;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+  }
+  
+  // ALL STAT VALUES
   .stat-value {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    margin: 10px 0;
+    margin: 0.5rem 0;
     letter-spacing: -0.5px;
+  }
+
+  // SECONDARY METRICS - Smaller, less prominent
+  .stat-value-secondary {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+    letter-spacing: -0.25px;
   }
   
   .stat-label {
-    font-size: 0.75rem;
-    color: #8898aa;
+    font-size: 0.7rem;
+    color: #64748b;
     text-transform: uppercase;
     font-weight: 600;
     letter-spacing: 0.8px;
+    margin-bottom: 0.5rem;
     
     i {
       margin-right: 0.5rem;
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
+  }
+
+  .stat-sublabel {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-top: 0.5rem;
+    font-weight: 500;
   }
 }
 
@@ -198,6 +319,59 @@
   border-left: 3px solid #10b981;
 }
 
+// =====================================================
+// ACCORDION STYLES - Internal Transfers
+// =====================================================
+.accordion-card {
+  overflow: hidden;
+  
+  .accordion-header {
+    border: none;
+    background: #f8fafc !important;
+    padding: 1rem 1.5rem;
+    transition: all 0.3s ease;
+    user-select: none;
+
+    &:hover {
+      background: #f1f5f9 !important;
+    }
+
+    .accordion-icon {
+      font-size: 1rem;
+      transition: transform 0.3s ease;
+      color: #64748b;
+
+      &.rotated {
+        transform: rotate(90deg);
+        color: #1e3a8a;
+      }
+    }
+
+    .accordion-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0f172a;
+      
+      i {
+        color: #1e3a8a;
+      }
+    }
+
+    .accordion-summary {
+      font-size: 1rem;
+      margin-right: 0.5rem;
+
+      strong {
+        font-size: 1.125rem;
+      }
+    }
+  }
+
+  .collapse {
+    transition: height 0.35s ease;
+  }
+}
+
 .bg-light-danger {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -284,15 +458,82 @@
 
   // Stats cards full width on mobile
   .stat-card {
-    padding: 15px;
-    margin-bottom: 15px;
+    .card-body {
+      padding: 1.25rem 0.875rem;
+    }
 
-    .stat-value {
+    .stat-value,
+    .stat-value-primary,
+    .stat-value-secondary {
       font-size: 1.5rem;
     }
 
     .stat-label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+    }
+
+    .stat-sublabel {
+      font-size: 0.65rem;
+    }
+  }
+
+  // Health Score Card mobile
+  .health-score-card {
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    .health-title {
+      font-size: 1.375rem;
+    }
+
+    .health-badge {
+      font-size: 1.125rem;
+      padding: 0.5rem 1.5rem;
+      letter-spacing: 1px;
+    }
+
+    .health-description {
+      font-size: 0.95rem;
+    }
+
+    .health-progress {
+      height: 30px;
+
+      .progress-bar {
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  // KPI Row mobile - stack better
+  .kpi-row {
+    .col {
+      padding: 0 0.5rem;
+      margin-bottom: 0.75rem;
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+  }
+
+  // Accordion mobile
+  .accordion-card {
+    .accordion-header {
+      padding: 0.875rem 1rem;
+
+      .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+      }
+
+      .accordion-summary {
+        font-size: 0.9rem;
+
+        strong {
+          font-size: 1rem;
+        }
+      }
     }
   }
 
@@ -430,8 +671,44 @@
   }
 
   .stat-card {
-    .stat-value {
+    .card-body {
+      padding: 1rem 0.75rem;
+    }
+
+    .stat-value,
+    .stat-value-primary,
+    .stat-value-secondary {
       font-size: 1.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+    }
+  }
+
+  // Health Score Card very small screens
+  .health-score-card {
+    border-radius: 16px;
+
+    .card-body {
+      padding: 1.25rem;
+    }
+
+    .health-title {
+      font-size: 1.25rem;
+    }
+
+    .health-badge {
+      font-size: 1rem;
+      padding: 0.5rem 1.25rem;
+    }
+
+    .health-description {
+      font-size: 0.875rem;
+    }
+
+    .health-progress {
+      height: 25px;
     }
   }
 

@@ -27,14 +27,109 @@
     <i class="fas fa-exclamation-triangle"></i> {{ error }}
   </div>
 
+  <!-- Financial Health Status - Moved to TOP -->
+  <div *ngIf="financialSummary && !isLoading" class="mb-4">
+    <div class="card health-score-card">
+      <div class="card-body text-center">
+        <h2 class="health-title mb-3">Estado de Salud Financiera</h2>
+        <div class="my-4">
+          <span [class]="'badge badge-' + getHealthBadgeClass()  + ' health-badge'">
+            {{ financialSummary.healthStatus.status }}
+          </span>
+        </div>
+        <p class="health-description mb-4">{{ financialSummary.healthStatus.statusDescription }}</p>
+        <div class="progress health-progress">
+          <div 
+            class="progress-bar"
+            [class.bg-success]="financialSummary.healthStatus.status === 'VERDE'"
+            [class.bg-warning]="financialSummary.healthStatus.status === 'AMARILLO'"
+            [class.bg-danger]="financialSummary.healthStatus.status === 'ROJO'"
+            [style.width.%]="financialSummary.healthStatus.healthScore"
+            role="progressbar">
+            <span class="health-score-text">{{ financialSummary.healthStatus.healthScore }}/100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Consolidated KPI Metrics Row -->
+  <div *ngIf="financialSummary && !isLoading" class="row mb-5 kpi-row">
+    <div class="col">
+      <div class="card stat-card stat-card-primary bg-light-success">
+        <div class="card-body">
+          <div class="stat-label">
+            <i class="bi bi-cash-coin"></i> Balance del Mes
+          </div>
+          <div class="stat-value stat-value-primary" [ngClass]="{'text-success': financialSummary.summary.monthlyBalance >= 0, 'text-danger': financialSummary.summary.monthlyBalance < 0}">
+            {{ formatCurrency(financialSummary.summary.monthlyBalance) }}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col">
+      <div class="card stat-card bg-light-primary">
+        <div class="card-body">
+          <div class="stat-label">
+            <i class="bi bi-arrow-up-circle"></i> Ingresos Totales
+          </div>
+          <div class="stat-value text-primary">
+            {{ formatCurrency(financialSummary.summary.totalIncome) }}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col">
+      <div class="card stat-card bg-light-warning">
+        <div class="card-body">
+          <div class="stat-label">
+            <i class="bi bi-arrow-down-circle"></i> Gastos Totales
+          </div>
+          <div class="stat-value text-warning">
+            {{ formatCurrency(financialSummary.summary.totalExpenses) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card stat-card">
+        <div class="card-body">
+          <div class="stat-label">
+            <i class="bi bi-piggy-bank"></i> Tasa de Ahorro
+          </div>
+          <div class="stat-value stat-value-secondary" [ngClass]="{'text-success': financialSummary.summary.savingsRate >= 20, 'text-warning': financialSummary.summary.savingsRate < 20}">
+            {{ formatPercentage(financialSummary.summary.savingsRate) }}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col">
+      <div class="card stat-card">
+        <div class="card-body">
+          <div class="stat-label">
+            <i class="bi bi-calculator"></i> DTI
+          </div>
+          <div class="stat-value stat-value-secondary" [ngClass]="{'text-success': financialSummary.debtInfo.debtToIncomeRatio < 20, 'text-warning': financialSummary.debtInfo.debtToIncomeRatio >= 20 && financialSummary.debtInfo.debtToIncomeRatio < 36, 'text-danger': financialSummary.debtInfo.debtToIncomeRatio >= 36}">
+            {{ (financialSummary.debtInfo.debtToIncomeRatio || 0).toFixed(1) }}%
+          </div>
+          <div class="stat-sublabel">Debt Burden: {{ (financialSummary.debtInfo.debtBurden || 0).toFixed(1) }} meses</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Net Worth Summary Card - Compact Inline Version -->
+  <div *ngIf="!isLoading" class="mb-4">
+    <app-net-worth-summary></app-net-worth-summary>
+  </div>
+
   <!-- Financial Overview - Vista Rápida -->
   <div *ngIf="financialSummary && !isLoading" class="mb-5">
     <app-financial-overview [financialSummary]="financialSummary"></app-financial-overview>
-  </div>
-
-  <!-- Net Worth Summary Card -->
-  <div *ngIf="!isLoading" class="mb-5">
-    <app-net-worth-summary></app-net-worth-summary>
   </div>
 
   <!-- Divider -->
@@ -44,162 +139,6 @@
 
   <!-- Dashboard Content -->
   <div *ngIf="financialSummary && !isLoading" class="row">
-    
-    <!-- Financial Health Status -->
-    <div class="col-md-12 mb-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h3 class="card-title">Estado de Salud Financiera</h3>
-          <div class="my-4">
-            <span [class]="'badge badge-' + getHealthBadgeClass()  + ' fs-1 px-5 py-3'">
-              {{ financialSummary.healthStatus.status }}
-            </span>
-          </div>
-          <p class="lead">{{ financialSummary.healthStatus.statusDescription }}</p>
-          <div class="progress mt-4" style="height: 30px;">
-            <div 
-              class="progress-bar"
-              [class.bg-success]="financialSummary.healthStatus.status === 'VERDE'"
-              [class.bg-warning]="financialSummary.healthStatus.status === 'AMARILLO'"
-              [class.bg-danger]="financialSummary.healthStatus.status === 'ROJO'"
-              [style.width.%]="financialSummary.healthStatus.healthScore"
-              role="progressbar">
-              {{ financialSummary.healthStatus.healthScore }}/100
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Key Metrics -->
-    <div class="row mb-4">
-      <div class="col-md-3">
-        <div class="card stat-card bg-light-success">
-          <div class="card-body">
-            <div class="stat-label">
-              <i class="bi bi-cash-coin"></i> Balance del Mes
-            </div>
-            <div class="stat-value" [ngClass]="{'text-success': financialSummary.summary.monthlyBalance >= 0, 'text-danger': financialSummary.summary.monthlyBalance < 0}">
-              {{ formatCurrency(financialSummary.summary.monthlyBalance) }}
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-3">
-        <div class="card stat-card bg-light-primary">
-          <div class="card-body">
-            <div class="stat-label">
-              <i class="bi bi-arrow-up-circle"></i> Ingresos Totales
-            </div>
-            <div class="stat-value text-primary">
-              {{ formatCurrency(financialSummary.summary.totalIncome) }}
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-3">
-        <div class="card stat-card bg-light-warning">
-          <div class="card-body">
-            <div class="stat-label">
-              <i class="bi bi-arrow-down-circle"></i> Gastos Totales
-            </div>
-            <div class="stat-value text-warning">
-              {{ formatCurrency(financialSummary.summary.totalExpenses) }}
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-3">
-        <div class="card stat-card bg-light-info">
-          <div class="card-body">
-            <div class="stat-label">
-              <i class="bi bi-credit-card"></i> Deudas Activas
-            </div>
-            <div class="stat-value text-info">
-              {{ formatCurrency(financialSummary.summary.totalDebt) }}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Balance Distribution - Distribución del Balance -->
-    <div class="row mb-4">
-      <div class="col-md-4">
-        <div class="card stat-card bg-light-info">
-          <div class="card-body">
-            <div class="stat-label">
-              <i class="bi bi-bank2"></i> Balance Bancario Total
-            </div>
-            <div class="stat-value text-info">
-              {{ formatCurrency(financialSummary.summary.totalBankBalance) }}
-            </div>
-            <div class="text-muted small mt-1">Suma de todas las cuentas</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4">
-        <div class="card stat-card bg-light-warning">
-          <div class="card-body">
-            <div class="stat-label">
-              <i class="bi bi-lock"></i> Dinero Comprometido
-            </div>
-            <div class="stat-value text-warning">
-              {{ formatCurrency(getCommittedMoney()) }}
-            </div>
-            <div class="text-muted small mt-1">Reservado para gastos planificados</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4">
-        <div class="card stat-card bg-light-success">
-          <div class="card-body">
-            <div class="stat-label">
-              <i class="bi bi-wallet2"></i> Dinero Disponible
-            </div>
-            <div class="stat-value text-success">
-              {{ formatCurrency(getAvailableMoney()) }}
-            </div>
-            <div class="text-muted small mt-1">Realmente disponible para gastar</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Financial Metrics Row -->
-    <div class="row mb-4">
-      <div class="col-md-6">
-        <div class="card stat-card">
-          <div class="card-body">
-            <div class="stat-label">
-              <i class="bi bi-piggy-bank"></i> Tasa de Ahorro
-            </div>
-            <div class="stat-value" [ngClass]="{'text-success': financialSummary.summary.savingsRate >= 20, 'text-warning': financialSummary.summary.savingsRate < 20}">
-              {{ formatPercentage(financialSummary.summary.savingsRate) }}
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-6">
-        <div class="card stat-card">
-          <div class="card-body">
-            <div class="stat-label">
-              <i class="bi bi-calculator"></i> DTI (Debt-to-Income)
-            </div>
-            <div class="stat-value" [ngClass]="{'text-success': financialSummary.debtInfo.debtToIncomeRatio < 20, 'text-warning': financialSummary.debtInfo.debtToIncomeRatio >= 20 && financialSummary.debtInfo.debtToIncomeRatio < 36, 'text-danger': financialSummary.debtInfo.debtToIncomeRatio >= 36}">
-              {{ (financialSummary.debtInfo.debtToIncomeRatio || 0).toFixed(1) }}%
-            </div>
-            <div class="text-muted small mt-1">Debt Burden: {{ (financialSummary.debtInfo.debtBurden || 0).toFixed(1) }} meses</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Bank Accounts Detailed Metrics -->
     <div class="row mb-4">
@@ -344,122 +283,71 @@
       </div>
     </div>
 
-    <!-- Financial Metrics Details -->
-    <div class="row mb-4">
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header">
-            <h5 class="card-title mb-0">
-              <i class="bi bi-bar-chart"></i> Métricas Detalladas
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="metric-row">
-              <span class="metric-label">Tasa de Ahorro:</span>
-              <span class="metric-value">{{ formatPercentage(financialSummary.healthStatus.metrics.savingsRate) }}</span>
-            </div>
-            <div class="metric-row">
-              <span class="metric-label">DTI (Debt-to-Income Ratio):</span>
-              <span class="metric-value" [ngClass]="{'text-success': financialSummary.healthStatus.metrics.debtToIncomeRatio < 20, 'text-warning': financialSummary.healthStatus.metrics.debtToIncomeRatio >= 20 && financialSummary.healthStatus.metrics.debtToIncomeRatio < 36, 'text-danger': financialSummary.healthStatus.metrics.debtToIncomeRatio >= 36}">{{ (financialSummary.healthStatus.metrics.debtToIncomeRatio || 0).toFixed(1) }}%</span>
-            </div>
-            <div class="metric-row">
-              <span class="metric-label">Carga de Deuda (Debt Burden):</span>
-              <span class="metric-value">{{ (financialSummary.healthStatus.metrics.debtBurden || 0).toFixed(1) }} meses</span>
-            </div>
-            <div class="metric-row">
-              <span class="metric-label">Balance Mensual:</span>
-              <span class="metric-value" [ngClass]="{'text-success': financialSummary.healthStatus.metrics.monthlyBalance >= 0, 'text-danger': financialSummary.healthStatus.metrics.monthlyBalance < 0}">
-                {{ formatCurrency(financialSummary.healthStatus.metrics.monthlyBalance) }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header">
-            <h5 class="card-title mb-0">🏦 Cuentas Bancarias</h5>
-          </div>
-          <div class="card-body">
-            <div *ngIf="financialSummary.bankAccounts.length === 0" class="text-muted text-center py-3">
-              No hay cuentas bancarias registradas
-            </div>
-            <div *ngFor="let account of financialSummary.bankAccounts" class="metric-row">
-              <div>
-                <strong>{{ account.name }}</strong>
-                <br>
-                <small class="text-muted">{{ account.bank_name || 'Sin banco' }} - {{ account.account_type }}</small>
-              </div>
-              <span class="metric-value">{{ formatCurrency(account.balance, account.currency) }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Internal Transfers Section -->
+    <!-- Internal Transfers Section - Accordion -->
     <div class="row mb-4" *ngIf="internalTransfersSummary && internalTransfersSummary.transferCount > 0">
       <div class="col-md-12">
-        <div class="card">
-          <div class="card-header bg-info">
-            <h5 class="card-title mb-0 text-white">
-              <i class="bi bi-arrow-left-right"></i> Transferencias Internas del Mes
-            </h5>
+        <div class="card accordion-card">
+          <div class="card-header accordion-header bg-light" 
+               data-toggle="collapse" 
+               data-target="#internalTransfersCollapse" 
+               aria-expanded="false" 
+               aria-controls="internalTransfersCollapse"
+               style="cursor: pointer;">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-chevron-right accordion-icon" id="transfersAccordionIcon"></i>
+                <span class="accordion-title">
+                  <i class="bi bi-arrow-left-right me-2"></i>
+                  Transferencias Internas del Mes
+                </span>
+              </div>
+              <div class="d-flex align-items-center gap-3">
+                <span class="accordion-summary">
+                  <strong class="text-info">{{ formatCurrency(internalTransfersSummary.totalTransferred) }}</strong>
+                </span>
+                <span class="badge badge-info">
+                  {{ internalTransfersSummary.transferCount }} transferencia{{ internalTransfersSummary.transferCount !== 1 ? 's' : '' }}
+                </span>
+              </div>
+            </div>
           </div>
-          <div class="card-body">
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <div class="metric-row">
-                  <span class="metric-label">Total Transferido:</span>
-                  <span class="metric-value text-info">
-                    {{ formatCurrency(internalTransfersSummary.totalTransferred) }}
-                  </span>
+          
+          <div id="internalTransfersCollapse" class="collapse">
+            <div class="card-body">
+              <div *ngIf="getTransferRoutes().length > 0" class="mt-2">
+                <h6 class="mb-3">Rutas de Transferencia:</h6>
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover">
+                    <thead>
+                      <tr>
+                        <th><i class="bi bi-bank"></i> Ruta</th>
+                        <th class="text-end"><i class="bi bi-cash"></i> Monto Total</th>
+                        <th class="text-center"><i class="bi bi-arrow-repeat"></i> Cantidad</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of getTransferRoutes()">
+                        <td>
+                          <strong>{{ item.data.sourceAccount.name }}</strong>
+                          <i class="bi bi-arrow-right mx-2"></i>
+                          <strong>{{ item.data.targetAccount.name }}</strong>
+                        </td>
+                        <td class="text-end">{{ formatCurrency(item.data.totalAmount) }}</td>
+                        <td class="text-center">
+                          <span class="badge badge-light">{{ item.data.count }}</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
-              <div class="col-md-6">
-                <div class="metric-row">
-                  <span class="metric-label">Cantidad de Transferencias:</span>
-                  <span class="metric-value">
-                    <span class="badge badge-info">{{ internalTransfersSummary.transferCount }}</span>
-                  </span>
-                </div>
-              </div>
-            </div>
 
-            <div *ngIf="getTransferRoutes().length > 0" class="mt-3">
-              <h6 class="mb-2">Rutas de Transferencia:</h6>
-              <div class="table-responsive">
-                <table class="table table-sm">
-                  <thead>
-                    <tr>
-                      <th><i class="bi bi-bank"></i> Ruta</th>
-                      <th class="text-end"><i class="bi bi-cash"></i> Monto Total</th>
-                      <th class="text-center"><i class="bi bi-arrow-repeat"></i> Cantidad</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let item of getTransferRoutes()">
-                      <td>
-                        <strong>{{ item.data.sourceAccount.name }}</strong>
-                        <i class="bi bi-arrow-right mx-2"></i>
-                        <strong>{{ item.data.targetAccount.name }}</strong>
-                      </td>
-                      <td class="text-end">{{ formatCurrency(item.data.totalAmount) }}</td>
-                      <td class="text-center">
-                        <span class="badge badge-light">{{ item.data.count }}</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div class="alert alert-info mt-3 mb-0">
+                <i class="bi bi-info-circle me-2"></i>
+                <small>
+                  Las transferencias internas NO afectan tus métricas financieras reales (ahorro, DTI, balance)
+                </small>
               </div>
-            </div>
-
-            <div class="text-center mt-3">
-              <small class="text-muted">
-                <i class="bi bi-info-circle"></i> 
-                Las transferencias internas NO afectan tus métricas financieras reales (ahorro, DTI, balance)
-              </small>
             </div>
           </div>
         </div>
