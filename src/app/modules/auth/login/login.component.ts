@@ -40,9 +40,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     // if (this.authService.currentUserValue) {
     //   this.router.navigate(['/']);
     // }
-    if (this.authService.isLogued()) {
-      this.router.navigate(['/']);
-    }
   }
 
   ngOnInit(): void {
@@ -50,6 +47,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     // get return url from route parameters or default to '/'
     this.returnUrl =
         this.route.snapshot.queryParams['returnUrl'.toString()] || '/';
+    
+    // Redirect if already logged in, using returnUrl if present
+    if (this.authService.isLogued()) {
+      this.router.navigate([this.returnUrl]);
+    }
     }
 
   // convenience getter for easy access to form fields
@@ -92,10 +94,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     //     }
     //   });
     this.authService.login(this.f.email.value, this.f.password.value).subscribe((resp:any)=>{
-      // this.router.navigate(['/dashboard']);
       if (resp) {
-          // this.router.navigate([this.  returnUrl]);
-          document.location.reload();
+          this.router.navigate([this.returnUrl]);
       } else {
           this.hasError = true;
       }
