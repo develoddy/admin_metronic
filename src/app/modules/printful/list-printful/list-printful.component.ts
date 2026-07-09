@@ -35,6 +35,7 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
   public syncStartTime: Date | null = null;
   public syncDuration: string | null = null;
   private progressInterval: any = null;
+  private syncEventSource: EventSource | null = null;
   
   // Terminal de logs en tiempo real
   public terminalLogs: Array<{message: string, type: 'info' | 'success' | 'warning' | 'error', timestamp: Date}> = [];
@@ -54,6 +55,11 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
     // Limpiar interval si existe
     if (this.progressInterval) {
       clearInterval(this.progressInterval);
+    }
+
+    if (this.syncEventSource) {
+      this.syncEventSource.close();
+      this.syncEventSource = null;
     }
   }
 
@@ -79,34 +85,42 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
     // Agregar log inicial al terminal
     this.addTerminalLog('🚀 Iniciando sincronización con Printful...', 'info');
     
-    // Simular progreso gradual mientras se sincroniza (10% -> 80%)
-    this.startProgressSimulation();
+    // Progreso real por eventos del backend (SSE)
+    this.addTerminalLog('📡 Abriendo canal de progreso en tiempo real...', 'info');
 
-    // Logs de estado reales (sin simulación de productos procesados)
-    this.addTerminalLog('📡 Enviando solicitud de sincronización al backend...', 'info');
+    if (this.syncEventSource) {
+      this.syncEventSource.close();
+      this.syncEventSource = null;
+    }
 
-    this._printfulService.synPrintfulProducts().subscribe({
-      next: (resp: any) => {
+    this.syncEventSource = this._printfulService.synPrintfulProductsStream({
+      onStart: (payload: any) => {
+        this.syncProgress = 12;
+        this.addTerminalLog(payload?.message || '🚀 Sincronización iniciada', 'info');
+      },
+      onProgress: (payload: any) => {
+        const msg = payload?.message;
+        if (msg) {
+          const type = payload?.type === 'error' ? 'error' : payload?.type === 'summary' ? 'success' : 'info';
+          this.addTerminalLog(msg, type as 'info' | 'success' | 'warning' | 'error');
+        }
+
+        if (payload?.type === 'product' && payload?.total > 0) {
+          const pct = 15 + Math.round((payload.processed / payload.total) * 75);
+          this.syncProgress = Math.min(95, Math.max(this.syncProgress, pct));
+        }
+
+        this.cd.detectChanges();
+      },
+      onComplete: (resp: any) => {
         console.log('✅ Sincronización completada:', resp);
-        this.addTerminalLog('📥 Respuesta recibida del backend', 'info');
-        
-        // Detener simulación de progreso
-        this.stopProgressSimulation();
-        
-        // Actualizar progreso a 90% primero (para transición visual suave)
-        this.syncProgress = 90;
-        this.cd.detectChanges(); // Forzar actualización inmediata
-        
-        // Calcular duración
+        this.syncEventSource = null;
+
         if (this.syncStartTime) {
           const duration = new Date().getTime() - this.syncStartTime.getTime();
           this.syncDuration = this.formatDuration(duration);
         }
-        
-        // Agregar logs finales al terminal
-        this.addTerminalLog('💾 Guardando cambios en base de datos...', 'info');
-        
-        // Extraer estadísticas
+
         if (resp.sync) {
           this.syncStats = {
             productsProcessed: resp.productsProcessed || 0,
@@ -116,118 +130,55 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
             skipped: resp.skipped || 0,
             errors: resp.errors || []
           };
-          
-          // Agregar resumen al terminal
-          setTimeout(() => {
-            this.addTerminalLog('', 'info'); // Línea vacía
-            this.addTerminalLog('📊 RESUMEN DE SINCRONIZACIÓN:', 'info');
-            this.addTerminalLog(`   • Total procesados: ${this.syncStats?.productsProcessed}`, 'success');
-            this.addTerminalLog(`   • Creados: ${this.syncStats?.created}`, this.syncStats?.created! > 0 ? 'success' : 'info');
-            this.addTerminalLog(`   • Actualizados: ${this.syncStats?.updated}`, this.syncStats?.updated! > 0 ? 'success' : 'info');
-            this.addTerminalLog(`   • Eliminados: ${this.syncStats?.deleted}`, this.syncStats?.deleted! > 0 ? 'warning' : 'info');
-            this.addTerminalLog(`   • Sin cambios: ${this.syncStats?.skipped}`, 'info');
-            
-            if (this.syncStats?.errors && this.syncStats.errors.length > 0) {
-              this.addTerminalLog(`   • Errores: ${this.syncStats.errors.length}`, 'error');
-            }
-            
-            this.addTerminalLog('', 'info'); // Línea vacía
-            this.addTerminalLog(`✅ Sincronización completada en ${this.syncDuration}`, 'success');
-          }, 500);
-          
-          // Generar mensaje de éxito
-          this.successMessage = this.generateSuccessMessage(this.syncStats);
-          
-          // Verificar si hay errores parciales
-          if (this.syncStats.errors && this.syncStats.errors.length > 0) {
+
+          this.addTerminalLog('', 'info');
+          this.addTerminalLog('📊 RESUMEN DE SINCRONIZACIÓN:', 'info');
+          this.addTerminalLog(`   • Total procesados: ${this.syncStats?.productsProcessed}`, 'success');
+          this.addTerminalLog(`   • Creados: ${this.syncStats?.created}`, this.syncStats?.created! > 0 ? 'success' : 'info');
+          this.addTerminalLog(`   • Actualizados: ${this.syncStats?.updated}`, this.syncStats?.updated! > 0 ? 'success' : 'info');
+          this.addTerminalLog(`   • Eliminados: ${this.syncStats?.deleted}`, this.syncStats?.deleted! > 0 ? 'warning' : 'info');
+          this.addTerminalLog(`   • Sin cambios: ${this.syncStats?.skipped}`, 'info');
+
+          if (this.syncStats?.errors && this.syncStats.errors.length > 0) {
+            this.addTerminalLog(`   • Errores: ${this.syncStats.errors.length}`, 'error');
             this.warningMessage = `⚠️ Se completó con ${this.syncStats.errors.length} errores. Revisa los detalles abajo.`;
           }
+
+          this.successMessage = this.generateSuccessMessage(this.syncStats);
         } else {
           this.errorMessage = '❌ La sincronización no se completó correctamente';
           this.addTerminalLog('❌ Error: La sincronización no se completó correctamente', 'error');
         }
-        
-        // Progreso a 100% y finalizar carga después de procesar
+
+        this.syncProgress = 100;
+        this.isLoaded = true;
+        this.syncCompleted = true;
+
         setTimeout(() => {
-          this.syncProgress = 100;
-          this.isLoaded = true;
-          this.syncCompleted = true;
-          this.cd.detectChanges(); // Forzar actualización a 100%
-          
-          console.log('📊 Estado actualizado - Progreso: 100%, isLoaded: true, syncCompleted: true');
-          
-          // Ocultar barra de progreso después de 800ms (permite ver el 100%)
-          setTimeout(() => {
-            this.isLoading = false;
-            this.cd.detectChanges(); // Forzar ocultación de barra
-            console.log('✅ Barra de progreso ocultada - isLoading: false');
-          }, 800);
-        }, 300);
+          this.isLoading = false;
+          this.cd.detectChanges();
+        }, 500);
       },
-      error: (error: any) => {
-        console.error('❌ Error en sincronización:', error);
-        
-        // Detener simulación y resetear estado
-        this.stopProgressSimulation();
+      onError: (error: any) => {
+        console.error('❌ Error en sincronización stream:', error);
+        this.syncEventSource = null;
         this.isLoading = false;
         this.syncCompleted = false;
         this.syncProgress = 0;
-        
-        // Extraer mensaje de error
-        const errorMsg = error.error?.message || error.message || 'Error desconocido al sincronizar con Printful';
+
+        const errorMsg = error?.message || 'Error desconocido al sincronizar con Printful';
         this.errorMessage = `❌ Error: ${errorMsg}`;
-        
-        // Agregar error al terminal
-        this.addTerminalLog('', 'info'); // Línea vacía
+
+        this.addTerminalLog('', 'info');
         this.addTerminalLog(`❌ ERROR: ${errorMsg}`, 'error');
-        
-        // Si hay detalles adicionales
-        if (error.error?.details) {
-          console.error('Detalles del error:', error.error.details);
-          this.addTerminalLog(`   Detalles: ${error.error.details}`, 'error');
+
+        if (error?.details) {
+          this.addTerminalLog(`   Detalles: ${error.details}`, 'error');
         }
-        
-        // Forzar actualización del DOM con estado de error
+
         this.cd.detectChanges();
-      },
-      complete: () => {
-        console.log('🏁 Proceso de sincronización finalizado');
-        // El isLoading se maneja en el bloque next con setTimeout
       }
     });
-  }
-
-  /**
-   * Simula progreso gradual mientras se realiza la sincronización
-   * Incrementa de 10% a 80% en intervalos
-   */
-  private startProgressSimulation(): void {
-    // Limpiar interval previo si existe
-    if (this.progressInterval) {
-      clearInterval(this.progressInterval);
-    }
-    
-    // Incrementar progreso cada 2 segundos hasta 80%
-    this.progressInterval = setInterval(() => {
-      if (this.syncProgress < 80 && this.isLoading) {
-        // Incremento variable: más rápido al inicio, más lento cerca del 80%
-        const increment = this.syncProgress < 40 ? 5 : this.syncProgress < 60 ? 3 : 2;
-        this.syncProgress = Math.min(this.syncProgress + increment, 80);
-        
-        // Forzar detección de cambios para actualizar la barra de progreso
-        this.cd.detectChanges();
-      }
-    }, 2000);
-  }
-  
-  /**
-   * Detiene la simulación de progreso
-   */
-  private stopProgressSimulation(): void {
-    if (this.progressInterval) {
-      clearInterval(this.progressInterval);
-      this.progressInterval = null;
-    }
   }
 
   /**
@@ -275,7 +226,16 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
    * Resetea el estado de sincronización
    */
   private resetSyncState(): void {
-    this.stopProgressSimulation();
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
+      this.progressInterval = null;
+    }
+
+    if (this.syncEventSource) {
+      this.syncEventSource.close();
+      this.syncEventSource = null;
+    }
+
     this.isLoaded = false;
     this.syncCompleted = false;
     this.successMessage = null;

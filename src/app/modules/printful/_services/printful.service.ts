@@ -81,6 +81,64 @@ export class PrintfulService {
   }
 
   /**
+   * Sincroniza productos con progreso en tiempo real (SSE)
+   */
+  synPrintfulProductsStream(handlers: {
+    onStart?: (payload: any) => void;
+    onProgress?: (payload: any) => void;
+    onComplete: (payload: any) => void;
+    onError: (payload: any) => void;
+  }): EventSource {
+    this.isLoadingSubject.next(true);
+
+    const token = encodeURIComponent(this._authservice.token || '');
+    const url = `${URL_SERVICIOS}/products/synPrintfulProducts/stream?token=${token}`;
+
+    console.log('🔄 Iniciando stream de sincronización a:', url);
+
+    const eventSource = new EventSource(url);
+
+    eventSource.addEventListener('start', (event: MessageEvent) => {
+      const data = JSON.parse(event.data || '{}');
+      handlers.onStart?.(data);
+    });
+
+    eventSource.addEventListener('progress', (event: MessageEvent) => {
+      const data = JSON.parse(event.data || '{}');
+      handlers.onProgress?.(data);
+    });
+
+    eventSource.addEventListener('complete', (event: MessageEvent) => {
+      const data = JSON.parse(event.data || '{}');
+      handlers.onComplete(data);
+      this.isLoadingSubject.next(false);
+      eventSource.close();
+      console.log('🏁 Stream de sincronización finalizado');
+    });
+
+    eventSource.addEventListener('error', (event: any) => {
+      let payload: any = {
+        message: 'Error en el stream de sincronización'
+      };
+
+      if (event?.data) {
+        try {
+          payload = JSON.parse(event.data);
+        } catch (parseError) {
+          payload = { message: payload.message };
+        }
+      }
+
+      handlers.onError(payload);
+      this.isLoadingSubject.next(false);
+      eventSource.close();
+      console.error('❌ Error en stream de sincronización:', payload);
+    });
+
+    return eventSource;
+  }
+
+  /**
    * Obtiene las estadísticas del dashboard Printful
    * - KPIs (total productos, variantes, categorías, etc.)
    * - Distribución por categorías
