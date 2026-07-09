@@ -81,13 +81,14 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
     
     // Simular progreso gradual mientras se sincroniza (10% -> 80%)
     this.startProgressSimulation();
-    
-    // Simular logs del proceso
-    this.simulateSyncLogs();
+
+    // Logs de estado reales (sin simulación de productos procesados)
+    this.addTerminalLog('📡 Enviando solicitud de sincronización al backend...', 'info');
 
     this._printfulService.synPrintfulProducts().subscribe({
       next: (resp: any) => {
         console.log('✅ Sincronización completada:', resp);
+        this.addTerminalLog('📥 Respuesta recibida del backend', 'info');
         
         // Detener simulación de progreso
         this.stopProgressSimulation();
@@ -255,33 +256,6 @@ export class ListPrintfulComponent implements OnInit, OnDestroy {
     }, 50);
   }
   
-  /**
-   * Simula logs del proceso de sincronización
-   */
-  private simulateSyncLogs(): void {
-    this.addTerminalLog('🚀 Iniciando conexión con Printful API...', 'info');
-    
-    setTimeout(() => {
-      this.addTerminalLog('📥 Obteniendo lista de productos...', 'info');
-    }, 800);
-    
-    setTimeout(() => {
-      this.addTerminalLog('🔍 Analizando productos en base de datos...', 'info');
-    }, 1600);
-    
-    setTimeout(() => {
-      this.addTerminalLog('⚙️ Comparando productos...', 'info');
-    }, 2400);
-    
-    // Simular procesamiento de productos
-    const totalProducts = 12; // Esto debería venir del backend idealmente
-    for (let i = 1; i <= totalProducts; i++) {
-      setTimeout(() => {
-        this.addTerminalLog(`✓ Producto ${i}/${totalProducts} procesado`, 'success');
-      }, 3000 + (i * 1500));
-    }
-  }
-
   /**
    * Colapsa/expande el terminal
    */
