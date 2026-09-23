@@ -447,24 +447,68 @@ ssh -i ~/.ssh/id_rsa_do root@64.226.123.91 << 'EOF'
 
     set -e
 
-    cd /var/www/admin_ecommerce_mean
+    PROD_DIR="/var/www/admin_ecommerce_mean"
 
-    echo ">>> Actualizando código desde GitHub..."
-
-    git pull --ff-only origin main
+    cd "$PROD_DIR"
 
 
-    echo ">>> Limpiando archivos basura macOS..."
+    # --------------------------------------------------------
+    # Verificar que producción está limpia
+    # --------------------------------------------------------
 
-    find . -name "._*" -type f -delete 2>/dev/null || true
-    find . -name ".DS_Store" -type f -delete 2>/dev/null || true
+    echo ">>> 🔍 Verificando estado del repositorio de producción..."
+
+    if [ -n "$(git status --porcelain)" ]; then
+
+        echo "❌ ERROR: producción tiene cambios locales."
+        echo ""
+
+        git status --short
+
+        echo ""
+        echo "❌ Deploy cancelado para no sobrescribir cambios."
+
+        exit 1
+
+    fi
 
 
-    echo ">>> Verificando index.html..."
+    echo "✅ Repositorio de producción limpio"
+
+
+    # --------------------------------------------------------
+    # Actualizar referencias remotas
+    # --------------------------------------------------------
+
+    echo ">>> 📡 Consultando cambios en GitHub..."
+
+    git fetch origin
+
+
+    # --------------------------------------------------------
+    # Actualizar producción SOLO mediante Fast-Forward
+    #
+    # No usamos git pull para evitar configuraciones globales
+    # como pull.rebase=true en el servidor.
+    # --------------------------------------------------------
+
+    echo ">>> ⬇️ Actualizando producción..."
+
+    git merge --ff-only origin/main
+
+
+    echo "✅ Repositorio actualizado correctamente"
+
+
+    # --------------------------------------------------------
+    # Verificar index.html
+    # --------------------------------------------------------
+
+    echo ">>> 🔍 Verificando dist/index.html..."
 
     if [ ! -f "dist/index.html" ]; then
 
-        echo "❌ ERROR: index.html NO encontrado"
+        echo "❌ ERROR: dist/index.html NO encontrado"
 
         exit 1
 
@@ -474,31 +518,53 @@ ssh -i ~/.ssh/id_rsa_do root@64.226.123.91 << 'EOF'
     echo "✅ index.html encontrado"
 
 
-    echo ">>> Ajustando permisos..."
+    # --------------------------------------------------------
+    # Verificar configuración Nginx
+    # --------------------------------------------------------
 
-    chown -R www-data:www-data /var/www/admin_ecommerce_mean
-
-    chmod -R 755 /var/www/admin_ecommerce_mean
-
-    find /var/www/admin_ecommerce_mean \
-        -type f \
-        -exec chmod 644 {} \;
-
-
-    echo "✅ Permisos ajustados"
-
-
-    echo ">>> Verificando configuración Nginx..."
+    echo ">>> 🔍 Verificando configuración Nginx..."
 
     nginx -t
 
 
-    echo ">>> Recargando Nginx..."
+    echo "✅ Configuración Nginx válida"
+
+
+    # --------------------------------------------------------
+    # Recargar Nginx
+    # --------------------------------------------------------
+
+    echo ">>> 🔄 Recargando Nginx..."
 
     systemctl reload nginx
 
 
     echo "✅ Nginx recargado"
+
+
+    # --------------------------------------------------------
+    # Verificación final
+    #
+    # El deploy NO debe dejar cambios locales en producción.
+    # --------------------------------------------------------
+
+    echo ">>> 🔍 Verificando estado final del repositorio..."
+
+    if [ -n "$(git status --porcelain)" ]; then
+
+        echo "❌ ERROR: el deploy dejó cambios locales en producción."
+        echo ""
+
+        git status --short
+
+        echo ""
+
+        exit 1
+
+    fi
+
+
+    echo "✅ Producción limpia después del deploy"
 
 EOF
 
