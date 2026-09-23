@@ -93,6 +93,9 @@ export class ModuleFormComponent implements OnInit {
     private cd: ChangeDetectorRef
   ) {
     this.moduleForm = this.createForm();
+
+    this.updateSaasDashboardRouteValidators(this.moduleForm.get('type')?.value);
+    this.moduleForm.get('type')?.valueChanges.subscribe(type => this.updateSaasDashboardRouteValidators(type));
   }
 
   ngOnInit(): void {
@@ -127,8 +130,27 @@ export class ModuleFormComponent implements OnInit {
       // 🆕 SaaS fields
       saas_trial_days: [14, [Validators.required, Validators.min(1)]],
       saas_api_endpoint: [''],
-      saas_dashboard_route: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]]
+      // required only applies when type === 'saas', see updateSaasDashboardRouteValidators()
+      saas_dashboard_route: ['', [Validators.pattern(/^[a-z0-9-]+$/)]]
     });
+  }
+
+  /**
+   * saas_dashboard_route is only rendered/editable when isSaaSModule is true,
+   * so it must not be required for non-SaaS types.
+   */
+  private updateSaasDashboardRouteValidators(type: string): void {
+    const control = this.moduleForm.get('saas_dashboard_route');
+    if (!control) {
+      return;
+    }
+
+    control.setValidators(
+      type === 'saas'
+        ? [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]
+        : [Validators.pattern(/^[a-z0-9-]+$/)]
+    );
+    control.updateValueAndValidity();
   }
 
   /**
