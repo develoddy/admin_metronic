@@ -1,154 +1,530 @@
 #!/bin/bash
 
-# Colores
+# ============================================================
+# DEPLOY ADMIN
+# ============================================================
+
+# Detener ante errores no controlados
+set -o pipefail
+
+# ===================== COLORES =====================
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 MAGENTA='\033[1;35m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Rutas
-PROJECT_DIR="$(pwd)" # Asumiendo que estás dentro de admin/
+# ===================== RUTAS =====================
+
+PROJECT_DIR="$(pwd)" # Ejecutar desde admin/
 BUILD_DIR="dist"
+
 DEPLOY_DIR="/Volumes/lujandev/dev/projects/ECOMMERCE/ECOMMERCE-RECURSOS/PRO-DIST/admin_metronic_deploy"
 
 divider="========================================================="
 
-# ===================== BANNER PRINCIPAL =====================
+
+# ============================================================
+# FUNCIONES
+# ============================================================
+
+clean_macos_files() {
+    local TARGET="$1"
+
+    echo -e "${CYAN}>>> 🧹 Limpiando basura macOS en: $TARGET${NC}"
+
+    find "$TARGET" -name "._*" -type f -delete 2>/dev/null || true
+    find "$TARGET" -name ".DS_Store" -type f -delete 2>/dev/null || true
+}
+
+
+check_macos_files() {
+    local TARGET="$1"
+
+    JUNK_FILES=$(find "$TARGET" \
+        \( -name "._*" -o -name ".DS_Store" \) \
+        -type f \
+        -print 2>/dev/null)
+
+    if [ -n "$JUNK_FILES" ]; then
+
+        echo -e "${RED}❌ Se encontraron archivos basura de macOS:${NC}"
+        echo "$JUNK_FILES"
+
+        echo -e "${RED}❌ Deploy cancelado para evitar subir basura a Git.${NC}"
+
+        exit 1
+    fi
+}
+
+
+# ===================== BANNER =====================
+
 echo -e "${MAGENTA}$divider${NC}"
 echo -e "${MAGENTA}##                                                     ##${NC}"
 echo -e "${MAGENTA}##       🚀🚀🚀 DEPLOY ADMIN 🚀🚀🚀                  ##${NC}"
 echo -e "${MAGENTA}##                                                     ##${NC}"
 echo -e "${MAGENTA}$divider${NC}"
+
 echo -e "${YELLOW}🚀 Iniciando proceso de Deploy de ADMIN${NC}"
 echo -e "${BLUE}$divider${NC}"
 
-# ===================== PASO 1 =====================
-echo -e "\n${CYAN}1️⃣ PASO 1: Guardar cambios en el repo del proyecto Admin${NC}"
-echo -e "${CYAN}>>> 💾 Guardando cambios en repo de admin...${NC}"
-git add .
-git commit -m "💾 Pre-Deploy commit $(date '+%Y-%m-%d %H:%M:%S')" >/dev/null 2>&1
-git push origin main
-if [ $? -eq 0 ]; then
-  echo -e "${GREEN}✅ Cambios guardados y enviados a GitHub correctamente${NC}"
-else
-  echo -e "${RED}❌ Error al guardar/enviar cambios a GitHub. Se detiene la ejecución${NC}"
-  exit 1
+
+# ============================================================
+# PASO 0: VALIDACIONES PREVIAS
+# ============================================================
+
+echo -e "\n${CYAN}0️⃣ PASO 0: Validaciones previas${NC}"
+
+
+# ------------------------------------------------------------
+# Comprobar que estamos dentro del proyecto Admin
+# ------------------------------------------------------------
+
+if [ ! -f "$PROJECT_DIR/angular.json" ]; then
+
+    echo -e "${RED}❌ No parece que estés dentro del proyecto Angular Admin.${NC}"
+    echo -e "${YELLOW}Directorio actual: $PROJECT_DIR${NC}"
+
+    exit 1
 fi
 
-# ===================== PASO 2 =====================
+
+# ------------------------------------------------------------
+# Comprobar que existe el repo de deploy
+# ------------------------------------------------------------
+
+if [ ! -d "$DEPLOY_DIR/.git" ]; then
+
+    echo -e "${RED}❌ No existe un repositorio Git válido en:${NC}"
+    echo "$DEPLOY_DIR"
+
+    exit 1
+fi
+
+
+# ------------------------------------------------------------
+# Limpiar basura antes de cualquier operación
+# ------------------------------------------------------------
+
+clean_macos_files "$PROJECT_DIR"
+clean_macos_files "$DEPLOY_DIR"
+
+
+# ------------------------------------------------------------
+# Comprobar que admin_metronic_deploy está sincronizado
+# ------------------------------------------------------------
+
+echo -e "${CYAN}>>> 🔍 Comprobando repositorio de deploy...${NC}"
+
+cd "$DEPLOY_DIR" || exit 1
+
+git fetch origin
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}❌ No se pudo ejecutar git fetch en el repo de deploy.${NC}"
+    exit 1
+fi
+
+
+LOCAL_COMMIT=$(git rev-parse HEAD)
+REMOTE_COMMIT=$(git rev-parse origin/main)
+
+
+if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
+
+    echo -e "${RED}❌ El repo de deploy NO está sincronizado con origin/main.${NC}"
+
+    echo ""
+    git status --short --branch
+    echo ""
+
+    echo -e "${YELLOW}👉 No se modificará nada.${NC}"
+    echo -e "${YELLOW}👉 Sincroniza admin_metronic_deploy antes de volver a desplegar.${NC}"
+
+    exit 1
+fi
+
+
+# ------------------------------------------------------------
+# Comprobar working tree limpio
+# ------------------------------------------------------------
+
+if [ -n "$(git status --porcelain)" ]; then
+
+    echo -e "${RED}❌ admin_metronic_deploy tiene cambios locales.${NC}"
+
+    git status --short
+
+    echo -e "${YELLOW}👉 Revisa esos cambios antes de desplegar.${NC}"
+
+    exit 1
+fi
+
+
+echo -e "${GREEN}✅ Repo de deploy limpio y sincronizado con GitHub${NC}"
+
+
+cd "$PROJECT_DIR" || exit 1
+
+
+# ============================================================
+# PASO 1: GUARDAR CAMBIOS ADMIN
+# ============================================================
+
+echo -e "\n${CYAN}1️⃣ PASO 1: Guardar cambios en el repo del proyecto Admin${NC}"
+
+echo -e "${CYAN}>>> 💾 Guardando cambios en repo de admin...${NC}"
+
+
+# Limpieza adicional antes de git add
+clean_macos_files "$PROJECT_DIR"
+
+check_macos_files "$PROJECT_DIR"
+
+
+git add .
+
+
+# Solo crear commit si realmente existen cambios staged
+if ! git diff --cached --quiet; then
+
+    git commit -m "💾 Pre-Deploy commit $(date '+%Y-%m-%d %H:%M:%S')"
+
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}❌ Error creando commit del Admin.${NC}"
+        exit 1
+    fi
+
+else
+
+    echo -e "${YELLOW}ℹ️ No hay nuevos cambios para commit en Admin${NC}"
+
+fi
+
+
+git push origin main
+
+
+if [ $? -eq 0 ]; then
+
+    echo -e "${GREEN}✅ Cambios guardados y enviados a GitHub correctamente${NC}"
+
+else
+
+    echo -e "${RED}❌ Error al guardar/enviar cambios a GitHub.${NC}"
+    echo -e "${RED}❌ Se detiene la ejecución.${NC}"
+
+    exit 1
+fi
+
+
+# ============================================================
+# PASO 2: COMPILAR ADMIN
+# ============================================================
+
 echo -e "\n${CYAN}2️⃣ PASO 2: Compilar Admin${NC}"
 
-# Limpiar archivos basura ANTES de compilar
-echo -e "${CYAN}>>> 🧹 Limpiando archivos basura ._* antes de compilar...${NC}"
-find . -name "._*" -type f -delete
-echo -e "${GREEN}✅ Archivos basura eliminados${NC}"
 
-# Limpiar dist/ anterior si existe
+clean_macos_files "$PROJECT_DIR"
+
+
+# ------------------------------------------------------------
+# Limpiar dist anterior
+# ------------------------------------------------------------
+
 if [ -d "$BUILD_DIR" ]; then
-  echo -e "${CYAN}>>> 🧹 Limpiando directorio dist/ anterior...${NC}"
-  rm -rf "$BUILD_DIR"
+
+    echo -e "${CYAN}>>> 🧹 Limpiando directorio dist/ anterior...${NC}"
+
+    rm -rf "$BUILD_DIR"
+
 fi
+
+
+# ------------------------------------------------------------
+# Build Angular
+# ------------------------------------------------------------
 
 echo -e "${CYAN}>>> 🛠️ Construyendo proyecto Admin...${NC}"
+
 ng build --configuration=production
+
+
 if [ $? -ne 0 ]; then
-  echo -e "\n${RED}❌ Error en la compilación de Admin. Se detiene la ejecución${NC}"
-  exit 1
-else
-  echo -e "${GREEN}✅ Compilación Admin completada correctamente${NC}"
-  
-  # Verificar que index.html fue generado
-  if [ -f "$BUILD_DIR/index.html" ]; then
-    echo -e "${GREEN}✅ index.html generado correctamente${NC}"
-  else
-    echo -e "${RED}❌ ERROR: index.html NO fue generado en la compilación${NC}"
+
+    echo -e "\n${RED}❌ Error en la compilación de Admin.${NC}"
+    echo -e "${RED}❌ Se detiene la ejecución.${NC}"
+
     exit 1
-  fi
+
 fi
 
-# ===================== PASO 3 =====================
+
+echo -e "${GREEN}✅ Compilación Admin completada correctamente${NC}"
+
+
+# ------------------------------------------------------------
+# Verificar index.html
+# ------------------------------------------------------------
+
+if [ ! -f "$BUILD_DIR/index.html" ]; then
+
+    echo -e "${RED}❌ ERROR: index.html NO fue generado.${NC}"
+
+    exit 1
+
+fi
+
+
+echo -e "${GREEN}✅ index.html generado correctamente${NC}"
+
+
+# ------------------------------------------------------------
+# Comprobar que el build tampoco contiene basura
+# ------------------------------------------------------------
+
+clean_macos_files "$BUILD_DIR"
+
+check_macos_files "$BUILD_DIR"
+
+
+# ============================================================
+# PASO 3: SINCRONIZAR CON REPO DE DEPLOY
+# ============================================================
+
 echo -e "\n${CYAN}3️⃣ PASO 3: Sincronizar archivos con la carpeta de deploy${NC}"
+
 echo -e "${CYAN}>>> 📂 Sincronizando archivos...${NC}"
 
-# Limpiar archivos basura del destino primero
-echo -e "${CYAN}>>> 🧹 Limpiando archivos ._* del destino...${NC}"
-find "$DEPLOY_DIR/dist/" -name "._*" -type f -delete 2>/dev/null || true
 
-rsync -a --delete --exclude='._*' "$BUILD_DIR/" "$DEPLOY_DIR/dist/"
+# Limpieza completa del repo destino
+clean_macos_files "$DEPLOY_DIR"
+
+
+rsync -a \
+    --delete \
+    --exclude='._*' \
+    --exclude='.DS_Store' \
+    "$BUILD_DIR/" \
+    "$DEPLOY_DIR/dist/"
+
+
 if [ $? -ne 0 ]; then
-  echo -e "\n${RED}❌ Error al copiar los archivos con rsync. Se detiene la ejecución${NC}"
-  exit 1
-else
-  echo -e "${GREEN}✅ Archivos sincronizados correctamente${NC}"
-  
-  # Verificar que index.html existe en destino
-  if [ -f "$DEPLOY_DIR/dist/index.html" ]; then
-    echo -e "${GREEN}✅ index.html encontrado en destino${NC}"
-  else
-    echo -e "${RED}❌ ERROR: index.html NO encontrado en destino${NC}"
+
+    echo -e "\n${RED}❌ Error al copiar archivos con rsync.${NC}"
+
     exit 1
-  fi
+
 fi
 
-# ===================== PASO 4 =====================
+
+echo -e "${GREEN}✅ Archivos sincronizados correctamente${NC}"
+
+
+# ------------------------------------------------------------
+# Limpieza posterior al rsync
+# ------------------------------------------------------------
+
+clean_macos_files "$DEPLOY_DIR"
+
+
+# ------------------------------------------------------------
+# Verificación ANTI-BASURA
+# ------------------------------------------------------------
+
+check_macos_files "$DEPLOY_DIR"
+
+
+# ------------------------------------------------------------
+# Verificar index.html destino
+# ------------------------------------------------------------
+
+if [ ! -f "$DEPLOY_DIR/dist/index.html" ]; then
+
+    echo -e "${RED}❌ ERROR: index.html NO encontrado en destino.${NC}"
+
+    exit 1
+
+fi
+
+
+echo -e "${GREEN}✅ index.html encontrado en destino${NC}"
+
+
+# ============================================================
+# PASO 4: COMMIT + PUSH REPO DEPLOY
+# ============================================================
+
 echo -e "\n${CYAN}4️⃣ PASO 4: Git push final desde la carpeta de deploy${NC}"
-cd "$DEPLOY_DIR" || exit
+
+
+cd "$DEPLOY_DIR" || exit 1
+
+
+# Última limpieza antes de git add
+clean_macos_files "$DEPLOY_DIR"
+
+check_macos_files "$DEPLOY_DIR"
+
+
 git add .
-git commit -m "🚀 Deploy CDADMIN $(date '+%Y-%m-%d %H:%M:%S')" >/dev/null 2>&1
-git push origin main
-if [ $? -eq 0 ]; then
-  echo -e "\n${GREEN}$divider${NC}"
-  echo -e "${GREEN}✅ DEPLOY CDADMIN completado y enviado a GitHub${NC}"
-  echo -e "${YELLOW}👉 Ahora entra al servidor y ejecuta: ${CYAN}cd /var/www/admin_ecommerce_mean && git pull origin main${NC}"
-  echo -e "${GREEN}$divider${NC}\n"
-else
-  echo -e "\n${RED}❌ Error al hacer push a GitHub desde deploy. Se detiene la ejecución${NC}"
-  exit 1
+
+
+# ------------------------------------------------------------
+# Verificación adicional:
+# ningún archivo basura puede estar staged
+# ------------------------------------------------------------
+
+STAGED_JUNK=$(git diff --cached --name-only | grep -E '(^|/)\._|(^|/)\.DS_Store$' || true)
+
+
+if [ -n "$STAGED_JUNK" ]; then
+
+    echo -e "${RED}❌ ARCHIVOS BASURA DETECTADOS EN GIT STAGING:${NC}"
+
+    echo "$STAGED_JUNK"
+
+    echo -e "${RED}❌ Deploy cancelado.${NC}"
+
+    git reset
+
+    exit 1
 fi
 
-# ===================== PASO 5 =====================
-echo -e "\n${CYAN}5️⃣ PASO 5: Actualizar en el servidor remoto${NC}"
+
+# ------------------------------------------------------------
+# Crear commit solamente si existen cambios
+# ------------------------------------------------------------
+
+if git diff --cached --quiet; then
+
+    echo -e "${YELLOW}ℹ️ El build no produjo cambios respecto al deploy anterior.${NC}"
+    echo -e "${YELLOW}ℹ️ No es necesario crear un nuevo commit.${NC}"
+
+else
+
+    git commit -m "🚀 Deploy CDADMIN $(date '+%Y-%m-%d %H:%M:%S')"
+
+    if [ $? -ne 0 ]; then
+
+        echo -e "${RED}❌ Error creando commit de deploy.${NC}"
+
+        exit 1
+
+    fi
+
+
+    git push origin main
+
+
+    if [ $? -ne 0 ]; then
+
+        echo -e "${RED}❌ Error haciendo push del repo de deploy.${NC}"
+        echo -e "${RED}❌ Se detiene la ejecución.${NC}"
+
+        exit 1
+
+    fi
+
+
+    echo -e "${GREEN}✅ Build enviado correctamente a GitHub${NC}"
+
+fi
+
+
+# ============================================================
+# PASO 5: ACTUALIZAR PRODUCCIÓN
+# ============================================================
+
+echo -e "\n${CYAN}5️⃣ PASO 5: Actualizar servidor remoto${NC}"
+
+
 ssh -i ~/.ssh/id_rsa_do root@64.226.123.91 << 'EOF'
-  cd /var/www/admin_ecommerce_mean
-  echo ">>> Actualizando código desde GitHub..."
-  git pull origin main
-  echo ">>> Limpiando archivos basura ._*..."
-  find . -name "._*" -type f -delete
-  echo ">>> Verificando index.html..."
-  if [ -f "dist/index.html" ]; then
+
+    set -e
+
+    cd /var/www/admin_ecommerce_mean
+
+    echo ">>> Actualizando código desde GitHub..."
+
+    git pull --ff-only origin main
+
+
+    echo ">>> Limpiando archivos basura macOS..."
+
+    find . -name "._*" -type f -delete 2>/dev/null || true
+    find . -name ".DS_Store" -type f -delete 2>/dev/null || true
+
+
+    echo ">>> Verificando index.html..."
+
+    if [ ! -f "dist/index.html" ]; then
+
+        echo "❌ ERROR: index.html NO encontrado"
+
+        exit 1
+
+    fi
+
+
     echo "✅ index.html encontrado"
+
+
     echo ">>> Ajustando permisos..."
+
     chown -R www-data:www-data /var/www/admin_ecommerce_mean
+
     chmod -R 755 /var/www/admin_ecommerce_mean
-    find /var/www/admin_ecommerce_mean -type f -exec chmod 644 {} \;
+
+    find /var/www/admin_ecommerce_mean \
+        -type f \
+        -exec chmod 644 {} \;
+
+
     echo "✅ Permisos ajustados"
+
+
+    echo ">>> Verificando configuración Nginx..."
+
+    nginx -t
+
+
     echo ">>> Recargando Nginx..."
+
     systemctl reload nginx
+
+
     echo "✅ Nginx recargado"
-  else
-    echo "❌ ERROR: index.html NO encontrado"
-    exit 1
-  fi
+
 EOF
 
+
 if [ $? -eq 0 ]; then
-  echo -e "${GREEN}✅ Servidor remoto actualizado correctamente${NC}"
-  echo -e "${CYAN}🌐 Admin disponible en: ${YELLOW}https://admin.lujandev.com${NC}"
+
+    echo -e "${GREEN}✅ Servidor remoto actualizado correctamente${NC}"
+    echo -e "${CYAN}🌐 Admin disponible en: ${YELLOW}https://admin.lujandev.com${NC}"
+
 else
-  echo -e "${RED}❌ Error al actualizar en el servidor remoto${NC}"
-  exit 1
+
+    echo -e "${RED}❌ Error al actualizar el servidor remoto${NC}"
+
+    exit 1
+
 fi
 
 
-# ================= FIN =================
-echo -e "${MAGENTA}=========================================================${NC}"
+# ============================================================
+# FIN
+# ============================================================
+
+echo -e "\n${MAGENTA}=========================================================${NC}"
 echo -e "${MAGENTA}##                                                     ##${NC}"
 echo -e "${MAGENTA}##    🎉🎉🎉 DEPLOY CDADMIN COMPLETADO 🎉🎉🎉         ##${NC}"
 echo -e "${MAGENTA}##       ✅ Todo actualizado y en producción ✅       ##${NC}"
-echo -e "${MAGENTA}##          🥳🚀🎊 FELICIDADES 🚀🎊🥳           ##${NC}"
+echo -e "${MAGENTA}##          🥳🚀🎊 FELICIDADES 🚀🎊🥳                 ##${NC}"
 echo -e "${MAGENTA}##                                                     ##${NC}"
 echo -e "${MAGENTA}=========================================================${NC}\n"
-
