@@ -173,6 +173,33 @@
             </div>
             <!--end::LujanDev Lab Publication-->
 
+            <!--begin::Orbit Public Route-->
+            <div class="row mb-6">
+              <label class="col-lg-3 col-form-label fw-bold fs-6">
+                Ruta pública de Orbit
+              </label>
+              <div class="col-lg-9">
+                <div class="input-group">
+                  <span class="input-group-text">app.lujandev.com/</span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="lab_route"
+                    placeholder="numiq"
+                    [class.is-invalid]="hasError('lab_route', 'pattern')">
+                </div>
+                <div class="form-text">
+                  Opcional. Admite letras minúsculas, números, guiones y guiones bajos.
+                  Ejemplos: numiq, num-iq, num_iq.
+                  La ruta debe existir en la aplicación Angular.
+                </div>
+                <div *ngIf="hasError('lab_route', 'pattern')" class="invalid-feedback d-block">
+                  Introduce una ruta válida sin barra inicial ni dominio.
+                </div>
+              </div>
+            </div>
+            <!--end::Orbit Public Route-->
+
             <!--begin::Base Price-->
             <div class="row mb-6">
               <label class="col-lg-3 col-form-label fw-bold fs-6">Precio Base</label>

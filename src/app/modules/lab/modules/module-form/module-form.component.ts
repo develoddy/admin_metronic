@@ -18,6 +18,9 @@ export class ModuleFormComponent implements OnInit {
   isLoading = false;
   moduleKey: string | null = null;
 
+  // Configuración original del módulo, preservada para la edición.
+  private moduleConfig: Record<string, any> = {};
+
   // 🆕 Screenshots management
   screenshots: string[] = [];
   uploadingScreenshot = false;
@@ -121,6 +124,7 @@ export class ModuleFormComponent implements OnInit {
       type: ['physical', [Validators.required]],
       status: ['draft'],
       show_in_store: [false],
+      lab_route: ['', [Validators.pattern(/^[a-z0-9_-]+(?:\/[a-z0-9_-]+)*$/)]],
       validation_days: [14, [Validators.required, Validators.min(1)]],
       validation_target_sales: [1, [Validators.required, Validators.min(1)]],
       icon: ['fa-cube', [Validators.required]],
@@ -168,6 +172,38 @@ export class ModuleFormComponent implements OnInit {
         
         if (response.success && response.module) {
           this.moduleForm.patchValue(response.module);
+
+          // Cargar la ruta pública de Orbit desde Module.config.
+          let moduleConfig = response.module.config;
+
+          if (typeof moduleConfig === 'string') {
+            try {
+              moduleConfig = JSON.parse(moduleConfig);
+            } catch {
+              moduleConfig = {};
+            }
+          }
+
+          this.moduleConfig =
+            moduleConfig &&
+            typeof moduleConfig === 'object' &&
+            !Array.isArray(moduleConfig)
+              ? moduleConfig
+              : {};
+
+          const storedLabRoute =
+            moduleConfig &&
+            typeof moduleConfig === 'object' &&
+            !Array.isArray(moduleConfig)
+              ? moduleConfig.lab?.route
+              : null;
+
+          this.moduleForm.patchValue({
+            lab_route: typeof storedLabRoute === 'string'
+              ? storedLabRoute.replace(/^\//, '')
+              : ''
+          });
+
           // Deshabilitar key en modo edición
           this.moduleForm.get('key')?.disable();
           
@@ -287,6 +323,24 @@ export class ModuleFormComponent implements OnInit {
       features: this.features,
       tech_stack: this.techStack,
       requirements: {} // Por ahora vacío, se puede agregar UI después
+    };
+
+    // Guardar la ruta pública de Orbit preservando Module.config.
+    const existingLabConfig =
+      this.moduleConfig.lab &&
+      typeof this.moduleConfig.lab === 'object' &&
+      !Array.isArray(this.moduleConfig.lab)
+        ? this.moduleConfig.lab
+        : {};
+
+    const labRoute = this.moduleForm.get('lab_route')?.value || '';
+
+    moduleData.config = {
+      ...this.moduleConfig,
+      lab: {
+        ...existingLabConfig,
+        route: labRoute ? '/' + labRoute : null
+      }
     };
 
     // 🚀 Agregar saas_config si es tipo SaaS
