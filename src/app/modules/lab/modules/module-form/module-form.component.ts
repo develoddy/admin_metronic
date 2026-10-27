@@ -120,6 +120,7 @@ export class ModuleFormComponent implements OnInit {
       detailed_description: [''],
       type: ['physical', [Validators.required]],
       status: ['draft'],
+      show_in_store: [false],
       validation_days: [14, [Validators.required, Validators.min(1)]],
       validation_target_sales: [1, [Validators.required, Validators.min(1)]],
       icon: ['fa-cube', [Validators.required]],
