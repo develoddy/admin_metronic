@@ -19,10 +19,15 @@ NC='\033[0m'
 
 # ===================== RUTAS =====================
 
-PROJECT_DIR="$(pwd)" # Ejecutar desde admin/
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="dist"
 
-DEPLOY_DIR="/Volumes/lujandev/dev/projects/ECOMMERCE/ECOMMERCE-RECURSOS/PRO-DIST/admin_metronic_deploy"
+DEPLOY_DIR="$HOME/Developer/LujanDev/deployment/admin"
+
+cd "$PROJECT_DIR" || {
+    echo "ERROR: No se pudo acceder al directorio de Admin."
+    exit 1
+}
 
 divider="========================================================="
 
@@ -31,23 +36,21 @@ divider="========================================================="
 # FUNCIONES
 # ============================================================
 
-clean_macos_files() {
-    local TARGET="$1"
-
-    echo -e "${CYAN}>>> 🧹 Limpiando basura macOS en: $TARGET${NC}"
-
-    find "$TARGET" -name "._*" -type f -delete 2>/dev/null || true
-    find "$TARGET" -name ".DS_Store" -type f -delete 2>/dev/null || true
-}
-
-
 check_macos_files() {
     local TARGET="$1"
 
-    JUNK_FILES=$(find "$TARGET" \
-        \( -name "._*" -o -name ".DS_Store" \) \
+    if [ ! -d "$TARGET" ] || [ -L "$TARGET" ]; then
+        echo -e "${RED}❌ Directorio de validación inválido: $TARGET${NC}"
+        exit 1
+    fi
+
+    if ! JUNK_FILES=$(find "$TARGET" \
         -type f \
-        -print 2>/dev/null)
+        \( -name "._*" -o -name ".DS_Store" \) \
+        -print); then
+        echo -e "${RED}❌ No se pudo inspeccionar el directorio: $TARGET${NC}"
+        exit 1
+    fi
 
     if [ -n "$JUNK_FILES" ]; then
 
@@ -76,6 +79,17 @@ echo -e "${BLUE}$divider${NC}"
 # ============================================================
 # PASO 0: VALIDACIONES PREVIAS
 # ============================================================
+
+PROJECT_REAL=$(pwd -P) || exit 1
+EXPECTED_PROJECT="$HOME/Developer/LujanDev/platform/admin"
+
+if [ "$PROJECT_REAL" != "$EXPECTED_PROJECT" ]; then
+    echo -e "${RED}❌ El deploy debe ejecutarse desde el proyecto Admin principal.${NC}"
+    exit 1
+fi
+
+
+
 
 echo -e "\n${CYAN}0️⃣ PASO 0: Validaciones previas${NC}"
 
@@ -110,8 +124,12 @@ fi
 # Limpiar basura antes de cualquier operación
 # ------------------------------------------------------------
 
-clean_macos_files "$PROJECT_DIR"
-clean_macos_files "$DEPLOY_DIR"
+if [ "$(git -C "$PROJECT_DIR" branch --show-current)" != "main" ]; then
+    echo -e "${RED}❌ El repositorio fuente debe estar en main.${NC}"
+    exit 1
+fi
+
+# No modificar archivos antes de validar ambos repositorios.
 
 
 # ------------------------------------------------------------
@@ -121,6 +139,11 @@ clean_macos_files "$DEPLOY_DIR"
 echo -e "${CYAN}>>> 🔍 Comprobando repositorio de deploy...${NC}"
 
 cd "$DEPLOY_DIR" || exit 1
+
+if [ "$(git branch --show-current)" != "main" ]; then
+    echo -e "${RED}❌ El repositorio de distribución debe estar en main.${NC}"
+    exit 1
+fi
 
 git fetch origin
 
@@ -172,54 +195,38 @@ cd "$PROJECT_DIR" || exit 1
 
 
 # ============================================================
-# PASO 1: GUARDAR CAMBIOS ADMIN
+# PASO 1: VALIDAR REPOSITORIO FUENTE
 # ============================================================
 
-echo -e "\n${CYAN}1️⃣ PASO 1: Guardar cambios en el repo del proyecto Admin${NC}"
+echo -e "\n${CYAN}1️⃣ PASO 1: Validar repositorio Admin${NC}"
 
-echo -e "${CYAN}>>> 💾 Guardando cambios en repo de admin...${NC}"
+cd "$PROJECT_DIR" || exit 1
 
-
-# Limpieza adicional antes de git add
-clean_macos_files "$PROJECT_DIR"
-
-check_macos_files "$PROJECT_DIR"
-
-
-git add .
-
-
-# Solo crear commit si realmente existen cambios staged
-if ! git diff --cached --quiet; then
-
-    git commit -m "💾 Pre-Deploy commit $(date '+%Y-%m-%d %H:%M:%S')"
-
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}❌ Error creando commit del Admin.${NC}"
-        exit 1
-    fi
-
-else
-
-    echo -e "${YELLOW}ℹ️ No hay nuevos cambios para commit en Admin${NC}"
-
-fi
-
-
-git push origin main
-
-
-if [ $? -eq 0 ]; then
-
-    echo -e "${GREEN}✅ Cambios guardados y enviados a GitHub correctamente${NC}"
-
-else
-
-    echo -e "${RED}❌ Error al guardar/enviar cambios a GitHub.${NC}"
-    echo -e "${RED}❌ Se detiene la ejecución.${NC}"
-
+if [ "$(git branch --show-current)" != "main" ]; then
+    echo -e "${RED}❌ El repositorio Admin debe estar en main.${NC}"
     exit 1
 fi
+
+if [ -n "$(git status --porcelain)" ]; then
+    echo -e "${RED}❌ Admin contiene cambios locales. Deploy cancelado.${NC}"
+    git status --short
+    exit 1
+fi
+
+if ! git fetch origin main; then
+    echo -e "${RED}❌ No se pudo consultar origin/main.${NC}"
+    exit 1
+fi
+
+LOCAL_COMMIT=$(git rev-parse HEAD) || exit 1
+REMOTE_COMMIT=$(git rev-parse origin/main) || exit 1
+
+if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
+    echo -e "${RED}❌ Admin no está sincronizado con origin/main.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Repositorio Admin limpio y sincronizado.${NC}"
 
 
 # ============================================================
@@ -228,212 +235,211 @@ fi
 
 echo -e "\n${CYAN}2️⃣ PASO 2: Compilar Admin${NC}"
 
+cd "$PROJECT_DIR" || exit 1
 
-clean_macos_files "$PROJECT_DIR"
+if [ ! -x "./node_modules/.bin/ng" ]; then
+    echo -e "${RED}❌ Angular CLI local no disponible.${NC}"
+    exit 1
+fi
 
+if [ -L "$BUILD_DIR" ]; then
+    echo -e "${RED}❌ El directorio de build es un enlace simbólico.${NC}"
+    exit 1
+fi
 
-# ------------------------------------------------------------
-# Limpiar dist anterior
-# ------------------------------------------------------------
+if [ "$BUILD_DIR" != "dist" ]; then
+    echo -e "${RED}❌ Directorio de compilación inesperado.${NC}"
+    exit 1
+fi
 
 if [ -d "$BUILD_DIR" ]; then
+    BUILD_REAL=$(cd "$BUILD_DIR" && pwd -P) || exit 1
 
-    echo -e "${CYAN}>>> 🧹 Limpiando directorio dist/ anterior...${NC}"
+    if [ "$BUILD_REAL" != "$PROJECT_REAL/dist" ]; then
+        echo -e "${RED}❌ Ruta de eliminación no autorizada.${NC}"
+        exit 1
+    fi
 
-    rm -rf "$BUILD_DIR"
-
+    rm -rf -- "$BUILD_DIR" || exit 1
 fi
 
-
-# ------------------------------------------------------------
-# Build Angular
-# ------------------------------------------------------------
-
-echo -e "${CYAN}>>> 🛠️ Construyendo proyecto Admin...${NC}"
-
-ng build --configuration=production
-
-
-if [ $? -ne 0 ]; then
-
-    echo -e "\n${RED}❌ Error en la compilación de Admin.${NC}"
-    echo -e "${RED}❌ Se detiene la ejecución.${NC}"
-
+if ! ./node_modules/.bin/ng build --configuration=production; then
+    echo -e "${RED}❌ Error compilando Admin.${NC}"
     exit 1
-
 fi
 
-
-echo -e "${GREEN}✅ Compilación Admin completada correctamente${NC}"
-
-
-# ------------------------------------------------------------
-# Verificar index.html
-# ------------------------------------------------------------
-
-if [ ! -f "$BUILD_DIR/index.html" ]; then
-
-    echo -e "${RED}❌ ERROR: index.html NO fue generado.${NC}"
-
+if [ ! -s "$BUILD_DIR/index.html" ]; then
+    echo -e "${RED}❌ Build inválido: index.html no existe o está vacío.${NC}"
     exit 1
-
 fi
-
-
-echo -e "${GREEN}✅ index.html generado correctamente${NC}"
-
-
-# ------------------------------------------------------------
-# Comprobar que el build tampoco contiene basura
-# ------------------------------------------------------------
-
-clean_macos_files "$BUILD_DIR"
 
 check_macos_files "$BUILD_DIR"
+
+echo -e "${GREEN}✅ Compilación Admin validada.${NC}"
 
 
 # ============================================================
 # PASO 3: SINCRONIZAR CON REPO DE DEPLOY
 # ============================================================
 
-echo -e "\n${CYAN}3️⃣ PASO 3: Sincronizar archivos con la carpeta de deploy${NC}"
+echo -e "\n${CYAN}3️⃣ PASO 3: Sincronizar build Admin${NC}"
 
-echo -e "${CYAN}>>> 📂 Sincronizando archivos...${NC}"
+SOURCE_DIR="$PROJECT_DIR/$BUILD_DIR"
+TARGET_DIR="$DEPLOY_DIR/dist"
 
+EXPECTED_SOURCE="$HOME/Developer/LujanDev/platform/admin/dist"
+EXPECTED_TARGET="$HOME/Developer/LujanDev/deployment/admin/dist"
 
-# Limpieza completa del repo destino
-clean_macos_files "$DEPLOY_DIR"
+if [ "$SOURCE_DIR" != "$EXPECTED_SOURCE" ] ||
+   [ "$TARGET_DIR" != "$EXPECTED_TARGET" ]; then
+    echo -e "${RED}❌ Rutas de sincronización inesperadas.${NC}"
+    exit 1
+fi
 
+if [ -L "$SOURCE_DIR" ] || [ -L "$TARGET_DIR" ] ||
+   [ -L "$PROJECT_DIR" ] || [ -L "$DEPLOY_DIR" ]; then
+    echo -e "${RED}❌ Se detectó un enlace simbólico en una ruta crítica.${NC}"
+    exit 1
+fi
 
-rsync -a \
-    --delete \
+if [ ! -d "$SOURCE_DIR" ] || [ ! -d "$TARGET_DIR" ]; then
+    echo -e "${RED}❌ Origen o destino no existe.${NC}"
+    exit 1
+fi
+
+SOURCE_REAL=$(cd "$SOURCE_DIR" && pwd -P) || exit 1
+TARGET_REAL=$(cd "$TARGET_DIR" && pwd -P) || exit 1
+
+if [ "$SOURCE_REAL" != "$EXPECTED_SOURCE" ] ||
+   [ "$TARGET_REAL" != "$EXPECTED_TARGET" ] ||
+   [ "$SOURCE_REAL" = "$TARGET_REAL" ]; then
+    echo -e "${RED}❌ Validación de rutas canónicas fallida.${NC}"
+    exit 1
+fi
+
+if [ ! -s "$SOURCE_DIR/index.html" ]; then
+    echo -e "${RED}❌ index.html del build no existe o está vacío.${NC}"
+    exit 1
+fi
+
+if ! FILE_LIST=$(find "$SOURCE_DIR" -type f -print); then
+    echo -e "${RED}❌ No se pudo inspeccionar el build.${NC}"
+    exit 1
+fi
+
+FILE_COUNT=$(printf '%s\n' "$FILE_LIST" | wc -l | tr -d ' ')
+
+if [ "$FILE_COUNT" -lt 100 ]; then
+    echo -e "${RED}❌ Build sospechoso: solo $FILE_COUNT archivos.${NC}"
+    exit 1
+fi
+
+echo -e "${CYAN}>>> Simulación de sincronización:${NC}"
+
+if ! rsync -avn --delete \
     --exclude='._*' \
     --exclude='.DS_Store' \
-    "$BUILD_DIR/" \
-    "$DEPLOY_DIR/dist/"
-
-
-if [ $? -ne 0 ]; then
-
-    echo -e "\n${RED}❌ Error al copiar archivos con rsync.${NC}"
-
+    "$SOURCE_DIR/" "$TARGET_DIR/"; then
+    echo -e "${RED}❌ Error en simulación rsync.${NC}"
     exit 1
-
 fi
 
+echo ""
+read -r -p "¿Confirmar sincronización de Admin? [s/N]: " CONFIRM
 
-echo -e "${GREEN}✅ Archivos sincronizados correctamente${NC}"
-
-
-# ------------------------------------------------------------
-# Limpieza posterior al rsync
-# ------------------------------------------------------------
-
-clean_macos_files "$DEPLOY_DIR"
-
-
-# ------------------------------------------------------------
-# Verificación ANTI-BASURA
-# ------------------------------------------------------------
-
-check_macos_files "$DEPLOY_DIR"
-
-
-# ------------------------------------------------------------
-# Verificar index.html destino
-# ------------------------------------------------------------
-
-if [ ! -f "$DEPLOY_DIR/dist/index.html" ]; then
-
-    echo -e "${RED}❌ ERROR: index.html NO encontrado en destino.${NC}"
-
+if [ "$CONFIRM" != "s" ]; then
+    echo -e "${YELLOW}Deploy cancelado por el usuario.${NC}"
     exit 1
-
 fi
 
+if ! rsync -av --delete \
+    --exclude='._*' \
+    --exclude='.DS_Store' \
+    "$SOURCE_DIR/" "$TARGET_DIR/"; then
+    echo -e "${RED}❌ Error sincronizando Admin.${NC}"
+    exit 1
+fi
 
-echo -e "${GREEN}✅ index.html encontrado en destino${NC}"
+check_macos_files "$TARGET_DIR"
+
+if [ ! -s "$TARGET_DIR/index.html" ]; then
+    echo -e "${RED}❌ index.html inválido en destino.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Sincronización Admin completada.${NC}"
 
 
 # ============================================================
 # PASO 4: COMMIT + PUSH REPO DEPLOY
 # ============================================================
 
-echo -e "\n${CYAN}4️⃣ PASO 4: Git push final desde la carpeta de deploy${NC}"
-
+echo -e "\n${CYAN}4️⃣ PASO 4: Publicar build Admin${NC}"
 
 cd "$DEPLOY_DIR" || exit 1
 
-
-# Última limpieza antes de git add
-clean_macos_files "$DEPLOY_DIR"
-
-check_macos_files "$DEPLOY_DIR"
-
-
-git add .
-
-
-# ------------------------------------------------------------
-# Verificación adicional:
-# ningún archivo basura puede estar staged
-# ------------------------------------------------------------
-
-STAGED_JUNK=$(git diff --cached --name-only | grep -E '(^|/)\._|(^|/)\.DS_Store$' || true)
-
-
-if [ -n "$STAGED_JUNK" ]; then
-
-    echo -e "${RED}❌ ARCHIVOS BASURA DETECTADOS EN GIT STAGING:${NC}"
-
-    echo "$STAGED_JUNK"
-
-    echo -e "${RED}❌ Deploy cancelado.${NC}"
-
-    git reset
-
+if [ "$(git branch --show-current)" != "main" ]; then
+    echo -e "${RED}❌ El repositorio de distribución debe estar en main.${NC}"
     exit 1
 fi
 
+if ! git fetch origin main; then
+    echo -e "${RED}❌ No se pudo consultar origin/main.${NC}"
+    exit 1
+fi
 
-# ------------------------------------------------------------
-# Crear commit solamente si existen cambios
-# ------------------------------------------------------------
+LOCAL_COMMIT=$(git rev-parse HEAD) || exit 1
+REMOTE_COMMIT=$(git rev-parse origin/main) || exit 1
+
+if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
+    echo -e "${RED}❌ Distribución no sincronizada con origin/main.${NC}"
+    exit 1
+fi
+
+check_macos_files "$TARGET_DIR"
+
+if ! git add -A -- dist/; then
+    echo -e "${RED}❌ Error preparando los archivos de distribución.${NC}"
+    exit 1
+fi
+
+STAGED_JUNK=$(git diff --cached --name-only | grep -E '(^|/)\._|(^|/)\.DS_Store$' || true)
+
+if [ -n "$STAGED_JUNK" ]; then
+    echo -e "${RED}❌ Archivos macOS detectados en staging:${NC}"
+    echo "$STAGED_JUNK"
+    exit 1
+fi
+
+if ! git diff --cached --name-only -z | python3 -c '
+import sys
+paths = [p for p in sys.stdin.buffer.read().split(b"\0") if p]
+invalid = [p for p in paths if not p.startswith(b"dist/")]
+if invalid:
+    print("ERROR: archivos staged fuera de dist/:")
+    for p in invalid:
+        print(repr(p))
+    sys.exit(1)
+'; then
+    echo -e "${RED}❌ Deploy cancelado: staging no autorizado.${NC}"
+    exit 1
+fi
 
 if git diff --cached --quiet; then
-
-    echo -e "${YELLOW}ℹ️ El build no produjo cambios respecto al deploy anterior.${NC}"
-    echo -e "${YELLOW}ℹ️ No es necesario crear un nuevo commit.${NC}"
-
+    echo -e "${YELLOW}ℹ️ El build no produjo cambios.${NC}"
 else
-
-    git commit -m "🚀 Deploy CDADMIN $(date '+%Y-%m-%d %H:%M:%S')"
-
-    if [ $? -ne 0 ]; then
-
-        echo -e "${RED}❌ Error creando commit de deploy.${NC}"
-
+    if ! git commit -m "Deploy Admin $(date '+%Y-%m-%d %H:%M:%S')"; then
+        echo -e "${RED}❌ Error creando commit de distribución.${NC}"
         exit 1
-
     fi
 
-
-    git push origin main
-
-
-    if [ $? -ne 0 ]; then
-
-        echo -e "${RED}❌ Error haciendo push del repo de deploy.${NC}"
-        echo -e "${RED}❌ Se detiene la ejecución.${NC}"
-
+    if ! git push origin main; then
+        echo -e "${RED}❌ Error publicando distribución. Revisar el commit local.${NC}"
         exit 1
-
     fi
-
-
-    echo -e "${GREEN}✅ Build enviado correctamente a GitHub${NC}"
-
 fi
+
+echo -e "${GREEN}✅ Distribución Admin procesada correctamente.${NC}"
 
 
 # ============================================================
@@ -443,14 +449,25 @@ fi
 echo -e "\n${CYAN}5️⃣ PASO 5: Actualizar servidor remoto${NC}"
 
 
-ssh -i ~/.ssh/id_rsa_do root@64.226.123.91 << 'EOF'
+SSH_KEY="$HOME/.ssh/id_ed25519"
+
+if [ ! -f "$SSH_KEY" ]; then
+    echo -e "${RED}❌ No existe la clave SSH requerida: $SSH_KEY${NC}"
+    exit 1
+fi
+
+ssh -o BatchMode=yes -o ConnectTimeout=10 -i "$SSH_KEY" root@64.226.123.91 << 'EOF'
 
     set -e
 
     PROD_DIR="/var/www/admin_ecommerce_mean"
 
-    cd "$PROD_DIR"
+    cd "$PROD_DIR" || exit 1
 
+    if [ "$(git branch --show-current)" != "main" ]; then
+        echo "❌ ERROR: producción debe estar en la rama main."
+        exit 1
+    fi
 
     # --------------------------------------------------------
     # Verificar que producción está limpia
@@ -581,6 +598,34 @@ else
     exit 1
 
 fi
+
+
+# ============================================================
+# VERIFICACIÓN HTTPS
+# ============================================================
+
+echo -e "\n${CYAN}>>> Verificando HTTPS de Admin...${NC}"
+
+if ! command -v curl >/dev/null 2>&1; then
+    echo -e "${RED}❌ curl no está disponible.${NC}"
+    exit 1
+fi
+
+HTTP_STATUS=$(curl --silent --show-error --location \
+    --output /dev/null \
+    --write-out '%{http_code}' \
+    --connect-timeout 10 \
+    --max-time 30 \
+    "https://admin.lujandev.com/")
+
+CURL_EXIT=$?
+
+if [ "$CURL_EXIT" -ne 0 ] || [ "$HTTP_STATUS" != "200" ]; then
+    echo -e "${RED}❌ Verificación HTTPS fallida (HTTP: $HTTP_STATUS).${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Admin responde correctamente por HTTPS (200).${NC}"
 
 
 # ============================================================
