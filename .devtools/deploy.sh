@@ -195,21 +195,15 @@ cd "$PROJECT_DIR" || exit 1
 
 
 # ============================================================
-# PASO 1: VALIDAR REPOSITORIO FUENTE
+# PASO 1: GUARDAR Y PUBLICAR CAMBIOS DEL CÓDIGO FUENTE
 # ============================================================
 
-echo -e "\n${CYAN}1️⃣ PASO 1: Validar repositorio Admin${NC}"
+echo -e "\n${CYAN}1️⃣ PASO 1: Preparar código fuente Admin${NC}"
 
 cd "$PROJECT_DIR" || exit 1
 
 if [ "$(git branch --show-current)" != "main" ]; then
-    echo -e "${RED}❌ El repositorio Admin debe estar en main.${NC}"
-    exit 1
-fi
-
-if [ -n "$(git status --porcelain)" ]; then
-    echo -e "${RED}❌ Admin contiene cambios locales. Deploy cancelado.${NC}"
-    git status --short
+    echo -e "${RED}❌ Solo se permite desplegar desde main.${NC}"
     exit 1
 fi
 
@@ -222,11 +216,62 @@ LOCAL_COMMIT=$(git rev-parse HEAD) || exit 1
 REMOTE_COMMIT=$(git rev-parse origin/main) || exit 1
 
 if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
-    echo -e "${RED}❌ Admin no está sincronizado con origin/main.${NC}"
+    echo -e "${RED}❌ main no está sincronizada con origin/main.${NC}"
+    echo -e "${YELLOW}Revisa los commits pendientes antes de desplegar.${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}✅ Repositorio Admin limpio y sincronizado.${NC}"
+if [ -n "$(git status --porcelain)" ]; then
+    echo -e "${YELLOW}Archivos modificados:${NC}"
+    git status --short
+
+    echo ""
+    read -r -p "¿Guardar y publicar estos cambios en main? [s/N]: " CONFIRM_SOURCE
+
+    if [ "$CONFIRM_SOURCE" != "s" ]; then
+        echo -e "${YELLOW}Operación cancelada.${NC}"
+        exit 1
+    fi
+
+    read -r -p "Mensaje del commit (Enter = Pre-Deploy Admin): " COMMIT_MESSAGE
+    COMMIT_MESSAGE=${COMMIT_MESSAGE:-"Pre-Deploy Admin $(date '+%Y-%m-%d %H:%M:%S')"}
+
+    if ! git add -A; then
+        echo -e "${RED}❌ Error preparando los cambios.${NC}"
+        exit 1
+    fi
+
+    echo -e "${CYAN}Cambios preparados para el commit:${NC}"
+    git diff --cached --stat
+
+    if ! git diff --cached --quiet; then
+        if ! git commit -m "$COMMIT_MESSAGE"; then
+            echo -e "${RED}❌ Error creando el commit.${NC}"
+            exit 1
+        fi
+
+        if ! git push origin main; then
+            echo -e "${RED}❌ Error publicando el código fuente.${NC}"
+            exit 1
+        fi
+    fi
+fi
+
+if [ -n "$(git status --porcelain)" ]; then
+    echo -e "${RED}❌ El repositorio sigue teniendo cambios locales.${NC}"
+    exit 1
+fi
+
+if ! git fetch origin main; then
+    exit 1
+fi
+
+if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+    echo -e "${RED}❌ No se pudo verificar la sincronización final.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Código fuente limpio y publicado correctamente.${NC}"
 
 
 # ============================================================
