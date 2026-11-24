@@ -16,6 +16,8 @@ export class AddNewSliderComponent implements OnInit {
   description: any = null;
   link: any = null;
   position: string = 'middle-left';
+  placement: 'home' | 'editorial' = 'home';
+  state: number = 1;
   imagen_mobile_file: any = null;
   imagen_desktop_file: any = null;
   image_mobile_preview: any = null;
@@ -55,7 +57,7 @@ export class AddNewSliderComponent implements OnInit {
   }
 
   save() {
-    if (!this.name || !this.imagen_mobile_file || !this.imagen_desktop_file || !this.link) {
+    if (!this.name || !this.imagen_mobile_file || !this.imagen_desktop_file || (this.placement === 'home' && !this.link)) {
       this.toaster.open(NoticyAlertComponent, { text: `danger-Ups! Necesita ingresar todos los campos obligatorios.` });
       return;
     }
@@ -64,8 +66,14 @@ export class AddNewSliderComponent implements OnInit {
     formData.append("title", this.name);
     formData.append("subtitle", this.subtitle || '');
     formData.append("description", this.description || '');
-  formData.append("link", this.link);
+  formData.append("link",
+      this.placement === 'editorial'
+        ? (this.link || '/store-editorial')
+        : this.link
+    );
   formData.append("position", this.position);
+  formData.append("placement", this.placement);
+  formData.append("state", String(this.state));
   formData.append("imagen_mobile", this.imagen_mobile_file);
   formData.append("imagen_desktop", this.imagen_desktop_file);
 

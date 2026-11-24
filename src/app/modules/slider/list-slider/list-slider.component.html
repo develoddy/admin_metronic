@@ -49,6 +49,7 @@
                         <th>IMAGEN DESKTOP</th>
                         <th>POSICIÓN</th>
                         <th>TITULO</th>
+                  <th>UBICACIÓN</th>
                         <th>STATUS</th>
                         <th>ACCIÓN</th>
                     </tr>
@@ -63,10 +64,24 @@
                       </td>
                       <td>
                         <span class="badge badge-info text-uppercase">
-                          {{ slider.position === 'middle-right' ? 'Derecha' : 'Izquierda' }}
+                          {{ slider.placement === 'editorial'
+                            ? 'Centrado'
+                            : (slider.position === 'middle-right'
+                              ? 'Derecha'
+                              : 'Izquierda') }}
                         </span>
                       </td>
                       <td> {{slider.title}} </td>
+                  <td>
+                    <span class="badge"
+                          [ngClass]="slider.placement === 'editorial'
+                            ? 'badge-light-primary'
+                            : 'badge-light-secondary'">
+                      {{ slider.placement === 'editorial'
+                        ? 'Store Editorial'
+                        : 'Home' }}
+                    </span>
+                  </td>
                       <td> 
                         <span class="label label-success label-pill label-inline mr-2" *ngIf="slider.state == 1">Activo</span>
                         <span class="label label-danger label-pill label-inline mr-2" *ngIf="slider.state == 0">No activo</span>

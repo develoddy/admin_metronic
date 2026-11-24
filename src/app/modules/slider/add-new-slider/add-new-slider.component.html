@@ -25,9 +25,39 @@
       </ng-container> -->
 
     <div class="row">
+
+    <div class="col-12 mb-4">
+      <label>Ubicación del banner</label>
+      <select class="form-control"
+              name="placement"
+              [(ngModel)]="placement">
+        <option value="home">Home</option>
+        <option value="editorial">Store Editorial</option>
+      </select>
+
+      <small class="form-text text-muted"
+             *ngIf="placement === 'editorial'">
+        El banner se publicará en Store Editorial.
+        El texto permanece centrado y la navegación conserva el diseño original de Store Editorial.
+      </small>
+    </div>
+
+    <div class="col-12 mb-4">
+      <label>Estado</label>
+      <select class="form-control"
+              name="state"
+              [(ngModel)]="state">
+        <option [ngValue]="1">Activo</option>
+        <option [ngValue]="0">Inactivo</option>
+      </select>
+    </div>
+
       <div class="col-12 col-lg-12">
         <div class="form-group">
-          <label for="">Titulo <span class="text-danger">*</span></label>
+          <label for="">
+            {{ placement === 'editorial' ? 'Título identificativo' : 'Título' }}
+            <span class="text-danger">*</span>
+          </label>
           <input
             type="text"
             class="form-control"
@@ -37,7 +67,7 @@
           />
         </div>
       </div>
-      <div class="col-12 col-lg-12">
+      <div class="col-12 col-lg-12" *ngIf="placement === 'home'">
         <div class="form-group">
           <label for="">Subtítulo</label>
           <input
@@ -49,7 +79,7 @@
           />
         </div>
       </div>
-      <div class="col-12 col-lg-12">
+      <div class="col-12 col-lg-12" *ngIf="placement === 'home'">
         <div class="form-group">
           <label for="">Descripción</label>
           <textarea
@@ -60,7 +90,7 @@
           ></textarea>
         </div>
       </div>
-      <div class="col-12 col-lg-12">
+      <div class="col-12 col-lg-12" *ngIf="placement === 'home'">
         <div class="form-group">
           <label for="">Link <span class="text-danger">*</span></label>
           <input
@@ -72,7 +102,7 @@
           />
         </div>
       </div>
-      <div class="col-12 col-lg-12">
+      <div class="col-12 col-lg-12" *ngIf="placement === 'home'">
         <div class="form-group">
           <label for="">Posición del texto</label>
           <select class="form-control" [(ngModel)]="position" name="position">
@@ -81,6 +111,20 @@
           </select>
         </div>
       </div>
+
+      <div class="col-12" *ngIf="placement === 'editorial'">
+        <div class="form-group">
+          <label>Posición del texto</label>
+          <input type="text"
+                 class="form-control"
+                 value="Centrado"
+                 readonly>
+          <small class="form-text text-muted">
+            Posición fija del diseño editorial.
+          </small>
+        </div>
+      </div>
+
       <div class="col-12">
         <div class="row">
           <div class="col-12 mb-3">

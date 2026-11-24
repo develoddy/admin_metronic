@@ -17,6 +17,7 @@ export class EditNewSliderComponent implements OnInit {
   description: any = null;
   link: any = null;
   position: string = 'middle-left';
+  placement: 'home' | 'editorial' = 'home';
   imagen_mobile_file: any = null;
   imagen_desktop_file: any = null;
   image_mobile_preview: any = null;
@@ -37,6 +38,7 @@ export class EditNewSliderComponent implements OnInit {
   this.description = this.slider_selected.description;
   this.link = this.slider_selected.link;
   this.position = this.slider_selected.position || 'middle-left';
+  this.placement = this.slider_selected.placement || 'home';
   this.state = this.slider_selected.state;
   this.image_mobile_preview = this.slider_selected.imagen_mobile_url || (URL_BACKEND+'api/sliders/uploads/slider/'+this.slider_selected.imagen_mobile);
   this.image_desktop_preview = this.slider_selected.imagen_desktop_url || (URL_BACKEND+'api/sliders/uploads/slider/'+this.slider_selected.imagen_desktop);
@@ -67,7 +69,7 @@ export class EditNewSliderComponent implements OnInit {
   }
 
   save() {
-    if (!this.name || !this.link) {
+    if (!this.name || (this.placement === 'home' && !this.link)) {
       this.toaster.open(NoticyAlertComponent, { text: `danger-Ups! Necesita ingresar todos los campos obligatorios.` });
       return;
     }
@@ -79,8 +81,13 @@ export class EditNewSliderComponent implements OnInit {
     formData.append("title", this.name);
     formData.append("subtitle", this.subtitle || '');
     formData.append("description", this.description || '');
-    formData.append("link", this.link);
+    formData.append("link",
+      this.placement === 'editorial'
+        ? (this.link || '/store-editorial')
+        : this.link
+    );
     formData.append("position", this.position);
+    formData.append("placement", this.placement);
     formData.append("state", this.state);
     if (this.imagen_mobile_file) formData.append("imagen_mobile", this.imagen_mobile_file);
     if (this.imagen_desktop_file) formData.append("imagen_desktop", this.imagen_desktop_file);
