@@ -43,6 +43,25 @@
       </small>
     </div>
 
+    <div class="col-12 mb-4" *ngIf="placement === 'editorial'">
+      <label for="editorialCategory">
+        Categoría editorial <span class="text-danger">*</span>
+      </label>
+      <select class="form-control"
+              id="editorialCategory"
+              name="editorial_category"
+              [(ngModel)]="editorial_category">
+        <option value="default">Default - Campaña principal</option>
+        <option value="t-shirts">T-Shirts</option>
+        <option value="hoodies">Hoodies</option>
+        <option value="mugs">Mugs</option>
+        <option value="caps">Caps</option>
+      </select>
+      <small class="form-text text-muted">
+        Selecciona la categoría asociada a esta campaña editorial.
+      </small>
+    </div>
+
           <div class="col-12">
               <div class="form-group">
                   <label for="">

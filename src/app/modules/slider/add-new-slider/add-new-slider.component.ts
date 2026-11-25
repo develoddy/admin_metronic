@@ -17,6 +17,7 @@ export class AddNewSliderComponent implements OnInit {
   link: any = null;
   position: string = 'middle-left';
   placement: 'home' | 'editorial' = 'home';
+  editorial_category: 'default' | 't-shirts' | 'hoodies' | 'mugs' | 'caps' = 'default';
   state: number = 1;
   imagen_mobile_file: any = null;
   imagen_desktop_file: any = null;
@@ -73,6 +74,9 @@ export class AddNewSliderComponent implements OnInit {
     );
   formData.append("position", this.position);
   formData.append("placement", this.placement);
+  if (this.placement === 'editorial') {
+    formData.append("editorial_category", this.editorial_category);
+  }
   formData.append("state", String(this.state));
   formData.append("imagen_mobile", this.imagen_mobile_file);
   formData.append("imagen_desktop", this.imagen_desktop_file);

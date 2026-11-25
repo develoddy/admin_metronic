@@ -18,6 +18,7 @@ export class EditNewSliderComponent implements OnInit {
   link: any = null;
   position: string = 'middle-left';
   placement: 'home' | 'editorial' = 'home';
+  editorial_category: 'default' | 't-shirts' | 'hoodies' | 'mugs' | 'caps' = 'default';
   imagen_mobile_file: any = null;
   imagen_desktop_file: any = null;
   image_mobile_preview: any = null;
@@ -39,6 +40,7 @@ export class EditNewSliderComponent implements OnInit {
   this.link = this.slider_selected.link;
   this.position = this.slider_selected.position || 'middle-left';
   this.placement = this.slider_selected.placement || 'home';
+  this.editorial_category = this.slider_selected.editorial_category || 'default';
   this.state = this.slider_selected.state;
   this.image_mobile_preview = this.slider_selected.imagen_mobile_url || (URL_BACKEND+'api/sliders/uploads/slider/'+this.slider_selected.imagen_mobile);
   this.image_desktop_preview = this.slider_selected.imagen_desktop_url || (URL_BACKEND+'api/sliders/uploads/slider/'+this.slider_selected.imagen_desktop);
@@ -88,6 +90,9 @@ export class EditNewSliderComponent implements OnInit {
     );
     formData.append("position", this.position);
     formData.append("placement", this.placement);
+    if (this.placement === 'editorial') {
+      formData.append("editorial_category", this.editorial_category);
+    }
     formData.append("state", this.state);
     if (this.imagen_mobile_file) formData.append("imagen_mobile", this.imagen_mobile_file);
     if (this.imagen_desktop_file) formData.append("imagen_desktop", this.imagen_desktop_file);
