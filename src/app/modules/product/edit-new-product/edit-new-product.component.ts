@@ -35,6 +35,8 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
 
   description_en:any=null;
   description_es:any=null;
+  story_es: string = '';
+  story_en: string = '';
   resumen:any=null;
   state:any=1;
   logo_position: string = '';
@@ -107,6 +109,8 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
       //this.description = this.product_selected.description;
       this.description_en = this.product_selected.description_en;
       this.description_es = this.product_selected.description_es;
+      this.story_es = this.product_selected.story_es || '';
+      this.story_en = this.product_selected.story_en || '';
       this.resumen = this.product_selected.resumen;
       this.tags = this.product_selected.tags;
       
@@ -272,6 +276,8 @@ export class EditNewProductComponent implements OnInit, AfterViewInit, OnDestroy
     formData.append("resumen", this.resumen);
     formData.append("description_en", this.description_en);
     formData.append("description_es", this.description_es);
+    formData.append("story_es", this.story_es.trim());
+    formData.append("story_en", this.story_en.trim());
     formData.append("sku", this.sku);
     formData.append("tags", JSON.stringify(this.tags));
     formData.append("stock", this.stock);
