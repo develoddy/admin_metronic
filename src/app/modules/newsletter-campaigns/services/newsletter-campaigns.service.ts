@@ -10,7 +10,7 @@ export interface NewsletterSubscriber {
   id: number;
   email: string;
   session_id?: string;
-  source: 'home' | 'footer' | 'checkout' | 'campaign_import' | 'admin';
+  source: 'home' | 'footer' | 'checkout' | 'campaign_import' | 'admin' | 'editorial' | 'product';
   ip_address?: string;
   user_agent?: string;
   referrer?: string;
